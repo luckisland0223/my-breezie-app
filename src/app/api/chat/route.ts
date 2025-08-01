@@ -35,11 +35,23 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.OPENAI_API_KEY
     
     if (!apiKey) {
+      console.error('OPENAI_API_KEY not found in environment variables')
       return NextResponse.json(
-        { error: 'Service configuration error' },
+        { 
+          error: 'Service configuration error',
+          message: '服务配置错误，请联系管理员' 
+        },
         { status: 500 }
       )
     }
+
+    // 记录配置信息（用于调试，不包含敏感信息）
+    console.log('API Configuration:', {
+      model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+      baseURL: process.env.OPENAI_BASE_URL || 'https://aihubmix.com/v1',
+      apiKeyPresent: !!apiKey,
+      apiKeyLength: apiKey?.length || 0
+    })
 
     // 调用OpenAI API
     const response = await getOpenAIResponse(
