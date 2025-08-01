@@ -1,112 +1,101 @@
-# Next.js 初始化模板
+# Breezie - 情绪管理助手
 
-一个简洁的 Next.js 初始化模板，适合快速开始新项目或学习现代前端开发。
+一个帮助用户管理情绪、进行情绪疏导对话的应用。
 
-## 🚀 快速开始
+## 功能特点
 
-### 安装依赖
+### ☁️ Breezie特色
+- 云朵样子的毛茸茸标志，温暖友好的视觉设计
+- 智能情绪陪伴，提供贴心的情绪管理支持
+- 简洁直观的界面，让情绪管理变得轻松
+
+### 🎯 情绪选择
+- 提供7种情绪状态：愤怒、厌恶、恐惧、快乐、悲伤、惊讶、复杂
+- 复杂情绪包含焦虑、嫉妒、尴尬等复合情绪
+- 直观的卡片式选择界面
+- 每种情绪都有对应的图标和描述
+
+### 💬 智能对话
+- 基于选择情绪进行个性化对话
+- Breezie智能助手进行情绪疏导
+- 实时聊天界面，支持消息历史记录
+- 自动保存对话会话
+
+### 📊 情绪轨迹
+- 记录和追踪情绪变化
+- 提供情绪统计和分析
+- 情绪轨迹曲线图和线性回归趋势线
+- 可视化情绪分布图表
+- 查看历史情绪记录
+- 概览页面集成图表展示
+
+### 💾 数据持久化
+- 使用Zustand进行状态管理
+- 自动保存到浏览器本地存储
+- 无需注册账号，数据本地保存
+
+## 技术栈
+
+- **前端框架**: Next.js 15 (App Router)
+- **UI组件**: shadcn/ui + Tailwind CSS
+- **状态管理**: Zustand
+- **图标**: Lucide React
+- **通知**: Sonner
+- **日期处理**: date-fns
+- **图表**: Recharts
+
+## 快速开始
+
+1. 安装依赖：
 ```bash
-npm i
+npm install
 ```
 
-> 强烈推荐安装 `Biome` 插件，提早规避 Bug
-> 可在 cursor 左上角的插件市场中搜索并安装
-
-### 启动开发服务器
+2. 启动开发服务器：
 ```bash
 npm run dev
 ```
 
-打开 [http://localhost:3000](http://localhost:3000) 查看结果。
+3. 打开浏览器访问 [http://localhost:3000](http://localhost:3000)
 
-### 线上部署
+## 使用说明
 
-#### 使用 Vercel 一键部署
+### 开始对话
+1. 在首页选择当前的情绪状态
+2. 点击对应的情绪卡片进入对话界面
+3. 与Breezie进行对话，获得情绪疏导
 
-Vercel 是 Next.js 官方推荐的零配置部署平台，非常适合静态和 SSR 应用。
+### 查看情绪轨迹
+1. 点击右上角的"轨迹"按钮
+2. 查看情绪统计和分布
+3. 浏览历史情绪记录
 
-**完整步骤如下：**
+### 数据管理
+- 所有数据自动保存在浏览器本地存储中
+- 清除浏览器数据会删除所有记录
+- 无需担心隐私问题，数据不会上传到服务器
 
-##### 第一步：准备 GitHub 仓库
+## 项目结构
 
-1. **注册 GitHub 账号**
-   - 前往 [https://github.com/](https://github.com/) 
-   - 点击 "Sign up" 注册新账号
-   - 填写用户名、邮箱、密码并验证
-
-2. **创建新仓库**
-   - 登录后点击右上角的 "+" 按钮
-   - 选择 "New repository"
-   - 仓库名称填写：`my-nextjs-app`（可自定义）
-   - 设置为 Public（公开）
-   - 点击 "Create repository"
-
-3. **上传项目代码**
-   ```bash
-   # 在项目根目录执行
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/你的用户名/my-nextjs-app.git
-   git push -u origin main
-   ```
-
-##### 第二步：部署到 Vercel
-
-1. **注册登录 Vercel**
-   - 前往 [https://vercel.com/](https://vercel.com/) 
-   - 点击 "Sign up" 并选择 "Continue with GitHub"
-   - 授权 Vercel 访问你的 GitHub 账号
-
-2. **导入项目**
-   - 登录后点击 "New Project"
-   - 选择刚才创建的 GitHub 仓库
-   - 点击 "Import"
-
-3. **配置部署**
-   - Framework Preset：自动检测为 "Next.js"
-   - Build Command：`npm run build`（通常自动填写）
-   - Output Directory：`.next`（通常自动填写）
-   - Install Command：`npm install`（通常自动填写）
-
-4. **开始部署**
-   - 点击 "Deploy" 按钮
-   - 等待 2-3 分钟完成构建
-   - 部署成功后会得到一个免费的 `.vercel.app` 域名
-
-##### 第三步：后续更新
-
-以后每次修改代码并推送到 GitHub，Vercel 会自动重新部署：
-
-```bash
-git add .
-git commit -m "更新说明"
-git push
+```
+src/
+├── app/
+│   ├── layout.tsx          # 应用布局
+│   └── page.tsx            # 主页面
+├── components/
+│   ├── ui/                 # shadcn/ui 组件
+│   ├── EmotionSelector.tsx # 情绪选择组件
+│   ├── ChatInterface.tsx   # 聊天界面组件
+│   ├── EmotionTracker.tsx  # 情绪轨迹组件
+│   └── EmotionChart.tsx    # 情绪图表组件
+└── store/
+    └── emotion.ts          # 情绪状态管理
 ```
 
-#### 其他部署选项
+## 开发说明
 
-##### Netlify（备选方案）
-1. 前往 [https://netlify.com/](https://netlify.com/)
-2. 注册并连接 GitHub
-3. 选择仓库并部署
-4. 构建命令：`npm run build`
-5. 发布目录：`out`
+这是一个纯前端演示项目，主要用于展示情绪管理应用的基本功能。Breezie对话功能使用预设的回复模板，在实际应用中可以集成真实的AI服务。
 
-##### 本地构建测试
-```bash
-npm run build      # 构建生产版本
-npm start         # 启动生产服务器
-```
+## 许可证
 
-**🎉 恭喜！** 你的 Next.js 应用现在已经上线了！
-
-
-## 📄 许可证
-
-MIT License - 可自由使用和修改。
-
----
-
-**开始你的 Next.js 之旅吧！** 🎉
+MIT License

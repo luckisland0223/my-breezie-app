@@ -1,101 +1,97 @@
 'use client'
 
+import { useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useCounterStore } from '@/store/counter'
-import { Minus, Plus, RefreshCcw } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { EmotionSelector } from '@/components/EmotionSelector'
+import { ChatInterface } from '@/components/ChatInterface'
+import { EmotionTracker } from '@/components/EmotionTracker'
+import type { EmotionType } from '@/store/emotion'
+import { BarChart3, Home, Cloud } from 'lucide-react'
 
-/**
- * @description 这只是个示例页面，你可以随意修改这个页面或进行全面重构
- */
-export default function StartTemplatePage() {
-	const { count, increment, decrement, reset } = useCounterStore()
-	const [isLoading, setIsLoading] = useState(true)
+type AppView = 'home' | 'chat' | 'tracker'
 
-	useEffect(() => {
-		// 确保loading至少显示200毫秒
-		const timer = setTimeout(() => {
-			setIsLoading(false)
-		}, 200)
+export default function HomePage() {
+  const [currentView, setCurrentView] = useState<AppView>('home')
+  const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null)
 
-		return () => clearTimeout(timer)
-	}, [])
+  const handleEmotionSelect = (emotion: EmotionType) => {
+    setSelectedEmotion(emotion)
+    setCurrentView('chat')
+  }
 
-	const handleIncrement = () => {
-		const success = increment()
-		if (!success) {
-			toast.error('已达到最大值 (10)')
-		}
-	}
+  const handleBackToHome = () => {
+    setCurrentView('home')
+    setSelectedEmotion(null)
+  }
 
-	const handleDecrement = () => {
-		const success = decrement()
-		if (!success) {
-			toast.error('已达到最小值 (0)')
-		}
-	}
+  const renderContent = () => {
+    switch (currentView) {
+      case 'chat':
+        return selectedEmotion ? (
+          <ChatInterface 
+            emotion={selectedEmotion} 
+            onBack={handleBackToHome} 
+          />
+        ) : null
+      
+      case 'tracker':
+        return <EmotionTracker />
+      
+      default:
+        return <EmotionSelector onEmotionSelect={handleEmotionSelect} />
+    }
+  }
 
-	const handleReset = () => {
-		reset()
-		toast.success('计数器已重置为 0')
-	}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* 头部导航 */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                <Cloud className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">Breezie</h1>
+            </div>
+            
+            <div className="flex space-x-2">
+              <Button
+                variant={currentView === 'home' ? 'default' : 'secondary'}
+                size="sm"
+                onClick={() => setCurrentView('home')}
+              >
+                <Home className="w-4 h-4 mr-1" />
+                首页
+              </Button>
+              <Button
+                variant={currentView === 'tracker' ? 'default' : 'secondary'}
+                size="sm"
+                onClick={() => setCurrentView('tracker')}
+              >
+                <BarChart3 className="w-4 h-4 mr-1" />
+                轨迹
+              </Button>
+            </div>
+          </div>
+        </div>
 
-	return (
-		<main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-8">
-			
-			<div className="space-y-8 text-center">
-				<h1 className="font-medium text-2xl text-gray-900">
+        {/* 主要内容区域 */}
+        <div className="max-w-4xl mx-auto">
+          <Card className="min-h-[600px]">
+            <CardContent className="p-6">
+              {renderContent()}
+            </CardContent>
+          </Card>
+        </div>
 
-					初始化模板
-				</h1>
-				
-				<div className="space-y-4">
-					<div className="flex h-16 items-center justify-center font-bold text-4xl text-gray-900">
-						{isLoading ? (
-							<Skeleton className="h-8 w-8 bg-gray-200" />
-						) : (
-							count
-						)}
-					</div>
-					
-					<div className="flex justify-center gap-4">
-						<Button 
-							onClick={handleDecrement}
-							variant="outline"
-							disabled={count === 0 || isLoading}
-						>
-							<Minus className="h-4 w-4 text-gray-600" />
-						</Button>
-						
-						<Button 
-							onClick={handleReset}
-							variant="outline"
-							disabled={isLoading}
-						>
-							<RefreshCcw className="h-4 w-4 text-gray-600" />
-						</Button>
-						
-						<Button 
-							onClick={handleIncrement}
-							variant="outline"
-							disabled={count === 10 || isLoading}
-						>
-							<Plus className="h-4 w-4 text-gray-600" />
-						</Button>
-					</div>
-					
-					<div className="flex flex-col gap-2">
-						<p className="text-gray-600 text-sm">
-							玩玩看 👆 这只是个演示
-						</p>
-						<p className="text-gray-500 text-sm">
-							范围: 0-10 | 自动保存到浏览器本地
-						</p>
-					</div>
-				</div>
-			</div>
-		</main>
-	)
+        {/* 底部信息 */}
+        <div className="mt-8 text-center text-gray-500 text-sm">
+          <p>Breezie - 你的贴心情绪管理助手</p>
+          <p className="mt-1">通过对话和记录，更好地了解和管理自己的情绪</p>
+        </div>
+      </div>
+    </div>
+  )
 }
