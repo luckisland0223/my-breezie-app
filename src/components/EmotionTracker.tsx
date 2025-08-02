@@ -42,13 +42,13 @@ const emotionIcons = {
 }
 
 const emotionColors = {
-  '愤怒': { bg: 'bg-red-500', color: '#ef4444', light: 'bg-red-50' },
-  '厌恶': { bg: 'bg-orange-500', color: '#f97316', light: 'bg-orange-50' },
-  '恐惧': { bg: 'bg-purple-500', color: '#a855f7', light: 'bg-purple-50' },
-  '快乐': { bg: 'bg-green-500', color: '#22c55e', light: 'bg-green-50' },
-  '悲伤': { bg: 'bg-blue-500', color: '#3b82f6', light: 'bg-blue-50' },
-  '惊讶': { bg: 'bg-yellow-500', color: '#eab308', light: 'bg-yellow-50' },
-  '复杂': { bg: 'bg-indigo-500', color: '#6366f1', light: 'bg-indigo-50' }
+  '愤怒': { bg: 'bg-red-500', color: '#fca5a5', light: 'bg-red-50' },
+  '厌恶': { bg: 'bg-orange-500', color: '#fdba74', light: 'bg-orange-50' },
+  '恐惧': { bg: 'bg-purple-500', color: '#c4b5fd', light: 'bg-purple-50' },
+  '快乐': { bg: 'bg-green-500', color: '#86efac', light: 'bg-green-50' },
+  '悲伤': { bg: 'bg-blue-500', color: '#93c5fd', light: 'bg-blue-50' },
+  '惊讶': { bg: 'bg-yellow-500', color: '#fde047', light: 'bg-yellow-50' },
+  '复杂': { bg: 'bg-indigo-500', color: '#a5b4fc', light: 'bg-indigo-50' }
 }
 
 type TimeRange = 10 | 15 | 30
@@ -163,24 +163,24 @@ export function EmotionTracker() {
     const detailedRecords = [
       {
         emotion: '快乐' as EmotionType,
-        intensity: 8,
+        behavioralImpact: 8,
         description: '与朋友重聚后的喜悦，通过深入的情感分享，获得了有价值的指导和建议。深度交流，共4轮对话'
       },
       {
         emotion: '悲伤' as EmotionType,
-        intensity: 6,
+        behavioralImpact: 6,
         description: '对过去美好时光的怀念，通过初步的情感表达，完成了基本的情感梳理。适度交流，共3轮对话'
       },
       {
         emotion: '愤怒' as EmotionType,
-        intensity: 5,
+        behavioralImpact: 5,
         description: '工作压力导致的情绪波动，通过深入的自我探索和反思，获得了有价值的指导和建议。深度交流，共5轮对话'
       }
     ]
     
     detailedRecords.forEach((record, index) => {
       setTimeout(() => {
-        addEmotionRecord(record.emotion, record.intensity, record.description)
+        addEmotionRecord(record.emotion, record.behavioralImpact, record.description)
       }, index * 100)
     })
   }
@@ -297,18 +297,18 @@ export function EmotionTracker() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">平均强度</CardTitle>
+                  <CardTitle className="text-sm font-medium">行为影响程度</CardTitle>
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
                     {rangeData.length > 0 
-                      ? (rangeData.reduce((sum, record) => sum + (record.emotionEvaluation?.actualIntensity || record.intensity), 0) / rangeData.length).toFixed(1)
+                      ? (rangeData.reduce((sum, record) => sum + (record.behavioralImpact), 0) / rangeData.length).toFixed(1)
                       : '0'
                     }
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    情绪强度平均值
+                    情绪对行为的影响程度 (1-10)
                   </p>
                 </CardContent>
               </Card>
@@ -477,7 +477,7 @@ export function EmotionTracker() {
                                     })()}
                                     
                                     <Badge variant="outline" className="text-xs">
-                                      对话效果 {record.intensity}/10
+                                      行为影响 {record.behavioralImpact}/10
                                     </Badge>
                                     {record.emotionEvaluation?.emotionChanged && (
                                       <Badge variant="secondary" className="text-xs">

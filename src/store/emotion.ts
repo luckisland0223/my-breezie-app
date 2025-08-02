@@ -27,12 +27,103 @@ export interface ConversationSummary {
 export interface EmotionRecord {
   id: string
   emotion: EmotionType // 用户初始选择的情绪
-  intensity: number // 对话效果评分 (1-10) - 重新定义为对话帮助程度
+  behavioralImpact: number // 情绪对行为的影响程度 (1-10)
   note: string
   timestamp: Date
   conversationSummary?: ConversationSummary // 对话摘要（可选）
   emotionEvaluation?: EmotionEvaluation // AI情绪评估（可选）
   polarityAnalysis?: EmotionPolarityAnalysis // 情绪极性分析（新增）
+}
+
+// 新增：情绪对行为影响程度的评估算法
+export interface BehavioralImpactAnalysis {
+  impactLevel: 'low' | 'medium' | 'high' // 影响级别
+  impactScore: number // 影响分数 (1-10)
+  behaviorChanges: string[] // 具体的行为变化
+  decisionInfluence: number // 对决策的影响程度 (1-10)
+  socialInteraction: number // 对社交互动的影响 (1-10)
+  productivity: number // 对工作效率的影响 (1-10)
+}
+
+// 情绪对行为影响程度的计算函数
+export function calculateBehavioralImpact(
+  emotion: EmotionType, 
+  intensity: number, 
+  context: string
+): BehavioralImpactAnalysis {
+  
+  // 基础影响分数（基于情绪类型和强度）
+  const baseImpact = intensity * getEmotionImpactMultiplier(emotion)
+  
+  // 根据情绪类型调整影响程度
+  const impactAdjustments = {
+    '愤怒': { decision: 1.2, social: 0.8, productivity: 0.6 },
+    '厌恶': { decision: 0.8, social: 0.6, productivity: 0.7 },
+    '恐惧': { decision: 1.1, social: 0.9, productivity: 0.8 },
+    '快乐': { decision: 0.9, social: 1.2, productivity: 1.1 },
+    '悲伤': { decision: 0.7, social: 0.8, productivity: 0.6 },
+    '惊讶': { decision: 1.0, social: 1.0, productivity: 0.9 },
+    '复杂': { decision: 1.1, social: 0.9, productivity: 0.8 }
+  }
+  
+  const adjustment = impactAdjustments[emotion]
+  
+  return {
+    impactLevel: baseImpact <= 3 ? 'low' : baseImpact <= 7 ? 'medium' : 'high',
+    impactScore: Math.min(10, Math.round(baseImpact)),
+    behaviorChanges: getBehaviorChanges(emotion, intensity),
+    decisionInfluence: Math.min(10, Math.round(intensity * adjustment.decision)),
+    socialInteraction: Math.min(10, Math.round(intensity * adjustment.social)),
+    productivity: Math.min(10, Math.round(intensity * adjustment.productivity))
+  }
+}
+
+// 获取情绪影响倍数
+function getEmotionImpactMultiplier(emotion: EmotionType): number {
+  const multipliers = {
+    '愤怒': 1.3,    // 愤怒对行为影响较大
+    '厌恶': 0.8,    // 厌恶影响相对较小
+    '恐惧': 1.2,    // 恐惧影响较大
+    '快乐': 0.9,    // 快乐影响适中
+    '悲伤': 1.1,    // 悲伤影响较大
+    '惊讶': 1.0,    // 惊讶影响中等
+    '复杂': 1.2     // 复杂情绪影响较大
+  }
+  return multipliers[emotion]
+}
+
+// 获取具体行为变化描述
+function getBehaviorChanges(emotion: EmotionType, intensity: number): string[] {
+  const changes: string[] = []
+  
+  if (intensity >= 7) {
+    // 高强度影响
+    switch (emotion) {
+      case '愤怒':
+        changes.push('可能影响决策判断', '社交互动减少', '工作效率下降')
+        break
+      case '恐惧':
+        changes.push('决策更加谨慎', '社交回避倾向', '注意力分散')
+        break
+      case '悲伤':
+        changes.push('决策积极性降低', '社交意愿减少', '工作动力不足')
+        break
+      case '快乐':
+        changes.push('决策更加积极', '社交互动增加', '工作效率提升')
+        break
+      case '复杂':
+        changes.push('决策过程复杂化', '社交表现不稳定', '工作效率波动')
+        break
+    }
+  } else if (intensity >= 4) {
+    // 中等强度影响
+    changes.push('对行为有一定影响', '需要适当调整')
+  } else {
+    // 低强度影响
+    changes.push('对行为影响较小', '基本保持正常状态')
+  }
+  
+  return changes
 }
 
 export interface ChatMessage {
@@ -129,7 +220,7 @@ export const useEmotionStore = create<EmotionState>()(
         const newRecord: EmotionRecord = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           emotion,
-          intensity,
+          behavioralImpact: calculateBehavioralImpact(emotion, intensity, note).impactScore, // 使用计算函数
           note,
           timestamp: new Date(),
           conversationSummary,

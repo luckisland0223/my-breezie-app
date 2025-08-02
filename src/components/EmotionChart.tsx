@@ -5,15 +5,15 @@ interface EmotionChartProps {
   records: EmotionRecord[]
 }
 
-// 情绪颜色映射 - 更鲜艳的色调
+// 情绪颜色映射 - 淡色调
 const emotionColorMap: Record<string, string> = {
-  '愤怒': '#ef4444',   // 红色
-  '厌恶': '#f97316',   // 橙色
-  '恐惧': '#a855f7',   // 紫色
-  '快乐': '#22c55e',   // 绿色
-  '悲伤': '#3b82f6',   // 蓝色
-  '惊讶': '#eab308',   // 黄色
-  '复杂': '#6366f1'    // 靛蓝色
+  '愤怒': '#fca5a5',   // 淡红色
+  '厌恶': '#fdba74',   // 淡橙色
+  '恐惧': '#c4b5fd',   // 淡紫色
+  '快乐': '#86efac',   // 淡绿色
+  '悲伤': '#93c5fd',   // 淡蓝色
+  '惊讶': '#fde047',   // 淡黄色
+  '复杂': '#a5b4fc'    // 淡靛蓝色
 }
 
 export function EmotionChart({ records }: EmotionChartProps) {
