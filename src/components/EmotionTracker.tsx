@@ -723,9 +723,10 @@ export function EmotionTracker() {
                                     </div>
                                   </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>这是一个简单的情绪记录</p>
-                  <p className="text-sm mt-2">{selectedRecord.note}</p>
+                <div className="py-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 leading-relaxed">{selectedRecord.note}</p>
+                  </div>
                 </div>
               )}
               
