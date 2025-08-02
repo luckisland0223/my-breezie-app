@@ -15,53 +15,53 @@ import {
 } from 'lucide-react'
 
 const emotionConfig = {
-  '愤怒': {
+  'Anger': {
     icon: Angry,
     color: 'bg-gradient-to-br from-red-100 to-red-200 hover:from-red-200 hover:to-red-300 border-red-300',
     textColor: 'text-red-800',
-    description: '感到愤怒和不满',
+    description: 'Feeling frustrated, irritated, or upset about a situation',
     gradient: 'from-red-400 to-red-600'
   },
-  '厌恶': {
+  'Disgust': {
     icon: Meh,
     color: 'bg-gradient-to-br from-orange-100 to-orange-200 hover:from-orange-200 hover:to-orange-300 border-orange-300',
     textColor: 'text-orange-800',
-    description: '感到厌恶和反感',
+    description: 'Experiencing revulsion or strong disapproval of something',
     gradient: 'from-orange-400 to-orange-600'
   },
-  '恐惧': {
+  'Fear': {
     icon: AlertTriangle,
     color: 'bg-gradient-to-br from-purple-100 to-purple-200 hover:from-purple-200 hover:to-purple-300 border-purple-300',
     textColor: 'text-purple-800',
-    description: '感到恐惧和害怕',
+    description: 'Feeling anxious, worried, or concerned about the future',
     gradient: 'from-purple-400 to-purple-600'
   },
-  '快乐': {
+  'Joy': {
     icon: Smile,
     color: 'bg-gradient-to-br from-green-100 to-green-200 hover:from-green-200 hover:to-green-300 border-green-300',
     textColor: 'text-green-800',
-    description: '感到快乐和满足',
+    description: 'Experiencing happiness, contentment, or positive emotions',
     gradient: 'from-green-400 to-green-600'
   },
-  '悲伤': {
+  'Sadness': {
     icon: Frown,
     color: 'bg-gradient-to-br from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 border-blue-300',
     textColor: 'text-blue-800',
-    description: '感到悲伤和难过',
+    description: 'Feeling down, melancholic, or experiencing loss or disappointment',
     gradient: 'from-blue-400 to-blue-600'
   },
-  '惊讶': {
+  'Surprise': {
     icon: Zap,
     color: 'bg-gradient-to-br from-yellow-100 to-yellow-200 hover:from-yellow-200 hover:to-yellow-300 border-yellow-300',
     textColor: 'text-yellow-800',
-    description: '感到惊讶和意外',
+    description: 'Experiencing something unexpected or being caught off guard',
     gradient: 'from-yellow-400 to-yellow-600'
   },
-  '复杂': {
+  'Complex': {
     icon: Brain,
     color: 'bg-gradient-to-br from-indigo-100 to-indigo-200 hover:from-indigo-200 hover:to-indigo-300 border-indigo-300',
     textColor: 'text-indigo-800',
-    description: '焦虑、嫉妒、尴尬等复杂情绪',
+    description: 'Mixed feelings like confusion, embarrassment, or conflicted emotions',
     gradient: 'from-indigo-400 to-indigo-600'
   }
 }
@@ -76,14 +76,14 @@ export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
       <div className="text-center">
         <div className="flex items-center justify-center gap-2 mb-3">
           <Sparkles className="w-6 h-6 text-blue-500" />
-          <h2 className="text-3xl font-bold text-gray-900">你现在感觉如何？</h2>
+          <h2 className="text-3xl font-bold text-gray-900">How are you feeling right now?</h2>
           <Sparkles className="w-6 h-6 text-purple-500" />
         </div>
-        <p className="text-gray-600 text-lg">选择一个最符合你当前情绪的状态，Breezie会陪伴你度过这个时刻</p>
+        <p className="text-gray-600 text-lg">Choose the emotion that best represents your current state, and Breezie will be here to support you</p>
       </div>
       
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* 第一排：3个主要情绪 */}
+        {/* First row: 3 primary emotions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center">
           {(Object.keys(emotionConfig) as EmotionType[]).slice(0, 3).map((emotion) => {
             const config = emotionConfig[emotion]
@@ -114,7 +114,7 @@ export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
                     size="sm" 
                     className={`${config.textColor} hover:bg-white/30 transition-all duration-300 group-hover:translate-x-1`}
                   >
-                    开始对话
+                    Start Conversation
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                   </Button>
                 </CardContent>
@@ -123,7 +123,7 @@ export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
           })}
         </div>
         
-        {/* 第二排：4个情绪 */}
+        {/* Second row: 4 emotions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
           {(Object.keys(emotionConfig) as EmotionType[]).slice(3).map((emotion) => {
             const config = emotionConfig[emotion]
@@ -154,7 +154,7 @@ export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
                     size="sm" 
                     className={`${config.textColor} hover:bg-white/30 transition-all duration-300 group-hover:translate-x-1 text-xs`}
                   >
-                    开始对话
+                    Start Conversation
                     <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
                   </Button>
                 </CardContent>
@@ -164,11 +164,11 @@ export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
         </div>
       </div>
 
-      {/* 底部提示 */}
+      {/* Bottom hint */}
       <div className="text-center mt-8">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-200">
           <Sparkles className="w-4 h-4 text-blue-500" />
-          <span className="text-sm text-blue-700">选择一个情绪开始你的对话之旅</span>
+          <span className="text-sm text-blue-700">Select an emotion to begin your conversation journey</span>
         </div>
       </div>
     </div>

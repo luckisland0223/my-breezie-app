@@ -10,17 +10,17 @@ import type { EmotionType, PolarityType, EmotionPolarityAnalysis } from '@/store
 import { Send, ArrowLeft, MessageCircle, User, History, Eye, Sparkles, Heart, Clock } from 'lucide-react'
 import { LoadingSpinner } from './LoadingSpinner'
 import { toast } from 'sonner'
-// 移除预设回复的导入，改为使用动态AI生成
+// Use dynamic AI generation instead of preset responses
 import type { ChatMessage } from '@/lib/openaiService'
 import { format } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { enUS } from 'date-fns/locale'
 
 interface ChatInterfaceProps {
   emotion: EmotionType
   onBack: () => void
 }
 
-// 动态打字效果组件
+// Dynamic typewriter effect component
 function TypewriterText({ text, onComplete }: { text: string; onComplete?: () => void }) {
   const [displayedText, setDisplayedText] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -30,7 +30,7 @@ function TypewriterText({ text, onComplete }: { text: string; onComplete?: () =>
       const timer = setTimeout(() => {
         setDisplayedText(prev => prev + text[currentIndex])
         setCurrentIndex(prev => prev + 1)
-      }, 30) // 每30ms显示一个字符
+      }, 30) // Display one character every 30ms
       return () => clearTimeout(timer)
     } else if (onComplete) {
       onComplete()
@@ -38,7 +38,7 @@ function TypewriterText({ text, onComplete }: { text: string; onComplete?: () =>
   }, [currentIndex, text, onComplete])
 
   useEffect(() => {
-    // 重置状态当文本改变时
+    // Reset state when text changes
     setDisplayedText('')
     setCurrentIndex(0)
   }, [text])
@@ -63,7 +63,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
   useEffect(() => {
     if (!currentSession) {
       startChatSession(emotion)
-      // 添加个性化的AI欢迎消息
+      // Add personalized AI welcome message
       setTimeout(async () => {
         try {
           const response = await fetch('/api/chat', {
@@ -72,7 +72,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              userMessage: `用户刚刚选择了"${emotion}"这个情绪开始对话。请给出一个温暖、个性化的开场白，让用户感到被理解和欢迎。不要使用模板化的语言。`,
+              userMessage: `The user just selected "${emotion}" emotion to start a conversation. Please provide a warm, personalized opening message that makes them feel understood and welcomed. Avoid templated language.`,
               emotion,
               conversationHistory: []
             })
@@ -84,14 +84,14 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
             setAiResponse(welcomeResponse)
             addMessage(welcomeResponse, 'assistant')
           } else {
-            // 如果API失败，使用简单的欢迎语
-            const welcomeResponse = `你好，我是Breezie。我注意到你现在感到${emotion}，我在这里陪伴你。想聊聊发生了什么吗？`
+            // Simple welcome message if API fails
+            const welcomeResponse = `Hello, I'm Breezie. I notice you're feeling ${emotion.toLowerCase()} right now, and I'm here to support you. Would you like to share what's happening?`
             setAiResponse(welcomeResponse)
             addMessage(welcomeResponse, 'assistant')
           }
         } catch (error) {
-          // 网络错误时的备用欢迎语
-          const welcomeResponse = `你好，我是Breezie。我在这里陪伴你，无论你现在感受如何。想和我分享一下吗？`
+          // Fallback welcome message for network errors
+          const welcomeResponse = `Hello, I'm Breezie. I'm here to support you, whatever you're feeling right now. Would you like to share what's on your mind?`
           setAiResponse(welcomeResponse)
           addMessage(welcomeResponse, 'assistant')
         }
@@ -104,25 +104,25 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
 
     const userMessage = inputValue.trim()
     
-    // 保存用户消息用于显示预览
+    // Save user message for display preview
     setLastUserMessage(userMessage)
     
-    // 添加用户消息到历史记录
+    // Add user message to history
     addMessage(userMessage, 'user')
     
-    // 清空输入框，但保持显示状态
+    // Clear input but maintain display state
     setInputValue('')
     setIsTyping(true)
     setAiResponse('')
     
     try {
-      // 构建对话历史
+      // Build conversation history
       const conversationHistory: ChatMessage[] = currentSession?.messages.map(msg => ({
         role: msg.role as 'user' | 'assistant',
         content: msg.content
       })) || []
       
-      // 调用Gemini API
+      // Call Gemini API
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -142,167 +142,167 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
       const data = await response.json()
       
       if (data.error) {
-        throw new Error(data.message || 'API返回错误')
+        throw new Error(data.message || 'API returned error')
       }
       
-      // 设置AI回复并开始打字效果
+      // Set AI response and start typing effect
       setAiResponse(data.response)
       addMessage(data.response, 'assistant')
       
     } catch (error) {
-      console.error('Gemini API调用失败:', error)
+      console.error('Gemini API call failed:', error)
       
-      // API调用失败时的友好回复
-      const fallbackResponse = '抱歉，我现在无法连接到AI服务。这可能是因为API密钥无效或网络问题。请联系开发者检查配置。'
+      // Friendly response when API call fails
+      const fallbackResponse = 'Sorry, I cannot connect to the AI service right now. This might be due to invalid API key or network issues. Please contact the developer to check configuration.'
       setAiResponse(fallbackResponse)
       addMessage(fallbackResponse, 'assistant')
       
-      // 显示错误提示
-      toast.error('API调用失败 - 请检查API密钥配置')
+      // Show error notification
+      toast.error('API call failed - Please check API key configuration')
     } finally {
       setIsTyping(false)
     }
   }
 
-  // 生成详细的情绪记录描述
+  // Generate detailed emotion record description
   const generateDetailedDescription = (emotion: EmotionType, messages: ChatMessage[]): string => {
     const userMessages = messages.filter(msg => msg.role === 'user')
     const aiMessages = messages.filter(msg => msg.role === 'assistant')
     
     if (userMessages.length === 0) {
-      return `经历了${emotion}情绪，但未进行深入交流`
+      return `Experienced ${emotion.toLowerCase()} emotion but didn't engage in deep conversation`
     }
     
-    // 分析用户消息的关键词和主题
+    // Analyze user message keywords and themes
     const firstUserMessage = userMessages[0]?.content || ''
     const lastUserMessage = userMessages[userMessages.length - 1]?.content || ''
     
-    // 根据情绪类型生成更具体的描述
+    // Generate more specific descriptions based on emotion type
     const emotionContexts = {
-      '愤怒': [
-        '工作压力导致的情绪波动',
-        '人际关系冲突引发的不满',
-        '对不公平待遇的愤慨',
-        '因为期望落空而产生的愤怒',
-        '日常生活中的挫折积累'
+      'Anger': [
+        'Emotional fluctuations due to work stress',
+        'Dissatisfaction triggered by interpersonal conflicts',
+        'Indignation about unfair treatment',
+        'Anger arising from unmet expectations',
+        'Accumulation of daily life frustrations'
       ],
-      '悲伤': [
-        '对过去美好时光的怀念',
-        '面对失去时的内心痛苦',
-        '对未来不确定性的担忧',
-        '感到孤独和被误解',
-        '经历重要关系的变化'
+      'Sadness': [
+        'Nostalgia for better times in the past',
+        'Inner pain when facing loss',
+        'Worry about future uncertainty',
+        'Feelings of loneliness and being misunderstood',
+        'Experiencing changes in important relationships'
       ],
-      '恐惧': [
-        '对未知挑战的担心',
-        '面临重要决定时的焦虑',
-        '担心失败或犯错',
-        '对健康或安全的担忧',
-        '害怕失去重要的人或事物'
+      'Fear': [
+        'Concerns about unknown challenges',
+        'Anxiety when facing important decisions',
+        'Worry about failure or making mistakes',
+        'Concerns about health or safety',
+        'Fear of losing important people or things'
       ],
-      '快乐': [
-        '取得重要成就后的喜悦',
-        '与亲友共度美好时光',
-        '发现新的兴趣或机会',
-        '克服困难后的成就感',
-        '收到好消息时的欣喜'
+      'Joy': [
+        'Delight after achieving important goals',
+        'Wonderful times spent with family and friends',
+        'Discovering new interests or opportunities',
+        'Sense of accomplishment after overcoming difficulties',
+        'Joy when receiving good news'
       ],
-      '惊讶': [
-        '遇到意想不到的好消息',
-        '发现新的可能性或机会',
-        '对他人行为的意外反应',
-        '生活中突然的转折',
-        '学到新知识时的震撼'
+      'Surprise': [
+        'Encountering unexpectedly good news',
+        'Discovering new possibilities or opportunities',
+        'Unexpected reactions to others\' behavior',
+        'Sudden turns in life',
+        'Amazement when learning new knowledge'
       ],
-      '厌恶': [
-        '对某些行为或态度的反感',
-        '面对道德冲突时的不适',
-        '对环境或情况的不满',
-        '遇到与价值观冲突的事情',
-        '对重复性问题的厌倦'
+      'Disgust': [
+        'Aversion to certain behaviors or attitudes',
+        'Discomfort when facing moral conflicts',
+        'Dissatisfaction with environment or situations',
+        'Encountering things that conflict with values',
+        'Weariness of repetitive problems'
       ],
-      '复杂': [
-        '面临多重选择的纠结',
-        '情感交织下的内心冲突',
-        '对复杂情况的深度思考',
-        '处理人际关系的微妙平衡',
-        '在变化中寻找方向感'
+      'Complex': [
+        'Struggling with multiple choices',
+        'Inner conflicts under intertwined emotions',
+        'Deep thinking about complex situations',
+        'Delicate balance in handling relationships',
+        'Seeking direction amidst changes'
       ]
     }
     
-    // 随机选择一个相关的情境描述
-    const contexts = emotionContexts[emotion] || ['经历了复杂的情感状态']
+    // Randomly select a relevant context description
+    const contexts = emotionContexts[emotion] || ['Experienced complex emotional state']
     const randomContext = contexts[Math.floor(Math.random() * contexts.length)]
     
-    // 分析对话长度和内容深度
+    // Analyze conversation length and content depth
     const conversationLength = messages.length
     const hasDeepConversation = conversationLength >= 6
     const hasResolution = aiMessages.some(msg => 
-      msg.content.includes('建议') || 
-      msg.content.includes('尝试') || 
-      msg.content.includes('可以') ||
-      msg.content.includes('帮助')
+      msg.content.includes('suggest') || 
+      msg.content.includes('try') || 
+      msg.content.includes('can') ||
+      msg.content.includes('help')
     )
     
-    // 生成综合描述
+    // Generate comprehensive description
     let description = randomContext
     
     if (hasDeepConversation) {
-      description += '，通过深入的自我探索和反思'
+      description += ', through deep self-exploration and reflection'
     } else {
-      description += '，通过初步的情感表达'
+      description += ', through initial emotional expression'
     }
     
     if (hasResolution) {
-      description += '，获得了有价值的指导和建议'
+      description += ', gaining valuable guidance and advice'
     } else {
-      description += '，完成了基本的情感梳理'
+      description += ', completing basic emotional processing'
     }
     
-    // 根据对话时长添加补充信息
-    const conversationDuration = messages.length > 4 ? '深度' : messages.length > 2 ? '适度' : '简短'
-    description += `。${conversationDuration}交流，共${Math.ceil(conversationLength / 2)}轮对话`
+    // Add supplementary information based on conversation duration
+    const conversationDuration = messages.length > 4 ? 'in-depth' : messages.length > 2 ? 'moderate' : 'brief'
+    description += `. ${conversationDuration} exchange, ${Math.ceil(conversationLength / 2)} rounds of conversation`
     
-    return description || `经历了${emotion}情绪的基本记录`
+    return description || `Basic record of experiencing ${emotion.toLowerCase()} emotion`
   }
 
-  // 情绪极性分析算法
+  // Emotion polarity analysis algorithm
   const analyzeEmotionPolarity = (
     emotion: EmotionType, 
     conversationMessages: ChatMessage[]
   ): EmotionPolarityAnalysis => {
     
-    // 基础情绪极性映射
+    // Base emotion polarity mapping
     const emotionPolarityMap: Record<EmotionType, { base: PolarityType; strength: number }> = {
-      '快乐': { base: 'positive', strength: 8 },
-      '惊讶': { base: 'neutral', strength: 6 },   // 可正可负
-      '愤怒': { base: 'negative', strength: 8 },
-      '恐惧': { base: 'negative', strength: 7 },
-      '悲伤': { base: 'negative', strength: 7 },
-      '厌恶': { base: 'negative', strength: 6 },
-      '复杂': { base: 'neutral', strength: 5 }
+      'Joy': { base: 'positive', strength: 8 },
+      'Surprise': { base: 'neutral', strength: 6 },   // Can be positive or negative
+      'Anger': { base: 'negative', strength: 8 },
+      'Fear': { base: 'negative', strength: 7 },
+      'Sadness': { base: 'negative', strength: 7 },
+      'Disgust': { base: 'negative', strength: 6 },
+      'Complex': { base: 'neutral', strength: 5 }
     }
     
     let polarity = emotionPolarityMap[emotion]?.base || 'neutral'
     let strength = emotionPolarityMap[emotion]?.strength || 5
-    let confidence = 7 // 基础置信度
+    let confidence = 7 // Base confidence level
     
-    // 分析对话内容调整判断
+    // Analyze conversation content to adjust assessment
     const userMessages = conversationMessages.filter(msg => msg.role === 'user')
     const aiMessages = conversationMessages.filter(msg => msg.role === 'assistant')
     
-    // 积极关键词检测
-    const positiveKeywords = ['开心', '高兴', '满足', '成功', '好转', '解决', '感谢', '舒服', '放松', '希望', '乐观', '喜欢', '爱']
-    const negativeKeywords = ['痛苦', '难受', '糟糕', '失败', '绝望', '无助', '讨厌', '害怕', '担心', '焦虑', '压力', '孤独', '失望']
+    // Positive keyword detection
+    const positiveKeywords = ['happy', 'glad', 'satisfied', 'success', 'better', 'solved', 'thank', 'comfortable', 'relaxed', 'hope', 'optimistic', 'like', 'love', 'good', 'great', 'amazing', 'wonderful', 'excellent', 'perfect', 'excited', 'delighted']
+    const negativeKeywords = ['painful', 'hurt', 'terrible', 'failure', 'desperate', 'helpless', 'hate', 'afraid', 'worry', 'anxious', 'stress', 'lonely', 'disappointed', 'sad', 'angry', 'frustrated', 'upset', 'depressed', 'awful', 'horrible']
     
     const userContent = userMessages.map(m => m.content).join(' ')
     const aiContent = aiMessages.map(m => m.content).join(' ')
     
-    const positiveCount = positiveKeywords.filter(word => userContent.includes(word)).length
-    const negativeCount = negativeKeywords.filter(word => userContent.includes(word)).length
+    const positiveCount = positiveKeywords.filter(word => userContent.toLowerCase().includes(word)).length
+    const negativeCount = negativeKeywords.filter(word => userContent.toLowerCase().includes(word)).length
     
-    // 基于对话内容动态调整（特别是中性情绪）
-    if (emotion === '惊讶' || emotion === '复杂') {
+    // Dynamically adjust based on conversation content (especially for neutral emotions)
+    if (emotion === 'Surprise' || emotion === 'Complex') {
       if (positiveCount > negativeCount && positiveCount > 0) {
         polarity = 'positive'
         strength = Math.min(strength + 2, 10)
@@ -313,37 +313,37 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
       confidence = Math.min(confidence + (Math.abs(positiveCount - negativeCount) * 2), 10)
     }
     
-    // AI回复质量影响强度评估
+    // AI response quality affects strength assessment
     const hasEncouragement = aiMessages.some(msg => 
-      msg.content.includes('你做得很好') || 
-      msg.content.includes('理解') || 
-      msg.content.includes('支持') ||
-      msg.content.includes('很好') ||
-      msg.content.includes('加油') ||
-      msg.content.includes('相信')
+      msg.content.includes('you\'re doing well') || 
+      msg.content.includes('understand') || 
+      msg.content.includes('support') ||
+      msg.content.includes('good job') ||
+      msg.content.includes('keep going') ||
+      msg.content.includes('believe')
     )
     
     const hasComfort = aiMessages.some(msg =>
-      msg.content.includes('陪伴') ||
-      msg.content.includes('不孤单') ||
-      msg.content.includes('一起面对') ||
-      msg.content.includes('慢慢来')
+      msg.content.includes('accompany') ||
+      msg.content.includes('not alone') ||
+      msg.content.includes('face together') ||
+      msg.content.includes('take your time')
     )
     
-    // 对话长度影响置信度
+    // Conversation length affects confidence
     const conversationLength = conversationMessages.length
     if (conversationLength >= 8) {
-      confidence = Math.min(confidence + 2, 10) // 长对话提高置信度
+      confidence = Math.min(confidence + 2, 10) // Long conversations increase confidence
     } else if (conversationLength >= 4) {
       confidence = Math.min(confidence + 1, 10)
     }
     
-    // 如果有积极的AI回复，可能缓解负面情绪强度
+    // Positive AI responses may alleviate negative emotion intensity
     if (polarity === 'negative' && (hasEncouragement || hasComfort)) {
-      strength = Math.max(strength - 1, 1) // 负面情绪通过支持可能减轻
+      strength = Math.max(strength - 1, 1) // Negative emotions may be alleviated through support
     }
     
-    // 确保强度在合理范围内
+    // Ensure strength is within reasonable range
     strength = Math.max(1, Math.min(10, strength))
     confidence = Math.max(1, Math.min(10, confidence))
     
@@ -441,7 +441,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
   if (!currentSession) {
     return (
       <div className="h-full flex items-center justify-center">
-        <LoadingSpinner size="lg" text="正在初始化对话..." />
+        <LoadingSpinner size="lg" text="Initializing conversation..." />
       </div>
     )
   }
@@ -460,14 +460,14 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg">Breezie 对话</CardTitle>
+              <CardTitle className="text-lg">Breezie Conversation</CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary" className="text-xs">
                   {emotion}
                 </Badge>
                 <div className="flex items-center gap-1 text-xs text-gray-500">
                   <MessageCircle className="w-3 h-3" />
-                  {messageCount} 条消息
+                  {messageCount} messages
                 </div>
               </div>
             </div>
@@ -478,14 +478,14 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="flex items-center gap-2">
                 <History className="w-4 h-4" />
-                记录
+                History
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Clock className="w-5 h-5" />
-                  对话记录 - {emotion}
+                  Conversation History - {emotion}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
@@ -509,7 +509,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
                       >
                         <p className="text-sm leading-relaxed">{message.content}</p>
                         <p className={`text-xs mt-2 ${message.role === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
-                          {format(message.timestamp, 'HH:mm:ss', { locale: zhCN })}
+                          {format(message.timestamp, 'HH:mm:ss', { locale: enUS })}
                         </p>
                       </div>
                     </div>
@@ -525,13 +525,13 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
             className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
           >
             <Heart className="w-4 h-4 mr-1" />
-            结束对话
+            End Conversation
           </Button>
         </div>
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col p-6">
-        {/* AI回复区域 - 上方框 */}
+        {/* AI response area - top box */}
         <div className="flex-1 bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 mb-6 min-h-[350px] border border-blue-100 shadow-sm">
           <div className="flex items-center mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
@@ -539,7 +539,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
             </div>
             <div>
               <span className="text-gray-800 font-semibold text-lg">Breezie</span>
-              <div className="text-sm text-gray-500">AI 情绪助手</div>
+              <div className="text-sm text-gray-500">AI Emotional Wellness Assistant</div>
             </div>
           </div>
           
@@ -551,7 +551,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
                   <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                   <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
-                <span className="text-gray-600 font-medium">正在思考中...</span>
+                <span className="text-gray-600 font-medium">Thinking...</span>
               </div>
             ) : aiResponse ? (
               <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
@@ -563,14 +563,14 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
             ) : (
               <div className="text-center text-gray-400 py-12">
                 <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg">等待开始对话...</p>
-                <p className="text-sm mt-2">Breezie 已准备好倾听你的心声</p>
+                <p className="text-lg">Waiting to start conversation...</p>
+                <p className="text-sm mt-2">Breezie is ready to listen to your thoughts</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* 用户输入区域 - 下方框 */}
+        {/* User input area - bottom box */}
         <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
           <div className="p-6">
             <div className="flex items-center mb-4">
@@ -578,8 +578,8 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
                 <User className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="text-gray-800 font-semibold">你的想法</span>
-                <div className="text-xs text-gray-400">按 Enter 发送，Shift + Enter 换行</div>
+                <span className="text-gray-800 font-semibold">Your Thoughts</span>
+                <div className="text-xs text-gray-400">Press Enter to send, Shift + Enter for new line</div>
               </div>
             </div>
             
@@ -588,7 +588,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={lastUserMessage || "在这里输入你的想法，分享你的感受..."}
+                placeholder={lastUserMessage || "Share your thoughts and feelings here..."}
                 className="w-full h-28 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
                 disabled={isTyping}
                 autoFocus
@@ -596,7 +596,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
               <div className="flex justify-between items-center mt-4">
                 <div className="text-xs text-gray-400 flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  在线状态
+                  Online
                 </div>
                 <Button 
                   onClick={handleSendMessage} 
@@ -604,7 +604,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
                   className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  发送
+                  Send
                 </Button>
               </div>
             </div>

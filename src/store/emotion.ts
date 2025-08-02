@@ -1,48 +1,48 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type EmotionType = '愤怒' | '厌恶' | '恐惧' | '快乐' | '悲伤' | '惊讶' | '复杂'
+export type EmotionType = 'Anger' | 'Disgust' | 'Fear' | 'Joy' | 'Sadness' | 'Surprise' | 'Complex'
 export type PolarityType = 'positive' | 'negative' | 'neutral'
 
 export interface EmotionPolarityAnalysis {
-  polarity: PolarityType // 情绪极性：积极/消极/中性
-  strength: number // 情绪真实强度 (1-10)
-  confidence: number // 极性判断置信度 (1-10)
+  polarity: PolarityType // Emotion polarity: positive/negative/neutral
+  strength: number // Actual emotion intensity (1-10)
+  confidence: number // Polarity assessment confidence (1-10)
 }
 
 export interface EmotionEvaluation {
-  actualEmotion: EmotionType // AI分析的真实情绪
-  actualIntensity: number // AI评估的真实强度 (1-10)
-  emotionChanged: boolean // 情绪是否与初始不同
-  confidenceLevel: number // AI评估的置信度 (1-10)
-  analysis: string // 情绪分析说明
+  actualEmotion: EmotionType // AI-analyzed actual emotion
+  actualIntensity: number // AI-assessed actual intensity (1-10)
+  emotionChanged: boolean // Whether emotion differs from initial
+  confidenceLevel: number // AI assessment confidence (1-10)
+  analysis: string // Emotion analysis explanation
 }
 
 export interface ConversationSummary {
-  userProblem: string // 用户遇到的问题
-  solution: string // 提供的解决方案
-  userReaction: string // 用户的最后反应
+  userProblem: string // User's identified problem
+  solution: string // Provided solution or guidance
+  userReaction: string // User's final response
 }
 
 export interface EmotionRecord {
   id: string
-  emotion: EmotionType // 用户初始选择的情绪
-  behavioralImpact: number // 情绪对行为的影响程度 (1-10)
+  emotion: EmotionType // User's initially selected emotion
+  behavioralImpact: number // Emotion's impact on behavior (1-10)
   note: string
   timestamp: Date
-  conversationSummary?: ConversationSummary // 对话摘要（可选）
-  emotionEvaluation?: EmotionEvaluation // AI情绪评估（可选）
-  polarityAnalysis?: EmotionPolarityAnalysis // 情绪极性分析（新增）
+  conversationSummary?: ConversationSummary // Conversation summary (optional)
+  emotionEvaluation?: EmotionEvaluation // AI emotion assessment (optional)
+  polarityAnalysis?: EmotionPolarityAnalysis // Emotion polarity analysis (enhanced)
 }
 
-// 新增：情绪对行为影响程度的评估算法
+// Enhanced: Emotion behavioral impact assessment algorithm
 export interface BehavioralImpactAnalysis {
-  impactLevel: 'low' | 'medium' | 'high' // 影响级别
-  impactScore: number // 影响分数 (1-10)
-  behaviorChanges: string[] // 具体的行为变化
-  decisionInfluence: number // 对决策的影响程度 (1-10)
-  socialInteraction: number // 对社交互动的影响 (1-10)
-  productivity: number // 对工作效率的影响 (1-10)
+  impactLevel: 'low' | 'medium' | 'high' // Impact level
+  impactScore: number // Impact score (1-10)
+  behaviorChanges: string[] // Specific behavioral changes
+  decisionInfluence: number // Decision-making influence (1-10)
+  socialInteraction: number // Social interaction impact (1-10)
+  productivity: number // Work/productivity impact (1-10)
 }
 
 // 情绪对行为影响程度的计算函数
@@ -55,15 +55,15 @@ export function calculateBehavioralImpact(
   // 基础影响分数（基于情绪类型和强度）
   const baseImpact = intensity * getEmotionImpactMultiplier(emotion)
   
-  // 根据情绪类型调整影响程度
+  // Adjust impact based on emotion type
   const impactAdjustments = {
-    '愤怒': { decision: 1.2, social: 0.8, productivity: 0.6 },
-    '厌恶': { decision: 0.8, social: 0.6, productivity: 0.7 },
-    '恐惧': { decision: 1.1, social: 0.9, productivity: 0.8 },
-    '快乐': { decision: 0.9, social: 1.2, productivity: 1.1 },
-    '悲伤': { decision: 0.7, social: 0.8, productivity: 0.6 },
-    '惊讶': { decision: 1.0, social: 1.0, productivity: 0.9 },
-    '复杂': { decision: 1.1, social: 0.9, productivity: 0.8 }
+    'Anger': { decision: 1.2, social: 0.8, productivity: 0.6 },
+    'Disgust': { decision: 0.8, social: 0.6, productivity: 0.7 },
+    'Fear': { decision: 1.1, social: 0.9, productivity: 0.8 },
+    'Joy': { decision: 0.9, social: 1.2, productivity: 1.1 },
+    'Sadness': { decision: 0.7, social: 0.8, productivity: 0.6 },
+    'Surprise': { decision: 1.0, social: 1.0, productivity: 0.9 },
+    'Complex': { decision: 1.1, social: 0.9, productivity: 0.8 }
   }
   
   const adjustment = impactAdjustments[emotion]
@@ -81,13 +81,13 @@ export function calculateBehavioralImpact(
 // 获取情绪影响倍数
 function getEmotionImpactMultiplier(emotion: EmotionType): number {
   const multipliers = {
-    '愤怒': 1.3,    // 愤怒对行为影响较大
-    '厌恶': 0.8,    // 厌恶影响相对较小
-    '恐惧': 1.2,    // 恐惧影响较大
-    '快乐': 0.9,    // 快乐影响适中
-    '悲伤': 1.1,    // 悲伤影响较大
-    '惊讶': 1.0,    // 惊讶影响中等
-    '复杂': 1.2     // 复杂情绪影响较大
+    'Anger': 1.3,    // Anger has high behavioral impact
+    'Disgust': 0.8,  // Disgust has relatively low impact
+    'Fear': 1.2,     // Fear has high impact
+    'Joy': 0.9,      // Joy has moderate impact
+    'Sadness': 1.1,  // Sadness has high impact
+    'Surprise': 1.0, // Surprise has medium impact
+    'Complex': 1.2   // Complex emotions have high impact
   }
   return multipliers[emotion]
 }
@@ -97,30 +97,36 @@ function getBehaviorChanges(emotion: EmotionType, intensity: number): string[] {
   const changes: string[] = []
   
   if (intensity >= 7) {
-    // 高强度影响
+    // High intensity impact
     switch (emotion) {
-      case '愤怒':
-        changes.push('可能影响决策判断', '社交互动减少', '工作效率下降')
+      case 'Anger':
+        changes.push('May impair decision-making', 'Reduced social interaction', 'Decreased work efficiency')
         break
-      case '恐惧':
-        changes.push('决策更加谨慎', '社交回避倾向', '注意力分散')
+      case 'Fear':
+        changes.push('More cautious decision-making', 'Social avoidance tendencies', 'Scattered attention')
         break
-      case '悲伤':
-        changes.push('决策积极性降低', '社交意愿减少', '工作动力不足')
+      case 'Sadness':
+        changes.push('Reduced decision positivity', 'Decreased social motivation', 'Lower work drive')
         break
-      case '快乐':
-        changes.push('决策更加积极', '社交互动增加', '工作效率提升')
+      case 'Joy':
+        changes.push('More positive decision-making', 'Increased social interaction', 'Enhanced work efficiency')
         break
-      case '复杂':
-        changes.push('决策过程复杂化', '社交表现不稳定', '工作效率波动')
+      case 'Complex':
+        changes.push('Complicated decision processes', 'Unstable social performance', 'Fluctuating work efficiency')
+        break
+      case 'Disgust':
+        changes.push('Avoidance behaviors', 'Selective social engagement', 'Task avoidance patterns')
+        break
+      case 'Surprise':
+        changes.push('Temporary decision disruption', 'Heightened attention', 'Variable performance')
         break
     }
   } else if (intensity >= 4) {
-    // 中等强度影响
-    changes.push('对行为有一定影响', '需要适当调整')
+    // Medium intensity impact
+    changes.push('Moderate behavioral influence', 'Some adjustments needed')
   } else {
-    // 低强度影响
-    changes.push('对行为影响较小', '基本保持正常状态')
+    // Low intensity impact
+    changes.push('Minimal behavioral impact', 'Generally maintaining normal state')
   }
   
   return changes
@@ -171,24 +177,24 @@ interface EmotionState {
   addMessage: (content: string, role: 'user' | 'assistant') => void
 }
 
-// 初始化统计数据
+// Initialize statistics data
 const createInitialStats = (): EmotionStats => ({
-  '愤怒': { count: 0, avgIntensity: 0, totalIntensity: 0 },
-  '厌恶': { count: 0, avgIntensity: 0, totalIntensity: 0 },
-  '恐惧': { count: 0, avgIntensity: 0, totalIntensity: 0 },
-  '快乐': { count: 0, avgIntensity: 0, totalIntensity: 0 },
-  '悲伤': { count: 0, avgIntensity: 0, totalIntensity: 0 },
-  '惊讶': { count: 0, avgIntensity: 0, totalIntensity: 0 },
-  '复杂': { count: 0, avgIntensity: 0, totalIntensity: 0 },
+  'Anger': { count: 0, avgIntensity: 0, totalIntensity: 0 },
+  'Disgust': { count: 0, avgIntensity: 0, totalIntensity: 0 },
+  'Fear': { count: 0, avgIntensity: 0, totalIntensity: 0 },
+  'Joy': { count: 0, avgIntensity: 0, totalIntensity: 0 },
+  'Sadness': { count: 0, avgIntensity: 0, totalIntensity: 0 },
+  'Surprise': { count: 0, avgIntensity: 0, totalIntensity: 0 },
+  'Complex': { count: 0, avgIntensity: 0, totalIntensity: 0 },
 })
 
-// 重新计算统计数据（从records重新计算，确保数据一致性）
-// 优先使用AI评估的真实情绪和强度，如果没有则使用用户初始选择
+// Recalculate statistics (from records to ensure data consistency)
+// Prioritize AI-assessed actual emotion and intensity, fallback to user's initial choice
 const recalculateStats = (records: EmotionRecord[]): EmotionStats => {
   const stats = createInitialStats()
   
   records.forEach(record => {
-    // 使用AI评估的情绪和强度（如果有的话），否则使用用户初始选择
+    // Use AI-assessed emotion and intensity (if available), otherwise use user's initial choice
     const actualEmotion = record.emotionEvaluation?.actualEmotion || record.emotion
     const actualIntensity = record.emotionEvaluation?.actualIntensity || record.behavioralImpact
     
