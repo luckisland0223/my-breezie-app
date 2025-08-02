@@ -15,8 +15,7 @@ import { useEmotionStore } from '@/store/emotion'
 import UserProfile from '@/components/UserProfile'
 import type { EmotionType } from '@/store/emotion'
 import { BarChart3, Home, Cloud, Heart, TrendingUp, Calendar, Zap, ArrowRight, Sparkles } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-
+import { useAuthStore } from '@/store/auth'
 
 type AppView = 'home' | 'chat' | 'tracker'
 
@@ -25,14 +24,13 @@ export default function HomePage() {
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null)
   const [showWelcome, setShowWelcome] = useState(true)
 
-
   // Store hooks
   const records = useEmotionStore((state) => state.records)
   const getEmotionStats = useEmotionStore((state) => state.getEmotionStats)
   const getRecentEmotions = useEmotionStore((state) => state.getRecentEmotions)
   
   // Auth hook
-  const { data: session } = useSession()
+  const { user, isLoggedIn } = useAuthStore()
 
 
 

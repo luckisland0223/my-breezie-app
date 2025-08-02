@@ -1,21 +1,29 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useEmotionStore } from '@/store/emotion'
+import { useAuthStore } from '@/store/auth'
 import { Calendar, Heart, TrendingUp, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession()
+  const { user, isLoggedIn, isLoading, getDisplayName } = useAuthStore()
   const router = useRouter()
   const records = useEmotionStore((state) => state.records)
   
-  if (status === 'loading') {
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isLoggedIn) {
+      router.push('/auth/signin')
+    }
+  }, [isLoading, isLoggedIn, router])
+  
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
@@ -23,7 +31,7 @@ export default function ProfilePage() {
     )
   }
 
-  if (!session?.user) {
+  if (!isLoggedIn || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -77,14 +85,14 @@ export default function ProfilePage() {
             <CardHeader>
               <div className="flex items-center space-x-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={session.user.image ?? ''} />
+                  <AvatarImage src={user.avatar_url ?? ''} />
                   <AvatarFallback className="text-2xl">
-                    {session.user.name?.[0]?.toUpperCase() ?? 'U'}
+                    {getDisplayName()[0]?.toUpperCase() ?? 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <CardTitle className="text-3xl">{session.user.name}</CardTitle>
-                  <p className="text-gray-600 text-lg">{session.user.email}</p>
+                  <CardTitle className="text-3xl">{getDisplayName()}</CardTitle>
+                  <p className="text-gray-600 text-lg">{user.email}</p>
                   <div className="flex gap-2 mt-2">
                     <Badge variant="secondary">
                       Breezie User
@@ -149,15 +157,15 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Full Name</label>
-                  <p className="text-lg font-medium">{session.user.name || 'Not provided'}</p>
+                  <p className="text-lg font-medium">{user.full_name || getDisplayName()}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Email Address</label>
-                  <p className="text-lg font-medium">{session.user.email || 'Not provided'}</p>
+                  <p className="text-lg font-medium">{user.email || 'Not provided'}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Member Since</label>
-                  <p className="text-lg font-medium">Today</p>
+                  <p className="text-lg font-medium">{user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Today'}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Account Status</label>
