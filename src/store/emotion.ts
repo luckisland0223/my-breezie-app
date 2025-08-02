@@ -2,6 +2,13 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export type EmotionType = '愤怒' | '厌恶' | '恐惧' | '快乐' | '悲伤' | '惊讶' | '复杂'
+export type PolarityType = 'positive' | 'negative' | 'neutral'
+
+export interface EmotionPolarityAnalysis {
+  polarity: PolarityType // 情绪极性：积极/消极/中性
+  strength: number // 情绪真实强度 (1-10)
+  confidence: number // 极性判断置信度 (1-10)
+}
 
 export interface EmotionEvaluation {
   actualEmotion: EmotionType // AI分析的真实情绪
@@ -20,11 +27,12 @@ export interface ConversationSummary {
 export interface EmotionRecord {
   id: string
   emotion: EmotionType // 用户初始选择的情绪
-  intensity: number // 用户初始强度评分 (1-10)
+  intensity: number // 对话效果评分 (1-10) - 重新定义为对话帮助程度
   note: string
   timestamp: Date
   conversationSummary?: ConversationSummary // 对话摘要（可选）
   emotionEvaluation?: EmotionEvaluation // AI情绪评估（可选）
+  polarityAnalysis?: EmotionPolarityAnalysis // 情绪极性分析（新增）
 }
 
 export interface ChatMessage {
@@ -58,7 +66,7 @@ interface EmotionState {
   currentSession: ChatSession | null
   
   // Actions
-  addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, conversationSummary?: ConversationSummary, emotionEvaluation?: EmotionEvaluation) => void
+  addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, conversationSummary?: ConversationSummary, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis) => void
   getRecordsByEmotion: (emotion: EmotionType) => EmotionRecord[]
   getRecordsByDateRange: (startDate: Date, endDate: Date) => EmotionRecord[]
   getEmotionStats: () => EmotionStats
@@ -117,7 +125,7 @@ export const useEmotionStore = create<EmotionState>()(
       currentSession: null,
 
       // 添加情绪记录
-      addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, conversationSummary?: ConversationSummary, emotionEvaluation?: EmotionEvaluation) => {
+      addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, conversationSummary?: ConversationSummary, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis) => {
         const newRecord: EmotionRecord = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           emotion,
@@ -126,6 +134,7 @@ export const useEmotionStore = create<EmotionState>()(
           timestamp: new Date(),
           conversationSummary,
           emotionEvaluation,
+          polarityAnalysis,
         }
 
         set((state) => {

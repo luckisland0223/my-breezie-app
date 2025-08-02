@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
 import { useEmotionStore } from '@/store/emotion'
-import type { EmotionType } from '@/store/emotion'
-import { Send, ArrowLeft, MessageCircle, User, History, Eye } from 'lucide-react'
+import type { EmotionType, PolarityType, EmotionPolarityAnalysis } from '@/store/emotion'
+import { Send, ArrowLeft, MessageCircle, User, History, Eye, Sparkles, Heart, Clock } from 'lucide-react'
+import { LoadingSpinner } from './LoadingSpinner'
 import { toast } from 'sonner'
 // 移除预设回复的导入，改为使用动态AI生成
 import type { ChatMessage } from '@/lib/openaiService'
@@ -264,6 +266,90 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
     return description || `经历了${emotion}情绪的基本记录`
   }
 
+  // 情绪极性分析算法
+  const analyzeEmotionPolarity = (
+    emotion: EmotionType, 
+    conversationMessages: ChatMessage[]
+  ): EmotionPolarityAnalysis => {
+    
+    // 基础情绪极性映射
+    const emotionPolarityMap: Record<EmotionType, { base: PolarityType; strength: number }> = {
+      '快乐': { base: 'positive', strength: 8 },
+      '惊讶': { base: 'neutral', strength: 6 },   // 可正可负
+      '愤怒': { base: 'negative', strength: 8 },
+      '恐惧': { base: 'negative', strength: 7 },
+      '悲伤': { base: 'negative', strength: 7 },
+      '厌恶': { base: 'negative', strength: 6 },
+      '复杂': { base: 'neutral', strength: 5 }
+    }
+    
+    let polarity = emotionPolarityMap[emotion]?.base || 'neutral'
+    let strength = emotionPolarityMap[emotion]?.strength || 5
+    let confidence = 7 // 基础置信度
+    
+    // 分析对话内容调整判断
+    const userMessages = conversationMessages.filter(msg => msg.role === 'user')
+    const aiMessages = conversationMessages.filter(msg => msg.role === 'assistant')
+    
+    // 积极关键词检测
+    const positiveKeywords = ['开心', '高兴', '满足', '成功', '好转', '解决', '感谢', '舒服', '放松', '希望', '乐观', '喜欢', '爱']
+    const negativeKeywords = ['痛苦', '难受', '糟糕', '失败', '绝望', '无助', '讨厌', '害怕', '担心', '焦虑', '压力', '孤独', '失望']
+    
+    const userContent = userMessages.map(m => m.content).join(' ')
+    const aiContent = aiMessages.map(m => m.content).join(' ')
+    
+    const positiveCount = positiveKeywords.filter(word => userContent.includes(word)).length
+    const negativeCount = negativeKeywords.filter(word => userContent.includes(word)).length
+    
+    // 基于对话内容动态调整（特别是中性情绪）
+    if (emotion === '惊讶' || emotion === '复杂') {
+      if (positiveCount > negativeCount && positiveCount > 0) {
+        polarity = 'positive'
+        strength = Math.min(strength + 2, 10)
+      } else if (negativeCount > positiveCount && negativeCount > 0) {
+        polarity = 'negative'
+        strength = Math.min(strength + 1, 10)
+      }
+      confidence = Math.min(confidence + (Math.abs(positiveCount - negativeCount) * 2), 10)
+    }
+    
+    // AI回复质量影响强度评估
+    const hasEncouragement = aiMessages.some(msg => 
+      msg.content.includes('你做得很好') || 
+      msg.content.includes('理解') || 
+      msg.content.includes('支持') ||
+      msg.content.includes('很好') ||
+      msg.content.includes('加油') ||
+      msg.content.includes('相信')
+    )
+    
+    const hasComfort = aiMessages.some(msg =>
+      msg.content.includes('陪伴') ||
+      msg.content.includes('不孤单') ||
+      msg.content.includes('一起面对') ||
+      msg.content.includes('慢慢来')
+    )
+    
+    // 对话长度影响置信度
+    const conversationLength = conversationMessages.length
+    if (conversationLength >= 8) {
+      confidence = Math.min(confidence + 2, 10) // 长对话提高置信度
+    } else if (conversationLength >= 4) {
+      confidence = Math.min(confidence + 1, 10)
+    }
+    
+    // 如果有积极的AI回复，可能缓解负面情绪强度
+    if (polarity === 'negative' && (hasEncouragement || hasComfort)) {
+      strength = Math.max(strength - 1, 1) // 负面情绪通过支持可能减轻
+    }
+    
+    // 确保强度在合理范围内
+    strength = Math.max(1, Math.min(10, strength))
+    confidence = Math.max(1, Math.min(10, confidence))
+    
+    return { polarity, strength, confidence }
+  }
+
   const handleEndChat = async () => {
     try {
       // 获取当前会话的消息
@@ -275,7 +361,10 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
       // 生成详细的情绪记录描述
       const detailedDescription = generateDetailedDescription(emotion, sessionMessages)
       
-      // 根据对话内容评估情绪强度
+      // 执行情绪极性分析
+      const polarityAnalysis = analyzeEmotionPolarity(emotion, sessionMessages)
+      
+      // 根据对话内容评估对话效果（重新定义原来的intensity为对话效果）
       const conversationLength = sessionMessages.length
       const hasPositiveResponse = sessionMessages.some((msg: ChatMessage) => 
         msg.role === 'assistant' && (
@@ -285,29 +374,33 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
         )
       )
       
-      // 动态计算情绪强度（基于对话质量）
-      let finalIntensity = 5 // 默认中等强度
+      // 动态计算对话效果评分（1-10分）
+      let conversationEffectiveness = 5 // 默认中等效果
       
       if (conversationLength >= 8) {
-        finalIntensity = hasPositiveResponse ? 7 : 6 // 长对话通常有更好的效果
+        conversationEffectiveness = hasPositiveResponse ? 7 : 6 // 长对话通常有更好的效果
       } else if (conversationLength >= 4) {
-        finalIntensity = hasPositiveResponse ? 6 : 5 // 中等对话
+        conversationEffectiveness = hasPositiveResponse ? 6 : 5 // 中等对话
       } else {
-        finalIntensity = 4 // 短对话效果有限
+        conversationEffectiveness = 4 // 短对话效果有限
       }
       
-      // 根据情绪类型调整强度
-      if (['快乐', '惊讶'].includes(emotion)) {
-        finalIntensity = Math.min(finalIntensity + 1, 10) // 积极情绪可能更强
-      } else if (['愤怒', '恐惧', '悲伤'].includes(emotion)) {
-        finalIntensity = Math.max(finalIntensity - 1, 1) // 消极情绪通过对话可能有所缓解
+      // 根据情绪极性调整对话效果
+      if (polarityAnalysis.polarity === 'positive') {
+        conversationEffectiveness = Math.min(conversationEffectiveness + 1, 10) // 积极情绪对话可能效果更好
+      } else if (polarityAnalysis.polarity === 'negative') {
+        // 消极情绪通过对话可能得到缓解，效果可能更明显
+        conversationEffectiveness = Math.min(conversationEffectiveness + 1, 10)
       }
       
-      // 添加情绪记录
+      // 添加情绪记录（包含极性分析）
       addEmotionRecord(
         emotion, 
-        finalIntensity, 
-        detailedDescription
+        conversationEffectiveness, 
+        detailedDescription,
+        undefined, // conversationSummary
+        undefined, // emotionEvaluation  
+        polarityAnalysis // 新增的极性分析
       )
       
       // 显示成功提示
@@ -320,7 +413,14 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
       endChatSession()
       const sessionMessages = currentSession?.messages || []
       const fallbackDescription = generateDetailedDescription(emotion, sessionMessages)
-      addEmotionRecord(emotion, 5, fallbackDescription)
+      // 使用默认的极性分析作为fallback
+      const fallbackPolarity: EmotionPolarityAnalysis = {
+        polarity: ['快乐'].includes(emotion) ? 'positive' : 
+                 ['愤怒', '恐惧', '悲伤', '厌恶'].includes(emotion) ? 'negative' : 'neutral',
+        strength: 5,
+        confidence: 5
+      }
+      addEmotionRecord(emotion, 5, fallbackDescription, undefined, undefined, fallbackPolarity)
       toast.success('对话已结束，情绪记录已保存')
       onBack()
     }
@@ -339,29 +439,54 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
   }
 
   if (!currentSession) {
-    return <div>加载中...</div>
+    return (
+      <div className="h-full flex items-center justify-center">
+        <LoadingSpinner size="lg" text="正在初始化对话..." />
+      </div>
+    )
   }
+
+  const messageCount = currentSession.messages.length
 
   return (
     <div className="h-full flex flex-col">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm" onClick={onBack}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
+        <div className="flex items-center space-x-3">
+          <Button variant="ghost" size="sm" onClick={onBack} className="hover:bg-gray-100">
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <CardTitle className="text-lg">Breezie对话 - {emotion}</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Breezie 对话</CardTitle>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="secondary" className="text-xs">
+                  {emotion}
+                </Badge>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <MessageCircle className="w-3 h-3" />
+                  {messageCount} 条消息
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="flex space-x-2">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="secondary" size="sm">
-                <History className="w-4 h-4 mr-1" />
-                查看记录
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <History className="w-4 h-4" />
+                记录
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>对话记录 - {emotion}</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  对话记录 - {emotion}
+                </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 {currentSession.messages.map((message) => (
@@ -371,19 +496,19 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
                   >
                     <div className={`flex items-start space-x-2 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                       <Avatar className="w-8 h-8">
-                        <AvatarFallback>
+                        <AvatarFallback className={message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'}>
                           {message.role === 'user' ? <User className="w-4 h-4" /> : <MessageCircle className="w-4 h-4" />}
                         </AvatarFallback>
                       </Avatar>
                       <div
-                        className={`px-4 py-2 rounded-lg ${
+                        className={`px-4 py-3 rounded-2xl shadow-sm ${
                           message.role === 'user'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-100 text-gray-900'
+                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-900 border border-gray-200'
                         }`}
                       >
-                        <p className="text-sm">{message.content}</p>
-                        <p className="text-xs opacity-70 mt-1">
+                        <p className="text-sm leading-relaxed">{message.content}</p>
+                        <p className={`text-xs mt-2 ${message.role === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
                           {format(message.timestamp, 'HH:mm:ss', { locale: zhCN })}
                         </p>
                       </div>
@@ -393,7 +518,13 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
               </div>
             </DialogContent>
           </Dialog>
-          <Button variant="secondary" size="sm" onClick={handleEndChat}>
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={handleEndChat}
+            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+          >
+            <Heart className="w-4 h-4 mr-1" />
             结束对话
           </Button>
         </div>
@@ -401,45 +532,54 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
 
       <CardContent className="flex-1 flex flex-col p-6">
         {/* AI回复区域 - 上方框 */}
-        <div className="flex-1 bg-gray-50/50 rounded-2xl p-6 mb-4 min-h-[300px] border border-gray-100">
-          <div className="flex items-center mb-4">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
-              <MessageCircle className="w-4 h-4 text-white" />
+        <div className="flex-1 bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 mb-6 min-h-[350px] border border-blue-100 shadow-sm">
+          <div className="flex items-center mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+              <MessageCircle className="w-6 h-6 text-white" />
             </div>
-            <span className="text-gray-700 font-medium">Breezie</span>
+            <div>
+              <span className="text-gray-800 font-semibold text-lg">Breezie</span>
+              <div className="text-sm text-gray-500">AI 情绪助手</div>
+            </div>
           </div>
           
-          <div className="text-gray-800 leading-relaxed text-base">
+          <div className="text-gray-800 leading-relaxed text-lg">
             {isTyping ? (
-              <div className="flex items-center space-x-3">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="flex items-center space-x-4">
+                <div className="flex space-x-2">
+                  <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce"></div>
+                  <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
-                <span className="text-gray-500">正在思考...</span>
+                <span className="text-gray-600 font-medium">正在思考中...</span>
               </div>
             ) : aiResponse ? (
-              <TypewriterText 
-                text={aiResponse} 
-                onComplete={handleTypewriterComplete}
-              />
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <TypewriterText 
+                  text={aiResponse} 
+                  onComplete={handleTypewriterComplete}
+                />
+              </div>
             ) : (
-              <div className="text-gray-400">等待开始对话...</div>
+              <div className="text-center text-gray-400 py-12">
+                <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg">等待开始对话...</p>
+                <p className="text-sm mt-2">Breezie 已准备好倾听你的心声</p>
+              </div>
             )}
           </div>
         </div>
 
         {/* 用户输入区域 - 下方框 */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
           <div className="p-6">
             <div className="flex items-center mb-4">
-              <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center mr-3">
-                <User className="w-4 h-4 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mr-3">
+                <User className="w-5 h-5 text-white" />
               </div>
-              <span className="text-gray-700 font-medium">你的想法</span>
-              <div className="ml-auto text-xs text-gray-400">
-                按 Enter 发送
+              <div>
+                <span className="text-gray-800 font-semibold">你的想法</span>
+                <div className="text-xs text-gray-400">按 Enter 发送，Shift + Enter 换行</div>
               </div>
             </div>
             
@@ -448,20 +588,22 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={lastUserMessage || "在这里输入你的想法..."}
-                className="w-full h-24 p-4 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400"
+                placeholder={lastUserMessage || "在这里输入你的想法，分享你的感受..."}
+                className="w-full h-28 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
                 disabled={isTyping}
                 autoFocus
               />
-              <div className="flex justify-between items-center mt-3">
-                <div className="text-xs text-gray-400">
-                  支持多行输入，Enter 发送
+              <div className="flex justify-between items-center mt-4">
+                <div className="text-xs text-gray-400 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  在线状态
                 </div>
                 <Button 
                   onClick={handleSendMessage} 
                   disabled={!inputValue.trim() || isTyping}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
+                  <Send className="w-4 h-4 mr-2" />
                   发送
                 </Button>
               </div>
