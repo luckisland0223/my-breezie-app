@@ -28,15 +28,15 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const [notifications, setNotifications] = useState(true)
   const [autoSave, setAutoSave] = useState(true)
   const [privacyMode, setPrivacyMode] = useState(false)
-  const [language, setLanguage] = useState('zh-CN')
+  const [language, setLanguage] = useState('en-US')
   const [theme, setTheme] = useState('auto')
 
   const clearAllRecords = useEmotionStore((state) => state.clearAllRecords)
 
   const handleClearData = () => {
-    if (confirm('确定要清除所有数据吗？此操作不可撤销！')) {
+    if (confirm('Are you sure you want to clear all data? This action cannot be undone!')) {
       clearAllRecords()
-      toast.success('所有数据已清除')
+      toast.success('All data has been cleared successfully')
     }
   }
 
@@ -50,7 +50,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
     link.download = `emotion-data-${new Date().toISOString().split('T')[0]}.json`
     link.click()
     URL.revokeObjectURL(url)
-    toast.success('数据导出成功')
+    toast.success('Data exported successfully')
   }
 
   const handleImportData = () => {
@@ -64,10 +64,10 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         reader.onload = (e) => {
           try {
             const data = JSON.parse(e.target?.result as string)
-            // 这里可以添加数据验证逻辑
-            toast.success('数据导入成功')
+            // Data validation logic can be added here
+            toast.success('Data imported successfully')
           } catch (error) {
-            toast.error('数据格式错误')
+            toast.error('Invalid data format')
           }
         }
         reader.readAsText(file)
@@ -82,7 +82,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         <CardHeader className="flex flex-row items-center justify-between border-b">
           <CardTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
-            设置
+            Settings
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>
             ✕
@@ -90,16 +90,16 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         </CardHeader>
         
         <CardContent className="p-6 space-y-6">
-          {/* 通知设置 */}
+          {/* Notification Settings */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Bell className="w-5 h-5" />
-              通知设置
+              Notification Settings
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label htmlFor="notifications" className="text-sm">
-                  每日情绪提醒
+                  Daily Emotion Reminders
                 </Label>
                 <Switch
                   id="notifications"
@@ -109,7 +109,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="autoSave" className="text-sm">
-                  自动保存对话
+                  Auto-save Conversations
                 </Label>
                 <Switch
                   id="autoSave"
@@ -120,16 +120,16 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             </div>
           </div>
 
-          {/* 隐私设置 */}
+          {/* Privacy Settings */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Shield className="w-5 h-5" />
-              隐私设置
+              Privacy Settings
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label htmlFor="privacyMode" className="text-sm">
-                  隐私模式
+                  Privacy Mode
                 </Label>
                 <Switch
                   id="privacyMode"
@@ -140,28 +140,28 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             </div>
           </div>
 
-          {/* 外观设置 */}
+          {/* Appearance Settings */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Palette className="w-5 h-5" />
-              外观设置
+              Appearance Settings
             </h3>
             <div className="space-y-3">
               <div className="space-y-2">
-                <Label className="text-sm">主题模式</Label>
+                <Label className="text-sm">Theme Mode</Label>
                 <Select value={theme} onValueChange={setTheme}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="auto">跟随系统</SelectItem>
-                    <SelectItem value="light">浅色模式</SelectItem>
-    
+                    <SelectItem value="auto">Follow System</SelectItem>
+                    <SelectItem value="light">Light Mode</SelectItem>
+                    <SelectItem value="dark">Dark Mode</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">语言</Label>
+                <Label className="text-sm">Language</Label>
                 <Select value={language} onValueChange={setLanguage}>
                   <SelectTrigger>
                     <SelectValue />
@@ -175,11 +175,11 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             </div>
           </div>
 
-          {/* 数据管理 */}
+          {/* Data Management */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Download className="w-5 h-5" />
-              数据管理
+              Data Management
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Button 
@@ -188,7 +188,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                 className="flex items-center gap-2"
               >
                 <Download className="w-4 h-4" />
-                导出数据
+                Export Data
               </Button>
               <Button 
                 variant="outline" 
@@ -196,7 +196,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                 className="flex items-center gap-2"
               >
                 <Upload className="w-4 h-4" />
-                导入数据
+                Import Data
               </Button>
             </div>
             <Button 
@@ -205,17 +205,17 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
               className="flex items-center gap-2 w-full"
             >
               <Trash2 className="w-4 h-4" />
-              清除所有数据
+              Clear All Data
             </Button>
           </div>
 
-          {/* 关于 */}
+          {/* About */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">关于 Breezie</h3>
+            <h3 className="text-lg font-semibold">About Breezie</h3>
             <div className="text-sm text-gray-600 space-y-2">
-              <p>版本: 1.0.0</p>
-              <p>Breezie 是一个帮助你管理情绪的AI助手</p>
-              <p>通过对话和记录，更好地了解和管理自己的情绪</p>
+              <p>Version: 1.0.0</p>
+              <p>Breezie is an AI assistant that helps you manage your emotions</p>
+              <p>Through conversation and tracking, better understand and manage your emotions</p>
             </div>
           </div>
         </CardContent>

@@ -29,7 +29,6 @@ import {
   Trash2
 } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, subDays, startOfDay, startOfWeek, endOfWeek, isSameMonth } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
 
 const emotionIcons = {
   'Anger': Angry,
@@ -67,13 +66,13 @@ export function EmotionTracker() {
   const clearAllRecords = useEmotionStore((state) => state.clearAllRecords)
   const deleteRecord = useEmotionStore((state) => state.deleteRecord)
 
-  // 辅助函数：获取极性显示信息
+  // Helper function: get polarity display info
   const getPolarityDisplayInfo = (polarity: PolarityType) => {
     switch (polarity) {
       case 'positive':
         return {
           icon: TrendingUp,
-          label: '积极情绪',
+          label: 'Positive Emotions',
           color: 'text-green-500',
           bgColor: 'bg-green-50',
           badgeVariant: 'default' as const
@@ -81,7 +80,7 @@ export function EmotionTracker() {
       case 'negative':
         return {
           icon: TrendingDown,
-          label: '消极情绪',
+          label: 'Negative Emotions',
           color: 'text-red-500',
           bgColor: 'bg-red-50',
           badgeVariant: 'destructive' as const
@@ -89,7 +88,7 @@ export function EmotionTracker() {
       case 'neutral':
         return {
           icon: Minus,
-          label: '中性情绪',
+          label: 'Neutral Emotions',
           color: 'text-gray-500',
           bgColor: 'bg-gray-50',
           badgeVariant: 'secondary' as const
@@ -119,27 +118,27 @@ export function EmotionTracker() {
     return <div className="p-6 text-center">Loading...</div>
   }
   
-  // 获取日历数据
+  // Get calendar data
   const monthStart = startOfMonth(currentDate)
   const monthEnd = endOfMonth(currentDate)
   
-  // 获取完整的日历网格
+  // Get complete calendar grid
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 })
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
   const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
   
-  // 获取时间范围内的数据
+  // Get data within time range
   const rangeData = getRecentEmotions(timeRange)
   const stats = getEmotionStats()
 
-  // 获取当天的记录
+  // Get records for the day
   const getDayRecords = (day: Date): EmotionRecord[] => {
     return records.filter(record => 
       isSameDay(new Date(record.timestamp), day)
     ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
   }
   
-  // 获取每日的主要情绪
+  // Get primary emotion for each day
   const getDayEmotion = (day: Date): EmotionType | null => {
     const dayRecords = getDayRecords(day)
     if (dayRecords.length === 0) return null
@@ -150,12 +149,12 @@ export function EmotionTracker() {
     return lastRecord.emotionEvaluation?.actualEmotion || lastRecord.emotion
   }
   
-  // 处理删除记录
+  // Handle record deletion
   const handleDeleteRecord = (recordId: string) => {
     deleteRecord(recordId)
     setSelectedRecord(null)
     setIsDeleteConfirmOpen(false)
-    toast.success('记录已删除')
+    toast.success('Record deleted successfully')
   }
   
   // Test function: add multiple detailed emotion records
@@ -185,7 +184,7 @@ export function EmotionTracker() {
     })
   }
   
-  // 计算饼图数据
+  // Calculate pie chart data
   const getPieData = () => {
     const emotionCounts: { [key: string]: number } = {}
     rangeData.forEach(record => {
@@ -214,42 +213,42 @@ export function EmotionTracker() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
-      {/* 页面标题 */}
+      {/* Page Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
             <BarChart3 className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">情绪统计分析</h1>
-            <p className="text-gray-600">深入了解你的情绪模式和变化趋势</p>
+            <h1 className="text-3xl font-bold text-gray-900">Emotion Analytics Dashboard</h1>
+            <p className="text-gray-600">Gain deep insights into your emotional patterns and trends</p>
           </div>
         </div>
 
-        {/* Navigation Bar 布局 */}
+        {/* Navigation Bar Layout */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              概览
+              Overview
             </TabsTrigger>
             <TabsTrigger value="analysis" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              分析
+              Analysis
             </TabsTrigger>
             <TabsTrigger value="records" className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
-              记录
+              Records
             </TabsTrigger>
           </TabsList>
 
-          {/* 概览页面 */}
+          {/* Overview Page */}
           <TabsContent value="overview" className="space-y-6">
-            {/* 统计方框 */}
+            {/* Statistics Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">最多情绪</CardTitle>
+                  <CardTitle className="text-sm font-medium">Most Frequent Emotion</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -264,40 +263,40 @@ export function EmotionTracker() {
                     <span className="text-2xl font-bold">{mostFrequent.count}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    最近{timeRange}天出现最多
+                    Most common in last {timeRange} days
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">情绪总计</CardTitle>
+                  <CardTitle className="text-sm font-medium">Total Records</CardTitle>
                   <Heart className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{totalRecords}</div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    累计记录数量
+                    Cumulative emotion logs
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">最近活跃</CardTitle>
+                  <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{rangeData.length}</div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    最近{timeRange}天记录
+                    Records in last {timeRange} days
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">行为影响程度</CardTitle>
+                  <CardTitle className="text-sm font-medium">Behavioral Impact</CardTitle>
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -308,21 +307,21 @@ export function EmotionTracker() {
                     }
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    情绪对行为的影响程度 (1-10)
+                    Average emotional impact on behavior (1-10)
                   </p>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          {/* 分析页面 */}
+          {/* Analysis Page */}
           <TabsContent value="analysis" className="space-y-6">
-            {/* 情绪分布饼图 */}
+            {/* Emotion Distribution Chart */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="w-5 h-5" />
-                  情绪分布分析
+                  Emotion Distribution Analysis
                 </CardTitle>
                 <div className="flex gap-2">
                   {[10, 15, 30].map((days) => (
@@ -332,7 +331,7 @@ export function EmotionTracker() {
                       size="sm"
                       onClick={() => setTimeRange(days as TimeRange)}
                     >
-                      {days}天
+                      {days} days
                     </Button>
                   ))}
                 </div>
@@ -362,9 +361,9 @@ export function EmotionTracker() {
                       </ResponsiveContainer>
                     </div>
                     
-                    {/* 详细分析 */}
+                    {/* Detailed Analysis */}
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-lg">情绪分析报告</h3>
+                      <h3 className="font-semibold text-lg">Emotion Analysis Report</h3>
                       <div className="space-y-3">
                         {pieData.map((item) => {
                           const percentage = (item.value / rangeData.length * 100).toFixed(1)
@@ -376,7 +375,7 @@ export function EmotionTracker() {
                                 <span className="font-medium">{item.name}</span>
                               </div>
                               <div className="text-right">
-                                <div className="text-lg font-bold">{item.value}次</div>
+                                <div className="text-lg font-bold">{item.value} times</div>
                                 <div className="text-sm text-gray-500">{percentage}%</div>
                               </div>
                             </div>
@@ -402,8 +401,8 @@ export function EmotionTracker() {
                   <div className="h-64 flex items-center justify-center text-gray-500">
                     <div className="text-center">
                       <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>最近{timeRange}天暂无情绪记录</p>
-                      <p className="text-sm mt-2">开始记录你的情绪，让我们为你分析情绪模式</p>
+                      <p>No emotion records in the last {timeRange} days</p>
+                      <p className="text-sm mt-2">Start tracking your emotions to analyze your emotional patterns</p>
                     </div>
                   </div>
                 )}
@@ -411,22 +410,22 @@ export function EmotionTracker() {
             </Card>
           </TabsContent>
 
-          {/* 记录页面 */}
+          {/* Records Page */}
           <TabsContent value="records" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Eye className="w-5 h-5" />
-                  情绪记录详情
+                  Emotion Record Details
                 </CardTitle>
-                <p className="text-sm text-gray-600">点击记录查看详细分析</p>
+                <p className="text-sm text-gray-600">Click on records to view detailed analysis</p>
               </CardHeader>
               <CardContent>
                 {records.length === 0 ? (
                   <div className="text-center py-12 text-gray-500">
                     <Heart className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>还没有情绪记录</p>
-                    <p className="text-sm">开始你的第一次情绪对话吧！</p>
+                    <p>No emotion records yet</p>
+                    <p className="text-sm">Start your first emotion conversation!</p>
                   </div>
                 ) : (
                   <div className="space-y-3 max-h-[700px] overflow-y-auto">
@@ -462,7 +461,7 @@ export function EmotionTracker() {
                                   <div className="flex items-center gap-2 mb-1">
                                     <h3 className="font-medium">{record.emotion}</h3>
                                     
-                                    {/* 情绪极性显示 */}
+                                    {/* Emotion Polarity Display */}
                                     {(() => {
                                       const polarity = record.polarityAnalysis?.polarity || getDefaultPolarity(record.emotion)
                                       const polarityInfo = getPolarityDisplayInfo(polarity)
@@ -477,17 +476,17 @@ export function EmotionTracker() {
                                     })()}
                                     
                                     <Badge variant="outline" className="text-xs">
-                                      行为影响 {record.behavioralImpact}/10
+                                      Behavioral Impact {record.behavioralImpact}/10
                                     </Badge>
                                     {record.emotionEvaluation?.emotionChanged && (
                                       <Badge variant="secondary" className="text-xs">
-                                        AI识别: {actualEmotion}
+                                        AI Detected: {actualEmotion}
                                       </Badge>
                                     )}
                                   </div>
                                   
                                   <p className="text-sm text-gray-600 mb-2">
-                                    {format(new Date(record.timestamp), 'MM月dd日 HH:mm', { locale: zhCN })}
+                                    {format(new Date(record.timestamp), 'MMM dd, HH:mm')}
                                   </p>
                                   
                                   <p className="text-sm text-gray-500 truncate">
@@ -508,20 +507,20 @@ export function EmotionTracker() {
           </TabsContent>
         </Tabs>
 
-        {/* 详情对话框 */}
+        {/* Details Dialog */}
         {selectedRecord && (
           <Dialog open={!!selectedRecord} onOpenChange={() => setSelectedRecord(null)}>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   {React.createElement(emotionIcons[selectedRecord.emotion], { className: "w-5 h-5" })}
-                  情绪记录详情 - {selectedRecord.emotion}
+                  Emotion Record Details - {selectedRecord.emotion}
                 </DialogTitle>
               </DialogHeader>
               
               <div className="space-y-4">
                 <div className="text-sm text-gray-500">
-                  {format(new Date(selectedRecord.timestamp), 'yyyy年MM月dd日 HH:mm', { locale: zhCN })}
+                  {format(new Date(selectedRecord.timestamp), 'MMM dd, yyyy HH:mm')}
                 </div>
                 
                 <div className="py-4">
@@ -530,7 +529,7 @@ export function EmotionTracker() {
                   </div>
                 </div>
                 
-                {/* 按钮区域 */}
+                {/* Button Area */}
                 <div className="flex justify-between pt-6 border-t">
                   <Button
                     variant="destructive"
@@ -539,14 +538,14 @@ export function EmotionTracker() {
                     className="flex items-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
-                    删除记录
+                    Delete Record
                   </Button>
                   
                   <Button
                     variant="outline"
                     onClick={() => setSelectedRecord(null)}
                   >
-                    关闭
+                    Close
                   </Button>
                 </div>
               </div>
@@ -554,24 +553,24 @@ export function EmotionTracker() {
           </Dialog>
         )}
         
-        {/* 删除确认对话框 */}
+        {/* Delete Confirmation Dialog */}
         {isDeleteConfirmOpen && selectedRecord && (
           <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
             <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2 text-red-600">
                   <AlertTriangle className="w-5 h-5" />
-                  确认删除记录
+                  Confirm Delete Record
                 </DialogTitle>
               </DialogHeader>
               
               <div className="space-y-4">
                 <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                   <p className="text-sm text-red-800 mb-2">
-                    <strong>警告：</strong> 此操作不可撤销！
+                    <strong>Warning:</strong> This action cannot be undone!
                   </p>
                   <p className="text-sm text-red-700">
-                    你确定要删除这条情绪记录吗？删除后将无法恢复。
+                    Are you sure you want to delete this emotion record? This action cannot be undone.
                   </p>
                 </div>
                 
@@ -583,7 +582,7 @@ export function EmotionTracker() {
                     })}
                     <span className="font-medium">{selectedRecord.emotion}</span>
                     <span className="text-sm text-gray-500">
-                      · {format(new Date(selectedRecord.timestamp), 'MM月dd日 HH:mm', { locale: zhCN })}
+                      · {format(new Date(selectedRecord.timestamp), 'MMM dd, HH:mm')}
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 truncate">
@@ -596,7 +595,7 @@ export function EmotionTracker() {
                     variant="outline"
                     onClick={() => setIsDeleteConfirmOpen(false)}
                   >
-                    取消
+                    Cancel
                   </Button>
                   <Button
                     variant="destructive"
@@ -604,7 +603,7 @@ export function EmotionTracker() {
                     className="flex items-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
-                    确认删除
+                    Confirm Delete
                   </Button>
                 </div>
               </div>
