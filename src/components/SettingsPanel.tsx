@@ -5,7 +5,7 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useEmotionStore } from '@/store/emotion'
-import { useTranslation } from '@/hooks/useTranslation'
+
 import { 
   Settings, 
   Bell, 
@@ -30,7 +30,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const [autoSave, setAutoSave] = useState(true)
   const [privacyMode, setPrivacyMode] = useState(false)
   const [language, setLanguage] = useState('en-US')
-  const { language: currentLang, setLanguage: changeLanguage } = useTranslation()
+
   const [theme, setTheme] = useState('auto')
 
   const clearAllRecords = useEmotionStore((state) => state.clearAllRecords)
@@ -162,18 +162,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Language</Label>
-                <Select value={currentLang} onValueChange={changeLanguage}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="zh">简体中文</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+
             </div>
           </div>
 

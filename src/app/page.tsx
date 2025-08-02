@@ -9,12 +9,13 @@ import { ChatInterface } from '@/components/ChatInterface'
 import { EmotionTracker } from '@/components/EmotionTracker'
 import { EmotionAdvice } from '@/components/EmotionAdvice'
 // import { AchievementBadge } from '@/components/AchievementBadge'
-import { SettingsPanel } from '@/components/SettingsPanel'
+
 import { EmotionCalendar } from '@/components/EmotionCalendar'
 import { useEmotionStore } from '@/store/emotion'
-import { useTranslation } from '@/hooks/useTranslation'
+import UserProfile from '@/components/UserProfile'
 import type { EmotionType } from '@/store/emotion'
-import { BarChart3, Home, Cloud, Heart, TrendingUp, Calendar, Zap, ArrowRight, Sparkles, Settings } from 'lucide-react'
+import { BarChart3, Home, Cloud, Heart, TrendingUp, Calendar, Zap, ArrowRight, Sparkles } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
 
 type AppView = 'home' | 'chat' | 'tracker'
@@ -23,15 +24,17 @@ export default function HomePage() {
   const [currentView, setCurrentView] = useState<AppView>('home')
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null)
   const [showWelcome, setShowWelcome] = useState(true)
-  const [showSettings, setShowSettings] = useState(false)
+
 
   // Store hooks
   const records = useEmotionStore((state) => state.records)
   const getEmotionStats = useEmotionStore((state) => state.getEmotionStats)
   const getRecentEmotions = useEmotionStore((state) => state.getRecentEmotions)
+  
+  // Auth hook
+  const { data: session } = useSession()
 
-  // Translation hook
-  const { t } = useTranslation()
+
 
   const handleEmotionSelect = (emotion: EmotionType) => {
     setSelectedEmotion(emotion)
@@ -109,10 +112,10 @@ export default function HomePage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className="w-5 h-5 text-blue-600" />
-                        <h2 className="text-xl font-bold text-gray-900">{t('welcomeBack')}</h2>
+                        <h2 className="text-xl font-bold text-gray-900">Welcome back!</h2>
                       </div>
                       <p className="text-gray-600 mb-4">
-                        {t('welcomeMessage')}
+                        How are you feeling today? Breezie is here to accompany you and help you better understand and manage your emotions.
                       </p>
                       
                       {/* Quick statistics */}
@@ -121,19 +124,19 @@ export default function HomePage() {
                           <div className="flex items-baseline justify-center min-h-[48px]">
                             <span className="text-3xl font-bold text-blue-600 leading-none">{totalRecords}</span>
                           </div>
-                          <div className="text-sm text-gray-500 mt-2">{t('totalRecords')}</div>
+                          <div className="text-sm text-gray-500 mt-2">Total Records</div>
                         </div>
                         <div className="flex flex-col items-center text-center">
                           <div className="flex items-baseline justify-center min-h-[48px]">
                             <span className="text-3xl font-bold text-green-600 leading-none">{thisWeekRecords}</span>
                           </div>
-                          <div className="text-sm text-gray-500 mt-2">{t('thisWeek')}</div>
+                          <div className="text-sm text-gray-500 mt-2">This Week</div>
                         </div>
                         <div className="flex flex-col items-center text-center">
                           <div className="flex items-baseline justify-center min-h-[48px]">
                             <span className="text-3xl font-bold text-purple-600 leading-none">{mostFrequent.count}</span>
                           </div>
-                          <div className="text-sm text-gray-500 mt-2">{t('primaryEmotion')}</div>
+                          <div className="text-sm text-gray-500 mt-2">Primary Emotion</div>
                         </div>
                       </div>
                       
@@ -162,7 +165,7 @@ export default function HomePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="w-5 h-5 text-yellow-500" />
-                  {t('quickStart')}
+                  Quick Start
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -173,7 +176,7 @@ export default function HomePage() {
                     onClick={() => setCurrentView('tracker')}
                   >
                     <BarChart3 className="w-6 h-6 text-blue-600" />
-                    <span className="font-medium">{t('viewAnalytics')}</span>
+                    <span className="font-medium">View Analytics</span>
                     <span className="text-xs text-gray-500">Analyze your emotional patterns</span>
                   </Button>
                   
@@ -183,7 +186,7 @@ export default function HomePage() {
                     onClick={handleStartConversation}
                   >
                     <Heart className="w-6 h-6 text-green-600" />
-                    <span className="font-medium">{t('startConversation')}</span>
+                    <span className="font-medium">Start Conversation</span>
                     <span className="text-xs text-gray-500">Chat with Breezie</span>
                   </Button>
                 </div>
@@ -247,14 +250,7 @@ export default function HomePage() {
                 <BarChart3 className="w-4 h-4 mr-1" />
                 Analytics
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSettings(true)}
-                className="hover:bg-gray-100"
-              >
-                <Settings className="w-4 h-4" />
-              </Button>
+              <UserProfile />
               
             </div>
           </div>
@@ -286,10 +282,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Settings panel */}
-      {showSettings && (
-        <SettingsPanel onClose={() => setShowSettings(false)} />
-      )}
+
     </div>
   )
 }

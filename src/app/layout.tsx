@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "sonner";
+import AuthProvider from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
 	title: "Create T3 App",
@@ -21,8 +22,10 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={`${geist.variable}`}>
 			<body>
-				{children}
-				<Toaster position="top-center" richColors />
+				<AuthProvider>
+					{children}
+					<Toaster position="top-center" richColors />
+				</AuthProvider>
 			</body>
 		</html>
 	);
