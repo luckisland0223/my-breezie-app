@@ -51,55 +51,55 @@ export function BehavioralImpactDisplay({ emotion, impactAnalysis }: BehavioralI
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Activity className="w-5 h-5" />
-          行为影响分析
+          Behavioral Impact Analysis
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* 总体影响评分 */}
+        {/* Overall Impact Score */}
         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
           <div className="flex items-center gap-2">
             {getImpactIcon(impactAnalysis.impactLevel)}
-            <span className="font-medium">总体影响程度</span>
+            <span className="font-medium">Overall Impact Level</span>
           </div>
           <Badge className={getImpactColor(impactAnalysis.impactLevel)}>
             {impactAnalysis.impactScore}/10
           </Badge>
         </div>
 
-        {/* 具体影响维度 */}
+        {/* Specific Impact Dimensions */}
         <div className="space-y-3">
-          <h4 className="font-medium text-sm text-gray-700">具体影响维度</h4>
+          <h4 className="font-medium text-sm text-gray-700">Specific Impact Dimensions</h4>
           
-          {/* 决策影响 */}
+          {/* Decision Making Impact */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Target className="w-4 h-4 text-blue-500" />
-                <span className="text-sm">决策影响</span>
+                <span className="text-sm">Decision Making</span>
               </div>
               <span className="text-sm font-medium">{impactAnalysis.decisionInfluence}/10</span>
             </div>
             <Progress value={impactAnalysis.decisionInfluence * 10} className="h-2" />
           </div>
 
-          {/* 社交互动影响 */}
+          {/* Social Interaction Impact */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-green-500" />
-                <span className="text-sm">社交互动</span>
+                <span className="text-sm">Social Interaction</span>
               </div>
               <span className="text-sm font-medium">{impactAnalysis.socialInteraction}/10</span>
             </div>
             <Progress value={impactAnalysis.socialInteraction * 10} className="h-2" />
           </div>
 
-          {/* 工作效率影响 */}
+          {/* Work Productivity Impact */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-purple-500" />
-                <span className="text-sm">工作效率</span>
+                <span className="text-sm">Work Productivity</span>
               </div>
               <span className="text-sm font-medium">{impactAnalysis.productivity}/10</span>
             </div>
@@ -107,9 +107,9 @@ export function BehavioralImpactDisplay({ emotion, impactAnalysis }: BehavioralI
           </div>
         </div>
 
-        {/* 行为变化描述 */}
+        {/* Behavioral Change Description */}
         <div className="space-y-2">
-          <h4 className="font-medium text-sm text-gray-700">预期行为变化</h4>
+          <h4 className="font-medium text-sm text-gray-700">Expected Behavioral Changes</h4>
           <div className="space-y-1">
             {impactAnalysis.behaviorChanges.map((change, index) => (
               <div key={index} className="flex items-start gap-2 text-sm text-gray-600">
@@ -120,15 +120,15 @@ export function BehavioralImpactDisplay({ emotion, impactAnalysis }: BehavioralI
           </div>
         </div>
 
-        {/* 建议 */}
+        {/* Recommendations */}
         <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <h4 className="font-medium text-sm text-blue-800 mb-2">💡 建议</h4>
+          <h4 className="font-medium text-sm text-blue-800 mb-2">💡 Recommendations</h4>
           <p className="text-sm text-blue-700">
             {impactAnalysis.impactLevel === 'high' 
-              ? '情绪对行为影响较大，建议适当调整和关注。'
+              ? 'Emotions have a significant impact on behavior. Consider appropriate adjustments and attention.'
               : impactAnalysis.impactLevel === 'medium'
-              ? '情绪对行为有一定影响，保持关注即可。'
-              : '情绪对行为影响较小，继续保持良好状态。'
+              ? 'Emotions have some impact on behavior. Maintain awareness as needed.'
+              : 'Emotions have minimal impact on behavior. Continue maintaining good condition.'
             }
           </p>
         </div>

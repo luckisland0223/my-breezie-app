@@ -45,14 +45,14 @@ export interface BehavioralImpactAnalysis {
   productivity: number // Work/productivity impact (1-10)
 }
 
-// 情绪对行为影响程度的计算函数
+// Function to calculate emotional impact on behavior
 export function calculateBehavioralImpact(
   emotion: EmotionType, 
   intensity: number, 
   context: string
 ): BehavioralImpactAnalysis {
   
-  // 基础影响分数（基于情绪类型和强度）
+  // Base impact score (based on emotion type and intensity)
   const baseImpact = intensity * getEmotionImpactMultiplier(emotion)
   
   // Adjust impact based on emotion type
@@ -78,7 +78,7 @@ export function calculateBehavioralImpact(
   }
 }
 
-// 获取情绪影响倍数
+// Get emotion impact multiplier
 function getEmotionImpactMultiplier(emotion: EmotionType): number {
   const multipliers = {
     'Anger': 1.3,    // Anger has high behavioral impact
@@ -92,7 +92,7 @@ function getEmotionImpactMultiplier(emotion: EmotionType): number {
   return multipliers[emotion]
 }
 
-// 获取具体行为变化描述
+// Get specific behavioral change descriptions
 function getBehaviorChanges(emotion: EmotionType, intensity: number): string[] {
   const changes: string[] = []
   
@@ -157,7 +157,7 @@ export interface EmotionStats {
 }
 
 interface EmotionState {
-  // 核心数据
+  // Core data
   records: EmotionRecord[]
   stats: EmotionStats
   currentSession: ChatSession | null
@@ -216,17 +216,17 @@ const recalculateStats = (records: EmotionRecord[]): EmotionStats => {
 export const useEmotionStore = create<EmotionState>()(
   persist(
     (set, get) => ({
-      // 初始状态
+      // Initial state
       records: [],
       stats: createInitialStats(),
       currentSession: null,
 
-      // 添加情绪记录
+      // Add emotion record
       addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, conversationSummary?: ConversationSummary, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis) => {
         const newRecord: EmotionRecord = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           emotion,
-          behavioralImpact: calculateBehavioralImpact(emotion, intensity, note).impactScore, // 使用计算函数
+          behavioralImpact: calculateBehavioralImpact(emotion, intensity, note).impactScore, // Use calculation function
           note,
           timestamp: new Date(),
           conversationSummary,
@@ -247,12 +247,12 @@ export const useEmotionStore = create<EmotionState>()(
         })
       },
 
-      // 根据情绪获取记录
+      // Get records by emotion
       getRecordsByEmotion: (emotion: EmotionType) => {
         return get().records.filter((record) => record.emotion === emotion)
       },
 
-      // 根据日期范围获取记录
+      // Get records by date range
       getRecordsByDateRange: (startDate: Date, endDate: Date) => {
         return get().records.filter(
           (record) =>
@@ -260,12 +260,12 @@ export const useEmotionStore = create<EmotionState>()(
         )
       },
 
-      // 获取统计数据
+      // Get statistics data
       getEmotionStats: () => {
         return get().stats
       },
 
-      // 获取最近几天的记录
+      // Get recent records from last few days
       getRecentEmotions: (days: number) => {
         const now = new Date()
         const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
@@ -274,7 +274,7 @@ export const useEmotionStore = create<EmotionState>()(
           .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       },
 
-      // 清除所有记录
+      // Clear all records
       clearAllRecords: () => {
         set({
           records: [],
@@ -283,7 +283,7 @@ export const useEmotionStore = create<EmotionState>()(
         })
       },
 
-      // 删除单个记录
+      // Delete single record
       deleteRecord: (recordId: string) => {
         set((state) => {
           const updatedRecords = state.records.filter(record => record.id !== recordId)
@@ -296,7 +296,7 @@ export const useEmotionStore = create<EmotionState>()(
         })
       },
 
-      // 开始聊天会话
+      // Start chat session
       startChatSession: (emotion: EmotionType) => {
         const newSession: ChatSession = {
           id: Date.now().toString(),
@@ -308,7 +308,7 @@ export const useEmotionStore = create<EmotionState>()(
         set({ currentSession: newSession })
       },
 
-      // 结束聊天会话
+      // End chat session
       endChatSession: () => {
         const currentSession = get().currentSession
         if (currentSession) {
@@ -319,14 +319,14 @@ export const useEmotionStore = create<EmotionState>()(
 
 
           
-          // 清除当前会话
+          // Clear current session
           setTimeout(() => {
             set({ currentSession: null })
           }, 100)
         }
       },
 
-      // 添加消息
+      // Add message
       addMessage: (content: string, role: 'user' | 'assistant') => {
         const currentSession = get().currentSession
         if (currentSession) {
@@ -348,15 +348,15 @@ export const useEmotionStore = create<EmotionState>()(
     }),
     {
       name: 'emotion-storage',
-      // 只持久化records和stats，不持久化currentSession
+      // Only persist records and stats, not currentSession
       partialize: (state) => ({
         records: state.records,
         stats: state.stats,
       }),
-      // 自定义存储，正确处理Date对象，并支持SSR
+      // Custom storage, properly handle Date objects and support SSR
       storage: {
         getItem: (name) => {
-          // SSR安全检查
+          // SSR safety check
           if (typeof window === 'undefined') return null
           
           try {
@@ -365,7 +365,7 @@ export const useEmotionStore = create<EmotionState>()(
             
             const parsed = JSON.parse(value)
             
-            // 转换timestamp字符串回Date对象
+            // Convert timestamp strings back to Date objects
             if (parsed.state?.records) {
               parsed.state.records = parsed.state.records.map((record: any) => ({
                 ...record,
@@ -373,7 +373,7 @@ export const useEmotionStore = create<EmotionState>()(
               }))
             }
             
-            // 转换lastRecorded字符串回Date对象
+            // Convert lastRecorded strings back to Date objects
             if (parsed.state?.stats) {
               Object.keys(parsed.state.stats).forEach(emotion => {
                 if (parsed.state.stats[emotion].lastRecorded) {
@@ -384,16 +384,16 @@ export const useEmotionStore = create<EmotionState>()(
             
             return parsed
           } catch (error) {
-            console.error('解析localStorage数据失败:', error)
+            console.error('Failed to parse localStorage data:', error)
             return null
           }
         },
         setItem: (name, value) => {
-          // SSR安全检查
+          // SSR safety check
           if (typeof window === 'undefined') return
           
           try {
-            // 转换Date对象为字符串进行存储
+            // Convert Date objects to strings for storage
             const toStore = {
               ...value,
               state: {
@@ -417,24 +417,24 @@ export const useEmotionStore = create<EmotionState>()(
             
             localStorage.setItem(name, JSON.stringify(toStore))
           } catch (error) {
-            console.error('保存到localStorage失败:', error)
+            console.error('Failed to save to localStorage:', error)
           }
         },
         removeItem: (name) => {
-          // SSR安全检查
+          // SSR safety check
           if (typeof window === 'undefined') return
           
           try {
             localStorage.removeItem(name)
           } catch (error) {
-            console.error('从localStorage删除数据失败:', error)
+            console.error('Failed to remove data from localStorage:', error)
           }
         },
       },
-      // 数据恢复后的处理
+      // Post-data recovery processing
       onRehydrateStorage: () => (state) => {
         if (state && state.records && state.records.length > 0) {
-          // 确保数据一致性，重新计算统计
+          // Ensure data consistency, recalculate statistics
           const recalculatedStats = recalculateStats(state.records)
           state.stats = recalculatedStats
         }

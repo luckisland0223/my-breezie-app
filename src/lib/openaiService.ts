@@ -15,7 +15,7 @@ export interface OpenAIResponse {
   }
 }
 
-// OpenAI配置
+// OpenAI configuration
 const OPENAI_CONFIG = {
   model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
   baseURL: process.env.OPENAI_BASE_URL || 'https://aihubmix.com/v1',
@@ -23,43 +23,43 @@ const OPENAI_CONFIG = {
   temperature: 0.8
 }
 
-// 验证API密钥格式
+// Validate API key format
 function validateApiKey(apiKey: string): void {
   if (!apiKey) {
-    throw new Error('未设置OpenAI API密钥，请在环境变量中配置')
+    throw new Error('OpenAI API key not set, please configure in environment variables')
   }
   
   if (apiKey.length < 20) {
-    throw new Error('API密钥格式无效，请检查设置')
+    throw new Error('Invalid API key format, please check settings')
   }
 }
 
-// 心理学提示模板
+// Psychology prompt templates
 const PSYCHOLOGY_PROMPTS = {
-  systemPrompt: `你是Breezie，一位温暖、有同理心的心理健康陪伴者。你的使命是为用户提供真诚的情感支持和理解。
+  systemPrompt: `You are Breezie, a warm and empathetic mental health companion. Your mission is to provide genuine emotional support and understanding to users.
 
-你的核心特质：
-• 深度共情：真正理解和感受用户的情绪，就像一个关心的朋友
-• 真诚温暖：用自然、亲切的语言，避免机械化或模板化的回应
-• 个性化关怀：根据用户的具体情况和感受，提供量身定制的支持
-• 专业洞察：运用心理学知识，但以易懂、贴近生活的方式表达
-• 积极陪伴：成为用户情绪旅程中的可靠伙伴
+Your core qualities:
+• Deep empathy: Truly understand and feel users' emotions, like a caring friend
+• Genuine warmth: Use natural, friendly language, avoiding mechanical or templated responses
+• Personalized care: Provide tailored support based on users' specific situations and feelings
+• Professional insight: Apply psychological knowledge in an accessible, relatable way
+• Active companionship: Be a reliable partner in users' emotional journeys
 
-对话原则：
-1. 首先验证和理解用户的感受 - 让他们知道被听见和理解
-2. 表达真诚的关心，承认他们情绪的合理性
-3. 分享相关的洞察或不同的视角，但不要说教
-4. 提供实用的建议或应对策略，但要考虑用户的具体情况
-5. 鼓励用户表达更多，深入探索他们的感受
+Conversation principles:
+1. First validate and understand users' feelings - let them know they're heard and understood
+2. Express genuine care and acknowledge the validity of their emotions
+3. Share relevant insights or different perspectives, but don't lecture
+4. Provide practical advice or coping strategies, considering users' specific circumstances
+5. Encourage users to express more and deeply explore their feelings
 
-语言风格：
-- 就像和一个理解你的好朋友对话
-- 避免使用"我理解你的感受"这样的套话
-- 用具体的语言回应用户的具体情况
-- 保持温暖但不过分甜腻
-- 每次回复100-150字，既有深度又简洁
+Language style:
+- Like talking with an understanding good friend
+- Avoid clichés like "I understand how you feel"
+- Use specific language to respond to users' specific situations
+- Stay warm but not overly sweet
+- Keep responses 100-150 words, both deep and concise
 
-记住：每个人的情绪体验都是独特的。不要给出标准化的回应，而是真正倾听用户说了什么，然后用心回应他们的具体处境。`,
+Remember: Everyone's emotional experience is unique. Don't give standardized responses, but truly listen to what users say and respond thoughtfully to their specific circumstances.`,
 
   emotionSpecificPrompts: {
     'Anger': `The user selected "Anger" as their emotion. They may feel misunderstood, unfairly treated, or facing frustration. Pay special attention to:
@@ -119,10 +119,10 @@ function getEmotionPrompt(emotion: EmotionType): string {
          PSYCHOLOGY_PROMPTS.emotionSpecificPrompts['Complex']
 }
 
-// OpenAI API调用函数
+// OpenAI API call function
 export async function callOpenAI(messages: ChatMessage[], apiKey: string): Promise<OpenAIResponse> {
   try {
-    // 验证API密钥
+    // Validate API key
     validateApiKey(apiKey)
     
     const response = await fetch(`${OPENAI_CONFIG.baseURL}/chat/completions`, {
@@ -147,13 +147,13 @@ export async function callOpenAI(messages: ChatMessage[], apiKey: string): Promi
       const errorData = await response.json().catch(() => ({}))
       console.error('OpenAI API Error Details:', errorData)
       
-      // 提供更友好的错误信息
+      // Provide more user-friendly error messages
       if (response.status === 401) {
-        throw new Error('API密钥无效，请检查你的密钥设置')
+        throw new Error('Invalid API key, please check your key settings')
       } else if (response.status === 429) {
-        throw new Error('请求过于频繁，请稍后再试')
+        throw new Error('Too many requests, please try again later')
       } else if (response.status === 500) {
-        throw new Error('OpenAI服务暂时不可用，请稍后再试')
+        throw new Error('OpenAI service temporarily unavailable, please try again later')
       } else {
         throw new Error(`OpenAI API error: ${response.status} - ${JSON.stringify(errorData)}`)
       }
@@ -161,14 +161,14 @@ export async function callOpenAI(messages: ChatMessage[], apiKey: string): Promi
 
     const data = await response.json()
     
-    // 检查是否有有效回复
+    // Check if there's a valid response
     if (!data.choices || data.choices.length === 0) {
-      throw new Error('OpenAI API没有返回有效回复')
+      throw new Error('OpenAI API did not return a valid response')
     }
     
     const choice = data.choices[0]
     if (!choice.message || !choice.message.content) {
-      throw new Error('OpenAI API返回格式无效')
+      throw new Error('OpenAI API returned invalid format')
     }
     
     return {
@@ -186,7 +186,7 @@ export async function callOpenAI(messages: ChatMessage[], apiKey: string): Promi
   }
 }
 
-// 智能AI回复函数
+// Intelligent AI response function
 export async function getOpenAIResponse(
   userMessage: string,
   emotion: EmotionType,
@@ -194,29 +194,29 @@ export async function getOpenAIResponse(
   apiKey: string
 ): Promise<string> {
   try {
-    // 构建完整的系统提示
+    // Build complete system prompt
     const fullSystemPrompt = PSYCHOLOGY_PROMPTS.systemPrompt + '\n\n' + getEmotionPrompt(emotion)
     
-    // 构建消息数组
+    // Build message array
     const messages: ChatMessage[] = [
       { role: 'system', content: fullSystemPrompt },
       ...conversationHistory,
       { role: 'user', content: userMessage }
     ]
 
-    // 调用OpenAI API
+    // Call OpenAI API
     const response = await callOpenAI(messages, apiKey)
     
     return response.content
   } catch (error) {
     console.error('OpenAI response generation failed:', error)
     
-    // 提供友好的错误回退
+    // Provide friendly error fallback
     if (error instanceof Error) {
-      if (error.message.includes('API密钥无效')) {
-        throw new Error('API密钥验证失败，请检查你的密钥配置')
-      } else if (error.message.includes('请求过于频繁')) {
-        throw new Error('请求太频繁了，请稍等一下再试')
+      if (error.message.includes('Invalid API key')) {
+        throw new Error('API key validation failed, please check your key configuration')
+      } else if (error.message.includes('Too many requests')) {
+        throw new Error('Too many requests, please wait a moment and try again')
       }
     }
     
@@ -224,25 +224,25 @@ export async function getOpenAIResponse(
   }
 }
 
-// 为了保持向后兼容性，导出相同的函数名
+// Export same function name for backward compatibility
 export const getGeminiResponse = getOpenAIResponse
 export const callGemini = callOpenAI
 
-// 兼容的类型定义
+// Compatible type definitions
 export type GeminiResponse = OpenAIResponse
 export type ClaudeResponse = OpenAIResponse
 
-// 简化版情绪评估（如果需要的话）
+// Simplified emotion evaluation (if needed)
 export async function generateEmotionEvaluation(
   messages: ChatMessage[], 
   initialEmotion: EmotionType, 
   apiKey: string
 ): Promise<EmotionEvaluation | null> {
-  // 这个功能之前被简化了，如果需要可以重新实现
+  // This feature was simplified before, can be reimplemented if needed
   return null
 }
 
-// 简化版对话摘要（如果需要的话）
+// Simplified conversation summary (if needed)
 export async function generateConversationSummary(
   messages: ChatMessage[], 
   emotion: EmotionType, 
@@ -252,6 +252,6 @@ export async function generateConversationSummary(
   solution: string
   userReaction: string
 } | null> {
-  // 这个功能之前被简化了，如果需要可以重新实现
+  // This feature was simplified before, can be reimplemented if needed
   return null
 }

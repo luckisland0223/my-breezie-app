@@ -5,45 +5,45 @@ interface EmotionChartProps {
   records: EmotionRecord[]
 }
 
-// 情绪颜色映射 - 淡色调
+// Emotion color mapping - light tones
 const emotionColorMap: Record<string, string> = {
-  '愤怒': '#fca5a5',   // 淡红色
-  '厌恶': '#fdba74',   // 淡橙色
-  '恐惧': '#c4b5fd',   // 淡紫色
-  '快乐': '#86efac',   // 淡绿色
-  '悲伤': '#93c5fd',   // 淡蓝色
-  '惊讶': '#fde047',   // 淡黄色
-  '复杂': '#a5b4fc'    // 淡靛蓝色
+  'Anger': '#fca5a5',     // Light red
+  'Disgust': '#fdba74',   // Light orange
+  'Fear': '#c4b5fd',      // Light purple
+  'Joy': '#86efac',       // Light green
+  'Sadness': '#93c5fd',   // Light blue
+  'Surprise': '#fde047',  // Light yellow
+  'Complex': '#a5b4fc'    // Light indigo
 }
 
 export function EmotionChart({ records }: EmotionChartProps) {
   if (records.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500">
-        还没有情绪记录，开始第一次对话来生成图表吧！
+        No emotion records yet. Start your first conversation to generate the chart!
       </div>
     )
   }
 
-  // 统计各种情绪的出现次数
+  // Count occurrences of each emotion type
   const emotionCount = records.reduce((acc, record) => {
     acc[record.emotion] = (acc[record.emotion] || 0) + 1
     return acc
   }, {} as Record<string, number>)
 
-  // 将统计数据转换为饼图数据格式
+  // Convert statistics to pie chart data format
   const pieData = Object.entries(emotionCount).map(([emotion, count]) => ({
     name: emotion,
     value: count,
     percentage: Math.round((count / records.length) * 100)
   }))
 
-  // 获取最常见的情绪
+  // Get the most frequent emotion
   const mostFrequentEmotion = pieData.reduce((prev, current) => 
     prev.value > current.value ? prev : current
   )
 
-  // 自定义 Tooltip
+  // Custom Tooltip
   const CustomTooltip = ({ active, payload }: {
     active?: boolean
     payload?: Array<{
@@ -59,15 +59,15 @@ export function EmotionChart({ records }: EmotionChartProps) {
       return (
         <div className="bg-white p-3 border rounded-lg shadow-lg">
           <p className="font-medium">{data?.name}</p>
-          <p className="text-sm text-gray-600">次数: {data?.value}</p>
-          <p className="text-sm text-gray-600">占比: {data?.percentage}%</p>
+          <p className="text-sm text-gray-600">Count: {data?.value}</p>
+          <p className="text-sm text-gray-600">Percentage: {data?.percentage}%</p>
         </div>
       )
     }
     return null
   }
 
-  // 自定义标签
+  // Custom labels
   const renderLabel = ({ name, percentage }: {
     name: string
     percentage: number
@@ -78,9 +78,9 @@ export function EmotionChart({ records }: EmotionChartProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">情绪分布图</h3>
+        <h3 className="text-lg font-semibold">Emotion Distribution Chart</h3>
         <div className="text-sm text-gray-600">
-          总记录: {records.length} 次
+          Total Records: {records.length}
         </div>
       </div>
       
@@ -117,17 +117,17 @@ export function EmotionChart({ records }: EmotionChartProps) {
               className="w-3 h-3 rounded-full" 
               style={{ backgroundColor: emotionColorMap[item.name] || '#6b7280' }}
             ></div>
-            <span>{item.name}: {item.value}次</span>
+            <span>{item.name}: {item.value} times</span>
           </div>
         ))}
       </div>
       
       <div className="bg-gray-50 p-4 rounded-lg">
-        <h4 className="font-medium mb-2">情绪分析</h4>
+        <h4 className="font-medium mb-2">Emotion Analysis</h4>
         <div className="text-sm text-gray-600 space-y-1">
-          <p>• 最常出现的情绪：<span className="font-medium text-gray-800">{mostFrequentEmotion.name}</span>（{mostFrequentEmotion.percentage}%）</p>
-          <p>• 总共记录了 {Object.keys(emotionCount).length} 种不同的情绪</p>
-          <p>• 饼图显示了每种情绪在所有记录中的分布比例</p>
+          <p>• Most frequent emotion: <span className="font-medium text-gray-800">{mostFrequentEmotion.name}</span> ({mostFrequentEmotion.percentage}%)</p>
+          <p>• Total of {Object.keys(emotionCount).length} different emotion types recorded</p>
+          <p>• The pie chart shows the distribution ratio of each emotion in all records</p>
         </div>
       </div>
     </div>

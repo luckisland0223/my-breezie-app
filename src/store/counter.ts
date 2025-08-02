@@ -1,5 +1,5 @@
 /**
- * @description 这仅是个示例，你可以随时删除或重构
+ * @description This is just an example, you can delete or refactor it at any time
  */
 
 import { create } from 'zustand'

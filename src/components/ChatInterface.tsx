@@ -352,76 +352,76 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
 
   const handleEndChat = async () => {
     try {
-      // 获取当前会话的消息
+      // Get current session messages
       const sessionMessages = currentSession?.messages || []
       
-      // 结束会话
+      // End session
       endChatSession()
       
-      // 生成详细的情绪记录描述
+      // Generate detailed emotion record description
       const detailedDescription = generateDetailedDescription(emotion, sessionMessages)
       
-      // 执行情绪极性分析
+      // Perform emotion polarity analysis
       const polarityAnalysis = analyzeEmotionPolarity(emotion, sessionMessages)
       
-      // 根据对话内容评估对话效果（重新定义原来的intensity为对话效果）
+      // Evaluate conversation effectiveness based on dialogue content (redefining original intensity as conversation effectiveness)
       const conversationLength = sessionMessages.length
       const hasPositiveResponse = sessionMessages.some((msg: ChatMessage) => 
         msg.role === 'assistant' && (
-          msg.content.includes('很好') || 
-          msg.content.includes('理解') || 
-          msg.content.includes('支持')
+          msg.content.includes('very good') || 
+          msg.content.includes('understand') || 
+          msg.content.includes('support')
         )
       )
       
-      // 动态计算对话效果评分（1-10分）
-      let conversationEffectiveness = 5 // 默认中等效果
+      // Dynamically calculate conversation effectiveness score (1-10 points)
+      let conversationEffectiveness = 5 // Default medium effectiveness
       
       if (conversationLength >= 8) {
-        conversationEffectiveness = hasPositiveResponse ? 7 : 6 // 长对话通常有更好的效果
+        conversationEffectiveness = hasPositiveResponse ? 7 : 6 // Long conversations usually have better effectiveness
       } else if (conversationLength >= 4) {
-        conversationEffectiveness = hasPositiveResponse ? 6 : 5 // 中等对话
+        conversationEffectiveness = hasPositiveResponse ? 6 : 5 // Medium conversations
       } else {
-        conversationEffectiveness = 4 // 短对话效果有限
+        conversationEffectiveness = 4 // Short conversations have limited effectiveness
       }
       
-      // 根据情绪极性调整对话效果
+      // Adjust conversation effectiveness based on emotion polarity
       if (polarityAnalysis.polarity === 'positive') {
-        conversationEffectiveness = Math.min(conversationEffectiveness + 1, 10) // 积极情绪对话可能效果更好
+        conversationEffectiveness = Math.min(conversationEffectiveness + 1, 10) // Positive emotions may lead to more effective conversations
       } else if (polarityAnalysis.polarity === 'negative') {
-        // 消极情绪通过对话可能得到缓解，效果可能更明显
+        // Negative emotions may be alleviated through conversation, effects may be more noticeable
         conversationEffectiveness = Math.min(conversationEffectiveness + 1, 10)
       }
       
-      // 添加情绪记录（包含极性分析）
+      // Add emotion record (including polarity analysis)
       addEmotionRecord(
         emotion, 
         conversationEffectiveness, 
         detailedDescription,
         undefined, // conversationSummary
         undefined, // emotionEvaluation  
-        polarityAnalysis // 新增的极性分析
+        polarityAnalysis // New polarity analysis
       )
       
-      // 显示成功提示
-      toast.success('对话已结束，情绪记录已保存')
+      // Show success message
+      toast.success('Conversation ended, emotion record saved successfully')
       
       onBack()
     } catch (error) {
-      console.error('结束对话时出错:', error)
-      // 即使分析失败，也要保存基本记录
+      console.error('Error ending conversation:', error)
+      // Save basic record even if analysis fails
       endChatSession()
       const sessionMessages = currentSession?.messages || []
       const fallbackDescription = generateDetailedDescription(emotion, sessionMessages)
-      // 使用默认的极性分析作为fallback
+      // Use default polarity analysis as fallback
       const fallbackPolarity: EmotionPolarityAnalysis = {
-        polarity: ['快乐'].includes(emotion) ? 'positive' : 
-                 ['愤怒', '恐惧', '悲伤', '厌恶'].includes(emotion) ? 'negative' : 'neutral',
+        polarity: ['Joy'].includes(emotion) ? 'positive' : 
+                 ['Anger', 'Fear', 'Sadness', 'Disgust'].includes(emotion) ? 'negative' : 'neutral',
         strength: 5,
         confidence: 5
       }
       addEmotionRecord(emotion, 5, fallbackDescription, undefined, undefined, fallbackPolarity)
-      toast.success('对话已结束，情绪记录已保存')
+      toast.success('Conversation ended, emotion record saved successfully')
       onBack()
     }
   }
@@ -434,8 +434,8 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
   }
 
   const handleTypewriterComplete = () => {
-    // 打字完成后保持输入框显示状态
-    // showUserInput始终为true，不需要设置
+    // Keep input field visible after typing completion
+    // showUserInput is always true, no need to set
   }
 
   if (!currentSession) {

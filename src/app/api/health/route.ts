@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    // 检查所有必需的环境变量
+    // Check all required environment variables
     const checks = {
       openai_api_key: !!process.env.OPENAI_API_KEY,
       openai_base_url: !!process.env.OPENAI_BASE_URL,
@@ -16,7 +16,7 @@ export async function GET() {
 
     return NextResponse.json({
       status: allGood ? 'healthy' : 'unhealthy',
-      message: allGood ? '所有服务正常' : '环境变量配置不完整',
+      message: allGood ? 'All services are healthy' : 'Environment variables configuration incomplete',
       checks,
       version: '1.0.0'
     }, { 
@@ -25,7 +25,7 @@ export async function GET() {
   } catch (error) {
     return NextResponse.json({
       status: 'error',
-      message: '健康检查失败',
+      message: 'Health check failed',
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
