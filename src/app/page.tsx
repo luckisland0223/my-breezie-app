@@ -8,8 +8,9 @@ import { EmotionSelector } from '@/components/EmotionSelector'
 import { ChatInterface } from '@/components/ChatInterface'
 import { EmotionTracker } from '@/components/EmotionTracker'
 import { EmotionAdvice } from '@/components/EmotionAdvice'
-import { AchievementBadge } from '@/components/AchievementBadge'
+// import { AchievementBadge } from '@/components/AchievementBadge'
 import { SettingsPanel } from '@/components/SettingsPanel'
+import { EmotionCalendar } from '@/components/EmotionCalendar'
 import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType } from '@/store/emotion'
 import { BarChart3, Home, Cloud, Heart, TrendingUp, Calendar, Zap, ArrowRight, Sparkles, Settings } from 'lucide-react'
@@ -36,6 +37,28 @@ export default function HomePage() {
   const handleBackToHome = () => {
     setCurrentView('home')
     setSelectedEmotion(null)
+  }
+
+  const handleStartConversation = () => {
+    // Hide welcome message
+    setShowWelcome(false)
+    
+    // Scroll to emotion selector and highlight it
+    setTimeout(() => {
+      const emotionSelector = document.querySelector('[data-emotion-selector]')
+      if (emotionSelector) {
+        emotionSelector.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        })
+        
+        // Add temporary highlight effect
+        emotionSelector.classList.add('ring-4', 'ring-blue-300', 'ring-opacity-75')
+        setTimeout(() => {
+          emotionSelector.classList.remove('ring-4', 'ring-blue-300', 'ring-opacity-75')
+        }, 3000)
+      }
+    }, 100)
   }
 
   // Get user statistics
@@ -89,18 +112,24 @@ export default function HomePage() {
                       </p>
                       
                       {/* Quick statistics */}
-                      <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">{totalRecords}</div>
-                          <div className="text-sm text-gray-500">Total Records</div>
+                      <div className="grid grid-cols-3 gap-4 mb-4 items-baseline">
+                        <div className="flex flex-col items-center text-center">
+                          <div className="flex items-baseline justify-center min-h-[48px]">
+                            <span className="text-3xl font-bold text-blue-600 leading-none">{totalRecords}</span>
+                          </div>
+                          <div className="text-sm text-gray-500 mt-2">Total Records</div>
                         </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">{thisWeekRecords}</div>
-                          <div className="text-sm text-gray-500">This Week</div>
+                        <div className="flex flex-col items-center text-center">
+                          <div className="flex items-baseline justify-center min-h-[48px]">
+                            <span className="text-3xl font-bold text-green-600 leading-none">{thisWeekRecords}</span>
+                          </div>
+                          <div className="text-sm text-gray-500 mt-2">This Week</div>
                         </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-purple-600">{mostFrequent.count}</div>
-                          <div className="text-sm text-gray-500">Primary Emotion</div>
+                        <div className="flex flex-col items-center text-center">
+                          <div className="flex items-baseline justify-center min-h-[48px]">
+                            <span className="text-3xl font-bold text-purple-600 leading-none">{mostFrequent.count}</span>
+                          </div>
+                          <div className="text-sm text-gray-500 mt-2">Primary Emotion</div>
                         </div>
                       </div>
                       
@@ -147,7 +176,7 @@ export default function HomePage() {
                   <Button 
                     variant="outline" 
                     className="h-20 flex flex-col items-center justify-center gap-2 hover:bg-green-50 hover:border-green-300"
-                    onClick={() => setShowWelcome(false)}
+                    onClick={handleStartConversation}
                   >
                     <Heart className="w-6 h-6 text-green-600" />
                     <span className="font-medium">Start Conversation</span>
@@ -157,18 +186,25 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
+            {/* Emotion Calendar */}
+            {totalRecords > 0 && (
+              <EmotionCalendar />
+            )}
+
             {/* Emotion advice */}
             {totalRecords > 0 && (
               <EmotionAdvice />
             )}
 
-            {/* Achievement badges */}
-            {totalRecords > 0 && (
+            {/* Achievement badges - Temporarily hidden */}
+            {/* {totalRecords > 0 && (
               <AchievementBadge />
-            )}
+            )} */}
 
             {/* Emotion selector */}
-            <EmotionSelector onEmotionSelect={handleEmotionSelect} />
+            <div data-emotion-selector className="rounded-lg transition-all duration-300">
+              <EmotionSelector onEmotionSelect={handleEmotionSelect} />
+            </div>
           </div>
         )
     }

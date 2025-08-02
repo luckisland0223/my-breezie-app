@@ -164,7 +164,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
     }
   }
 
-  // Generate detailed emotion record description
+  // Generate detailed emotion record description based on actual conversation content
   const generateDetailedDescription = (emotion: EmotionType, messages: ChatMessage[]): string => {
     const userMessages = messages.filter(msg => msg.role === 'user')
     const aiMessages = messages.filter(msg => msg.role === 'assistant')
@@ -173,97 +173,111 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
       return `Experienced ${emotion.toLowerCase()} emotion but didn't engage in deep conversation`
     }
     
-    // Analyze user message keywords and themes
-    const firstUserMessage = userMessages[0]?.content || ''
-    const lastUserMessage = userMessages[userMessages.length - 1]?.content || ''
+    // Analyze conversation content for keywords and themes
+    const allUserContent = userMessages.map(msg => msg.content.toLowerCase()).join(' ')
+    const firstMessage = userMessages[0]?.content || ''
+    const lastMessage = userMessages[userMessages.length - 1]?.content || ''
     
-    // Generate more specific descriptions based on emotion type
-    const emotionContexts = {
-      'Anger': [
-        'Emotional fluctuations due to work stress',
-        'Dissatisfaction triggered by interpersonal conflicts',
-        'Indignation about unfair treatment',
-        'Anger arising from unmet expectations',
-        'Accumulation of daily life frustrations'
-      ],
-      'Sadness': [
-        'Nostalgia for better times in the past',
-        'Inner pain when facing loss',
-        'Worry about future uncertainty',
-        'Feelings of loneliness and being misunderstood',
-        'Experiencing changes in important relationships'
-      ],
-      'Fear': [
-        'Concerns about unknown challenges',
-        'Anxiety when facing important decisions',
-        'Worry about failure or making mistakes',
-        'Concerns about health or safety',
-        'Fear of losing important people or things'
-      ],
-      'Joy': [
-        'Delight after achieving important goals',
-        'Wonderful times spent with family and friends',
-        'Discovering new interests or opportunities',
-        'Sense of accomplishment after overcoming difficulties',
-        'Joy when receiving good news'
-      ],
-      'Surprise': [
-        'Encountering unexpectedly good news',
-        'Discovering new possibilities or opportunities',
-        'Unexpected reactions to others\' behavior',
-        'Sudden turns in life',
-        'Amazement when learning new knowledge'
-      ],
-      'Disgust': [
-        'Aversion to certain behaviors or attitudes',
-        'Discomfort when facing moral conflicts',
-        'Dissatisfaction with environment or situations',
-        'Encountering things that conflict with values',
-        'Weariness of repetitive problems'
-      ],
-      'Complex': [
-        'Struggling with multiple choices',
-        'Inner conflicts under intertwined emotions',
-        'Deep thinking about complex situations',
-        'Delicate balance in handling relationships',
-        'Seeking direction amidst changes'
-      ]
+    // Extract key topics and themes from user messages
+    const extractMainTheme = (content: string): string => {
+      // Work-related keywords
+      if (content.includes('work') || content.includes('job') || content.includes('boss') || 
+          content.includes('colleague') || content.includes('office') || content.includes('career')) {
+        return 'work-related challenges'
+      }
+      
+      // Relationship keywords
+      if (content.includes('friend') || content.includes('family') || content.includes('partner') || 
+          content.includes('relationship') || content.includes('love') || content.includes('breakup')) {
+        return 'interpersonal relationships'
+      }
+      
+      // Health/anxiety keywords
+      if (content.includes('health') || content.includes('sick') || content.includes('tired') || 
+          content.includes('stress') || content.includes('anxious') || content.includes('worry')) {
+        return 'health and wellbeing concerns'
+      }
+      
+      // Achievement keywords
+      if (content.includes('success') || content.includes('achievement') || content.includes('goal') || 
+          content.includes('accomplished') || content.includes('proud') || content.includes('win')) {
+        return 'personal achievements'
+      }
+      
+      // Future/decision keywords
+      if (content.includes('future') || content.includes('decision') || content.includes('choice') || 
+          content.includes('plan') || content.includes('uncertain') || content.includes('change')) {
+        return 'life decisions and future planning'
+      }
+      
+      // Financial keywords
+      if (content.includes('money') || content.includes('financial') || content.includes('expensive') || 
+          content.includes('budget') || content.includes('salary') || content.includes('cost')) {
+        return 'financial concerns'
+      }
+      
+      // Learning/growth keywords
+      if (content.includes('learn') || content.includes('study') || content.includes('skill') || 
+          content.includes('education') || content.includes('knowledge') || content.includes('growth')) {
+        return 'personal development'
+      }
+      
+      // Default to generic emotional state
+      return 'personal emotional experiences'
     }
     
-    // Randomly select a relevant context description
-    const contexts = emotionContexts[emotion] || ['Experienced complex emotional state']
-    const randomContext = contexts[Math.floor(Math.random() * contexts.length)]
+    // Generate personalized description based on actual conversation
+    const mainTheme = extractMainTheme(allUserContent)
+    let description = `${emotion} experienced in relation to ${mainTheme}`
     
-    // Analyze conversation length and content depth
+    // Add conversation insights
     const conversationLength = messages.length
-    const hasDeepConversation = conversationLength >= 6
-    const hasResolution = aiMessages.some(msg => 
-      msg.content.includes('suggest') || 
-      msg.content.includes('try') || 
-      msg.content.includes('can') ||
-      msg.content.includes('help')
+    const hasProgress = lastMessage.toLowerCase() !== firstMessage.toLowerCase()
+    
+    // Analyze conversation progression
+    if (conversationLength >= 8) {
+      description += ', explored through extensive dialogue and self-reflection'
+    } else if (conversationLength >= 4) {
+      description += ', discussed in meaningful conversation'
+    } else {
+      description += ', briefly expressed and acknowledged'
+    }
+    
+    // Check for resolution indicators
+    const hasPositiveResolution = userMessages.some(msg => 
+      msg.content.toLowerCase().includes('better') || 
+      msg.content.toLowerCase().includes('helpful') || 
+      msg.content.toLowerCase().includes('thank') ||
+      msg.content.toLowerCase().includes('understand') ||
+      msg.content.toLowerCase().includes('clear')
     )
     
-    // Generate comprehensive description
-    let description = randomContext
+    const hasAdviceGiven = aiMessages.some(msg => 
+      msg.content.includes('suggest') || 
+      msg.content.includes('try') || 
+      msg.content.includes('recommend') ||
+      msg.content.includes('consider')
+    )
     
-    if (hasDeepConversation) {
-      description += ', through deep self-exploration and reflection'
+    if (hasPositiveResolution) {
+      description += '. Session concluded with improved understanding and clarity'
+    } else if (hasAdviceGiven) {
+      description += '. Received guidance and practical suggestions for moving forward'
+    } else if (hasProgress) {
+      description += '. Engaged in emotional processing and validation'
     } else {
-      description += ', through initial emotional expression'
+      description += '. Initial emotional expression and support received'
     }
     
-    if (hasResolution) {
-      description += ', gaining valuable guidance and advice'
-    } else {
-      description += ', completing basic emotional processing'
-    }
+    // Add conversation metadata
+    const timestamp = new Date().toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    })
+    description += ` (${conversationLength} exchanges at ${timestamp})`
     
-    // Add supplementary information based on conversation duration
-    const conversationDuration = messages.length > 4 ? 'in-depth' : messages.length > 2 ? 'moderate' : 'brief'
-    description += `. ${conversationDuration} exchange, ${Math.ceil(conversationLength / 2)} rounds of conversation`
-    
-    return description || `Basic record of experiencing ${emotion.toLowerCase()} emotion`
+    return description
   }
 
   // Emotion polarity analysis algorithm
