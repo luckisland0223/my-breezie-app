@@ -8,11 +8,11 @@ export const env = createEnv({
 	 */
 	server: {
 		NODE_ENV: z.enum(["development", "test", "production"]),
-		// OpenAI配置
+		// OpenAI Configuration
 		OPENAI_API_KEY: z.string().min(1),
 		OPENAI_BASE_URL: z.string().url().optional(),
 		OPENAI_MODEL: z.string().optional(),
-		// NextAuth配置（暂时注释，等实现用户登录时再启用）
+		// NextAuth Configuration (commented out until user login is implemented)
 		// NEXTAUTH_SECRET: z.string().min(1),
 		// NEXTAUTH_URL: z.string().url().optional(),
 	},
@@ -32,11 +32,11 @@ export const env = createEnv({
 	 */
 	runtimeEnv: {
 		NODE_ENV: process.env.NODE_ENV,
-		// OpenAI配置
+		// OpenAI Configuration
 		OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 		OPENAI_BASE_URL: process.env.OPENAI_BASE_URL,
 		OPENAI_MODEL: process.env.OPENAI_MODEL,
-		// NextAuth配置（暂时注释，等实现用户登录时再启用）
+		// NextAuth Configuration (commented out until user login is implemented)
 		// NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
 		// NEXTAUTH_URL: process.env.NEXTAUTH_URL,
 		// NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,

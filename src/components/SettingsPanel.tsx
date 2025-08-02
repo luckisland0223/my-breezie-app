@@ -29,7 +29,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const [notifications, setNotifications] = useState(true)
   const [autoSave, setAutoSave] = useState(true)
   const [privacyMode, setPrivacyMode] = useState(false)
-  const [language, setLanguage] = useState('en-US')
+
 
   const [theme, setTheme] = useState('auto')
 
