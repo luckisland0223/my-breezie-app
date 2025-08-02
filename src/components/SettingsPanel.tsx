@@ -156,7 +156,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                   <SelectContent>
                     <SelectItem value="auto">跟随系统</SelectItem>
                     <SelectItem value="light">浅色模式</SelectItem>
-                    <SelectItem value="dark">深色模式</SelectItem>
+    
                   </SelectContent>
                 </Select>
               </div>

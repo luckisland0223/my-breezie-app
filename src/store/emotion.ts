@@ -190,7 +190,7 @@ const recalculateStats = (records: EmotionRecord[]): EmotionStats => {
   records.forEach(record => {
     // 使用AI评估的情绪和强度（如果有的话），否则使用用户初始选择
     const actualEmotion = record.emotionEvaluation?.actualEmotion || record.emotion
-    const actualIntensity = record.emotionEvaluation?.actualIntensity || record.intensity
+    const actualIntensity = record.emotionEvaluation?.actualIntensity || record.behavioralImpact
     
     const emotionStat = stats[actualEmotion]
     if (emotionStat) {

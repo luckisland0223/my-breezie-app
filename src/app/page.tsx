@@ -13,7 +13,7 @@ import { SettingsPanel } from '@/components/SettingsPanel'
 import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType } from '@/store/emotion'
 import { BarChart3, Home, Cloud, Heart, TrendingUp, Calendar, Zap, ArrowRight, Sparkles, Settings } from 'lucide-react'
-import { ThemeToggle } from '@/components/ThemeToggle'
+
 
 type AppView = 'home' | 'chat' | 'tracker'
 
@@ -215,7 +215,7 @@ export default function HomePage() {
               >
                 <Settings className="w-4 h-4" />
               </Button>
-              <ThemeToggle />
+              
             </div>
           </div>
         </div>
