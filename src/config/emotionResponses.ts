@@ -1,200 +1,207 @@
 import type { EmotionType } from '@/store/emotion'
 
-// 情绪回复配置
-// 你可以在这里自定义每个情绪的回复内容
+// Emotion response configuration
+// You can customize response content for each emotion here
 export const emotionResponses: Record<EmotionType, string[]> = {
-  '愤怒': [
-    "我理解你现在的愤怒，这种情绪是很正常的。愿意和我聊聊发生了什么吗？",
-    "愤怒的时候，深呼吸几次，给自己一点时间冷静下来。我在这里陪着你。",
-    "你的愤怒是合理的，让我们一起找到更好的处理方式。",
-    "愤怒是保护自己的自然反应，但我们可以学会更好地表达它。",
-    "我感受到你的愤怒，这种情绪需要被听见和理解。"
+  'Anger': [
+    "I understand your anger right now, this emotion is completely normal. Would you like to talk about what happened?",
+    "When feeling angry, take a few deep breaths and give yourself time to calm down. I'm here with you.",
+    "Your anger is valid. Let's work together to find better ways to handle this.",
+    "Anger is a natural protective response, but we can learn to express it more constructively.",
+    "I can sense your anger, and this emotion deserves to be heard and understood.",
+    "It takes courage to acknowledge anger. What would help you feel more in control right now?"
   ],
-  '厌恶': [
-    "感到厌恶是很自然的反应，这种情绪告诉我们什么是不好的。",
-    "我理解你的感受，厌恶的时候确实很难受。愿意分享更多吗？",
-    "面对让你厌恶的事情，保持距离和边界是很重要的。",
-    "厌恶帮助我们识别什么是对我们有害的，这是自我保护。",
-    "你的厌恶感受是真实的，我在这里倾听你。"
+  'Disgust': [
+    "Feeling disgusted is a natural reaction that helps us identify what's harmful or wrong.",
+    "I understand your feelings. Disgust can be really uncomfortable. Would you like to share more?",
+    "When facing things that disgust you, maintaining distance and boundaries is important.",
+    "Disgust helps us recognize what might be harmful to us - it's a form of self-protection.",
+    "Your feelings of disgust are real and valid. I'm here to listen to you.",
+    "Sometimes disgust signals that our values or standards are being violated. What feels wrong here?"
   ],
-  '恐惧': [
-    "恐惧是人类最原始的情绪之一，它保护着我们。我在这里陪着你。",
-    "感到害怕是很正常的，让我们一起面对这个恐惧。",
-    "恐惧的时候，记住深呼吸，一步一步来，一切都会好起来的。",
-    "恐惧提醒我们要小心，但也告诉我们什么是重要的。",
-    "面对恐惧需要勇气，你已经很勇敢了。"
+  'Fear': [
+    "Fear is one of humanity's most primal emotions - it protects us. I'm here with you.",
+    "Feeling afraid is completely normal. Let's face this fear together, step by step.",
+    "When afraid, remember to breathe deeply and take it one moment at a time. Everything will be okay.",
+    "Fear reminds us to be careful, but it also shows us what's important to us.",
+    "Facing fear takes tremendous courage, and you've already shown so much bravery.",
+    "What would make you feel safer right now? Let's explore your options together."
   ],
-  '快乐': [
-    "看到你这么快乐，我也为你感到高兴！能和我分享一下是什么让你这么开心吗？",
-    "快乐的心情是最珍贵的礼物，让我们一起分享这份喜悦吧！",
-    "你的快乐感染了我，希望这份好心情能一直陪伴着你。",
-    "快乐是生命中最美好的时刻，好好珍惜这份感受。",
-    "你的笑容真的很美，继续保持这份快乐吧！"
+  'Joy': [
+    "Seeing you so happy makes me happy too! Can you share what's bringing you such joy?",
+    "Joyful feelings are life's most precious gifts. Let's celebrate this moment together!",
+    "Your happiness is contagious! I hope this wonderful mood stays with you.",
+    "Joy represents life's most beautiful moments. Treasure this feeling.",
+    "Your smile is truly beautiful. Keep nurturing this happiness within you!",
+    "This joy you're experiencing - how can we help it grow and last even longer?"
   ],
-  '悲伤': [
-    "我理解你现在的悲伤，这种感受是真实的，也是重要的。",
-    "悲伤的时候，有人倾听和理解真的很重要。我在这里陪着你。",
-    "允许自己悲伤，这是处理情绪的重要一步。",
-    "悲伤是治愈过程的一部分，不要急于摆脱它。",
-    "你的悲伤是合理的，我在这里支持你度过这个困难时期。"
+  'Sadness': [
+    "I understand your sadness right now. These feelings are real and important.",
+    "When we're sad, having someone listen and understand is truly valuable. I'm here with you.",
+    "Allowing yourself to feel sadness is an important step in processing emotions.",
+    "Sadness is part of the healing process. Don't rush to push it away.",
+    "Your sadness is completely valid. I'm here to support you through this difficult time.",
+    "What do you need most right now? Sometimes just being heard can make a difference."
   ],
-  '惊讶': [
-    "惊讶的情绪让我们保持警觉和好奇。发生了什么让你感到惊讶？",
-    "惊讶是大脑对新信息的自然反应，这很正常。",
-    "面对意外情况，保持冷静和理性很重要。我在这里支持你。",
-    "惊讶让我们保持开放的心态，这有助于学习和成长。",
-    "意外的发现往往带来新的可能性，让我们一起探索。"
+  'Surprise': [
+    "Surprise keeps us alert and curious about the world. What caught you off guard?",
+    "Surprise is our brain's natural response to new information. This reaction is completely normal.",
+    "When facing unexpected situations, staying calm and rational is important. I'm here to support you.",
+    "Surprise helps us stay open-minded, which promotes learning and growth.",
+    "Unexpected discoveries often bring new possibilities. Let's explore this together.",
+    "How are you processing this surprise? Sometimes the unexpected leads to wonderful opportunities."
   ],
-  '复杂': [
-    "复杂情绪是很正常的，它们反映了我们内心的丰富性。愿意和我聊聊具体是什么感受吗？",
-    "焦虑、嫉妒、尴尬等复杂情绪都是人类体验的一部分。我在这里倾听你。",
-    "复杂情绪往往需要更多时间来理解和处理，这是完全正常的。",
-    "复杂情绪说明你是一个有深度的人，这很珍贵。",
-    "让我们一起梳理这些复杂的感受，找到其中的意义。"
+  'Complex': [
+    "Complex emotions are completely normal - they reflect the richness of our inner lives. What specific feelings are you experiencing?",
+    "Anxiety, jealousy, embarrassment, and other complex emotions are all part of the human experience. I'm here to listen.",
+    "Complex emotions often need more time to understand and process. This is completely natural.",
+    "Having complex emotions shows you're a person of depth - that's something precious.",
+    "Let's work together to untangle these complex feelings and find meaning in them.",
+    "When emotions feel complicated, it often means something important is happening. What do you think this mixture of feelings is telling you?"
   ]
 }
 
-// 情绪强度回复（根据用户情绪强度调整回复）
+// Emotion intensity responses (adjusted based on user's emotion intensity)
 export const intensityResponses: Record<EmotionType, Record<string, string[]>> = {
-  '愤怒': {
+  'Anger': {
     'high': [
-      "我感受到你强烈的愤怒，这种情绪需要被认真对待。",
-      "深呼吸，慢慢来，我在这里陪着你度过这个困难时刻。",
-      "你的愤怒是合理的，让我们一起找到宣泄的方式。"
+      "I can feel your intense anger - this emotion needs to be taken seriously.",
+      "Take deep breaths, go slowly. I'm here with you through this difficult moment.",
+      "Your anger is completely valid. Let's find healthy ways to express it together."
     ],
     'medium': [
-      "我理解你的愤怒，这种情绪是很自然的。",
-      "让我们一起找到更好的处理方式。",
-      "愤怒提醒我们什么是对我们重要的。"
+      "I understand your anger - this emotion is very natural.",
+      "Let's work together to find better ways to handle this.",
+      "Anger reminds us of what's truly important to us."
     ],
     'low': [
-      "轻微的愤怒是正常的，这帮助我们设定边界。",
-      "你已经很好地控制了自己的情绪。",
-      "这种程度的愤怒是可以管理的。"
+      "Mild anger is normal - it helps us set healthy boundaries.",
+      "You're managing your emotions really well.",
+      "This level of anger is completely manageable."
     ]
   },
-  '厌恶': {
+  'Disgust': {
     'high': [
-      "强烈的厌恶感受确实很难受，我理解你。",
-      "面对让你厌恶的事情，保持距离是明智的。",
-      "这种厌恶提醒我们什么是对我们有害的。"
+      "Intense feelings of disgust can be really overwhelming. I understand you.",
+      "When facing things that disgust you deeply, keeping distance is wise.",
+      "This disgust is alerting you to something potentially harmful."
     ],
     'medium': [
-      "厌恶是保护我们的情绪，这很正常。",
-      "我理解你的感受，愿意分享更多吗？",
-      "面对厌恶，保持边界很重要。"
+      "Disgust is a protective emotion - this is very normal.",
+      "I understand your feelings. Would you like to share more?",
+      "When dealing with disgust, maintaining boundaries is important."
     ],
     'low': [
-      "轻微的厌恶帮助我们识别不喜欢的事物。",
-      "你已经很好地处理了这种感受。",
-      "这种程度的厌恶是可以接受的。"
+      "Mild disgust helps us identify things we don't like.",
+      "You're handling these feelings really well.",
+      "This level of disgust is completely acceptable."
     ]
   },
-  '恐惧': {
+  'Fear': {
     'high': [
-      "我感受到你强烈的恐惧，这确实很可怕。",
-      "深呼吸，我在这里陪着你，一切都会好起来的。",
-      "恐惧保护着我们，但也提醒我们寻求帮助。"
+      "I can feel your intense fear - this must be really frightening.",
+      "Breathe deeply. I'm here with you, and everything will be okay.",
+      "Fear protects us, but it also reminds us to seek help when needed."
     ],
     'medium': [
-      "恐惧是自然的保护机制，这很正常。",
-      "让我们一起面对这个恐惧。",
-      "恐惧提醒我们要小心，但也告诉我们什么是重要的。"
+      "Fear is a natural protective mechanism - this is very normal.",
+      "Let's face this fear together, step by step.",
+      "Fear reminds us to be careful, but also shows us what matters to us."
     ],
     'low': [
-      "轻微的恐惧帮助我们保持警觉。",
-      "你已经很好地处理了这种感受。",
-      "这种程度的恐惧是可以管理的。"
+      "Mild fear helps us stay alert and aware.",
+      "You're managing these feelings really well.",
+      "This level of fear is completely manageable."
     ]
   },
-  '快乐': {
+  'Joy': {
     'high': [
-      "看到你这么快乐，我也为你感到兴奋！",
-      "这份快乐真的很珍贵，好好享受吧！",
-      "你的快乐感染了我，继续保持这份好心情！"
+      "Seeing you so joyful makes me excited for you too!",
+      "This happiness is truly precious - enjoy every moment of it!",
+      "Your joy is contagious! Keep nurturing this wonderful feeling!"
     ],
     'medium': [
-      "看到你快乐，我也为你感到高兴！",
-      "快乐的心情是最珍贵的礼物。",
-      "你的快乐很有感染力，继续保持！"
+      "Seeing you happy makes me happy too!",
+      "Joyful feelings are life's most precious gifts.",
+      "Your happiness is infectious - keep it going!"
     ],
     'low': [
-      "看到你心情不错，这很好。",
-      "保持这种积极的心态。",
-      "这种程度的快乐很舒适。"
+      "It's nice to see you in good spirits.",
+      "Keep nurturing this positive mindset.",
+      "This level of joy feels comfortable and sustainable."
     ]
   },
-  '悲伤': {
+  'Sadness': {
     'high': [
-      "我感受到你深深的悲伤，这确实很痛苦。",
-      "我在这里陪着你，不要独自承担这份悲伤。",
-      "悲伤是治愈过程的一部分，允许自己感受它。"
+      "I can feel your deep sadness - this must be really painful.",
+      "I'm here with you. You don't have to carry this sadness alone.",
+      "Sadness is part of the healing process. Allow yourself to feel it."
     ],
     'medium': [
-      "我理解你的悲伤，这种感受是真实的。",
-      "悲伤的时候，有人倾听真的很重要。",
-      "允许自己悲伤，这是处理情绪的重要一步。"
+      "I understand your sadness. These feelings are real and important.",
+      "When we're sad, having someone listen is truly valuable.",
+      "Allowing yourself to feel sadness is an important step in processing."
     ],
     'low': [
-      "轻微的悲伤是正常的，这帮助我们反思。",
-      "你已经很好地处理了这种感受。",
-      "这种程度的悲伤是可以接受的。"
+      "Mild sadness is normal - it helps us reflect and process.",
+      "You're handling these feelings really well.",
+      "This level of sadness is completely acceptable."
     ]
   },
-  '惊讶': {
+  'Surprise': {
     'high': [
-      "我感受到你强烈的惊讶，这确实很意外！",
-      "深呼吸，慢慢来，我在这里支持你。",
-      "意外的发现往往带来新的可能性。"
+      "I can feel your intense surprise - this must be really unexpected!",
+      "Take deep breaths and go slowly. I'm here to support you.",
+      "Unexpected discoveries often bring new possibilities."
     ],
     'medium': [
-      "惊讶让我们保持警觉和好奇。",
-      "惊讶是大脑的自然反应，这很正常。",
-      "面对意外情况，保持冷静很重要。"
+      "Surprise keeps us alert and curious about the world.",
+      "Surprise is our brain's natural response - this is completely normal.",
+      "When facing unexpected situations, staying calm is important."
     ],
     'low': [
-      "轻微的惊讶帮助我们保持开放的心态。",
-      "你已经很好地处理了这种感受。",
-      "这种程度的惊讶是有益的。"
+      "Mild surprise helps us stay open-minded and adaptable.",
+      "You're processing this surprise really well.",
+      "This level of surprise can actually be beneficial."
     ]
   },
-  '复杂': {
+  'Complex': {
     'high': [
-      "我感受到你复杂的情绪，这确实很困扰。",
-      "复杂情绪需要更多时间来理解，我在这里倾听你。",
-      "让我们一起梳理这些复杂的感受。"
+      "I can sense your complex emotions - this must feel really overwhelming.",
+      "Complex emotions need more time to understand. I'm here to listen.",
+      "Let's work together to untangle these complicated feelings."
     ],
     'medium': [
-      "复杂情绪是很正常的，它们反映了内心的丰富性。",
-      "焦虑、嫉妒、尴尬等复杂情绪都是人类体验的一部分。",
-      "复杂情绪往往需要更多时间来理解和处理。"
+      "Complex emotions are normal - they show the richness of your inner life.",
+      "Anxiety, jealousy, embarrassment - these complex emotions are part of being human.",
+      "Complex emotions often need more time to understand and process."
     ],
     'low': [
-      "轻微的复杂情绪说明你是一个有深度的人。",
-      "你已经很好地处理了这些复杂感受。",
-      "这种程度的复杂情绪是可以理解的。"
+      "Having complex emotions shows you're a person of depth.",
+      "You're handling these complex feelings really well.",
+      "This level of emotional complexity is completely understandable."
     ]
   }
 }
 
-// 获取情绪强度级别
+// Get emotion intensity level
 export function getIntensityLevel(intensity: number): 'low' | 'medium' | 'high' {
   if (intensity <= 3) return 'low'
   if (intensity <= 7) return 'medium'
   return 'high'
 }
 
-// 获取随机回复
+// Get random response
 export function getRandomResponse(emotion: EmotionType, intensity?: number): string {
   const responses = emotionResponses[emotion]
   const randomIndex = Math.floor(Math.random() * responses.length)
-  return responses[randomIndex] || responses[0] || "我在这里陪着你。"
+  return responses[randomIndex] || responses[0] || "I'm here with you."
 }
 
-// 根据强度获取回复
+// Get intensity-based response
 export function getIntensityResponse(emotion: EmotionType, intensity: number): string {
   const level = getIntensityLevel(intensity)
   const responses = intensityResponses[emotion]?.[level] || emotionResponses[emotion]
   const randomIndex = Math.floor(Math.random() * responses.length)
-  return responses[randomIndex] || responses[0] || "我在这里陪着你。"
+  return responses[randomIndex] || responses[0] || "I'm here with you."
 } 

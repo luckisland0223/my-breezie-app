@@ -32,23 +32,23 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday
 import { zhCN } from 'date-fns/locale'
 
 const emotionIcons = {
-  '愤怒': Angry,
-  '厌恶': Meh,
-  '恐惧': AlertTriangle,
-  '快乐': Smile,
-  '悲伤': Frown,
-  '惊讶': Zap,
-  '复杂': Brain
+  'Anger': Angry,
+  'Disgust': Meh,
+  'Fear': AlertTriangle,
+  'Joy': Smile,
+  'Sadness': Frown,
+  'Surprise': Zap,
+  'Complex': Brain
 }
 
 const emotionColors = {
-  '愤怒': { bg: 'bg-red-500', color: '#fca5a5', light: 'bg-red-50' },
-  '厌恶': { bg: 'bg-orange-500', color: '#fdba74', light: 'bg-orange-50' },
-  '恐惧': { bg: 'bg-purple-500', color: '#c4b5fd', light: 'bg-purple-50' },
-  '快乐': { bg: 'bg-green-500', color: '#86efac', light: 'bg-green-50' },
-  '悲伤': { bg: 'bg-blue-500', color: '#93c5fd', light: 'bg-blue-50' },
-  '惊讶': { bg: 'bg-yellow-500', color: '#fde047', light: 'bg-yellow-50' },
-  '复杂': { bg: 'bg-indigo-500', color: '#a5b4fc', light: 'bg-indigo-50' }
+  'Anger': { bg: 'bg-red-500', color: '#fca5a5', light: 'bg-red-50' },
+  'Disgust': { bg: 'bg-orange-500', color: '#fdba74', light: 'bg-orange-50' },
+  'Fear': { bg: 'bg-purple-500', color: '#c4b5fd', light: 'bg-purple-50' },
+  'Joy': { bg: 'bg-green-500', color: '#86efac', light: 'bg-green-50' },
+  'Sadness': { bg: 'bg-blue-500', color: '#93c5fd', light: 'bg-blue-50' },
+  'Surprise': { bg: 'bg-yellow-500', color: '#fde047', light: 'bg-yellow-50' },
+  'Complex': { bg: 'bg-indigo-500', color: '#a5b4fc', light: 'bg-indigo-50' }
 }
 
 type TimeRange = 10 | 15 | 30
@@ -97,26 +97,26 @@ export function EmotionTracker() {
     }
   }
 
-  // 辅助函数：获取默认极性
+  // Helper function: get default polarity
   const getDefaultPolarity = (emotion: EmotionType): PolarityType => {
     switch (emotion) {
-      case '快乐':
+      case 'Joy':
         return 'positive'
-      case '愤怒':
-      case '恐惧':
-      case '悲伤':
-      case '厌恶':
+      case 'Anger':
+      case 'Fear':
+      case 'Sadness':
+      case 'Disgust':
         return 'negative'
-      case '惊讶':
-      case '复杂':
+      case 'Surprise':
+      case 'Complex':
       default:
         return 'neutral'
     }
   }
     
-  // 安全检查
+  // Safety check
   if (!records || !getEmotionStats || !getRecentEmotions) {
-    return <div className="p-6 text-center">加载中...</div>
+    return <div className="p-6 text-center">Loading...</div>
   }
   
   // 获取日历数据
@@ -158,23 +158,23 @@ export function EmotionTracker() {
     toast.success('记录已删除')
   }
   
-  // 测试函数：添加多个详细的情绪记录
+  // Test function: add multiple detailed emotion records
   const addTestRecords = () => {
     const detailedRecords = [
       {
-        emotion: '快乐' as EmotionType,
+        emotion: 'Joy' as EmotionType,
         behavioralImpact: 8,
-        description: '与朋友重聚后的喜悦，通过深入的情感分享，获得了有价值的指导和建议。深度交流，共4轮对话'
+        description: 'Joy from reuniting with friends, through deep emotional sharing, gaining valuable guidance and advice. In-depth exchange, 4 rounds of conversation'
       },
       {
-        emotion: '悲伤' as EmotionType,
+        emotion: 'Sadness' as EmotionType,
         behavioralImpact: 6,
-        description: '对过去美好时光的怀念，通过初步的情感表达，完成了基本的情感梳理。适度交流，共3轮对话'
+        description: 'Nostalgia for better times in the past, through initial emotional expression, completing basic emotional processing. Moderate exchange, 3 rounds of conversation'
       },
       {
-        emotion: '愤怒' as EmotionType,
+        emotion: 'Anger' as EmotionType,
         behavioralImpact: 5,
-        description: '工作压力导致的情绪波动，通过深入的自我探索和反思，获得了有价值的指导和建议。深度交流，共5轮对话'
+        description: 'Emotional fluctuations due to work stress, through deep self-exploration and reflection, gaining valuable guidance and advice. In-depth exchange, 5 rounds of conversation'
       }
     ]
     
@@ -203,9 +203,9 @@ export function EmotionTracker() {
   const pieData = getPieData()
   const totalRecords = records.length
   
-  // 计算最多情绪
+  // Calculate most frequent emotion
   const getMostFrequentEmotion = (): { emotion: EmotionType; count: number } => {
-    if (pieData.length === 0) return { emotion: '快乐', count: 0 }
+    if (pieData.length === 0) return { emotion: 'Joy', count: 0 }
     const maxItem = pieData.reduce((a, b) => a.value > b.value ? a : b)
     return { emotion: maxItem.name as EmotionType, count: maxItem.value }
   }
@@ -384,15 +384,15 @@ export function EmotionTracker() {
                         })}
                       </div>
                       
-                      {/* 分析建议 */}
+                      {/* Analysis insights */}
                       <div className="mt-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                        <h4 className="font-medium text-blue-800 mb-2">💡 分析洞察</h4>
+                        <h4 className="font-medium text-blue-800 mb-2">💡 Analysis Insights</h4>
                         <p className="text-sm text-blue-700">
-                          {mostFrequent.emotion === '快乐' ? 
-                            `太棒了！你在最近${timeRange}天中保持了积极的情绪状态，${mostFrequent.emotion}出现了${mostFrequent.count}次。继续保持这种良好的心态！` :
-                            mostFrequent.emotion === '悲伤' || mostFrequent.emotion === '愤怒' ? 
-                            `在最近${timeRange}天中，你的${mostFrequent.emotion}情绪出现了${mostFrequent.count}次。建议适当放松，寻求支持，关注自己的心理健康。` :
-                            `你的主要情绪是${mostFrequent.emotion}，出现了${mostFrequent.count}次。建议保持情绪记录，观察模式，必要时寻求专业帮助。`
+                          {mostFrequent.emotion === 'Joy' ? 
+                            `Excellent! You've maintained a positive emotional state over the last ${timeRange} days, with ${mostFrequent.emotion} appearing ${mostFrequent.count} times. Keep up this wonderful mindset!` :
+                            mostFrequent.emotion === 'Sadness' || mostFrequent.emotion === 'Anger' ? 
+                            `Over the last ${timeRange} days, your ${mostFrequent.emotion.toLowerCase()} emotion appeared ${mostFrequent.count} times. Consider relaxation activities, seeking support, and prioritizing your mental health.` :
+                            `Your primary emotion is ${mostFrequent.emotion.toLowerCase()}, appearing ${mostFrequent.count} times. Consider maintaining emotion records, observing patterns, and seeking professional help when needed.`
                           }
                         </p>
                       </div>

@@ -62,54 +62,61 @@ const PSYCHOLOGY_PROMPTS = {
 记住：每个人的情绪体验都是独特的。不要给出标准化的回应，而是真正倾听用户说了什么，然后用心回应他们的具体处境。`,
 
   emotionSpecificPrompts: {
-    '愤怒': `用户选择了"愤怒"这个情绪。他们可能感到被误解、不公平对待，或者面临挫折。要特别关注：
-- 愤怒背后通常有受伤或恐惧
-- 帮助他们表达愤怒的原因，而不是压抑
-- 愤怒是正常的，关键是如何健康地处理
-- 提供具体的情绪调节方法，但要贴合他们的情况`,
+    'Anger': `The user selected "Anger" as their emotion. They may feel misunderstood, unfairly treated, or facing frustration. Pay special attention to:
+- Anger often has underlying hurt or fear
+- Help them express the reasons for their anger rather than suppressing it  
+- Anger is normal - the key is how to handle it healthily
+- Provide specific emotion regulation methods that fit their situation
+- Validate their feelings while offering constructive pathways forward`,
 
-    '厌恶': `用户选择了"厌恶"情绪。他们可能遇到了违背价值观的事情，或感到被某种情况困扰。要特别关注：
-- 厌恶往往反映了我们的价值观和界限
-- 帮助他们理解这种感受的意义
-- 探讨如何在保持界限的同时处理这种情绪
-- 避免评判，专注于理解和支持`,
+    'Disgust': `The user selected "Disgust" as their emotion. They may have encountered something that violates their values or feels troubling. Pay special attention to:
+- Disgust often reflects our values and boundaries
+- Help them understand the meaning behind this feeling
+- Explore how to handle this emotion while maintaining healthy boundaries
+- Avoid judgment and focus on understanding and support
+- Honor their moral compass while offering perspective`,
 
-    '恐惧': `用户选择了"恐惧"情绪。他们可能面临未知、担心失败，或感到不安全。要特别关注：
-- 恐惧是保护机制，但有时会限制我们
-- 帮助区分现实的担忧和过度的焦虑
-- 提供具体的应对策略，从小步骤开始
-- 强调他们并不孤单，很多人都有类似感受`,
+    'Fear': `The user selected "Fear" as their emotion. They may be facing the unknown, worried about failure, or feeling unsafe. Pay special attention to:
+- Fear is a protective mechanism, but sometimes it limits us
+- Help distinguish between realistic concerns and excessive anxiety
+- Provide specific coping strategies, starting with small steps
+- Emphasize they're not alone - many people have similar feelings
+- Balance validation with gentle encouragement toward growth`,
 
-    '快乐': `用户选择了"快乐"情绪。虽然是积极情绪，但他们可能想分享、保持这种感受，或担心失去它。要特别关注：
-- 庆祝和确认这份快乐的价值
-- 帮助他们识别快乐的来源
-- 讨论如何培养更多的积极体验
-- 如果他们担心快乐的持续性，给予适当的安慰`,
+    'Joy': `The user selected "Joy" as their emotion. While this is positive, they may want to share, maintain this feeling, or worry about losing it. Pay special attention to:
+- Celebrate and affirm the value of this happiness
+- Help them identify the sources of their joy
+- Discuss how to cultivate more positive experiences
+- If they worry about joy's sustainability, provide appropriate comfort
+- Encourage gratitude practices and joy expansion`,
 
-    '悲伤': `用户选择了"悲伤"情绪。他们可能经历失去、失望，或感到孤独。要特别关注：
-- 悲伤是治愈过程的重要部分
-- 让他们知道感到悲伤是完全正常的
-- 提供温柔的陪伴，而不是急于"修复"
-- 鼓励他们表达感受，但不要强迫`,
+    'Sadness': `The user selected "Sadness" as their emotion. They may be experiencing loss, disappointment, or loneliness. Pay special attention to:
+- Sadness is an important part of the healing process
+- Let them know feeling sad is completely normal and necessary
+- Provide gentle companionship rather than rushing to "fix" things
+- Encourage expression of feelings without forcing it
+- Honor their grief process while offering hope`,
 
-    '惊讶': `用户选择了"惊讶"情绪。他们可能遇到了意外的情况，需要时间处理和适应。要特别关注：
-- 惊讶表明发生了预期之外的事情
-- 帮助他们处理这种认知上的调整
-- 探讨这个意外对他们意味着什么
-- 支持他们适应新的情况或信息`,
+    'Surprise': `The user selected "Surprise" as their emotion. They may have encountered unexpected situations and need time to process and adapt. Pay special attention to:
+- Surprise indicates something unexpected has occurred
+- Help them process this cognitive adjustment
+- Explore what this unexpected event means to them
+- Support them in adapting to new situations or information
+- Frame surprise as potential opportunity when appropriate`,
 
-    '复杂': `用户选择了"复杂"情绪，表明他们可能同时体验多种情绪，如焦虑、嫉妒、尴尬等。要特别关注：
-- 复杂情绪是完全正常的，很多情况下我们都会有混合感受
-- 帮助他们梳理和命名不同的情绪
-- 不要试图简化他们的体验
-- 提供情绪整理的方法，但要耐心和细致`
+    'Complex': `The user selected "Complex" emotions, indicating they may be experiencing multiple emotions simultaneously like anxiety, jealousy, embarrassment, etc. Pay special attention to:
+- Complex emotions are completely normal - we often have mixed feelings
+- Help them untangle and name different emotions
+- Don't try to oversimplify their experience
+- Provide methods for emotional sorting, but be patient and thorough
+- Validate the complexity of human emotional experience`
   }
 }
 
-// 获取情绪特定的提示
+// Get emotion-specific prompts
 function getEmotionPrompt(emotion: EmotionType): string {
   return PSYCHOLOGY_PROMPTS.emotionSpecificPrompts[emotion] || 
-         PSYCHOLOGY_PROMPTS.emotionSpecificPrompts['复杂']
+         PSYCHOLOGY_PROMPTS.emotionSpecificPrompts['Complex']
 }
 
 // OpenAI API调用函数

@@ -23,35 +23,35 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
   const records = useEmotionStore((state) => state.records)
   const getRecentEmotions = useEmotionStore((state) => state.getRecentEmotions)
 
-  // 获取最近7天的情绪记录
+  // Get emotion records from the last 7 days
   const recentEmotions = getRecentEmotions(7)
   
-  // 分析情绪模式
+  // Analyze emotion patterns
   const analyzeEmotionPattern = () => {
     if (recentEmotions.length === 0) {
       return {
-        primaryEmotion: '快乐' as EmotionType,
+        primaryEmotion: 'Joy' as EmotionType,
         pattern: 'stable',
-        advice: '开始记录你的情绪，了解自己的情感模式',
+        advice: 'Start tracking your emotions to understand your emotional patterns and gain insights into your wellbeing',
         icon: Sparkles,
         color: 'text-blue-600',
         bgColor: 'bg-blue-50'
       }
     }
 
-    // 统计情绪频率
+    // Count emotion frequencies
     const emotionCounts: { [key: string]: number } = {}
     recentEmotions.forEach(record => {
       const emotion = record.emotionEvaluation?.actualEmotion || record.emotion
       emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1
     })
 
-    // 找出主要情绪
+    // Find the primary emotion
     const primaryEmotion = Object.entries(emotionCounts).reduce((a, b) => a[1] > b[1] ? a : b)[0] as EmotionType
     
-    // 分析情绪变化模式
-    const positiveEmotions = ['快乐', '惊讶']
-    const negativeEmotions = ['愤怒', '恐惧', '悲伤', '厌恶']
+    // Analyze emotion change patterns
+    const positiveEmotions = ['Joy', 'Surprise']
+    const negativeEmotions = ['Anger', 'Fear', 'Sadness', 'Disgust']
     
     const positiveCount = recentEmotions.filter(r => 
       positiveEmotions.includes(r.emotionEvaluation?.actualEmotion || r.emotion)
@@ -69,19 +69,19 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
 
     if (positiveCount > negativeCount && positiveCount >= 3) {
       pattern = 'positive'
-      advice = '你的情绪状态很好！继续保持积极的心态，多与朋友分享快乐时光'
+      advice = 'Your emotional state is excellent! Continue maintaining this positive mindset and share joyful moments with friends and loved ones'
       icon = TrendingUp
       color = 'text-green-600'
       bgColor = 'bg-green-50'
     } else if (negativeCount > positiveCount && negativeCount >= 3) {
       pattern = 'negative'
-      advice = '最近情绪有些低落，建议多进行户外活动，与亲友交流，必要时寻求专业帮助'
+      advice = 'Your emotions have been challenging recently. Consider outdoor activities, connecting with loved ones, and seeking professional support if needed'
       icon = TrendingDown
       color = 'text-red-600'
       bgColor = 'bg-red-50'
     } else {
       pattern = 'mixed'
-      advice = '情绪有起伏是正常的，建议保持规律的作息，练习冥想或深呼吸来稳定情绪'
+      advice = 'Emotional ups and downs are normal. Consider maintaining regular routines, practicing meditation, or deep breathing to stabilize your emotions'
       icon = Brain
       color = 'text-blue-600'
       bgColor = 'bg-blue-50'
@@ -100,102 +100,121 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
   const analysis = analyzeEmotionPattern()
   const IconComponent = analysis.icon
 
-  // 生成个性化建议
+  // Generate personalized advice
   const getPersonalizedAdvice = () => {
     const { primaryEmotion, pattern } = analysis
     
       const adviceMap = {
-    '愤怒': {
-      title: '愤怒管理建议',
+    'Anger': {
+      title: 'Anger Management Strategies',
       tips: [
-        '深呼吸练习：吸气4秒，屏气4秒，呼气6秒',
-        '暂时离开引发愤怒的环境',
-        '写下你的感受，帮助理清思路',
-        '进行体育锻炼释放压力'
+        'Practice deep breathing: Inhale for 4 seconds, hold for 4 seconds, exhale for 6 seconds',
+        'Remove yourself temporarily from anger-triggering situations',
+        'Write down your feelings to help clarify your thoughts and gain perspective',
+        'Engage in physical exercise to release built-up tension and stress',
+        'Use the "STOP" technique: Stop, Take a breath, Observe, and Proceed mindfully',
+        'Practice progressive muscle relaxation to reduce physical tension'
       ]
     },
-    '厌恶': {
-      title: '情绪调节建议',
+    'Disgust': {
+      title: 'Processing Disgust and Aversion',
       tips: [
-        '识别引发厌恶的具体原因',
-        '尝试改变环境或视角',
-        '练习接纳不完美的事物',
-        '寻找积极的一面'
+        'Identify the specific triggers that cause feelings of disgust',
+        'Try to change your environment or perspective on the situation',
+        'Practice acceptance of imperfection in yourself and others',
+        'Look for positive aspects or learning opportunities in challenging situations',
+        'Use mindfulness to observe disgust without being overwhelmed by it',
+        'Consider whether your disgust signals important values or boundaries'
       ]
     },
-    '恐惧': {
-      title: '缓解焦虑建议',
+    'Fear': {
+      title: 'Anxiety and Fear Management',
       tips: [
-        '练习渐进式肌肉放松',
-        '制定具体的目标和计划',
-        '限制咖啡因和酒精摄入',
-        '寻求专业心理咨询师的帮助'
+        'Practice progressive muscle relaxation techniques',
+        'Create specific, achievable goals and step-by-step action plans',
+        'Limit caffeine and alcohol intake as they can increase anxiety',
+        'Seek support from a professional therapist or counselor',
+        'Challenge negative thought patterns with evidence-based thinking',
+        'Use grounding techniques: name 5 things you see, 4 you hear, 3 you touch',
+        'Practice exposure therapy gradually with professional guidance'
       ]
     },
-    '快乐': {
-      title: '保持积极心态',
+    'Joy': {
+      title: 'Sustaining Positive Emotions',
       tips: [
-        '记录生活中的美好时刻',
-        '与朋友分享你的快乐',
-        '尝试帮助他人，传递正能量',
-        '保持感恩的心态'
+        'Keep a gratitude journal to record meaningful moments',
+        'Share your happiness with friends and loved ones',
+        'Engage in acts of kindness to spread positivity',
+        'Maintain a grateful mindset and appreciate small victories',
+        'Create positive rituals and celebrations for achievements',
+        'Practice savoring: fully experience and appreciate joyful moments',
+        'Build on your strengths and what brings you fulfillment'
       ]
     },
-    '悲伤': {
-      title: '情绪调节建议',
+    'Sadness': {
+      title: 'Navigating Sadness and Grief',
       tips: [
-        '允许自己感受悲伤，不要压抑情绪',
-        '与信任的朋友或家人倾诉',
-        '尝试新的兴趣爱好转移注意力',
-        '保持规律的作息和健康饮食'
+        'Allow yourself to feel sadness without judgment or suppression',
+        'Reach out to trusted friends, family, or support groups',
+        'Explore new hobbies or interests to create positive experiences',
+        'Maintain regular sleep schedules and nutritious eating habits',
+        'Practice self-compassion and treat yourself with kindness',
+        'Consider professional counseling if sadness persists or interferes with daily life',
+        'Engage in gentle physical activity like walking or yoga'
       ]
     },
-    '惊讶': {
-      title: '处理意外情绪',
+    'Surprise': {
+      title: 'Adapting to Unexpected Changes',
       tips: [
-        '给自己时间消化新信息',
-        '保持开放和好奇的心态',
-        '与朋友分享你的发现',
-        '将惊讶转化为学习机会'
+        'Give yourself time to process new information or situations',
+        'Maintain an open and curious mindset toward unexpected events',
+        'Share your discoveries or experiences with others',
+        'Transform surprise into learning and growth opportunities',
+        'Practice flexibility and adaptability in your responses',
+        'Use surprise as a chance to reassess your assumptions and beliefs',
+        'Embrace uncertainty as a natural part of life and growth'
       ]
     },
-    '复杂': {
-      title: '情绪梳理建议',
+    'Complex': {
+      title: 'Managing Mixed and Complex Emotions',
       tips: [
-        '花时间独处，反思自己的感受',
-        '写日记记录情绪变化',
-        '尝试冥想或正念练习',
-        '与专业人士讨论复杂情绪'
+        'Spend time in solitude to reflect on and understand your feelings',
+        'Keep an emotion journal to track patterns and triggers',
+        'Practice mindfulness meditation and present-moment awareness',
+        'Work with a therapist to explore complex emotional landscapes',
+        'Break down complex feelings into their component parts',
+        'Practice self-validation: acknowledge that complex emotions are normal',
+        'Use creative expression like art, music, or writing to process feelings'
       ]
     }
   }
 
-    return adviceMap[primaryEmotion] || adviceMap['复杂']
+    return adviceMap[primaryEmotion] || adviceMap['Complex']
   }
 
   const personalizedAdvice = getPersonalizedAdvice()
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* 情绪模式分析 */}
+      {/* Emotion pattern analysis */}
       <Card className={`${analysis.bgColor} border-0 shadow-lg`}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <IconComponent className={`w-5 h-5 ${analysis.color}`} />
-            情绪模式分析
+            Emotion Pattern Analysis
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">主要情绪</p>
+                <p className="text-sm text-gray-600 mb-1">Primary Emotion</p>
                 <Badge variant="secondary" className="text-base px-3 py-1">
                   {analysis.primaryEmotion}
                 </Badge>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600 mb-1">记录数量</p>
+                <p className="text-sm text-gray-600 mb-1">Record Count</p>
                 <p className="text-2xl font-bold text-gray-900">{recentEmotions.length}</p>
               </div>
             </div>
@@ -209,7 +228,7 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
         </CardContent>
       </Card>
 
-      {/* 个性化建议 */}
+      {/* Personalized recommendations */}
       <Card className="bg-white shadow-lg border-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -233,11 +252,11 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <Calendar className="w-4 h-4" />
-                基于最近7天数据分析
+                Based on last 7 days analysis
               </div>
               <Button variant="outline" size="sm" className="flex items-center gap-2">
                 <Target className="w-4 h-4" />
-                查看详细分析
+                View Detailed Analysis
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -245,23 +264,23 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
         </CardContent>
       </Card>
 
-      {/* 快速行动 */}
+      {/* Quick actions */}
       <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-0 shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-500" />
-            快速行动
+            Quick Actions
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Button variant="outline" className="h-12 flex items-center justify-center gap-2 hover:bg-blue-50">
               <Heart className="w-4 h-4" />
-              开始新的情绪对话
+              Start New Emotion Conversation
             </Button>
             <Button variant="outline" className="h-12 flex items-center justify-center gap-2 hover:bg-green-50">
               <Brain className="w-4 h-4" />
-              练习冥想放松
+              Practice Mindfulness & Relaxation
             </Button>
           </div>
         </CardContent>
