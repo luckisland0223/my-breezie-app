@@ -158,6 +158,25 @@ export default function HomePage() {
               </Card>
             )}
 
+            {/* ⭐ Emotion Calendar - Highlighted Section */}
+            {totalRecords > 0 && (
+              <div className="relative">
+                <div className="absolute -top-2 -right-2 z-10">
+                  <div className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1">
+                    ⭐ Featured
+                  </div>
+                </div>
+                <div className="ring-2 ring-yellow-300 ring-opacity-50 rounded-lg shadow-lg">
+                  <EmotionCalendar />
+                </div>
+              </div>
+            )}
+
+            {/* Emotion Advice */}
+            {totalRecords > 0 && (
+              <EmotionAdvice />
+            )}
+
             {/* Quick actions area */}
             <Card>
               <CardHeader>
@@ -190,16 +209,6 @@ export default function HomePage() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Emotion Calendar */}
-            {totalRecords > 0 && (
-              <EmotionCalendar />
-            )}
-
-            {/* Emotion advice */}
-            {totalRecords > 0 && (
-              <EmotionAdvice />
-            )}
 
             {/* Achievement badges - Temporarily hidden */}
             {/* {totalRecords > 0 && (

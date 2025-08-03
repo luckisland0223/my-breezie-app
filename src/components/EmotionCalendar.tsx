@@ -185,10 +185,10 @@ export function EmotionCalendar() {
       </CardHeader>
       <CardContent>
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
           {/* Day headers */}
           {dayNames.map(day => (
-            <div key={day} className="text-center text-sm font-medium text-gray-500 p-2">
+            <div key={day} className="text-center text-xs sm:text-sm font-medium text-gray-500 p-1 sm:p-2">
               {day}
             </div>
           ))}
@@ -198,27 +198,54 @@ export function EmotionCalendar() {
             <div
               key={index}
               className={`
-                relative p-2 min-h-[60px] border rounded-lg cursor-pointer transition-colors
-                ${day.isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-100 text-gray-400'}
-                ${day.isToday ? 'ring-2 ring-blue-500' : ''}
-                ${day.dayEmotions ? 'hover:shadow-md' : ''}
+                relative aspect-square border rounded-lg cursor-pointer transition-all duration-200 min-h-[50px] sm:min-h-[60px]
+                ${day.isCurrentMonth ? 'bg-white hover:bg-gray-50 hover:shadow-md' : 'bg-gray-100 text-gray-400'}
+                ${day.isToday ? 'ring-2 ring-blue-500 ring-opacity-75 bg-blue-50' : ''}
+                ${day.dayEmotions ? 'hover:scale-105 shadow-sm' : ''}
               `}
               onClick={() => handleDayClick(day)}
             >
-              <div className="text-sm font-medium">{day.date.getDate()}</div>
+              {/* Date number in top-left corner */}
+              <div className="absolute top-1 left-1 text-xs font-medium">
+                {day.date.getDate()}
+              </div>
               
-              {/* Emotion indicator */}
-              {day.dayEmotions && (
-                <div className="absolute bottom-1 left-1 right-1">
-                  <div className={`
-                    text-xs px-1 py-0.5 rounded-full text-center border
-                    ${emotionColors[day.dayEmotions.primaryEmotion]}
-                  `}>
-                    <span className="mr-1">{emotionIcons[day.dayEmotions.primaryEmotion]}</span>
+              {/* Emotion icon display */}
+              {day.dayEmotions ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="flex flex-col items-center gap-1">
+                    {/* Main emotion icon */}
+                    <div className="text-2xl">
+                      {emotionIcons[day.dayEmotions.primaryEmotion]}
+                    </div>
+                    
+                    {/* Multiple emotions indicator */}
                     {day.dayEmotions.emotions.length > 1 && (
-                      <span className="text-xs">+{day.dayEmotions.emotions.length - 1}</span>
+                      <div className="flex flex-wrap items-center justify-center gap-0.5 max-w-full">
+                        {day.dayEmotions.emotions
+                          .slice(0, 4) // Show up to 4 emotion icons
+                          .filter((emotion, idx, arr) => 
+                            arr.findIndex(e => e.emotion === emotion.emotion) === idx
+                          ) // Remove duplicates
+                          .map((emotion, idx) => (
+                            <div key={idx} className="text-xs opacity-80 hover:opacity-100 transition-opacity">
+                              {emotionIcons[emotion.emotion]}
+                            </div>
+                          ))
+                        }
+                        {day.dayEmotions.emotions.length > 4 && (
+                          <div className="text-xs text-gray-600 font-medium bg-gray-100 rounded-full px-1">
+                            +{day.dayEmotions.emotions.length - 4}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
+                </div>
+              ) : (
+                // Empty day - show subtle plus icon for adding emotions
+                <div className="flex items-center justify-center h-full opacity-0 hover:opacity-30 transition-opacity">
+                  <div className="text-2xl text-gray-400">+</div>
                 </div>
               )}
             </div>
