@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType, EmotionRecord, PolarityType } from '@/store/emotion'
+import { EmotionCalendar } from '@/components/EmotionCalendar'
 import { toast } from 'sonner'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 import { 
@@ -311,6 +312,18 @@ export function EmotionTracker() {
                   </p>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* ⭐ Emotion Calendar - Featured Section */}
+            <div className="relative">
+              <div className="absolute -top-2 -right-2 z-10">
+                <div className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1">
+                  ⭐ Featured
+                </div>
+              </div>
+              <div className="ring-2 ring-yellow-300 ring-opacity-50 rounded-lg shadow-lg">
+                <EmotionCalendar />
+              </div>
             </div>
           </TabsContent>
 

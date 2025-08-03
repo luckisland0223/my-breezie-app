@@ -10,7 +10,7 @@ import { EmotionTracker } from '@/components/EmotionTracker'
 import { EmotionAdvice } from '@/components/EmotionAdvice'
 // import { AchievementBadge } from '@/components/AchievementBadge'
 
-import { EmotionCalendar } from '@/components/EmotionCalendar'
+
 import { useEmotionStore } from '@/store/emotion'
 import UserProfile from '@/components/UserProfile'
 import type { EmotionType } from '@/store/emotion'
@@ -117,33 +117,51 @@ export default function HomePage() {
                       </p>
                       
                       {/* Quick statistics */}
-                      <div className="grid grid-cols-3 gap-4 mb-4 items-baseline">
-                        <div className="flex flex-col items-center text-center">
-                          <div className="flex items-baseline justify-center min-h-[48px]">
-                            <span className="text-3xl font-bold text-blue-600 leading-none">{totalRecords}</span>
+                      {totalRecords > 0 ? (
+                        <>
+                          <div className="grid grid-cols-3 gap-4 mb-4 items-baseline">
+                            <div className="flex flex-col items-center text-center">
+                              <div className="flex items-baseline justify-center min-h-[48px]">
+                                <span className="text-3xl font-bold text-blue-600 leading-none">{totalRecords}</span>
+                              </div>
+                              <div className="text-sm text-gray-500 mt-2">Total Records</div>
+                            </div>
+                            <div className="flex flex-col items-center text-center">
+                              <div className="flex items-baseline justify-center min-h-[48px]">
+                                <span className="text-3xl font-bold text-green-600 leading-none">{thisWeekRecords}</span>
+                              </div>
+                              <div className="text-sm text-gray-500 mt-2">This Week</div>
+                            </div>
+                            <div className="flex flex-col items-center text-center">
+                              <div className="flex items-baseline justify-center min-h-[48px]">
+                                <span className="text-3xl font-bold text-purple-600 leading-none">{mostFrequent.count}</span>
+                              </div>
+                              <div className="text-sm text-gray-500 mt-2">Primary Emotion</div>
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-500 mt-2">Total Records</div>
-                        </div>
-                        <div className="flex flex-col items-center text-center">
-                          <div className="flex items-baseline justify-center min-h-[48px]">
-                            <span className="text-3xl font-bold text-green-600 leading-none">{thisWeekRecords}</span>
+                          
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                              {mostFrequent.emotion}
+                            </Badge>
+                            <span className="text-sm text-gray-600">is your most frequent emotion recently</span>
                           </div>
-                          <div className="text-sm text-gray-500 mt-2">This Week</div>
-                        </div>
-                        <div className="flex flex-col items-center text-center">
-                          <div className="flex items-baseline justify-center min-h-[48px]">
-                            <span className="text-3xl font-bold text-purple-600 leading-none">{mostFrequent.count}</span>
+                        </>
+                      ) : (
+                        <div className="text-center py-8">
+                          <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Heart className="w-8 h-8 text-blue-500" />
                           </div>
-                          <div className="text-sm text-gray-500 mt-2">Primary Emotion</div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">Start Your Journey</h3>
+                          <p className="text-gray-600 text-sm mb-4">
+                            Begin tracking your emotions to see personalized insights and patterns.
+                          </p>
+                          <div className="inline-flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                            <Sparkles className="w-4 h-4" />
+                            Your emotional wellness awaits
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                          {mostFrequent.emotion}
-                        </Badge>
-                        <span className="text-sm text-gray-600">is your most frequent emotion recently</span>
-                      </div>
+                      )}
                     </div>
                     <Button 
                       variant="ghost" 
@@ -158,17 +176,7 @@ export default function HomePage() {
               </Card>
             )}
 
-            {/* ⭐ Emotion Calendar - Highlighted Section */}
-            <div className="relative">
-              <div className="absolute -top-2 -right-2 z-10">
-                <div className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1">
-                  ⭐ Featured
-                </div>
-              </div>
-              <div className="ring-2 ring-yellow-300 ring-opacity-50 rounded-lg shadow-lg">
-                <EmotionCalendar />
-              </div>
-            </div>
+
 
             {/* Emotion Advice */}
             {totalRecords > 0 && (
