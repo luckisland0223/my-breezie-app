@@ -72,7 +72,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              userMessage: `The user just selected "${emotion}" emotion to start a conversation. Please provide a warm, personalized opening message that makes them feel understood and welcomed. Avoid templated language.`,
+              userMessage: `The user selected "${emotion}" as their current emotion and wants to start a conversation with you. Please provide a direct, warm opening that invites them to share what's happening. Don't use phrases like "I understand" or "I can understand you" - instead, ask them to tell you about their situation or what brought them to feel this way. Be natural and conversational, as if a caring friend is asking them to open up.`,
               emotion,
               conversationHistory: []
             })
