@@ -252,6 +252,23 @@ export function EmotionCalendar() {
           ))}
         </div>
         
+        {/* Tips for new users */}
+        {dailyEmotions.length === 0 && (
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xl">💡</span>
+              <h4 className="text-sm font-medium text-blue-900">Start Your Emotion Journey</h4>
+            </div>
+            <p className="text-sm text-blue-700 mb-2">
+              Begin tracking your emotions to see them displayed on this calendar! 
+              Use the emotion selector below to record how you're feeling.
+            </p>
+            <p className="text-xs text-blue-600">
+              Once you start recording, each day will show emoji icons representing your emotions.
+            </p>
+          </div>
+        )}
+
         {/* Legend */}
         <div className="mt-4 pt-4 border-t">
           <h4 className="text-sm font-medium text-gray-700 mb-2">Legend:</h4>
