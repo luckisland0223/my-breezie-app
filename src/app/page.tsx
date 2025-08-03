@@ -219,55 +219,56 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header navigation */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <Cloud className="w-6 h-6 text-white" />
+        <div className="mb-6 lg:mb-8">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center space-x-2 min-w-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                <Cloud className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">Breezie</h1>
-              <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">Breezie</h1>
+              <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs hidden sm:inline-flex">
                 Emotional Wellness Assistant
               </Badge>
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               <Button
                 variant={currentView === 'home' ? 'default' : 'secondary'}
                 size="sm"
                 onClick={() => setCurrentView('home')}
+                className="px-2 sm:px-3"
               >
-                <Home className="w-4 h-4 mr-1" />
-                Home
+                <Home className="w-4 h-4 sm:mr-1" />
+                <span className="hidden sm:inline">Home</span>
               </Button>
               <Button
                 variant={currentView === 'tracker' ? 'default' : 'secondary'}
                 size="sm"
                 onClick={() => setCurrentView('tracker')}
+                className="px-2 sm:px-3"
               >
-                <BarChart3 className="w-4 h-4 mr-1" />
-                Analytics
+                <BarChart3 className="w-4 h-4 sm:mr-1" />
+                <span className="hidden sm:inline">Analytics</span>
               </Button>
               <UserProfile />
-              
             </div>
           </div>
         </div>
 
         {/* Main content area */}
         <div className="max-w-4xl mx-auto">
-          <Card className="min-h-[600px]">
-            <CardContent className="p-6">
+          <Card className="min-h-[500px] sm:min-h-[600px]">
+            <CardContent className="p-3 sm:p-6">
               {renderContent()}
             </CardContent>
           </Card>
         </div>
 
         {/* Footer information */}
-        <div className="mt-8 text-center text-gray-500 text-sm">
-          <p>Breezie - Your Personal Emotional Wellness Assistant</p>
-          <p className="mt-1">Better understand and manage your emotions through conversation and tracking</p>
-          <div className="mt-3 flex items-center justify-center gap-4 text-xs">
+        <div className="mt-6 sm:mt-8 text-center text-gray-500 text-sm px-4">
+          <p className="text-sm sm:text-base">Breezie - Your Personal Emotional Wellness Assistant</p>
+          <p className="mt-1 text-xs sm:text-sm hidden sm:block">Better understand and manage your emotions through conversation and tracking</p>
+          <div className="mt-3 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs">
             <span className="flex items-center gap-1">
               <Heart className="w-3 h-3" />
               {totalRecords} emotions recorded

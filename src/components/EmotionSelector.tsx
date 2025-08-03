@@ -73,18 +73,18 @@ interface EmotionSelectorProps {
 export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
   return (
     <div className="space-y-8">
-      <div className="text-center">
+      <div className="text-center px-4">
         <div className="flex items-center justify-center gap-2 mb-3">
-          <Sparkles className="w-6 h-6 text-blue-500" />
-          <h2 className="text-3xl font-bold text-gray-900">How are you feeling right now?</h2>
-          <Sparkles className="w-6 h-6 text-purple-500" />
+          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">How are you feeling right now?</h2>
+          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
         </div>
-        <p className="text-gray-600 text-lg">Choose the emotion that best represents your current state, and Breezie will be here to support you</p>
+        <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">Choose the emotion that best represents your current state, and Breezie will be here to support you</p>
       </div>
       
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* First row: 3 primary emotions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 justify-items-center">
           {(Object.keys(emotionConfig) as EmotionType[]).slice(0, 3).map((emotion) => {
             const config = emotionConfig[emotion]
             const IconComponent = config.icon
@@ -92,7 +92,7 @@ export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
             return (
               <Card 
                 key={emotion}
-                className={`cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl ${config.color} border-2 w-full max-w-sm group`}
+                className={`cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 ${config.color} border-2 w-full max-w-sm group touch-manipulation`}
                 onClick={() => onEmotionSelect(emotion)}
               >
                 <CardHeader className="text-center pb-4">
@@ -124,7 +124,7 @@ export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
         </div>
         
         {/* Second row: 4 emotions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 justify-items-center">
           {(Object.keys(emotionConfig) as EmotionType[]).slice(3).map((emotion) => {
             const config = emotionConfig[emotion]
             const IconComponent = config.icon
@@ -132,7 +132,7 @@ export function EmotionSelector({ onEmotionSelect }: EmotionSelectorProps) {
             return (
               <Card 
                 key={emotion}
-                className={`cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg ${config.color} border-2 w-full max-w-xs group`}
+                className={`cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 ${config.color} border-2 w-full max-w-xs group touch-manipulation`}
                 onClick={() => onEmotionSelect(emotion)}
               >
                 <CardHeader className="text-center pb-3">
