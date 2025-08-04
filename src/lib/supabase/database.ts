@@ -1,5 +1,5 @@
 import { getSupabaseClient } from './client'
-import type { EmotionType, EmotionRecord, ChatSession, ChatMessage, ConversationSummary, EmotionEvaluation, EmotionPolarityAnalysis } from '@/store/emotion'
+import type { EmotionType, EmotionRecord, ChatSession, ChatMessage, EmotionEvaluation, EmotionPolarityAnalysis } from '@/store/emotion'
 
 export interface DatabaseProfile {
   id: string
@@ -17,7 +17,6 @@ export interface DatabaseEmotionRecord {
   intensity: number
   note?: string
   timestamp: string
-  conversation_summary?: ConversationSummary
   emotion_evaluation?: EmotionEvaluation
   polarity_analysis?: EmotionPolarityAnalysis
   created_at: string

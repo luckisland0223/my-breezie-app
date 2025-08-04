@@ -18,19 +18,12 @@ export interface EmotionEvaluation {
   analysis: string // Emotion analysis explanation
 }
 
-export interface ConversationSummary {
-  userProblem: string // User's identified problem
-  solution: string // Provided solution or guidance
-  userReaction: string // User's final response
-}
-
 export interface EmotionRecord {
   id: string
   emotion: EmotionType // User's initially selected emotion
   behavioralImpact: number // Emotion's impact on behavior (1-10)
   note: string
   timestamp: Date
-  conversationSummary?: ConversationSummary // Conversation summary (optional)
   emotionEvaluation?: EmotionEvaluation // AI emotion assessment (optional)
   polarityAnalysis?: EmotionPolarityAnalysis // Emotion polarity analysis (enhanced)
 }
@@ -163,7 +156,7 @@ interface EmotionState {
   currentSession: ChatSession | null
   
   // Actions
-  addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, conversationSummary?: ConversationSummary, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis) => void
+  addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis) => void
   getRecordsByEmotion: (emotion: EmotionType) => EmotionRecord[]
   getRecordsByDateRange: (startDate: Date, endDate: Date) => EmotionRecord[]
   getEmotionStats: () => EmotionStats
@@ -222,14 +215,13 @@ export const useEmotionStore = create<EmotionState>()(
       currentSession: null,
 
       // Add emotion record
-      addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, conversationSummary?: ConversationSummary, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis) => {
+      addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis) => {
         const newRecord: EmotionRecord = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           emotion,
           behavioralImpact: intensity, // Use the passed intensity value directly
           note,
           timestamp: new Date(),
-          conversationSummary,
           emotionEvaluation,
           polarityAnalysis,
         }

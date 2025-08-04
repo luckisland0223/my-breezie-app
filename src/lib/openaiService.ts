@@ -339,16 +339,3 @@ export async function generateEmotionEvaluation(
   return null
 }
 
-// Simplified conversation summary (if needed)
-export async function generateConversationSummary(
-  messages: ChatMessage[], 
-  emotion: EmotionType, 
-  apiKey: string
-): Promise<{
-  userProblem: string
-  solution: string
-  userReaction: string
-} | null> {
-  // This feature was simplified before, can be reimplemented if needed
-  return null
-}

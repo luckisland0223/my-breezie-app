@@ -7,7 +7,6 @@ import type {
   EmotionStats, 
   ChatSession, 
   ChatMessage,
-  ConversationSummary,
   EmotionEvaluation,
   EmotionPolarityAnalysis 
 } from './emotion'
@@ -21,7 +20,6 @@ function dbRecordToLocal(dbRecord: DatabaseEmotionRecord): EmotionRecord {
     behavioralImpact: dbRecord.intensity, // Map intensity to behavioralImpact
     note: dbRecord.note || '',
     timestamp: new Date(dbRecord.timestamp),
-    conversationSummary: dbRecord.conversation_summary,
     emotionEvaluation: dbRecord.emotion_evaluation,
     polarityAnalysis: dbRecord.polarity_analysis
   }
@@ -35,7 +33,6 @@ function localRecordToDb(record: Omit<EmotionRecord, 'id'>, userId: string): Omi
     intensity: record.behavioralImpact, // Map behavioralImpact to intensity
     note: record.note,
     timestamp: record.timestamp.toISOString(),
-    conversation_summary: record.conversationSummary,
     emotion_evaluation: record.emotionEvaluation,
     polarity_analysis: record.polarityAnalysis
   }
@@ -84,7 +81,6 @@ interface EmotionState {
     emotion: EmotionType, 
     intensity: number, 
     note: string, 
-    conversationSummary?: ConversationSummary, 
     emotionEvaluation?: EmotionEvaluation, 
     polarityAnalysis?: EmotionPolarityAnalysis,
     userId?: string
@@ -120,12 +116,11 @@ export const useEmotionStore = create<EmotionState>()(
       lastSyncTime: null,
       
       // Add emotion record with database sync
-      addEmotionRecord: async (
-        emotion: EmotionType, 
-        intensity: number, 
-        note: string, 
-        conversationSummary?: ConversationSummary, 
-        emotionEvaluation?: EmotionEvaluation, 
+            addEmotionRecord: async (
+        emotion: EmotionType,
+        intensity: number,
+        note: string,
+        emotionEvaluation?: EmotionEvaluation,
         polarityAnalysis?: EmotionPolarityAnalysis,
         userId?: string
       ) => {
@@ -134,7 +129,6 @@ export const useEmotionStore = create<EmotionState>()(
           behavioralImpact: intensity, // Map intensity parameter to behavioralImpact field
           note,
           timestamp: new Date(),
-          conversationSummary,
           emotionEvaluation,
           polarityAnalysis,
         }
@@ -165,7 +159,6 @@ export const useEmotionStore = create<EmotionState>()(
                 emotion,
                 intensity,
                 note,
-                conversationSummary,
                 emotionEvaluation,
                 polarityAnalysis
               })

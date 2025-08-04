@@ -37,7 +37,6 @@ export async function POST(request: NextRequest) {
       emotion,
       intensity,
       note,
-      conversationSummary,
       emotionEvaluation,
       polarityAnalysis
     } = await request.json()
@@ -55,7 +54,6 @@ export async function POST(request: NextRequest) {
       intensity,
       note,
       timestamp: new Date().toISOString(),
-      conversation_summary: conversationSummary,
       emotion_evaluation: emotionEvaluation,
       polarity_analysis: polarityAnalysis
     })
