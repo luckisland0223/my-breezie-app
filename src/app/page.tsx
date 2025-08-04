@@ -10,6 +10,7 @@ import { EmotionTracker } from '@/components/EmotionTracker'
 import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
 import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
 import { DailyWellnessTip } from '@/components/DailyWellnessTip'
+import { AchievementBadge } from '@/components/AchievementBadge'
 import UserProfile from '@/components/UserProfile'
 import { useAuthStore } from '@/store/auth'
 import { useEmotionStore } from '@/store/emotionDatabase'
@@ -213,6 +214,11 @@ export default function HomePage() {
                 {/* Recent Emotion Trend - Full Width */}
                 <div className="lg:col-span-2">
                   <RecentEmotionTrend />
+                </div>
+                
+                {/* Achievement Badges - Full Width */}
+                <div className="lg:col-span-2">
+                  <AchievementBadge />
                 </div>
               </div>
 
