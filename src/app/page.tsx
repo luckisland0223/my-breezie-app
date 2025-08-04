@@ -18,6 +18,8 @@ import { SyncStatus } from '@/components/SyncStatus'
 import { StatusIndicator } from '@/components/StatusIndicator'
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target } from 'lucide-react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function HomePage() {
   const { user, isLoggedIn, isLoading } = useAuthStore()
@@ -75,6 +77,14 @@ export default function HomePage() {
             
             <div className="flex items-center space-x-4">
               <StatusIndicator />
+              {isLoggedIn && (
+                <Link href="/analytics">
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    Analytics
+                  </Button>
+                </Link>
+              )}
               <UserProfile />
             </div>
           </div>
@@ -156,7 +166,7 @@ export default function HomePage() {
         /* Main App Interface for Logged Users */
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 lg:w-96 mx-auto">
+            <TabsList className="grid w-full grid-cols-2 lg:w-80 mx-auto">
               <TabsTrigger value="journey" className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
                 Journey
@@ -164,10 +174,6 @@ export default function HomePage() {
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Overview
-              </TabsTrigger>
-              <TabsTrigger value="tracking" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Tracking
               </TabsTrigger>
             </TabsList>
 
@@ -262,11 +268,6 @@ export default function HomePage() {
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
-              <EmotionTracker />
-            </TabsContent>
-
-            {/* Tracking Tab */}
-            <TabsContent value="tracking" className="space-y-6">
               <EmotionTracker />
             </TabsContent>
           </Tabs>
