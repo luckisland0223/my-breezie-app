@@ -20,15 +20,9 @@ export function DatabaseConfigStatus() {
     setIsConfigured(validateDbConfig(dbConfig))
   }, [])
 
+  // 如果配置正确，不显示任何内容（保持页面干净）
   if (isConfigured) {
-    return (
-      <Alert className="border-green-200 bg-green-50">
-        <CheckCircle className="h-4 w-4 text-green-600" />
-        <AlertDescription className="text-green-800">
-          <strong>Database Configured</strong> - Cloud storage and sync enabled
-        </AlertDescription>
-      </Alert>
-    )
+    return null
   }
 
   return (

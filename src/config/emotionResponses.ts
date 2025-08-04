@@ -178,7 +178,7 @@ export function getRandomResponse(emotion: EmotionType): string {
   const responses = emotionResponses[emotion]
   if (!responses || responses.length === 0) {
     return "I'm here with you, and your feelings are valid."
-  }
+}
   const randomIndex = Math.floor(Math.random() * responses.length)
   return responses[randomIndex] || responses[0] || "I'm here with you."
-}
+} 
