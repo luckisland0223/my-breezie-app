@@ -1,22 +1,38 @@
 import { NextResponse } from 'next/server'
+import { testSupabaseConnection } from '@/lib/supabase/client'
 
 export async function GET() {
   try {
     // Check all required environment variables
-    const checks = {
+    const envChecks = {
       gemini_api_key: !!process.env.GEMINI_API_KEY,
-      nextauth_secret: !!process.env.NEXTAUTH_SECRET,
       node_env: process.env.NODE_ENV,
       timestamp: new Date().toISOString()
     }
 
-    const allGood = checks.gemini_api_key
+    // Test database connection
+    let dbCheck = { success: false, message: 'Not tested' }
+    try {
+      dbCheck = await testSupabaseConnection()
+    } catch (error) {
+      dbCheck = { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Database connection failed' 
+      }
+    }
+
+    const checks = {
+      ...envChecks,
+      database: dbCheck
+    }
+
+    const allGood = envChecks.gemini_api_key && dbCheck.success
 
     return NextResponse.json({
       status: allGood ? 'healthy' : 'unhealthy',
-      message: allGood ? 'All services are healthy' : 'Environment variables configuration incomplete',
+      message: allGood ? 'All services are healthy' : 'Some services are not working properly',
       checks,
-      version: '1.0.0'
+      version: '2.0.0'
     }, { 
       status: allGood ? 200 : 500 
     })

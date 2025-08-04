@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuthStore } from '@/store/auth'
 import { toast } from 'sonner'
 import { Mail, Lock, User, Eye, EyeOff, CheckCircle, ArrowRight } from 'lucide-react'
-import { OAuthAuth } from './OAuthAuth'
+import { ImprovedOAuth } from './ImprovedOAuth'
 
 interface SimpleEmailAuthProps {
   onSuccess?: () => void
@@ -380,7 +380,7 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
           </form>
 
           <TabsContent value="oauth" className="mt-0">
-            <OAuthAuth onSuccess={onSuccess} />
+            <ImprovedOAuth onSuccess={onSuccess} />
           </TabsContent>
         </Tabs>
 

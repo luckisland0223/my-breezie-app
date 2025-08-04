@@ -23,23 +23,30 @@ export function OAuthAuth({ onSuccess }: OAuthAuthProps) {
 
     try {
       const supabase = getSupabaseClient()
+      console.log('Attempting Google OAuth login...')
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       })
 
       if (error) {
         console.error('Google login error:', error)
-        toast.error('Google登录失败')
+        toast.error(`Google登录失败: ${error.message}`)
         return
       }
 
+      console.log('Google OAuth initiated successfully')
       // OAuth会重定向，不需要在这里处理成功状态
-    } catch (error) {
+    } catch (error: any) {
       console.error('Google login error:', error)
-      toast.error('Google登录失败')
+      toast.error(`Google登录失败: ${error.message || '未知错误'}`)
     } finally {
       setIsLoading(false)
       setLoading(false)
@@ -53,23 +60,27 @@ export function OAuthAuth({ onSuccess }: OAuthAuthProps) {
 
     try {
       const supabase = getSupabaseClient()
+      console.log('Attempting GitHub OAuth login...')
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: 'read:user user:email'
         }
       })
 
       if (error) {
         console.error('GitHub login error:', error)
-        toast.error('GitHub登录失败')
+        toast.error(`GitHub登录失败: ${error.message}`)
         return
       }
 
+      console.log('GitHub OAuth initiated successfully')
       // OAuth会重定向，不需要在这里处理成功状态
-    } catch (error) {
+    } catch (error: any) {
       console.error('GitHub login error:', error)
-      toast.error('GitHub登录失败')
+      toast.error(`GitHub登录失败: ${error.message || '未知错误'}`)
     } finally {
       setIsLoading(false)
       setLoading(false)
@@ -79,7 +90,7 @@ export function OAuthAuth({ onSuccess }: OAuthAuthProps) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <CardTitle>选择登录方式</CardTitle>
+        <CardTitle>第三方登录</CardTitle>
         <p className="text-sm text-gray-600">
           使用第三方账号快速登录
         </p>
@@ -88,22 +99,34 @@ export function OAuthAuth({ onSuccess }: OAuthAuthProps) {
         <Button
           onClick={handleGoogleLogin}
           disabled={isLoading}
-          className="w-full"
+          className="w-full bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 text-gray-700"
           variant="outline"
         >
-          <Mail className="w-4 h-4 mr-2" />
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+          ) : (
+            <Mail className="w-4 h-4 mr-2 text-red-500" />
+          )}
           使用 Google 登录
         </Button>
 
         <Button
           onClick={handleGitHubLogin}
           disabled={isLoading}
-          className="w-full"
-          variant="outline"
+          className="w-full bg-gray-900 hover:bg-gray-800 text-white border-2 border-gray-900"
         >
-          <Github className="w-4 h-4 mr-2" />
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+          ) : (
+            <Github className="w-4 h-4 mr-2" />
+          )}
           使用 GitHub 登录
         </Button>
+
+        {/* Debug info */}
+        <div className="text-xs text-center text-gray-400 mt-4">
+          回调地址: {typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : ''}
+        </div>
 
         <div className="text-xs text-center text-gray-500">
           登录即表示您同意我们的服务条款和隐私政策
