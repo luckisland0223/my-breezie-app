@@ -12,6 +12,7 @@ import { format } from 'date-fns'
 import { EmotionSelectionDialog } from './EmotionSelectionDialog'
 import { calculateBehavioralImpactScore } from '@/lib/behavioralImpactScore'
 import { getRandomResponse } from '@/config/emotionResponses'
+import { emotionConfig } from '@/config/emotionConfig'
 
 interface ChatInterfaceProps {
   onBack: () => void
@@ -48,9 +49,13 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [aiResponse, setAiResponse] = useState('')
   const [lastUserMessage, setLastUserMessage] = useState('')
   const [showEmotionSelection, setShowEmotionSelection] = useState(false)
+  const [showInlineEmotions, setShowInlineEmotions] = useState(false)
+  const [suggestedEmotions, setSuggestedEmotions] = useState<EmotionType[]>([])
   const [hasInitialMessage, setHasInitialMessage] = useState(false)
   const [conversationText, setConversationText] = useState('')
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType>('Other')
+  const [conversationEnded, setConversationEnded] = useState(false)
+  const [representativeEmotion, setRepresentativeEmotion] = useState<EmotionType | null>(null)
 
   const { user } = useAuthStore()
   const currentSession = useEmotionStore((state) => state.currentSession)
@@ -75,6 +80,54 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
 
   const handleTypewriterComplete = () => {
     // Typewriter animation completed
+  }
+
+  // Extract potential emotions from user text
+  const extractEmotionsFromText = (text: string): EmotionType[] => {
+    const lowerText = text.toLowerCase()
+    const emotionKeywords: Partial<Record<EmotionType, string[]>> = {
+      'Anger': ['angry', 'mad', 'furious', 'irritated', 'frustrated', '愤怒', '生气', '恼火', '火大'],
+      'Disgust': ['disgusted', 'grossed', 'repulsed', '恶心', '厌恶', '反感'],
+      'Fear': ['scared', 'afraid', 'terrified', 'anxious', 'worried', '害怕', '恐惧', '担心', '焦虑'],
+      'Joy': ['happy', 'joyful', 'excited', 'cheerful', 'glad', '开心', '快乐', '高兴', '兴奋'],
+      'Sadness': ['sad', 'depressed', 'down', 'upset', 'hurt', '难过', '悲伤', '沮丧', '伤心'],
+      'Surprise': ['surprised', 'shocked', 'amazed', 'astonished', '惊讶', '震惊', '吃惊'],
+      'Love': ['love', 'adore', 'care', 'affection', '爱', '喜欢', '关心', '爱情'],
+      'Hope': ['trust', 'confident', 'secure', 'hopeful', '信任', '相信', '安全感', '希望'],
+      'Excitement': ['excited', 'eager', 'looking forward', '期待', '兴奋', '盼望'],
+      'Anxiety': ['anxious', 'nervous', 'worried', 'stressed', '焦虑', '紧张', '担心', '压力'],
+      'Pride': ['proud', 'accomplished', 'satisfied', '骄傲', '自豪', '满意'],
+      'Shame': ['ashamed', 'embarrassed', 'guilty', '羞愧', '尴尬', '内疚'],
+      'Envy': ['jealous', 'envious', '嫉妒', '羡慕'],
+      'Guilt': ['guilty', 'regretful', 'sorry', '内疚', '后悔', '抱歉'],
+      'Boredom': ['bored', 'tired', 'uninterested', '无聊', '疲倦', '没兴趣'],
+      'Confusion': ['confused', 'puzzled', 'uncertain', '困惑', '迷惑', '不确定'],
+      'Gratitude': ['grateful', 'thankful', 'appreciative', '感激', '感谢', '欣赏'],
+      'Loneliness': ['lonely', 'isolated', 'alone', '孤独', '寂寞', '独自'],
+      'Frustration': ['frustrated', 'annoyed', 'impatient', '沮丧', '恼火', '不耐烦'],
+      'Contentment': ['content', 'peaceful', 'satisfied', '满足', '平静', '满意']
+    }
+
+    const detectedEmotions: EmotionType[] = []
+    
+    for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+      if (keywords) {
+        for (const keyword of keywords) {
+          if (lowerText.includes(keyword)) {
+            detectedEmotions.push(emotion as EmotionType)
+            break
+          }
+        }
+      }
+    }
+
+    // If no emotions detected, provide common default emotions
+    if (detectedEmotions.length === 0) {
+      return ['Joy', 'Sadness', 'Anxiety', 'Excitement', 'Hope']
+    }
+
+    // Return up to 5 unique emotions
+    return [...new Set(detectedEmotions)].slice(0, 5)
   }
 
   const handleSendMessage = async () => {
@@ -118,11 +171,14 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         addChatMessage({ content: aiMessage, role: 'assistant' })
         setConversationText(prev => prev + ' ' + aiMessage)
 
-        // Show emotion selection after first exchange (user message + AI response)
+        // Show inline emotion selection after first exchange (user message + AI response)
         if (userMessages.length === 0) {
           setTimeout(() => {
-            setShowEmotionSelection(true)
-          }, 2000) // Show after AI response is complete
+            // Extract emotions from user message and AI response
+            const extractedEmotions = extractEmotionsFromText(userMessage + ' ' + aiMessage)
+            setSuggestedEmotions(extractedEmotions)
+            setShowInlineEmotions(true)
+          }, 3000) // Show after AI response is complete and user has read it
         }
       } else {
         throw new Error('Failed to get AI response')
@@ -170,6 +226,26 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     toast.success(`Emotion recorded: ${emotion} (Behavioral Impact Score: ${behavioralScore.overall_score}/10)`)
   }
 
+  const handleInlineEmotionSelect = (emotion: EmotionType) => {
+    setSelectedEmotion(emotion)
+    setShowInlineEmotions(false)
+    
+    // Calculate behavioral impact score
+    const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
+    
+    // Create emotion record
+    addEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    
+    // Get emotion-specific response
+    const emotionResponse = getRandomResponse(emotion)
+    const newResponse = aiResponse + "\n\n" + `谢谢你选择了"${emotion}"。` + emotionResponse
+    setAiResponse(newResponse)
+    addChatMessage({ content: `用户选择了情绪：${emotion}`, role: 'user' })
+    addChatMessage({ content: emotionResponse, role: 'assistant' })
+    
+    toast.success(`情感已记录：${emotion}（行为影响评分：${behavioralScore.overall_score}/10）`)
+  }
+
   const handleSkipEmotion = () => {
     setShowEmotionSelection(false)
     const skipResponse = "That's perfectly fine! You can always share your emotions later if you'd like. Let's continue our conversation. What else would you like to talk about?"
@@ -177,8 +253,39 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     addChatMessage({ content: skipResponse, role: 'assistant' })
   }
 
+  // Select representative emotion for the conversation
+  const selectRepresentativeEmotion = (): EmotionType => {
+    if (!currentSession?.messages) return selectedEmotion ?? 'Other'
+    
+    const userMessages = currentSession.messages
+      .filter(msg => msg.role === 'user')
+      .map(msg => msg.content)
+      .join(' ')
+    
+    const detectedEmotions = extractEmotionsFromText(userMessages + ' ' + conversationText)
+    
+    // If we have a selected emotion from user, prioritize it
+    if (selectedEmotion && selectedEmotion !== 'Other') {
+      return selectedEmotion as EmotionType
+    }
+    
+    // Otherwise, return the first detected emotion
+    return detectedEmotions.length > 0 ? detectedEmotions[0]! : 'Other'
+  }
+
   const handleEndSession = () => {
     if (currentSession) {
+      // Select representative emotion before ending session
+      const repEmotion = selectRepresentativeEmotion()
+      setRepresentativeEmotion(repEmotion)
+      
+      // If no emotion was selected during conversation, create a record with representative emotion
+      if (!selectedEmotion || selectedEmotion === 'Other') {
+        const behavioralScore = calculateBehavioralImpactScore(repEmotion, 5, conversationText)
+        addEmotionRecord(repEmotion, behavioralScore.overall_score, conversationText)
+        toast.success(`对话已保存，代表情绪：${repEmotion}`)
+      }
+      
       endChatSession()
     }
     onBack()
@@ -227,8 +334,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
               </div>
             </div>
             
-            {/* AI Response */}
-            <div className="text-gray-800 leading-relaxed text-lg">
+            {/* AI Response - Fixed Height Container */}
+            <div className="text-gray-800 leading-relaxed text-lg min-h-[300px] max-h-[500px] overflow-y-auto">
               {isTyping ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex space-x-2">
@@ -239,11 +346,48 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                   <span className="text-gray-600 font-medium">Thinking...</span>
                 </div>
               ) : aiResponse ? (
-                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                  <TypewriterText 
-                    text={aiResponse} 
-                    onComplete={handleTypewriterComplete}
-                  />
+                <div className="space-y-4">
+                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                    <TypewriterText 
+                      text={aiResponse} 
+                      onComplete={handleTypewriterComplete}
+                    />
+                  </div>
+                  
+                  {/* Inline Emotion Selection */}
+                  {showInlineEmotions && suggestedEmotions.length > 0 && (
+                    <div className="bg-blue-50/50 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/50">
+                      <div className="text-center mb-4">
+                        <p className="text-gray-700 font-medium mb-2">根据你的分享，我感受到了这些情绪，哪个最符合你现在的感受？</p>
+                        <p className="text-sm text-gray-600">选择一个来帮助我更好地理解你</p>
+                      </div>
+                      
+                      <div className="flex flex-wrap justify-center gap-3 mb-4">
+                        {suggestedEmotions.map((emotion) => {
+                          const config = emotionConfig[emotion]
+                          return (
+                            <button
+                              key={emotion}
+                              onClick={() => handleInlineEmotionSelect(emotion)}
+                              className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-white/70 transition-all duration-200 min-w-[80px]"
+                            >
+                              <span className="text-2xl mb-1">{config.emoji}</span>
+                              <span className="text-sm font-medium text-gray-700">{emotion}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                      
+                      <div className="text-center">
+                        <button
+                          onClick={() => setShowInlineEmotions(false)}
+                          className="text-sm text-gray-500 hover:text-gray-700 underline"
+                        >
+                          稍后再说
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center text-gray-400 py-12">

@@ -147,14 +147,14 @@ export function QuickEmotionCheck() {
               className="relative h-3 bg-gray-200 rounded-full cursor-pointer select-none"
               onMouseDown={handleMouseDown}
               style={{
-                background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}40 0%, ${emotionConfig[selectedEmotion].color} ${(intensity - 1) * 11.11}%, #e5e7eb ${(intensity - 1) * 11.11}%, #e5e7eb 100%)`
+                background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}40 0%, ${emotionConfig[selectedEmotion].color} ${(intensity - 1) / 9 * 100}%, #e5e7eb ${(intensity - 1) / 9 * 100}%, #e5e7eb 100%)`
               }}
             >
               {/* Slider thumb */}
               <div
-                className="absolute top-1/2 w-5 h-5 bg-white border-2 rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2 transition-transform duration-75"
+                className="absolute top-1/2 w-5 h-5 bg-white border-2 rounded-full shadow-lg transition-transform duration-75"
                 style={{
-                  left: `${(intensity - 1) * 11.11}%`,
+                  left: `${(intensity - 1) / 9 * 100}%`,
                   borderColor: emotionConfig[selectedEmotion].color,
                   transform: `translate(-50%, -50%) ${isDragging ? 'scale(1.2)' : 'scale(1)'}`,
                   cursor: isDragging ? 'grabbing' : 'grab'
@@ -173,7 +173,7 @@ export function QuickEmotionCheck() {
         <Button 
           onClick={handleQuickRecord} 
           disabled={!selectedEmotion}
-          className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
           Record Emotion
