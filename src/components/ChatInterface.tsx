@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useEmotionStore } from '@/store/emotionDatabase'
 import { useAuthStore } from '@/store/auth'
-import { useApiKeysStore } from '@/store/apiKeys'
 import type { EmotionType } from '@/store/emotion'
 import { Send, ArrowLeft, MessageCircle, User, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
@@ -54,7 +53,6 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType>('Other')
 
   const { user } = useAuthStore()
-  const { geminiApiKey, hasGeminiApiKey } = useApiKeysStore()
   const currentSession = useEmotionStore((state) => state.currentSession)
   const startChatSession = useEmotionStore((state) => state.startChatSession)
   const addChatMessage = useEmotionStore((state) => state.addChatMessage)
@@ -81,12 +79,6 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isTyping) return
-
-    // Check if API key is configured
-    if (!hasGeminiApiKey()) {
-      toast.error('Please configure your Gemini API key in the settings panel first.')
-      return
-    }
 
     const userMessage = inputValue.trim()
     setInputValue('')
@@ -115,8 +107,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           conversationHistory: messages.map(msg => ({
             role: msg.role,
             content: msg.content
-          })),
-          apiKey: geminiApiKey
+          }))
         })
       })
 

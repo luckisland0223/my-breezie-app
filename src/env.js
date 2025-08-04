@@ -8,8 +8,8 @@ export const env = createEnv({
 	 */
 	server: {
 		NODE_ENV: z.enum(["development", "test", "production"]),
-		// OpenAI Configuration - made optional for demo project
-		GEMINI_API_KEY: z.string().min(1).optional(),
+		// OpenAI Configuration
+		GEMINI_API_KEY: z.string().min(1),
 		// NextAuth Configuration (commented out until user login is implemented)
 		// NEXTAUTH_SECRET: z.string().min(1),
 		// NEXTAUTH_URL: z.string().url().optional(),

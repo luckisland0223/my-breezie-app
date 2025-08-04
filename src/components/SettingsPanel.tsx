@@ -3,10 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useEmotionStore } from '@/store/emotion'
-import { useApiKeysStore } from '@/store/apiKeys'
 
 import { 
   Settings, 
@@ -19,8 +17,7 @@ import {
   Eye,
   EyeOff,
   Palette,
-  Shield,
-  Key
+  Shield
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -32,35 +29,10 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const [notifications, setNotifications] = useState(true)
   const [autoSave, setAutoSave] = useState(true)
   const [privacyMode, setPrivacyMode] = useState(false)
-  const [showApiKey, setShowApiKey] = useState(false)
-  const [tempApiKey, setTempApiKey] = useState('')
 
   const [theme, setTheme] = useState('auto')
 
   const clearAllRecords = useEmotionStore((state) => state.clearAllRecords)
-  const { geminiApiKey, setGeminiApiKey, clearApiKeys, hasGeminiApiKey } = useApiKeysStore()
-
-  // Initialize temp API key with current stored value
-  useState(() => {
-    setTempApiKey(geminiApiKey)
-  })
-
-  const handleSaveApiKey = () => {
-    if (tempApiKey.trim()) {
-      setGeminiApiKey(tempApiKey.trim())
-      toast.success('API key saved successfully')
-    } else {
-      toast.error('Please enter a valid API key')
-    }
-  }
-
-  const handleClearApiKeys = () => {
-    if (confirm('Are you sure you want to clear all API keys?')) {
-      clearApiKeys()
-      setTempApiKey('')
-      toast.success('API keys cleared successfully')
-    }
-  }
 
   const handleClearData = () => {
     if (confirm('Are you sure you want to clear all data? This action cannot be undone!')) {
@@ -119,60 +91,6 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         </CardHeader>
         
         <CardContent className="p-6 space-y-6">
-          {/* API Configuration */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Key className="w-5 h-5" />
-              API Configuration
-            </h3>
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor="geminiApiKey" className="text-sm">
-                  Gemini API Key
-                </Label>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Input
-                      id="geminiApiKey"
-                      type={showApiKey ? "text" : "password"}
-                      placeholder="Enter your Gemini API key"
-                      value={tempApiKey}
-                      onChange={(e) => setTempApiKey(e.target.value)}
-                      className="pr-10"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                    >
-                      {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </Button>
-                  </div>
-                  <Button onClick={handleSaveApiKey} size="sm">
-                    Save
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500">
-                  {hasGeminiApiKey() ? (
-                    <span className="text-green-600">✓ API key configured</span>
-                  ) : (
-                    <span className="text-amber-600">⚠ API key required for chat functionality</span>
-                  )}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Get your free API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Google AI Studio</a>
-                </p>
-                {hasGeminiApiKey() && (
-                  <Button variant="outline" size="sm" onClick={handleClearApiKeys}>
-                    Clear API Keys
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-
           {/* Notification Settings */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
