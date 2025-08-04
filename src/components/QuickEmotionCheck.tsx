@@ -28,7 +28,7 @@ export function QuickEmotionCheck() {
       return
     }
 
-    addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`)
+    addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`, 'quick_check')
     toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully!`)
     setSelectedEmotion(null)
     setIntensity(5)

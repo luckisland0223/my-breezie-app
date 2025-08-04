@@ -242,7 +242,10 @@ export default function HomePage() {
                       <TrendingUp className="w-6 h-6 text-green-600" />
                     </div>
                     <p className="text-2xl font-bold text-gray-900">
-                      {records.length > 0 ? (records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1) : '0'}
+                      {(() => {
+                        const chatRecords = records.filter(r => r.recordType === 'chat')
+                        return chatRecords.length > 0 ? (chatRecords.reduce((sum, r) => sum + r.behavioralImpact, 0) / chatRecords.length).toFixed(1) : '0'
+                      })()}
                     </p>
                     <p className="text-gray-600">Avg Impact Score</p>
                   </CardContent>
@@ -297,7 +300,10 @@ export default function HomePage() {
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-600">
-                          {records.length > 0 ? (records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1) : '0'}
+                          {(() => {
+                            const chatRecords = records.filter(r => r.recordType === 'chat')
+                            return chatRecords.length > 0 ? (chatRecords.reduce((sum, r) => sum + r.behavioralImpact, 0) / chatRecords.length).toFixed(1) : '0'
+                          })()}
                         </div>
                         <div className="text-sm text-gray-600">Avg Impact</div>
                       </div>

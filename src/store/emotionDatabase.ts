@@ -8,7 +8,8 @@ import type {
   ChatSession, 
   ChatMessage,
   EmotionEvaluation,
-  EmotionPolarityAnalysis 
+  EmotionPolarityAnalysis,
+  RecordType 
 } from './emotion'
 import type { DatabaseEmotionRecord } from '@/lib/supabase/database'
 
@@ -20,6 +21,7 @@ function dbRecordToLocal(dbRecord: DatabaseEmotionRecord): EmotionRecord {
     behavioralImpact: dbRecord.intensity, // Map intensity to behavioralImpact
     note: dbRecord.note || '',
     timestamp: new Date(dbRecord.timestamp),
+    recordType: (dbRecord.note?.startsWith('Quick check:') ? 'quick_check' : 'chat') as RecordType, // Infer recordType from note
     emotionEvaluation: dbRecord.emotion_evaluation,
     polarityAnalysis: dbRecord.polarity_analysis
   }
@@ -81,6 +83,7 @@ interface EmotionState {
     emotion: EmotionType, 
     intensity: number, 
     note: string, 
+    recordType?: RecordType,
     emotionEvaluation?: EmotionEvaluation, 
     polarityAnalysis?: EmotionPolarityAnalysis,
     userId?: string
@@ -120,6 +123,7 @@ export const useEmotionStore = create<EmotionState>()(
         emotion: EmotionType,
         intensity: number,
         note: string,
+        recordType: RecordType = 'chat',
         emotionEvaluation?: EmotionEvaluation,
         polarityAnalysis?: EmotionPolarityAnalysis,
         userId?: string
@@ -129,6 +133,7 @@ export const useEmotionStore = create<EmotionState>()(
           behavioralImpact: intensity, // Map intensity parameter to behavioralImpact field
           note,
           timestamp: new Date(),
+          recordType,
           emotionEvaluation,
           polarityAnalysis,
         }

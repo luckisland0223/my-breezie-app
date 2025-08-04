@@ -46,9 +46,10 @@ export function RecentEmotionTrend() {
   const todayRecords = recentRecords.filter(record => isToday(new Date(record.timestamp)))
   const yesterdayRecords = recentRecords.filter(record => isYesterday(new Date(record.timestamp)))
   
-  // Calculate average behavioral impact for trend
-  const avgImpact = recentRecords.length > 0 
-    ? recentRecords.reduce((sum, record) => sum + record.behavioralImpact, 0) / recentRecords.length
+  // Calculate average behavioral impact for trend (only chat records)
+  const chatRecords = recentRecords.filter(record => record.recordType === 'chat')
+  const avgImpact = chatRecords.length > 0 
+    ? chatRecords.reduce((sum, record) => sum + record.behavioralImpact, 0) / chatRecords.length
     : 0
 
   const getTrendIcon = () => {

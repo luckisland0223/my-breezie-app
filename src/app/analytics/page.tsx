@@ -116,7 +116,10 @@ export default function AnalyticsPage() {
                     <>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-600">
-                          {(records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1)}
+                          {(() => {
+                            const chatRecords = records.filter(r => r.recordType === 'chat')
+                            return chatRecords.length > 0 ? (chatRecords.reduce((sum, r) => sum + r.behavioralImpact, 0) / chatRecords.length).toFixed(1) : '0'
+                          })()}
                         </div>
                         <div className="text-sm text-gray-600">Average Impact Score</div>
                       </div>
