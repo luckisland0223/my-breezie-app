@@ -6,7 +6,7 @@ import type { ChatMessage } from '@/lib/geminiService'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userMessage, emotion, conversationHistory } = body
+    const { userMessage, emotion, conversationHistory, apiKey } = body
 
     // Validate input parameters
     if (!userMessage || typeof userMessage !== 'string') {
@@ -31,17 +31,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get API key from environment variables
-    const apiKey = process.env.GEMINI_API_KEY
-    
-    if (!apiKey) {
-      console.error('GEMINI_API_KEY not found in environment variables')
+    // Validate API key from request body
+    if (!apiKey || typeof apiKey !== 'string') {
       return NextResponse.json(
         { 
-          error: 'Service configuration error',
-          message: 'Service configuration error, please contact administrator' 
+          error: 'API key required',
+          message: 'Please configure your Gemini API key in the settings panel.' 
         },
-        { status: 500 }
+        { status: 400 }
       )
     }
 
