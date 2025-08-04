@@ -68,8 +68,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   useEffect(() => {
     if (!hasInitialMessage && !currentSession) {
       const welcomeMessage = user?.user_name 
-        ? `Hello ${user.user_name}! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What's on your mind right now?`
-        : `Hello! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What would you like to talk about?`
+        ? `你好 ${user.user_name}！我是Breezie，你的情感健康陪伴者。我在这里倾听和支持你，无论你今天经历着什么。现在你的心情怎么样？有什么想和我聊的吗？`
+        : `你好！我是Breezie，你的情感健康陪伴者。我在这里倾听和支持你，陪伴你度过生活中的各种感受。今天想和我分享什么呢？`
       
       startChatSession('Other') // Start with a default emotion
       setAiResponse(welcomeMessage)
@@ -121,13 +121,43 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       }
     }
 
-    // If no emotions detected, provide common default emotions
-    if (detectedEmotions.length === 0) {
-      return ['Joy', 'Sadness', 'Anxiety', 'Excitement', 'Hope']
+    // Remove duplicates
+    const uniqueEmotions = [...new Set(detectedEmotions)]
+    
+    // If we have few or no emotions detected, enrich with contextually relevant suggestions
+    if (uniqueEmotions.length < 3) {
+      const commonEmotions: EmotionType[] = ['Joy', 'Sadness', 'Anxiety', 'Hope', 'Contentment', 'Confusion', 'Excitement']
+      const additionalEmotions = commonEmotions.filter(emotion => !uniqueEmotions.includes(emotion))
+      
+      // Add contextual emotions based on text sentiment
+      if (lowerText.includes('work') || lowerText.includes('job') || lowerText.includes('工作')) {
+        additionalEmotions.unshift('Frustration', 'Pride', 'Anxiety')
+      }
+      if (lowerText.includes('family') || lowerText.includes('friend') || lowerText.includes('家人') || lowerText.includes('朋友')) {
+        additionalEmotions.unshift('Love', 'Gratitude', 'Loneliness')
+      }
+      if (lowerText.includes('future') || lowerText.includes('plan') || lowerText.includes('未来') || lowerText.includes('计划')) {
+        additionalEmotions.unshift('Hope', 'Anxiety', 'Excitement')
+      }
+      
+      // Combine detected and additional emotions
+      const allSuggestions = [...uniqueEmotions, ...additionalEmotions].slice(0, 5)
+      
+      // Ensure we always have at least 3 suggestions
+      while (allSuggestions.length < 3 && allSuggestions.length < commonEmotions.length) {
+        const remaining = commonEmotions.filter(emotion => !allSuggestions.includes(emotion))
+        if (remaining.length > 0 && remaining[0]) {
+          allSuggestions.push(remaining[0])
+        } else {
+          break
+        }
+      }
+      
+      return allSuggestions.slice(0, 5)
     }
 
-    // Return up to 5 unique emotions
-    return [...new Set(detectedEmotions)].slice(0, 5)
+    // Return 3-5 unique emotions
+    return uniqueEmotions.slice(0, 5)
   }
 
   const handleSendMessage = async () => {
@@ -236,21 +266,45 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // Create emotion record
     addEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
-    // Get emotion-specific response
-    const emotionResponse = getRandomResponse(emotion)
-    const newResponse = aiResponse + "\n\n" + `谢谢你选择了"${emotion}"。` + emotionResponse
-    setAiResponse(newResponse)
-    addChatMessage({ content: `用户选择了情绪：${emotion}`, role: 'user' })
-    addChatMessage({ content: emotionResponse, role: 'assistant' })
+    // Create caring and guiding response based on emotion
+    const emotionResponses: Record<EmotionType, string> = {
+      'Anger': '我能感受到你的愤怒，这种情绪一定让你很难受。让我们一起深呼吸，慢慢释放这种压力。你愿意告诉我更多关于让你愤怒的事情吗？',
+      'Sadness': '我感受到了你内心的悲伤。悲伤是一种很重要的情绪，它让我们意识到什么对我们真正重要。你不必独自承受，我会一直陪伴在你身边。',
+      'Fear': '我理解你现在的恐惧和不安。感到害怕是很正常的，这说明你很在乎。让我们一步一步来，我会和你一起面对这些担忧。',
+      'Joy': '看到你的快乐真的很棒！这种积极的能量很珍贵，让我们好好享受这个美好的时刻。是什么让你感到如此开心呢？',
+      'Anxiety': '我能感受到你的焦虑和担忧。这种不安的感觉确实很难受，但你很勇敢主动寻求支持。让我们一起找到让你平静下来的方法。',
+      'Love': '爱是一种美好而强大的情感。我能感受到你心中的温暖。这种爱的感觉真的很宝贵，想和我分享更多关于这种感受吗？',
+      'Surprise': '看起来发生了一些意想不到的事情。惊讶可能会带来很多复杂的感受。慢慢来，告诉我发生了什么让你感到惊讶的事情。',
+      'Disgust': '我能理解你现在的反感和厌恶。当某些事情违背了我们的价值观时，我们自然会有这种反应。这种感受是有意义的。',
+      'Pride': '我为你感到骄傲！这种成就感是你努力的结果。你应该为自己感到自豪，告诉我更多关于这个让你骄傲的时刻吧。',
+      'Shame': '我能感受到你的羞愧感，这一定很痛苦。请记住，每个人都会犯错，这不会定义你的价值。你很勇敢与我分享这些感受。',
+      'Envy': '嫉妒是一种很人性化的情感，说明你有自己的渴望和需求。让我们一起探索这种感受背后真正想要的是什么。',
+      'Guilt': '内疚感说明你有一颗善良的心。虽然这种感受很沉重，但它也显示了你的道德感。我们可以一起处理这些复杂的感受。',
+      'Hope': '希望是一束珍贵的光芒。即使在困难中，你仍然怀有希望，这真的很了不起。告诉我，是什么让你保持希望的？',
+      'Excitement': '我能感受到你的兴奋和期待！这种积极的能量很感染人。是什么让你如此兴奋？我想和你一起分享这种喜悦。',
+      'Boredom': '无聊有时候是我们内心在寻求更有意义事物的信号。也许我们可以一起探索什么能重新点燃你的兴趣和热情。',
+      'Confusion': '感到困惑和迷茫是很正常的。生活有时确实很复杂。让我们慢慢梳理，我会帮你找到更清晰的方向。',
+      'Gratitude': '感恩是一种美好的情感，它能温暖我们的心。看到你怀有感激之心真的很美好。是什么让你感到特别感激呢？',
+      'Loneliness': '我能感受到你的孤独感。这种感觉真的很难受，但请记住你并不孤单。我在这里陪伴你，我们可以一起度过这段时光。',
+      'Frustration': '我理解你的挫败感。当事情不如预期时，这种感受是很自然的。让我们一起看看是什么让你感到挫败，也许能找到新的方向。',
+      'Contentment': '满足感是一种珍贵的平静。在这个忙碌的世界里，能感到内心平静真的很难得。珍惜这种美好的感受吧。',
+      'Other': '虽然很难用一个词来形容你现在的感受，但我能感受到你内心的复杂。无论是什么情感，我都愿意倾听和陪伴你。'
+    }
     
-    toast.success(`情感已记录：${emotion}（行为影响评分：${behavioralScore.overall_score}/10）`)
+    const supportiveResponse = emotionResponses[emotion] || emotionResponses['Other']
+    const newResponse = aiResponse + "\n\n" + supportiveResponse
+    setAiResponse(newResponse)
+    addChatMessage({ content: supportiveResponse, role: 'assistant' })
+    
+    toast.success(`已记录你的感受：${emotion}`)
   }
 
   const handleSkipEmotion = () => {
     setShowEmotionSelection(false)
-    const skipResponse = "That's perfectly fine! You can always share your emotions later if you'd like. Let's continue our conversation. What else would you like to talk about?"
+    const skipResponse = "没关系的！如果你愿意的话，随时都可以和我分享你的感受。让我们继续聊天吧，还有什么想和我分享的吗？"
     setAiResponse(skipResponse)
     addChatMessage({ content: skipResponse, role: 'assistant' })
+    toast.success("已跳过情绪选择")
   }
 
   // Select representative emotion for the conversation
