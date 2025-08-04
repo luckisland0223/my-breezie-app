@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getOpenAIResponse } from '@/lib/openaiService'
+import { getGeminiResponse } from '@/lib/geminiService'
 import type { EmotionType } from '@/store/emotion'
-import type { ChatMessage } from '@/lib/openaiService'
+import type { ChatMessage } from '@/lib/geminiService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,10 +32,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENAI_API_KEY
+    const apiKey = process.env.GEMINI_API_KEY
     
     if (!apiKey) {
-      console.error('OPENAI_API_KEY not found in environment variables')
+      console.error('GEMINI_API_KEY not found in environment variables')
       return NextResponse.json(
         { 
           error: 'Service configuration error',
@@ -46,15 +46,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Log configuration info (for debugging, no sensitive information)
-    console.log('API Configuration:', {
-      model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
-      baseURL: process.env.OPENAI_BASE_URL || 'https://aihubmix.com/v1',
+    console.log('Gemini API Configuration:', {
+      model: 'gemini-pro',
       apiKeyPresent: !!apiKey,
       apiKeyLength: apiKey?.length || 0
     })
 
-    // Call OpenAI API
-    const response = await getOpenAIResponse(
+    // Call Gemini API
+    const response = await getGeminiResponse(
       userMessage,
       emotion as EmotionType,
       conversationHistory || [],

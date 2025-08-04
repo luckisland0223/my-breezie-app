@@ -4,15 +4,13 @@ export async function GET() {
   try {
     // Check all required environment variables
     const checks = {
-      openai_api_key: !!process.env.OPENAI_API_KEY,
-      openai_base_url: !!process.env.OPENAI_BASE_URL,
-      openai_model: !!process.env.OPENAI_MODEL,
+      gemini_api_key: !!process.env.GEMINI_API_KEY,
       nextauth_secret: !!process.env.NEXTAUTH_SECRET,
       node_env: process.env.NODE_ENV,
       timestamp: new Date().toISOString()
     }
 
-    const allGood = checks.openai_api_key && checks.openai_base_url && checks.openai_model
+    const allGood = checks.gemini_api_key
 
     return NextResponse.json({
       status: allGood ? 'healthy' : 'unhealthy',
