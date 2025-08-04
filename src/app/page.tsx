@@ -268,7 +268,118 @@ export default function HomePage() {
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
-              <EmotionTracker />
+              {/* Overview Header */}
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Emotional Overview</h2>
+                <p className="text-gray-600">Quick insights into your emotional journey</p>
+              </div>
+
+              {/* Overview Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Emotion Trend - Full Width on Mobile */}
+                <div className="lg:col-span-2">
+                  <RecentEmotionTrend />
+                </div>
+                
+                {/* Quick Stats Grid */}
+                <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5" />
+                      Emotion Statistics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">{records.length}</div>
+                        <div className="text-sm text-gray-600">Total Records</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">
+                          {records.length > 0 ? (records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1) : '0'}
+                        </div>
+                        <div className="text-sm text-gray-600">Avg Impact</div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600">
+                          {new Set(records.map(r => new Date(r.timestamp).toDateString())).size}
+                        </div>
+                        <div className="text-sm text-gray-600">Days Tracked</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-600">
+                          {records.filter(r => {
+                            const today = new Date()
+                            const recordDate = new Date(r.timestamp)
+                            return recordDate.toDateString() === today.toDateString()
+                          }).length}
+                        </div>
+                        <div className="text-sm text-gray-600">Today's Records</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Most Common Emotions */}
+                <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Heart className="w-5 h-5" />
+                      Emotion Patterns
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {records.length > 0 ? (
+                      <div className="space-y-3">
+                        {(() => {
+                          const emotionCounts = records.reduce((acc, record) => {
+                            acc[record.emotion] = (acc[record.emotion] || 0) + 1
+                            return acc
+                          }, {} as Record<string, number>)
+                          
+                          return Object.entries(emotionCounts)
+                            .sort(([,a], [,b]) => b - a)
+                            .slice(0, 3)
+                            .map(([emotion, count], index) => (
+                              <div key={emotion} className="flex justify-between items-center">
+                                <span className="text-gray-700">
+                                  {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'} {emotion}
+                                </span>
+                                <span className="font-semibold text-gray-900">{count}</span>
+                              </div>
+                            ))
+                        })()}
+                      </div>
+                    ) : (
+                      <div className="text-center text-gray-500 py-4">
+                        <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Start tracking to see patterns!</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="flex justify-center gap-4">
+                <Button 
+                  onClick={handleStartConversation}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Start Conversation
+                </Button>
+                <Link href="/analytics">
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    View Analytics
+                  </Button>
+                </Link>
+              </div>
             </TabsContent>
           </Tabs>
         </div>
