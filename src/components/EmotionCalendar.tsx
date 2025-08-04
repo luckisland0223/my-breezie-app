@@ -84,14 +84,14 @@ export function EmotionCalendar() {
           primaryEmotion = mostFrequent[0]
         } else {
           // If tie, use most recent
-          const sortedRecords = dayRecords.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+          const sortedRecords = dayRecords.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
           primaryEmotion = sortedRecords[0]?.emotion || 'Joy'
         }
       }
       
       dayEmotionsArray.push({
         date,
-        emotions: dayRecords.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
+        emotions: dayRecords.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
         primaryEmotion
       })
     })

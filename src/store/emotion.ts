@@ -270,8 +270,8 @@ export const useEmotionStore = create<EmotionState>()(
         const now = new Date()
         const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
         return get().records
-          .filter((record) => record.timestamp >= daysAgo)
-          .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+          .filter((record) => new Date(record.timestamp) >= daysAgo)
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       },
 
       // Clear all records

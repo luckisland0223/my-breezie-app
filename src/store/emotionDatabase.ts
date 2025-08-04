@@ -281,8 +281,8 @@ export const useEmotionStore = create<EmotionState>()(
         const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
         
         return get().records
-          .filter((record) => record.timestamp >= daysAgo)
-          .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+          .filter((record) => new Date(record.timestamp) >= daysAgo)
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       },
 
       // Clear all records
@@ -387,6 +387,22 @@ export const useEmotionStore = create<EmotionState>()(
         stats: state.stats,
         lastSyncTime: state.lastSyncTime
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // 确保从localStorage恢复的数据中的日期字段被正确转换为Date对象
+          if (state.lastSyncTime && typeof state.lastSyncTime === 'string') {
+            state.lastSyncTime = new Date(state.lastSyncTime)
+          }
+          if (state.records) {
+            state.records = state.records.map(record => ({
+              ...record,
+              timestamp: typeof record.timestamp === 'string' 
+                ? new Date(record.timestamp) 
+                : record.timestamp
+            }))
+          }
+        }
+      }
     }
   )
 )

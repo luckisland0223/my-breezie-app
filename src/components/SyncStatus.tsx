@@ -59,9 +59,10 @@ export function SyncStatus() {
     )
   }
 
-  const formatLastSync = (date: Date) => {
+  const formatLastSync = (date: Date | string) => {
     const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
+    const syncDate = new Date(date)
+    const diffMs = now.getTime() - syncDate.getTime()
     const diffMins = Math.floor(diffMs / 60000)
     
     if (diffMins < 1) return 'Just now'
