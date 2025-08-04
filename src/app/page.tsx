@@ -365,18 +365,11 @@ export default function HomePage() {
               </div>
 
               {/* Quick Actions */}
-              <div className="flex justify-center gap-4">
-                <Button 
-                  onClick={handleStartConversation}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Start Conversation
-                </Button>
+              <div className="flex justify-center">
                 <Link href="/analytics">
                   <Button variant="outline" className="flex items-center gap-2">
                     <BarChart3 className="w-4 h-4" />
-                    View Analytics
+                    View Detailed Analytics
                   </Button>
                 </Link>
               </div>
