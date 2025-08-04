@@ -226,7 +226,7 @@ export const useEmotionStore = create<EmotionState>()(
         const newRecord: EmotionRecord = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           emotion,
-          behavioralImpact: calculateBehavioralImpact(emotion, intensity, note).impactScore, // Use calculation function
+          behavioralImpact: intensity, // Use the passed intensity value directly
           note,
           timestamp: new Date(),
           conversationSummary,
