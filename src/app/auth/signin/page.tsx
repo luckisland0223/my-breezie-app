@@ -5,14 +5,11 @@ import { useRouter } from 'next/navigation'
 import { Cloud } from 'lucide-react'
 import Link from 'next/link'
 import { useAuthStore } from '@/store/auth'
-import { useSupabaseStore } from '@/store/supabase'
-import { EmailAuth } from '@/components/auth/EmailAuth'
-import { SupabaseConfig } from '@/components/SupabaseConfig'
+import { SimpleEmailAuth } from '@/components/auth/SimpleEmailAuth'
 
 export default function SignIn() {
   const router = useRouter()
   const { isLoggedIn } = useAuthStore()
-  const { isReady } = useSupabaseStore()
 
   // Redirect if already logged in
   useEffect(() => {
@@ -47,17 +44,7 @@ export default function SignIn() {
 
         {/* Authentication Form */}
         <div className="flex flex-col items-center space-y-6">
-          {!isReady() ? (
-            <div className="space-y-4 text-center">
-              <h2 className="text-xl font-semibold">Setup Required</h2>
-              <p className="text-gray-600">
-                First, configure your Supabase database connection:
-              </p>
-              <SupabaseConfig />
-            </div>
-          ) : (
-            <EmailAuth onSuccess={handleAuthSuccess} />
-          )}
+          <SimpleEmailAuth onSuccess={handleAuthSuccess} />
         </div>
 
         {/* Back to Home Link */}

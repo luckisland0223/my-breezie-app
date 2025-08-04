@@ -11,22 +11,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { LogOut, User, Settings, LogIn, Database } from 'lucide-react'
+import { LogOut, User, Settings, LogIn } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/auth'
-import { useSupabaseStore } from '@/store/supabase'
-import { getSupabaseClient } from '@/lib/supabase/client'
-import { EmailAuth } from '@/components/auth/EmailAuth'
-import { SupabaseConfig } from '@/components/SupabaseConfig'
+import { SimpleEmailAuth } from '@/components/auth/SimpleEmailAuth'
 import { toast } from 'sonner'
 
 export default function UserProfile() {
   const { user, isLoggedIn, isLoading, logout, getDisplayName } = useAuthStore()
-  const { isReady } = useSupabaseStore()
   const router = useRouter()
   
   const [showAuthDialog, setShowAuthDialog] = useState(false)
-  const [showConfigDialog, setShowConfigDialog] = useState(false)
 
   if (isLoading) {
     return <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
@@ -34,10 +29,8 @@ export default function UserProfile() {
 
   const handleSignOut = async () => {
     try {
-      if (isReady()) {
-        const client = getSupabaseClient()
-        await client.auth.signOut()
-      }
+      // Clear local storage
+      localStorage.removeItem('breezie_current_user')
       logout()
       toast.success('Signed out successfully')
       router.push('/')
@@ -63,13 +56,7 @@ export default function UserProfile() {
         <Button 
           variant="outline" 
           size="sm"
-          onClick={() => {
-            if (!isReady()) {
-              setShowConfigDialog(true)
-            } else {
-              setShowAuthDialog(true)
-            }
-          }}
+          onClick={() => setShowAuthDialog(true)}
         >
           <LogIn className="w-4 h-4 mr-1" />
           Sign In
@@ -81,17 +68,7 @@ export default function UserProfile() {
             <DialogHeader>
               <DialogTitle>Authentication</DialogTitle>
             </DialogHeader>
-            <EmailAuth onSuccess={handleAuthSuccess} />
-          </DialogContent>
-        </Dialog>
-
-        {/* Config Dialog */}
-        <Dialog open={showConfigDialog} onOpenChange={setShowConfigDialog}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Setup Required</DialogTitle>
-            </DialogHeader>
-            <SupabaseConfig />
+            <SimpleEmailAuth onSuccess={handleAuthSuccess} />
           </DialogContent>
         </Dialog>
       </>
@@ -127,10 +104,7 @@ export default function UserProfile() {
           <User className="mr-2 h-4 w-4" />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setShowConfigDialog(true)} className="cursor-pointer">
-          <Database className="mr-2 h-4 w-4" />
-          Database Settings
-        </DropdownMenuItem>
+
         <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
           <Settings className="mr-2 h-4 w-4" />
           App Settings
@@ -142,15 +116,7 @@ export default function UserProfile() {
         </DropdownMenuItem>
       </DropdownMenuContent>
 
-      {/* Config Dialog */}
-      <Dialog open={showConfigDialog} onOpenChange={setShowConfigDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Supabase Configuration</DialogTitle>
-          </DialogHeader>
-          <SupabaseConfig />
-        </DialogContent>
-      </Dialog>
+
     </DropdownMenu>
   )
 }

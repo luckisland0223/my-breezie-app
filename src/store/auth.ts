@@ -21,6 +21,7 @@ interface AuthState {
   setSession: (session: any) => void
   setLoading: (loading: boolean) => void
   logout: () => void
+  initializeAuth: () => void
   
   // Helpers
   getDisplayName: () => string
@@ -73,6 +74,23 @@ export const useAuthStore = create<AuthState>()(
         session: null,
         isLoading: false
       }),
+
+      initializeAuth: () => {
+        try {
+          const savedUser = localStorage.getItem('breezie_current_user')
+          if (savedUser) {
+            const user = JSON.parse(savedUser)
+            set({ 
+              user, 
+              isLoggedIn: true,
+              isLoading: false
+            })
+          }
+        } catch (error) {
+          console.error('Failed to initialize auth from localStorage:', error)
+          set({ isLoading: false })
+        }
+      },
       
       getDisplayName: () => {
         const { user } = get()
