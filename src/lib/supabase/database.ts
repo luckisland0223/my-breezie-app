@@ -56,7 +56,7 @@ export async function getUserProfile(userId: string): Promise<DatabaseProfile | 
     return null
   }
 
-  return data
+  return data as unknown as DatabaseProfile
 }
 
 export async function updateUserProfile(userId: string, updates: Partial<DatabaseProfile>): Promise<boolean> {
@@ -88,7 +88,7 @@ export async function createEmotionRecord(record: Omit<DatabaseEmotionRecord, 'i
     return null
   }
 
-  return data
+  return data as unknown as DatabaseEmotionRecord
 }
 
 export async function getUserEmotionRecords(userId: string): Promise<DatabaseEmotionRecord[]> {
@@ -104,7 +104,7 @@ export async function getUserEmotionRecords(userId: string): Promise<DatabaseEmo
     return []
   }
 
-  return data || []
+  return (data || []) as unknown as DatabaseEmotionRecord[]
 }
 
 export async function getEmotionRecordsByDateRange(
@@ -126,7 +126,7 @@ export async function getEmotionRecordsByDateRange(
     return []
   }
 
-  return data || []
+  return (data || []) as unknown as DatabaseEmotionRecord[]
 }
 
 export async function deleteEmotionRecord(recordId: string, userId: string): Promise<boolean> {
@@ -159,7 +159,7 @@ export async function createChatSession(session: Omit<DatabaseChatSession, 'id' 
     return null
   }
 
-  return data
+  return data as unknown as DatabaseChatSession
 }
 
 export async function updateChatSession(sessionId: string, userId: string, updates: Partial<DatabaseChatSession>): Promise<boolean> {
@@ -192,7 +192,7 @@ export async function createChatMessage(message: Omit<DatabaseChatMessage, 'id' 
     return null
   }
 
-  return data
+  return data as unknown as DatabaseChatMessage
 }
 
 export async function getChatMessages(sessionId: string, userId: string): Promise<DatabaseChatMessage[]> {
@@ -209,7 +209,7 @@ export async function getChatMessages(sessionId: string, userId: string): Promis
     return []
   }
 
-  return data || []
+  return (data || []) as unknown as DatabaseChatMessage[]
 }
 
 // 数据同步函数

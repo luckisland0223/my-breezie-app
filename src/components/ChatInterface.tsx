@@ -56,7 +56,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
   
   const currentSession = useEmotionStore((state) => state.currentSession)
   const startChatSession = useEmotionStore((state) => state.startChatSession)
-  const addMessage = useEmotionStore((state) => state.addMessage)
+  const addChatMessage = useEmotionStore((state) => state.addChatMessage)
   const endChatSession = useEmotionStore((state) => state.endChatSession)
   const addEmotionRecord = useEmotionStore((state) => state.addEmotionRecord)
 
@@ -82,22 +82,22 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
             const data = await response.json()
             const welcomeResponse = data.response
             setAiResponse(welcomeResponse)
-            addMessage(welcomeResponse, 'assistant')
+            addChatMessage({ content: welcomeResponse, role: 'assistant' })
           } else {
             // Simple welcome message if API fails
             const welcomeResponse = `Hello, I'm Breezie. I notice you're feeling ${emotion.toLowerCase()} right now, and I'm here to support you. Would you like to share what's happening?`
             setAiResponse(welcomeResponse)
-            addMessage(welcomeResponse, 'assistant')
+            addChatMessage({ content: welcomeResponse, role: 'assistant' })
           }
         } catch (error) {
           // Fallback welcome message for network errors
           const welcomeResponse = `Hello, I'm Breezie. I'm here to support you, whatever you're feeling right now. Would you like to share what's on your mind?`
           setAiResponse(welcomeResponse)
-          addMessage(welcomeResponse, 'assistant')
+          addChatMessage({ content: welcomeResponse, role: 'assistant' })
         }
       }, 500)
     }
-  }, [emotion, currentSession, startChatSession, addMessage])
+  }, [emotion, currentSession, startChatSession, addChatMessage])
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return
@@ -108,7 +108,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
     setLastUserMessage(userMessage)
     
     // Add user message to history
-    addMessage(userMessage, 'user')
+    addChatMessage({ content: userMessage, role: 'user' })
     
     // Clear input but maintain display state
     setInputValue('')
@@ -147,7 +147,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
       
       // Set AI response and start typing effect
       setAiResponse(data.response)
-      addMessage(data.response, 'assistant')
+      addChatMessage({ content: data.response, role: 'assistant' })
       
     } catch (error) {
       console.error('Gemini API call failed:', error)
@@ -155,7 +155,7 @@ export function ChatInterface({ emotion, onBack }: ChatInterfaceProps) {
       // Friendly response when API call fails
       const fallbackResponse = 'Sorry, I cannot connect to the AI service right now. This might be due to invalid API key or network issues. Please contact the developer to check configuration.'
       setAiResponse(fallbackResponse)
-      addMessage(fallbackResponse, 'assistant')
+      addChatMessage({ content: fallbackResponse, role: 'assistant' })
       
       // Show error notification
       toast.error('API call failed - Please check API key configuration')

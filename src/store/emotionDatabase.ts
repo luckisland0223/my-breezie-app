@@ -18,7 +18,7 @@ function dbRecordToLocal(dbRecord: DatabaseEmotionRecord): EmotionRecord {
   return {
     id: dbRecord.id,
     emotion: dbRecord.emotion,
-    intensity: dbRecord.intensity,
+    behavioralImpact: dbRecord.intensity, // Map intensity to behavioralImpact
     note: dbRecord.note || '',
     timestamp: new Date(dbRecord.timestamp),
     conversationSummary: dbRecord.conversation_summary,
@@ -32,7 +32,7 @@ function localRecordToDb(record: Omit<EmotionRecord, 'id'>, userId: string): Omi
   return {
     user_id: userId,
     emotion: record.emotion,
-    intensity: record.intensity,
+    intensity: record.behavioralImpact, // Map behavioralImpact to intensity
     note: record.note,
     timestamp: record.timestamp.toISOString(),
     conversation_summary: record.conversationSummary,
@@ -57,7 +57,7 @@ function recalculateStats(records: EmotionRecord[]): EmotionStats {
     }
     
     stats[emotion].count++
-    stats[emotion].totalIntensity += record.intensity
+    stats[emotion].totalIntensity += record.behavioralImpact
     stats[emotion].avgIntensity = stats[emotion].totalIntensity / stats[emotion].count
     
     if (!stats[emotion].lastRecorded || record.timestamp > stats[emotion].lastRecorded!) {
@@ -131,7 +131,7 @@ export const useEmotionStore = create<EmotionState>()(
       ) => {
         const newRecord: Omit<EmotionRecord, 'id'> = {
           emotion,
-          intensity,
+          behavioralImpact: intensity, // Map intensity parameter to behavioralImpact field
           note,
           timestamp: new Date(),
           conversationSummary,

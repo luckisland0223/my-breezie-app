@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { useEmotionStore } from '@/store/emotion'
+import { useEmotionStore } from '@/store/emotionDatabase'
 import { useAuthStore } from '@/store/auth'
 import { Calendar, Heart, TrendingUp, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -156,8 +156,8 @@ export default function ProfilePage() {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Full Name</label>
-                  <p className="text-lg font-medium">{user.full_name || getDisplayName()}</p>
+                  <label className="text-sm font-medium text-gray-500">Username</label>
+                  <p className="text-lg font-medium">@{user.user_name || getDisplayName()}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Email Address</label>
