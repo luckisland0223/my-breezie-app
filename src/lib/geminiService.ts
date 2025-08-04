@@ -151,12 +151,12 @@ export async function getGeminiResponse(
     
     // Return fallback response
     const fallbackResponses = [
-      "我在这里倾听和支持你。虽然有时技术会有小故障，但我对你的关心是持续的。你现在感觉怎么样？想和我聊聊什么吗？",
-      "抱歉出现了技术问题。但最重要的是你愿意和我分享。现在你的心情如何？有什么想对我说的吗？",
-      "我能感受到你现在的状态。让我们暂时忽略技术问题，专注于你的感受。告诉我，你现在最需要什么支持？"
+      "I'm here to listen and support you. Sometimes technology has hiccups, but my care for your wellbeing is constant. How are you feeling right now? What would you like to talk about?",
+      "I apologize for the technical difficulty. What matters most is that you're reaching out. How are you feeling right now, and what's on your mind?",
+      "Even when technology isn't perfect, your feelings and experiences matter deeply. I'm here to support you. What would be most helpful to talk about right now?"
     ]
     
     const randomIndex = Math.floor(Math.random() * fallbackResponses.length)
-    return fallbackResponses[randomIndex] || "我在这里陪伴你。能告诉我更多关于你现在的感受吗？"
+    return fallbackResponses[randomIndex] || "I'm here to support you. Could you tell me more about what you're experiencing?"
   }
 }

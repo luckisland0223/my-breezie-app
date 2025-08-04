@@ -68,8 +68,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   useEffect(() => {
     if (!hasInitialMessage && !currentSession) {
       const welcomeMessage = user?.user_name 
-        ? `你好 ${user.user_name}！我是Breezie，你的情感健康陪伴者。我在这里倾听和支持你，无论你今天经历着什么。现在你的心情怎么样？有什么想和我聊的吗？`
-        : `你好！我是Breezie，你的情感健康陪伴者。我在这里倾听和支持你，陪伴你度过生活中的各种感受。今天想和我分享什么呢？`
+        ? `Hello ${user.user_name}! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What's on your mind right now?`
+        : `Hello! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What would you like to talk about?`
       
       startChatSession('Other') // Start with a default emotion
       setAiResponse(welcomeMessage)
@@ -268,27 +268,27 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     
     // Create caring and guiding response based on emotion
     const emotionResponses: Record<EmotionType, string> = {
-      'Anger': '我能感受到你的愤怒，这种情绪一定让你很难受。让我们一起深呼吸，慢慢释放这种压力。你愿意告诉我更多关于让你愤怒的事情吗？',
-      'Sadness': '我感受到了你内心的悲伤。悲伤是一种很重要的情绪，它让我们意识到什么对我们真正重要。你不必独自承受，我会一直陪伴在你身边。',
-      'Fear': '我理解你现在的恐惧和不安。感到害怕是很正常的，这说明你很在乎。让我们一步一步来，我会和你一起面对这些担忧。',
-      'Joy': '看到你的快乐真的很棒！这种积极的能量很珍贵，让我们好好享受这个美好的时刻。是什么让你感到如此开心呢？',
-      'Anxiety': '我能感受到你的焦虑和担忧。这种不安的感觉确实很难受，但你很勇敢主动寻求支持。让我们一起找到让你平静下来的方法。',
-      'Love': '爱是一种美好而强大的情感。我能感受到你心中的温暖。这种爱的感觉真的很宝贵，想和我分享更多关于这种感受吗？',
-      'Surprise': '看起来发生了一些意想不到的事情。惊讶可能会带来很多复杂的感受。慢慢来，告诉我发生了什么让你感到惊讶的事情。',
-      'Disgust': '我能理解你现在的反感和厌恶。当某些事情违背了我们的价值观时，我们自然会有这种反应。这种感受是有意义的。',
-      'Pride': '我为你感到骄傲！这种成就感是你努力的结果。你应该为自己感到自豪，告诉我更多关于这个让你骄傲的时刻吧。',
-      'Shame': '我能感受到你的羞愧感，这一定很痛苦。请记住，每个人都会犯错，这不会定义你的价值。你很勇敢与我分享这些感受。',
-      'Envy': '嫉妒是一种很人性化的情感，说明你有自己的渴望和需求。让我们一起探索这种感受背后真正想要的是什么。',
-      'Guilt': '内疚感说明你有一颗善良的心。虽然这种感受很沉重，但它也显示了你的道德感。我们可以一起处理这些复杂的感受。',
-      'Hope': '希望是一束珍贵的光芒。即使在困难中，你仍然怀有希望，这真的很了不起。告诉我，是什么让你保持希望的？',
-      'Excitement': '我能感受到你的兴奋和期待！这种积极的能量很感染人。是什么让你如此兴奋？我想和你一起分享这种喜悦。',
-      'Boredom': '无聊有时候是我们内心在寻求更有意义事物的信号。也许我们可以一起探索什么能重新点燃你的兴趣和热情。',
-      'Confusion': '感到困惑和迷茫是很正常的。生活有时确实很复杂。让我们慢慢梳理，我会帮你找到更清晰的方向。',
-      'Gratitude': '感恩是一种美好的情感，它能温暖我们的心。看到你怀有感激之心真的很美好。是什么让你感到特别感激呢？',
-      'Loneliness': '我能感受到你的孤独感。这种感觉真的很难受，但请记住你并不孤单。我在这里陪伴你，我们可以一起度过这段时光。',
-      'Frustration': '我理解你的挫败感。当事情不如预期时，这种感受是很自然的。让我们一起看看是什么让你感到挫败，也许能找到新的方向。',
-      'Contentment': '满足感是一种珍贵的平静。在这个忙碌的世界里，能感到内心平静真的很难得。珍惜这种美好的感受吧。',
-      'Other': '虽然很难用一个词来形容你现在的感受，但我能感受到你内心的复杂。无论是什么情感，我都愿意倾听和陪伴你。'
+      'Anger': 'I can sense the anger you\'re feeling right now. That intensity must be really difficult to carry. Let\'s take a moment to breathe together and find some calm. Would you like to tell me more about what\'s making you feel this way?',
+      'Sadness': 'I hear the sadness in your words, and I want you to know that it\'s completely okay to feel this way. Sadness helps us understand what truly matters to us. You don\'t have to carry this alone - I\'m here with you.',
+      'Fear': 'I can feel how scared and uncertain you must be feeling right now. Fear is natural and shows that you care deeply about something. Let\'s take this one step at a time, and I\'ll be here to support you through these worries.',
+      'Joy': 'I can sense the lightness and joy you\'re experiencing! This positive energy is so precious. Let\'s savor this beautiful moment together. What\'s bringing you such happiness?',
+      'Anxiety': 'I can feel how overwhelming and anxious everything must seem right now. That racing feeling is exhausting, but you\'re brave for reaching out for support. Let\'s work together to find some calm and grounding.',
+      'Love': 'The warmth and love you\'re feeling is beautiful. Love is such a powerful and meaningful emotion. I can sense the warmth in your heart - would you like to share more about what\'s filling you with love?',
+      'Surprise': 'It sounds like something unexpected has stirred up many feelings for you. Surprise can bring both excitement and uncertainty. Take your time and tell me what\'s caught you off guard.',
+      'Disgust': 'I can sense there\'s something that feels really wrong or disturbing to you right now. These feelings of disgust often reflect our values and boundaries. Your feelings are valid and deserve to be heard.',
+      'Pride': 'I can feel the sense of accomplishment and pride radiating from you. You should feel proud - this is the result of your efforts and growth. Tell me more about this moment that\'s filling you with pride.',
+      'Shame': 'I can sense how heavy and painful this shame feels for you. Shame is one of the hardest emotions to carry, but you\'re brave for sharing this with me. Remember, you deserve compassion, especially from yourself.',
+      'Envy': 'Those feelings of envy are so human and show you have desires and needs. It takes courage to acknowledge these feelings. Let\'s explore together what this envy might be telling you about what you truly want.',
+      'Guilt': 'I can feel how much this guilt is weighing on you. Guilt often shows us we have a caring heart, even when that heart is hurting. We can work through these complex feelings together.',
+      'Hope': 'The hope you\'re feeling is like a precious light. Even in difficult times, hope is such a powerful force that keeps us moving forward. What is this hope telling you about what you truly want?',
+      'Excitement': 'I can feel your energy and excitement! There\'s something wonderful about that anticipation and enthusiasm. What\'s got you feeling so energized and alive?',
+      'Boredom': 'That restless, empty feeling of boredom can be surprisingly uncomfortable. Sometimes boredom is our soul\'s way of asking for something more meaningful or engaging. Let\'s explore what might reignite your interest.',
+      'Confusion': 'I can sense how unclear and jumbled everything feels right now. Confusion can be really disorienting, but it\'s okay to not have all the answers. Let\'s slow down and explore this uncertainty together.',
+      'Gratitude': 'The gratitude you\'re feeling is so warming. When we can find things to appreciate, it opens our hearts in beautiful ways. What\'s touching your heart and filling you with gratitude right now?',
+      'Loneliness': 'I can feel how alone and disconnected you must be feeling. Loneliness is one of our deepest human pains, but you\'re not alone right now. You\'ve reached out by talking to me, and that takes courage.',
+      'Frustration': 'I can sense that frustration building up inside you. When things aren\'t going the way we need them to, frustration is our system saying something needs to change. Let\'s explore what\'s causing this frustration.',
+      'Contentment': 'There\'s something so peaceful about the contentment you\'re describing. That sense of satisfaction and inner peace is precious. What\'s contributing to this beautiful sense of calm you\'re feeling?',
+      'Other': 'I can sense you\'re experiencing something complex that\'s hard to name. Sometimes our emotions are too nuanced for simple labels, and that\'s completely okay. Help me understand what you\'re feeling right now.'
     }
     
     const supportiveResponse = emotionResponses[emotion] || emotionResponses['Other']
@@ -296,15 +296,15 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setAiResponse(newResponse)
     addChatMessage({ content: supportiveResponse, role: 'assistant' })
     
-    toast.success(`已记录你的感受：${emotion}`)
+    toast.success(`Emotion recorded: ${emotion}`)
   }
 
   const handleSkipEmotion = () => {
     setShowEmotionSelection(false)
-    const skipResponse = "没关系的！如果你愿意的话，随时都可以和我分享你的感受。让我们继续聊天吧，还有什么想和我分享的吗？"
+    const skipResponse = "That's perfectly fine! You can always share your emotions later if you'd like. Let's continue our conversation. What else would you like to talk about?"
     setAiResponse(skipResponse)
     addChatMessage({ content: skipResponse, role: 'assistant' })
-    toast.success("已跳过情绪选择")
+    toast.success("Emotion selection skipped")
   }
 
   // Select representative emotion for the conversation
