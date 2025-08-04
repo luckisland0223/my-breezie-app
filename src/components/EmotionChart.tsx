@@ -1,19 +1,9 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 import type { EmotionRecord } from '@/store/emotion'
+import { emotionConfig, getEmotionEmoji } from '@/config/emotionConfig'
 
 interface EmotionChartProps {
   records: EmotionRecord[]
-}
-
-// Emotion color mapping - light tones
-const emotionColorMap: Record<string, string> = {
-  'Anger': '#fca5a5',     // Light red
-  'Disgust': '#fdba74',   // Light orange
-  'Fear': '#c4b5fd',      // Light purple
-  'Joy': '#86efac',       // Light green
-  'Sadness': '#93c5fd',   // Light blue
-  'Surprise': '#fde047',  // Light yellow
-  'Complex': '#a5b4fc'    // Light indigo
 }
 
 export function EmotionChart({ records }: EmotionChartProps) {
@@ -31,12 +21,17 @@ export function EmotionChart({ records }: EmotionChartProps) {
     return acc
   }, {} as Record<string, number>)
 
-  // Convert statistics to pie chart data format
+  // Convert statistics to pie chart data format with vibrant colors
   const pieData = Object.entries(emotionCount).map(([emotion, count]) => ({
     name: emotion,
     value: count,
-    percentage: Math.round((count / records.length) * 100)
+    percentage: Math.round((count / records.length) * 100),
+    color: emotionConfig[emotion as keyof typeof emotionConfig]?.color || '#6B7280',
+    emoji: getEmotionEmoji(emotion as keyof typeof emotionConfig)
   }))
+
+  // Sort by value for better visualization
+  pieData.sort((a, b) => b.value - a.value)
 
   // Get the most frequent emotion
   const mostFrequentEmotion = pieData.reduce((prev, current) => 
@@ -51,39 +46,79 @@ export function EmotionChart({ records }: EmotionChartProps) {
         name: string
         value: number
         percentage: number
+        emoji: string
       }
     }>
   }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0]?.payload
+    if (active && payload && payload.length && payload[0]) {
+      const data = payload[0].payload
       return (
-        <div className="bg-white p-3 border rounded-lg shadow-lg">
-          <p className="font-medium">{data?.name}</p>
-          <p className="text-sm text-gray-600">Count: {data?.value}</p>
-          <p className="text-sm text-gray-600">Percentage: {data?.percentage}%</p>
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold text-gray-800 flex items-center gap-2">
+            <span className="text-lg">{data.emoji}</span>
+            {data.name}
+          </p>
+          <p className="text-gray-600">
+            Count: <span className="font-medium">{data.value}</span>
+          </p>
+          <p className="text-gray-600">
+            Percentage: <span className="font-medium">{data.percentage}%</span>
+          </p>
         </div>
       )
     }
     return null
   }
 
-  // Custom labels
-  const renderLabel = ({ name, percentage }: {
-    name: string
-    percentage: number
+  // Custom Legend
+  const CustomLegend = ({ payload }: {
+    payload?: Array<{
+      value: string
+      color: string
+      payload: {
+        name: string
+        value: number
+        percentage: number
+        emoji: string
+      }
+    }>
   }) => {
-    return `${name}: ${percentage}%`
+    if (!payload || !Array.isArray(payload)) return null
+    
+    return (
+      <div className="flex flex-wrap gap-2 justify-center mt-4">
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-full">
+            <span className="text-sm">{entry.payload.emoji}</span>
+            <div 
+              className="w-3 h-3 rounded-full" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm font-medium text-gray-700">
+              {entry.value} ({entry.payload.percentage}%)
+            </span>
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Emotion Distribution Chart</h3>
-        <div className="text-sm text-gray-600">
-          Total Records: {records.length}
-        </div>
+      {/* Chart Statistics */}
+      <div className="text-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Emotion Distribution</h3>
+        <p className="text-gray-600">
+          Most frequent: <span className="font-medium text-lg">
+            {mostFrequentEmotion.emoji} {mostFrequentEmotion.name}
+          </span> ({mostFrequentEmotion.percentage}%)
+        </p>
+        <p className="text-sm text-gray-500 mt-1">
+          Based on {records.length} emotion record{records.length !== 1 ? 's' : ''}
+        </p>
       </div>
-      
+
+      {/* Pie Chart */}
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -92,44 +127,25 @@ export function EmotionChart({ records }: EmotionChartProps) {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={renderLabel}
-              outerRadius={80}
+              label={({ name, percentage, emoji }) => `${emoji} ${percentage}%`}
+              outerRadius={100}
               fill="#8884d8"
               dataKey="value"
+              strokeWidth={2}
+              stroke="#ffffff"
             >
               {pieData.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
-                  fill={emotionColorMap[entry.name] || '#6b7280'} 
+                  fill={entry.color}
                 />
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <Legend content={<CustomLegend />} />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-        {pieData.map((item) => (
-          <div key={item.name} className="flex items-center space-x-2">
-            <div 
-              className="w-3 h-3 rounded-full" 
-              style={{ backgroundColor: emotionColorMap[item.name] || '#6b7280' }}
-            ></div>
-            <span>{item.name}: {item.value} times</span>
-          </div>
-        ))}
-      </div>
-      
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h4 className="font-medium mb-2">Emotion Analysis</h4>
-        <div className="text-sm text-gray-600 space-y-1">
-          <p>• Most frequent emotion: <span className="font-medium text-gray-800">{mostFrequentEmotion.name}</span> ({mostFrequentEmotion.percentage}%)</p>
-          <p>• Total of {Object.keys(emotionCount).length} different emotion types recorded</p>
-          <p>• The pie chart shows the distribution ratio of each emotion in all records</p>
-        </div>
-      </div>
     </div>
   )
-} 
+}

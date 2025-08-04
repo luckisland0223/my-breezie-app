@@ -212,8 +212,8 @@ PHASE 2 - CLARIFICATION (only after they feel emotionally stable):
 
 // Get emotion-specific prompts
 function getEmotionPrompt(emotion: EmotionType): string {
-  return PSYCHOLOGY_PROMPTS.emotionSpecificPrompts[emotion] || 
-         PSYCHOLOGY_PROMPTS.emotionSpecificPrompts['Complex']
+  const prompts = PSYCHOLOGY_PROMPTS.emotionSpecificPrompts as Record<string, string>
+  return prompts[emotion] || prompts['Other'] || 'I understand you\'re going through something complex. Please tell me more about how you\'re feeling.'
 }
 
 // OpenAI API call function

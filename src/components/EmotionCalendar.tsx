@@ -6,32 +6,12 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useEmotionStore } from '@/store/emotion'
+import { useEmotionStore } from '@/store/emotionDatabase'
 import type { EmotionType, EmotionRecord } from '@/store/emotion'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
+import { emotionConfig, getEmotionEmoji, getEmotionDisplay } from '@/config/emotionConfig'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-
-// Emotion colors for calendar display
-const emotionColors: Record<EmotionType, string> = {
-  'Joy': 'bg-green-100 text-green-800 border-green-200',
-  'Sadness': 'bg-blue-100 text-blue-800 border-blue-200', 
-  'Anger': 'bg-red-100 text-red-800 border-red-200',
-  'Fear': 'bg-purple-100 text-purple-800 border-purple-200',
-  'Surprise': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  'Disgust': 'bg-orange-100 text-orange-800 border-orange-200',
-  'Complex': 'bg-indigo-100 text-indigo-800 border-indigo-200'
-}
-
-// Emotion icons
-const emotionIcons: Record<EmotionType, string> = {
-  'Joy': '😊',
-  'Sadness': '😢',
-  'Anger': '😠',
-  'Fear': '😨',
-  'Surprise': '😲',
-  'Disgust': '🤢',
-  'Complex': '🤔'
-}
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, getDay, subMonths, addMonths } from 'date-fns'
 
 interface DayEmotions {
   date: Date
@@ -45,39 +25,32 @@ export function EmotionCalendar() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
   const records = useEmotionStore((state) => state.records)
+  const deleteRecord = useEmotionStore((state) => state.deleteRecord)
   
   // Group emotions by day
   const dailyEmotions = useMemo(() => {
-    const grouped: { [key: string]: EmotionRecord[] } = {}
+    const start = startOfMonth(currentDate)
+    const end = endOfMonth(currentDate)
+    const days = eachDayOfInterval({ start, end })
     
-    records.forEach(record => {
-      const dateKey = record.timestamp.toDateString()
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = []
-      }
-      grouped[dateKey].push(record)
-    })
-    
-    // Convert to DayEmotions array with primary emotion logic
     const dayEmotionsArray: DayEmotions[] = []
-    Object.entries(grouped).forEach(([dateKey, dayRecords]) => {
-      const date = new Date(dateKey)
+    
+    days.forEach(date => {
+      const dayRecords = records.filter(record => 
+        isSameDay(new Date(record.timestamp), date)
+      )
       
-      // Determine primary emotion (most frequent or most recent)
-      let primaryEmotion: EmotionType = 'Joy' // Default fallback
-      if (dayRecords.length === 1 && dayRecords[0]) {
-        primaryEmotion = dayRecords[0].emotion
-      } else if (dayRecords.length > 1) {
-        // Count emotions for the day
-        const emotionCounts: { [key: string]: number } = {}
+      let primaryEmotion: EmotionType = 'Joy' // Default
+      
+      if (dayRecords.length > 0) {
+        // Find most frequent emotion for the day
+        const emotionCount: Record<string, number> = {}
         dayRecords.forEach(record => {
-          emotionCounts[record.emotion] = (emotionCounts[record.emotion] || 0) + 1
+          emotionCount[record.emotion] = (emotionCount[record.emotion] || 0) + 1
         })
         
-        // Get most frequent emotion, if tie then use most recent
-        const maxCount = Math.max(...Object.values(emotionCounts))
-        const mostFrequent = Object.entries(emotionCounts)
-          .filter(([_, count]) => count === maxCount)
+        const mostFrequent = Object.entries(emotionCount)
+          .filter(([_, count]) => count === Math.max(...Object.values(emotionCount)))
           .map(([emotion]) => emotion as EmotionType)
         
         if (mostFrequent.length === 1 && mostFrequent[0]) {
@@ -97,267 +70,194 @@ export function EmotionCalendar() {
     })
     
     return dayEmotionsArray
-  }, [records])
-  
-  // Get calendar data for current month
-  const getCalendarDays = () => {
-    const year = currentDate.getFullYear()
-    const month = currentDate.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const startDate = new Date(firstDay)
-    startDate.setDate(startDate.getDate() - firstDay.getDay()) // Start from Sunday
-    
-    const days = []
-    const currentDay = new Date(startDate)
-    
-    // Generate 42 days (6 weeks) for complete calendar grid
-    for (let i = 0; i < 42; i++) {
-      const dayEmotions = dailyEmotions.find(de => 
-        de.date.toDateString() === currentDay.toDateString()
-      )
-      
-      days.push({
-        date: new Date(currentDay),
-        dayEmotions,
-        isCurrentMonth: currentDay.getMonth() === month,
-        isToday: currentDay.toDateString() === new Date().toDateString()
-      })
-      
-      currentDay.setDate(currentDay.getDate() + 1)
-    }
-    
-    return days
+  }, [records, currentDate])
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentDate(direction === 'prev' ? subMonths(currentDate, 1) : addMonths(currentDate, 1))
   }
-  
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
-  }
-  
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
-  }
-  
-  const handleDayClick = (dayData: any) => {
-    if (dayData.dayEmotions) {
-      setSelectedDay(dayData.dayEmotions)
+
+  const handleDayClick = (dayData: DayEmotions) => {
+    if (dayData.emotions.length > 0) {
+      setSelectedDay(dayData)
       setIsDialogOpen(true)
     }
   }
-  
-  const handlePrimaryEmotionChange = (newPrimaryEmotion: EmotionType) => {
+
+  const handleDeleteRecord = (recordId: string) => {
+    deleteRecord(recordId)
+    toast.success('Emotion record deleted')
+    
+    // Update selected day data
     if (selectedDay) {
-      // Update the primary emotion (this would require updating the store if we want to persist it)
-      // For now, we'll just update the local state
-      setSelectedDay({
-        ...selectedDay,
-        primaryEmotion: newPrimaryEmotion
-      })
-      toast.success(`Primary emotion updated to ${newPrimaryEmotion}`)
+      const updatedEmotions = selectedDay.emotions.filter(e => e.id !== recordId)
+      if (updatedEmotions.length === 0) {
+        setSelectedDay(null)
+        setIsDialogOpen(false)
+      } else {
+        setSelectedDay({
+          ...selectedDay,
+          emotions: updatedEmotions
+        })
+      }
     }
   }
-  
-  const calendarDays = getCalendarDays()
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ]
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-  
+
+  const getDayOfWeek = (date: Date) => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    return days[getDay(date)]
+  }
+
+  const getEmotionIntensityColor = (emotion: EmotionType, intensity: number) => {
+    const baseColor = emotionConfig[emotion]?.color || '#6B7280'
+    const opacity = Math.max(0.3, intensity / 10) // Minimum 30% opacity
+    return `${baseColor}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`
+  }
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CalendarIcon className="w-5 h-5" />
-          Emotion Calendar
-        </CardTitle>
-        <div className="flex items-center justify-between">
-          <Button variant="outline" size="sm" onClick={handlePrevMonth}>
+    <div className="space-y-6">
+      {/* Calendar Header */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-900">
+          {format(currentDate, 'MMMM yyyy')}
+        </h3>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigateMonth('prev')}>
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <h3 className="text-lg font-semibold">
-            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-          </h3>
-          <Button variant="outline" size="sm" onClick={handleNextMonth}>
+          <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
+            Today
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigateMonth('next')}>
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1 sm:gap-2">
-          {/* Day headers */}
-          {dayNames.map(day => (
-            <div key={day} className="text-center text-xs sm:text-sm font-medium text-gray-500 p-1 sm:p-2">
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        {/* Weekday Headers */}
+        <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            <div key={day} className="p-3 text-center text-sm font-medium text-gray-600">
               {day}
             </div>
           ))}
-          
-          {/* Calendar days */}
-          {calendarDays.map((day, index) => (
-            <div
-              key={index}
-              className={`
-                relative aspect-square border rounded-lg cursor-pointer transition-all duration-200 min-h-[50px] sm:min-h-[60px]
-                ${day.isCurrentMonth ? 'bg-white hover:bg-gray-50 hover:shadow-md' : 'bg-gray-100 text-gray-400'}
-                ${day.isToday ? 'ring-2 ring-blue-500 ring-opacity-75 bg-blue-50' : ''}
-                ${day.dayEmotions ? 'hover:scale-105 shadow-sm' : ''}
-              `}
-              onClick={() => handleDayClick(day)}
-            >
-              {/* Date number in top-left corner */}
-              <div className="absolute top-1 left-1 text-xs font-medium">
-                {day.date.getDate()}
-              </div>
-              
-              {/* Emotion icon display */}
-              {day.dayEmotions ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="flex flex-col items-center gap-1">
-                    {/* Main emotion icon */}
-                    <div className="text-2xl">
-                      {emotionIcons[day.dayEmotions.primaryEmotion]}
-                    </div>
-                    
-                    {/* Multiple emotions indicator */}
-                    {day.dayEmotions.emotions.length > 1 && (
-                      <div className="flex flex-wrap items-center justify-center gap-0.5 max-w-full">
-                        {day.dayEmotions.emotions
-                          .slice(0, 4) // Show up to 4 emotion icons
-                          .filter((emotion, idx, arr) => 
-                            arr.findIndex(e => e.emotion === emotion.emotion) === idx
-                          ) // Remove duplicates
-                          .map((emotion, idx) => (
-                            <div key={idx} className="text-xs opacity-80 hover:opacity-100 transition-opacity">
-                              {emotionIcons[emotion.emotion]}
-                            </div>
-                          ))
-                        }
-                        {day.dayEmotions.emotions.length > 4 && (
-                          <div className="text-xs text-gray-600 font-medium bg-gray-100 rounded-full px-1">
-                            +{day.dayEmotions.emotions.length - 4}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                // Empty day - show subtle plus icon for adding emotions
-                <div className="flex items-center justify-center h-full opacity-0 hover:opacity-30 transition-opacity">
-                  <div className="text-2xl text-gray-400">+</div>
-                </div>
-              )}
-            </div>
-          ))}
         </div>
-        
-        {/* Tips for new users */}
-        {dailyEmotions.length === 0 && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">💡</span>
-              <h4 className="text-sm font-medium text-blue-900">Start Your Emotion Journey</h4>
-            </div>
-            <p className="text-sm text-blue-700 mb-2">
-              Begin tracking your emotions to see them displayed on this calendar! 
-              Use the emotion selector below to record how you're feeling.
-            </p>
-            <p className="text-xs text-blue-600">
-              Once you start recording, each day will show emoji icons representing your emotions.
-            </p>
-          </div>
-        )}
 
-        {/* Legend */}
-        <div className="mt-4 pt-4 border-t">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Legend:</h4>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(emotionIcons).map(([emotion, icon]) => (
-              <div key={emotion} className="flex items-center gap-1 text-xs">
-                <span>{icon}</span>
-                <span>{emotion}</span>
+        {/* Calendar Days */}
+        <div className="grid grid-cols-7">
+          {dailyEmotions.map((dayData, index) => {
+            const isCurrentMonth = dayData.date.getMonth() === currentDate.getMonth()
+            const isTodayDate = isToday(dayData.date)
+            const hasEmotions = dayData.emotions.length > 0
+            
+            return (
+              <div
+                key={index}
+                className={`
+                  aspect-square p-2 border-r border-b border-gray-100 cursor-pointer transition-all duration-200
+                  ${isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 text-gray-400'}
+                  ${isTodayDate ? 'ring-2 ring-blue-500 ring-inset' : ''}
+                  ${hasEmotions ? 'hover:shadow-md' : ''}
+                `}
+                onClick={() => handleDayClick(dayData)}
+              >
+                <div className="h-full flex flex-col">
+                  {/* Date */}
+                  <div className={`text-sm font-medium mb-1 ${isTodayDate ? 'text-blue-600' : ''}`}>
+                    {dayData.date.getDate()}
+                  </div>
+                  
+                  {/* Emotions */}
+                  {hasEmotions && (
+                    <div className="flex-1 flex flex-col justify-center items-center">
+                      <div className="text-lg mb-1">
+                        {getEmotionEmoji(dayData.primaryEmotion)}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {dayData.emotions.length} record{dayData.emotions.length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
+            )
+          })}
         </div>
-      </CardContent>
-      
+      </div>
+
+      {/* Legend */}
+      <div className="text-center text-sm text-gray-500">
+        Click on any day with emotions to view details • Today is highlighted in blue
+      </div>
+
       {/* Day Detail Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {selectedDay && selectedDay.date.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarIcon className="w-5 h-5" />
+              {selectedDay && format(selectedDay.date, 'EEEE, MMMM d, yyyy')}
             </DialogTitle>
           </DialogHeader>
           
           {selectedDay && (
             <div className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-2">Emotions recorded today:</h4>
-                <div className="space-y-2">
-                  {selectedDay.emotions.map((record, index) => (
-                    <div key={record.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <div className="flex items-center gap-2">
-                        <span>{emotionIcons[record.emotion]}</span>
-                        <span className="font-medium">{record.emotion}</span>
-                      </div>
-                      <span className="text-sm text-gray-500">
-                        {record.timestamp.toLocaleTimeString('en-US', { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+              <div className="text-sm text-gray-600">
+                {selectedDay.emotions.length} emotion record{selectedDay.emotions.length !== 1 ? 's' : ''} on this day
               </div>
               
-              {selectedDay.emotions.length > 1 && (
-                <div>
-                  <h4 className="font-medium mb-2">Primary emotion for this day:</h4>
-                  <Select
-                    value={selectedDay.primaryEmotion}
-                    onValueChange={(value) => handlePrimaryEmotionChange(value as EmotionType)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue>
-                        <div className="flex items-center gap-2">
-                          <span>{emotionIcons[selectedDay.primaryEmotion]}</span>
-                          <span>{selectedDay.primaryEmotion}</span>
-                        </div>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {selectedDay.emotions
-                        .map(record => record.emotion)
-                        .filter((emotion, index, arr) => arr.indexOf(emotion) === index) // Remove duplicates
-                        .map(emotion => (
-                          <SelectItem key={emotion} value={emotion}>
-                            <div className="flex items-center gap-2">
-                              <span>{emotionIcons[emotion]}</span>
-                              <span>{emotion}</span>
+              <div className="space-y-3">
+                {selectedDay.emotions.map((record, index) => {
+                  const emotionInfo = emotionConfig[record.emotion]
+                  return (
+                    <div
+                      key={record.id}
+                      className="p-4 border border-gray-200 rounded-lg bg-gray-50"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <span className="text-2xl">{emotionInfo.emoji}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-gray-900">{record.emotion}</span>
+                              <Badge 
+                                variant="secondary"
+                                style={{ 
+                                  backgroundColor: emotionInfo.bgColor,
+                                  color: emotionInfo.color 
+                                }}
+                              >
+                                Impact: {record.behavioralImpact}/10
+                              </Badge>
                             </div>
-                          </SelectItem>
-                        ))
-                      }
-                    </SelectContent>
-                  </Select>
-                  <p className="text-sm text-gray-500 mt-1">
-                    This will be the main emotion shown on the calendar for this day.
-                  </p>
-                </div>
-              )}
+                            <div className="text-sm text-gray-600">
+                              {format(new Date(record.timestamp), 'h:mm a')}
+                            </div>
+                            {record.note && (
+                              <div className="text-sm text-gray-700 italic mt-2">
+                                "{record.note}"
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteRecord(record.id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   )
 }

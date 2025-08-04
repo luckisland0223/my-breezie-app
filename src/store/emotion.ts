@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type EmotionType = 'Anger' | 'Disgust' | 'Fear' | 'Joy' | 'Sadness' | 'Surprise' | 'Complex'
+export type EmotionType = 'Anger' | 'Disgust' | 'Fear' | 'Joy' | 'Sadness' | 'Surprise' | 'Anxiety' | 'Love' | 'Pride' | 'Shame' | 'Envy' | 'Guilt' | 'Hope' | 'Excitement' | 'Boredom' | 'Confusion' | 'Gratitude' | 'Loneliness' | 'Frustration' | 'Contentment' | 'Other'
 export type PolarityType = 'positive' | 'negative' | 'neutral'
 
 export interface EmotionPolarityAnalysis {
@@ -63,10 +63,10 @@ export function calculateBehavioralImpact(
     'Joy': { decision: 0.9, social: 1.2, productivity: 1.1 },
     'Sadness': { decision: 0.7, social: 0.8, productivity: 0.6 },
     'Surprise': { decision: 1.0, social: 1.0, productivity: 0.9 },
-    'Complex': { decision: 1.1, social: 0.9, productivity: 0.8 }
+    'Other': { decision: 1.0, social: 1.0, productivity: 1.0 }
   }
   
-  const adjustment = impactAdjustments[emotion]
+  const adjustment = (impactAdjustments as any)[emotion] || { decision: 1.0, social: 1.0, productivity: 1.0 }
   
   return {
     impactLevel: baseImpact <= 3 ? 'low' : baseImpact <= 7 ? 'medium' : 'high',
@@ -87,9 +87,9 @@ function getEmotionImpactMultiplier(emotion: EmotionType): number {
     'Joy': 0.9,      // Joy has moderate impact
     'Sadness': 1.1,  // Sadness has high impact
     'Surprise': 1.0, // Surprise has medium impact
-    'Complex': 1.2   // Complex emotions have high impact
+    'Other': 1.0   // Other emotions have medium impact
   }
-  return multipliers[emotion]
+  return (multipliers as any)[emotion] || 1.0
 }
 
 // Get specific behavioral change descriptions
@@ -111,8 +111,8 @@ function getBehaviorChanges(emotion: EmotionType, intensity: number): string[] {
       case 'Joy':
         changes.push('More positive decision-making', 'Increased social interaction', 'Enhanced work efficiency')
         break
-      case 'Complex':
-        changes.push('Complicated decision processes', 'Unstable social performance', 'Fluctuating work efficiency')
+      case 'Other':
+        changes.push('Variable behavioral changes', 'Unpredictable social interactions', 'Inconsistent productivity')
         break
       case 'Disgust':
         changes.push('Avoidance behaviors', 'Selective social engagement', 'Task avoidance patterns')
