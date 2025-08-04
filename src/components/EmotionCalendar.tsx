@@ -134,11 +134,11 @@ export function EmotionCalendar() {
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden max-w-2xl mx-auto">
         {/* Weekday Headers */}
         <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="p-3 text-center text-sm font-medium text-gray-600">
+            <div key={day} className="p-2 text-center text-xs font-medium text-gray-600">
               {day}
             </div>
           ))}
@@ -155,7 +155,7 @@ export function EmotionCalendar() {
               <div
                 key={index}
                 className={`
-                  aspect-square p-2 border-r border-b border-gray-100 cursor-pointer transition-all duration-200
+                  aspect-square p-1 border-r border-b border-gray-100 cursor-pointer transition-all duration-200 min-h-[60px]
                   ${isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 text-gray-400'}
                   ${isTodayDate ? 'ring-2 ring-blue-500 ring-inset' : ''}
                   ${hasEmotions ? 'hover:shadow-md' : ''}
@@ -164,17 +164,17 @@ export function EmotionCalendar() {
               >
                 <div className="h-full flex flex-col">
                   {/* Date */}
-                  <div className={`text-sm font-medium mb-1 ${isTodayDate ? 'text-blue-600' : ''}`}>
+                  <div className={`text-xs font-medium mb-0.5 ${isTodayDate ? 'text-blue-600' : ''}`}>
                     {dayData.date.getDate()}
                   </div>
                   
                   {/* Emotions */}
                   {hasEmotions && (
                     <div className="flex-1 flex flex-col justify-center items-center">
-                      <div className="text-lg mb-1">
+                      <div className="text-sm mb-0.5">
                         {getEmotionEmoji(dayData.primaryEmotion)}
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-[10px] text-gray-600 leading-tight text-center">
                         {dayData.emotions.length} record{dayData.emotions.length !== 1 ? 's' : ''}
                       </div>
                     </div>

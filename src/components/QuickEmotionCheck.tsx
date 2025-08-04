@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,8 +14,52 @@ import { toast } from 'sonner'
 export function QuickEmotionCheck() {
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null)
   const [intensity, setIntensity] = useState(5)
+  const [isDragging, setIsDragging] = useState(false)
+  const sliderRef = useRef<HTMLDivElement>(null)
   const { user, isLoggedIn } = useAuthStore()
   const { addEmotionRecord } = useEmotionStore()
+
+  // Calculate intensity based on pixel position
+  const calculateIntensityFromPosition = (clientX: number): number => {
+    if (!sliderRef.current) return intensity
+    
+    const rect = sliderRef.current.getBoundingClientRect()
+    const relativeX = clientX - rect.left
+    const percentage = Math.max(0, Math.min(1, relativeX / rect.width))
+    
+    // Map percentage to 1-10 range and round to nearest integer
+    const rawValue = 1 + percentage * 9
+    return Math.round(rawValue)
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    const newIntensity = calculateIntensityFromPosition(e.clientX)
+    setIntensity(newIntensity)
+  }
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging) return
+    const newIntensity = calculateIntensityFromPosition(e.clientX)
+    setIntensity(newIntensity)
+  }, [isDragging, intensity])
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false)
+  }, [])
+
+  // Add global mouse event listeners for dragging
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp])
 
   const handleQuickRecord = () => {
     if (!isLoggedIn || !user?.id) {
@@ -98,24 +142,23 @@ export function QuickEmotionCheck() {
                 {getEmotionEmoji(selectedEmotion)} {selectedEmotion}
               </Badge>
             </div>
-            <div className="relative">
-              <input
-                type="range"
-                min="1"
-                max="10"
-                step="0.01"
-                value={intensity}
-                onChange={(e) => {
-                  const rawValue = parseFloat(e.target.value)
-                  const roundedValue = Math.round(rawValue)
-                  setIntensity(roundedValue)
-                }}
-                className="w-full h-3 bg-gray-200 rounded-full appearance-none cursor-pointer emotion-slider"
+            <div 
+              ref={sliderRef}
+              className="relative h-3 bg-gray-200 rounded-full cursor-pointer select-none"
+              onMouseDown={handleMouseDown}
+              style={{
+                background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}40 0%, ${emotionConfig[selectedEmotion].color} ${(intensity - 1) * 11.11}%, #e5e7eb ${(intensity - 1) * 11.11}%, #e5e7eb 100%)`
+              }}
+            >
+              {/* Slider thumb */}
+              <div
+                className="absolute top-1/2 w-5 h-5 bg-white border-2 rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2 transition-transform duration-75"
                 style={{
-                  background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}40 0%, ${emotionConfig[selectedEmotion].color} ${(intensity - 1) * 11.11}%, #e5e7eb ${(intensity - 1) * 11.11}%, #e5e7eb 100%)`,
-                  '--slider-color': emotionConfig[selectedEmotion].color,
-                  '--slider-color-light': emotionConfig[selectedEmotion].color + '40'
-                } as React.CSSProperties & Record<string, string>}
+                  left: `${(intensity - 1) * 11.11}%`,
+                  borderColor: emotionConfig[selectedEmotion].color,
+                  transform: `translate(-50%, -50%) ${isDragging ? 'scale(1.2)' : 'scale(1)'}`,
+                  cursor: isDragging ? 'grabbing' : 'grab'
+                }}
               />
             </div>
             <div className="flex justify-between text-xs text-gray-500">
