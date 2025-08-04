@@ -50,6 +50,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [showEmotionSelection, setShowEmotionSelection] = useState(false)
   const [hasInitialMessage, setHasInitialMessage] = useState(false)
   const [conversationText, setConversationText] = useState('')
+  const [selectedEmotion, setSelectedEmotion] = useState<EmotionType>('Other')
 
   const { user } = useAuthStore()
   const currentSession = useEmotionStore((state) => state.currentSession)
@@ -102,6 +103,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         },
         body: JSON.stringify({
           userMessage,
+          emotion: selectedEmotion || 'Other', // 提供默认情绪
           conversationHistory: messages.map(msg => ({
             role: msg.role,
             content: msg.content
@@ -144,6 +146,9 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   }
 
   const handleEmotionSelect = (emotion: EmotionType, intensity: number) => {
+    // Update selected emotion
+    setSelectedEmotion(emotion)
+    
     // Calculate behavioral impact score
     const behavioralScore = calculateBehavioralImpactScore(emotion, intensity, conversationText)
     
