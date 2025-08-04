@@ -71,14 +71,14 @@ export function DatabaseConfigStatus() {
           <div className="space-y-1">
             <div className="flex items-center justify-between text-xs">
               <span>Supabase URL:</span>
-              <Badge variant={config.supabaseUrl ? "default" : "destructive"}>
-                {config.supabaseUrl ? "Set" : "Missing"}
+              <Badge variant={config.url ? "default" : "destructive"}>
+                {config.url ? "Set" : "Missing"}
               </Badge>
             </div>
             <div className="flex items-center justify-between text-xs">
               <span>API Key:</span>
-              <Badge variant={config.supabaseAnonKey ? "default" : "destructive"}>
-                {config.supabaseAnonKey ? "Set" : "Missing"}
+              <Badge variant={config.anonKey ? "default" : "destructive"}>
+                {config.anonKey ? "Set" : "Missing"}
               </Badge>
             </div>
           </div>
