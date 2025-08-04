@@ -72,7 +72,7 @@ export function QuickEmotionCheck() {
                 } : {}}
                 onClick={() => setSelectedEmotion(emotion)}
               >
-                <span className="text-lg">{config.emoji}</span>
+                <span className="text-2xl">{config.emoji}</span>
                 <span className="text-xs font-medium text-center leading-tight">
                   {emotion}
                 </span>
@@ -98,17 +98,22 @@ export function QuickEmotionCheck() {
                 {getEmotionEmoji(selectedEmotion)} {selectedEmotion}
               </Badge>
             </div>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={intensity}
-              onChange={(e) => setIntensity(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}20 0%, ${emotionConfig[selectedEmotion].color} ${intensity * 10}%, #e5e7eb ${intensity * 10}%, #e5e7eb 100%)`
-              }}
-            />
+            <div className="relative">
+              <input
+                type="range"
+                min="1"
+                max="10"
+                step="1"
+                value={intensity}
+                onChange={(e) => setIntensity(Number(e.target.value))}
+                className="w-full h-3 bg-gray-200 rounded-full appearance-none cursor-pointer emotion-slider"
+                style={{
+                  background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}40 0%, ${emotionConfig[selectedEmotion].color} ${(intensity - 1) * 11.11}%, #e5e7eb ${(intensity - 1) * 11.11}%, #e5e7eb 100%)`,
+                  '--slider-color': emotionConfig[selectedEmotion].color,
+                  '--slider-color-light': emotionConfig[selectedEmotion].color + '40'
+                } as React.CSSProperties & Record<string, string>}
+              />
+            </div>
             <div className="flex justify-between text-xs text-gray-500">
               <span>Mild</span>
               <span>Moderate</span>

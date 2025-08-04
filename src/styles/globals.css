@@ -110,4 +110,75 @@
   background: #94a3b8;
 }
 
+/* Custom emotion slider styles */
+.emotion-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.emotion-slider::-webkit-slider-track {
+  height: 12px;
+  border-radius: 6px;
+  background: transparent;
+}
+
+.emotion-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-color, #3b82f6);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.emotion-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.emotion-slider::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+.emotion-slider::-moz-range-track {
+  height: 12px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+}
+
+.emotion-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-color, #3b82f6);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.emotion-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.emotion-slider:focus {
+  outline: none;
+}
+
+.emotion-slider:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--slider-color-light, rgba(59, 130, 246, 0.25));
+}
+
+.emotion-slider:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--slider-color-light, rgba(59, 130, 246, 0.25));
+}
+
 
