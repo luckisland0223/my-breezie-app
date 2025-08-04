@@ -15,7 +15,6 @@ import UserProfile from '@/components/UserProfile'
 import { useAuthStore } from '@/store/auth'
 import { useEmotionStore } from '@/store/emotionDatabase'
 import { SyncStatus } from '@/components/SyncStatus'
-import { DatabaseConfigStatus } from '@/components/DatabaseConfigStatus'
 import { StatusIndicator } from '@/components/StatusIndicator'
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target } from 'lucide-react'
 import { toast } from 'sonner'
@@ -197,9 +196,6 @@ export default function HomePage() {
                 </Button>
               </div>
 
-              {/* Database Setup Notice - Only when needed */}
-              <DatabaseConfigStatus />
-              
               {/* Sync Status - Only when syncing or has issues */}
               <SyncStatus />
 
