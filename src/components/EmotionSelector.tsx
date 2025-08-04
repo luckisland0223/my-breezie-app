@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useEmotionStore } from '@/store/emotion'
+import { useEmotionStore } from '@/store/emotionDatabase'
+import { useAuthStore } from '@/store/auth'
 import type { EmotionType } from '@/store/emotion'
 import { 
   Angry, 

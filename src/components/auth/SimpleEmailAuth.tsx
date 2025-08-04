@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,52 +14,19 @@ interface SimpleEmailAuthProps {
   onSuccess?: () => void
 }
 
-// Simple local storage based authentication (for demo purposes)
-interface UserAccount {
-  id: string
-  email: string
-  password: string
-  fullName: string
-  createdAt: string
-}
-
-const USERS_KEY = 'breezie_users'
-const CURRENT_USER_KEY = 'breezie_current_user'
-
-// Helper functions for local storage
-const getStoredUsers = (): UserAccount[] => {
-  try {
-    const users = localStorage.getItem(USERS_KEY)
-    return users ? JSON.parse(users) : []
-  } catch {
-    return []
-  }
-}
-
-const saveUser = (user: UserAccount) => {
-  const users = getStoredUsers()
-  users.push(user)
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
-}
-
-const findUser = (email: string, password: string): UserAccount | null => {
-  const users = getStoredUsers()
-  return users.find(user => user.email === email && user.password === password) || null
-}
-
-const userExists = (email: string): boolean => {
-  const users = getStoredUsers()
-  return users.some(user => user.email === email)
-}
-
 export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
-  const { setUser, setLoading } = useAuthStore()
+  const { setUser, setSession, setLoading } = useAuthStore()
   
   // Form states
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
+  const [userName, setUserName] = useState('')
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false)
+  const [usernameStatus, setUsernameStatus] = useState<{
+    available: boolean | null
+    message: string
+  }>({ available: null, message: '' })
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -81,11 +48,55 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
         isValidEmail(email) && 
         isValidPassword(password) && 
         password === confirmPassword &&
-        fullName.trim().length >= 2 &&
+        userName.trim().length >= 2 &&
+        usernameStatus.available === true &&
         !isSubmitting
       )
     }
   }
+
+  // 检查用户名可用性
+  const checkUsername = async (username: string) => {
+    if (username.length < 2) {
+      setUsernameStatus({ available: false, message: 'Username must be at least 2 characters long' })
+      return
+    }
+
+    setIsCheckingUsername(true)
+    try {
+      const response = await fetch('/api/auth/check-username', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: username.trim() })
+      })
+
+      const data = await response.json()
+      setUsernameStatus({
+        available: data.available,
+        message: data.message || data.error || ''
+      })
+    } catch (error) {
+      console.error('Username check error:', error)
+      setUsernameStatus({ available: false, message: 'Failed to check username' })
+    } finally {
+      setIsCheckingUsername(false)
+    }
+  }
+
+  // 用户名输入防抖
+  useEffect(() => {
+    if (userName.trim().length >= 2) {
+      const timeoutId = setTimeout(() => {
+        checkUsername(userName.trim())
+      }, 500)
+
+      return () => clearTimeout(timeoutId)
+    } else {
+      setUsernameStatus({ available: null, message: '' })
+    }
+  }, [userName])
 
   // Handle sign in
   const handleSignIn = async () => {
@@ -93,23 +104,30 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
     setLoading(true)
 
     try {
-      const user = findUser(email.trim(), password)
-      
-      if (!user) {
-        toast.error('Invalid email or password')
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error(data.error || 'Sign in failed')
         return
       }
 
-      // Create session-like object
-      const sessionUser = {
-        id: user.id,
-        email: user.email,
-        full_name: user.fullName,
-        created_at: user.createdAt
-      }
-
-      setUser(sessionUser)
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(sessionUser))
+      // Set user and session in store
+      setUser(data.user)
+      setSession(data.session)
+      localStorage.setItem('breezie_current_user', JSON.stringify(data.user))
+      localStorage.setItem('breezie_session', JSON.stringify(data.session))
+      
       toast.success('Successfully signed in!')
       onSuccess?.()
 
@@ -128,31 +146,31 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
     setLoading(true)
 
     try {
-      if (userExists(email.trim())) {
-        toast.error('An account with this email already exists')
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password,
+          userName: userName.trim()
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error(data.error || 'Sign up failed')
         return
       }
 
-      const newUser: UserAccount = {
-        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-        email: email.trim(),
-        password: password,
-        fullName: fullName.trim(),
-        createdAt: new Date().toISOString()
-      }
-
-      saveUser(newUser)
-
-      // Auto sign in after registration
-      const sessionUser = {
-        id: newUser.id,
-        email: newUser.email,
-        full_name: newUser.fullName,
-        created_at: newUser.createdAt
-      }
-
-      setUser(sessionUser)
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(sessionUser))
+      // Set user and session in store
+      setUser(data.user)
+      setSession(data.session)
+      localStorage.setItem('breezie_current_user', JSON.stringify(data.user))
+      localStorage.setItem('breezie_session', JSON.stringify(data.session))
+      
       toast.success('Account created and signed in successfully!')
       onSuccess?.()
 
@@ -241,19 +259,37 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
             <TabsContent value="signup" className="space-y-4 mt-0">
               {/* Sign Up Form */}
               <div>
-                <Label htmlFor="signup-name">Full Name</Label>
+                <Label htmlFor="signup-username">Username</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
-                    id="signup-name"
+                    id="signup-username"
                     type="text"
-                    placeholder="Your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Choose a unique username"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
                     className="pl-10"
                     required
                   />
+                  {isCheckingUsername && (
+                    <div className="absolute right-3 top-3">
+                      <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                    </div>
+                  )}
                 </div>
+                {userName && usernameStatus.message && (
+                  <p className={`text-xs mt-1 ${
+                    usernameStatus.available === true ? 'text-green-600' : 
+                    usernameStatus.available === false ? 'text-red-600' : 'text-gray-600'
+                  }`}>
+                    {usernameStatus.message}
+                  </p>
+                )}
+                {userName && userName.length >= 2 && usernameStatus.available === null && !isCheckingUsername && (
+                  <p className="text-xs mt-1 text-gray-500">
+                    Letters, numbers, underscores, and hyphens only
+                  </p>
+                )}
               </div>
 
               <div>
@@ -342,10 +378,10 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
           </form>
         </Tabs>
 
-        {/* Demo Info */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-xs text-blue-700 text-center">
-            <strong>Demo Version:</strong> User data is stored locally in your browser
+        {/* Database Info */}
+        <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+          <p className="text-xs text-green-700 text-center">
+            <strong>Cloud Version:</strong> Your data is securely stored and synced across devices
           </p>
         </div>
       </CardContent>

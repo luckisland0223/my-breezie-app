@@ -11,8 +11,9 @@ import { EmotionAdvice } from '@/components/EmotionAdvice'
 // import { AchievementBadge } from '@/components/AchievementBadge'
 
 
-import { useEmotionStore } from '@/store/emotion'
+import { useEmotionStore } from '@/store/emotionDatabase'
 import UserProfile from '@/components/UserProfile'
+import { SyncStatus } from '@/components/SyncStatus'
 import type { EmotionType } from '@/store/emotion'
 import { BarChart3, Home, Cloud, Heart, TrendingUp, Calendar, Zap, ArrowRight, Sparkles } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
@@ -28,9 +29,18 @@ export default function HomePage() {
   const records = useEmotionStore((state) => state.records)
   const getEmotionStats = useEmotionStore((state) => state.getEmotionStats)
   const getRecentEmotions = useEmotionStore((state) => state.getRecentEmotions)
+  const loadFromDatabase = useEmotionStore((state) => state.loadFromDatabase)
+  const isLoading = useEmotionStore((state) => state.isLoading)
   
   // Auth hook
   const { user, isLoggedIn } = useAuthStore()
+
+  // Load user's emotion data when they log in
+  useEffect(() => {
+    if (user?.id && isLoggedIn) {
+      loadFromDatabase(user.id)
+    }
+  }, [user?.id, isLoggedIn, loadFromDatabase])
 
 
 
@@ -265,6 +275,7 @@ export default function HomePage() {
                 <BarChart3 className="w-4 h-4 sm:mr-1" />
                 <span className="hidden sm:inline">Analytics</span>
               </Button>
+              <SyncStatus />
               <UserProfile />
             </div>
           </div>
