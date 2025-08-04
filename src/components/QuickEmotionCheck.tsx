@@ -103,9 +103,13 @@ export function QuickEmotionCheck() {
                 type="range"
                 min="1"
                 max="10"
-                step="1"
+                step="0.01"
                 value={intensity}
-                onChange={(e) => setIntensity(Number(e.target.value))}
+                onChange={(e) => {
+                  const rawValue = parseFloat(e.target.value)
+                  const roundedValue = Math.round(rawValue)
+                  setIntensity(roundedValue)
+                }}
                 className="w-full h-3 bg-gray-200 rounded-full appearance-none cursor-pointer emotion-slider"
                 style={{
                   background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}40 0%, ${emotionConfig[selectedEmotion].color} ${(intensity - 1) * 11.11}%, #e5e7eb ${(intensity - 1) * 11.11}%, #e5e7eb 100%)`,
