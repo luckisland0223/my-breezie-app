@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuthStore } from '@/store/auth'
 import { toast } from 'sonner'
 import { Mail, Lock, User, Eye, EyeOff, CheckCircle, ArrowRight } from 'lucide-react'
+import { OAuthAuth } from './OAuthAuth'
 
 interface SimpleEmailAuthProps {
   onSuccess?: () => void
@@ -18,7 +19,7 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
   const { setUser, setSession, setLoading } = useAuthStore()
   
   // Form states
-  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin')
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup' | 'oauth'>('oauth')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [userName, setUserName] = useState('')
@@ -207,10 +208,11 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
         </p>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'signin' | 'signup')}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'signin' | 'signup' | 'oauth')}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="signin">邮箱登录</TabsTrigger>
+            <TabsTrigger value="signup">注册账号</TabsTrigger>
+            <TabsTrigger value="oauth">第三方登录</TabsTrigger>
           </TabsList>
           
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
@@ -376,6 +378,10 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
               )}
             </Button>
           </form>
+
+          <TabsContent value="oauth" className="mt-0">
+            <OAuthAuth onSuccess={onSuccess} />
+          </TabsContent>
         </Tabs>
 
         {/* Database Info */}
