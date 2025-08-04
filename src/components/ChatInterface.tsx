@@ -268,27 +268,27 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     
     // Create caring and guiding response based on emotion
     const emotionResponses: Record<EmotionType, string> = {
-      'Anger': 'I can sense the anger you\'re feeling right now. That intensity must be really difficult to carry. Let\'s take a moment to breathe together and find some calm. Would you like to tell me more about what\'s making you feel this way?',
-      'Sadness': 'I hear the sadness in your words, and I want you to know that it\'s completely okay to feel this way. Sadness helps us understand what truly matters to us. You don\'t have to carry this alone - I\'m here with you.',
-      'Fear': 'I can feel how scared and uncertain you must be feeling right now. Fear is natural and shows that you care deeply about something. Let\'s take this one step at a time, and I\'ll be here to support you through these worries.',
-      'Joy': 'I can sense the lightness and joy you\'re experiencing! This positive energy is so precious. Let\'s savor this beautiful moment together. What\'s bringing you such happiness?',
-      'Anxiety': 'I can feel how overwhelming and anxious everything must seem right now. That racing feeling is exhausting, but you\'re brave for reaching out for support. Let\'s work together to find some calm and grounding.',
-      'Love': 'The warmth and love you\'re feeling is beautiful. Love is such a powerful and meaningful emotion. I can sense the warmth in your heart - would you like to share more about what\'s filling you with love?',
-      'Surprise': 'It sounds like something unexpected has stirred up many feelings for you. Surprise can bring both excitement and uncertainty. Take your time and tell me what\'s caught you off guard.',
-      'Disgust': 'I can sense there\'s something that feels really wrong or disturbing to you right now. These feelings of disgust often reflect our values and boundaries. Your feelings are valid and deserve to be heard.',
-      'Pride': 'I can feel the sense of accomplishment and pride radiating from you. You should feel proud - this is the result of your efforts and growth. Tell me more about this moment that\'s filling you with pride.',
-      'Shame': 'I can sense how heavy and painful this shame feels for you. Shame is one of the hardest emotions to carry, but you\'re brave for sharing this with me. Remember, you deserve compassion, especially from yourself.',
-      'Envy': 'Those feelings of envy are so human and show you have desires and needs. It takes courage to acknowledge these feelings. Let\'s explore together what this envy might be telling you about what you truly want.',
-      'Guilt': 'I can feel how much this guilt is weighing on you. Guilt often shows us we have a caring heart, even when that heart is hurting. We can work through these complex feelings together.',
-      'Hope': 'The hope you\'re feeling is like a precious light. Even in difficult times, hope is such a powerful force that keeps us moving forward. What is this hope telling you about what you truly want?',
-      'Excitement': 'I can feel your energy and excitement! There\'s something wonderful about that anticipation and enthusiasm. What\'s got you feeling so energized and alive?',
-      'Boredom': 'That restless, empty feeling of boredom can be surprisingly uncomfortable. Sometimes boredom is our soul\'s way of asking for something more meaningful or engaging. Let\'s explore what might reignite your interest.',
-      'Confusion': 'I can sense how unclear and jumbled everything feels right now. Confusion can be really disorienting, but it\'s okay to not have all the answers. Let\'s slow down and explore this uncertainty together.',
-      'Gratitude': 'The gratitude you\'re feeling is so warming. When we can find things to appreciate, it opens our hearts in beautiful ways. What\'s touching your heart and filling you with gratitude right now?',
-      'Loneliness': 'I can feel how alone and disconnected you must be feeling. Loneliness is one of our deepest human pains, but you\'re not alone right now. You\'ve reached out by talking to me, and that takes courage.',
-      'Frustration': 'I can sense that frustration building up inside you. When things aren\'t going the way we need them to, frustration is our system saying something needs to change. Let\'s explore what\'s causing this frustration.',
-      'Contentment': 'There\'s something so peaceful about the contentment you\'re describing. That sense of satisfaction and inner peace is precious. What\'s contributing to this beautiful sense of calm you\'re feeling?',
-      'Other': 'I can sense you\'re experiencing something complex that\'s hard to name. Sometimes our emotions are too nuanced for simple labels, and that\'s completely okay. Help me understand what you\'re feeling right now.'
+      'Anger': 'That anger feels intense and heavy right now. Let\'s breathe through this together and find some calm. What\'s stirring up these feelings?',
+      'Sadness': 'There\'s deep sadness here, and that\'s completely valid. Sadness shows us what matters most. You don\'t have to face this alone.',
+      'Fear': 'This fear and uncertainty feels overwhelming right now. Fear often shows us what we care about deeply. Let\'s take this step by step together.',
+      'Joy': 'This lightness and joy is beautiful! Let\'s stay with this feeling. What\'s bringing you this happiness?',
+      'Anxiety': 'Everything feels overwhelming and racing right now. That exhausting feeling in your mind and body is so hard to carry. Let\'s find some grounding together.',
+      'Love': 'There\'s such warmth and love here. This feeling is powerful and meaningful. What\'s filling your heart with this love?',
+      'Surprise': 'Something unexpected has stirred up a lot of feelings. This surprise brings both excitement and uncertainty. What\'s caught you off guard?',
+      'Disgust': 'Something feels really wrong or disturbing right now. These feelings often reflect your values and boundaries. Your reaction matters.',
+      'Pride': 'There\'s real accomplishment and pride here. This moment represents your efforts and growth. What\'s filling you with this pride?',
+      'Shame': 'This shame feels so heavy and painful. Shame is one of the hardest emotions to carry. You deserve compassion, especially from yourself.',
+      'Envy': 'These feelings of envy are so human - they show you have real desires and needs. What is this envy telling you about what you truly want?',
+      'Guilt': 'This guilt is weighing heavily on you. Guilt often comes from a caring heart, even when that heart is hurting. Let\'s work through this together.',
+      'Hope': 'There\'s hope here, like a precious light. Even in difficult times, hope keeps us moving forward. What is this hope telling you?',
+      'Excitement': 'This energy and excitement is wonderful! That anticipation and enthusiasm feels alive. What\'s got you feeling so energized?',
+      'Boredom': 'This restless, empty feeling is surprisingly uncomfortable. Sometimes boredom asks us to seek something more meaningful or engaging. What might reignite your interest?',
+      'Confusion': 'Everything feels unclear and jumbled right now. Confusion can be disorienting, and it\'s okay to not have all the answers. Let\'s explore this uncertainty together.',
+      'Gratitude': 'This gratitude feels so warming. Finding things to appreciate opens our hearts in beautiful ways. What\'s touching your heart right now?',
+      'Loneliness': 'There\'s deep loneliness and disconnection here. Loneliness is one of our deepest human pains. You\'ve reached out, and that takes courage.',
+      'Frustration': 'This frustration is building up inside you. When things aren\'t going as needed, frustration tells us something needs to change. What\'s causing this?',
+      'Contentment': 'There\'s such peaceful contentment here. This sense of satisfaction and inner peace is precious. What\'s contributing to this calm?',
+      'Other': 'There\'s something complex here that\'s hard to name. Sometimes emotions are too nuanced for simple labels. Help me understand what you\'re feeling.'
     }
     
     const supportiveResponse = emotionResponses[emotion] || emotionResponses['Other']
@@ -337,7 +337,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       if (!selectedEmotion || selectedEmotion === 'Other') {
         const behavioralScore = calculateBehavioralImpactScore(repEmotion, 5, conversationText)
         addEmotionRecord(repEmotion, behavioralScore.overall_score, conversationText)
-        toast.success(`对话已保存，代表情绪：${repEmotion}`)
+        toast.success(`Conversation saved with representative emotion: ${repEmotion}`)
       }
       
       endChatSession()
@@ -412,8 +412,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                   {showInlineEmotions && suggestedEmotions.length > 0 && (
                     <div className="bg-blue-50/50 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/50">
                       <div className="text-center mb-4">
-                        <p className="text-gray-700 font-medium mb-2">根据你的分享，我感受到了这些情绪，哪个最符合你现在的感受？</p>
-                        <p className="text-sm text-gray-600">选择一个来帮助我更好地理解你</p>
+                        <p className="text-gray-700 font-medium mb-2">Based on what you've shared, I can sense these emotions. Which one feels most true to you right now?</p>
+                        <p className="text-sm text-gray-600">Choose one to help me understand you better</p>
                       </div>
                       
                       <div className="flex flex-wrap justify-center gap-3 mb-4">
@@ -437,7 +437,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                           onClick={() => setShowInlineEmotions(false)}
                           className="text-sm text-gray-500 hover:text-gray-700 underline"
                         >
-                          稍后再说
+                          Maybe later
                         </button>
                       </div>
                     </div>

@@ -23,14 +23,14 @@ export function ImprovedOAuth({ onSuccess }: ImprovedOAuthProps) {
       const response = await fetch('/api/health')
       if (response.ok) {
         setConnectionStatus('success')
-        toast.success('数据库连接正常')
+        toast.success('Database connection successful')
       } else {
         setConnectionStatus('error')
-        toast.error('数据库连接失败')
+        toast.error('Database connection failed')
       }
     } catch (error) {
       setConnectionStatus('error')
-      toast.error('无法连接到服务')
+      toast.error('Unable to connect to service')
     }
   }
 
@@ -65,11 +65,11 @@ export function ImprovedOAuth({ onSuccess }: ImprovedOAuthProps) {
       localStorage.setItem('breezie_current_user', JSON.stringify(mockUser))
       localStorage.setItem('breezie_session', JSON.stringify(mockSession))
 
-      toast.success('Google登录成功！（演示模式）')
+      toast.success('Google login successful! (Demo mode)')
       onSuccess?.()
     } catch (error: any) {
       console.error('Google login error:', error)
-      toast.error(`Google登录失败: ${error.message || '未知错误'}`)
+      toast.error(`Google login failed: ${error.message || 'Unknown error'}`)
     } finally {
       setIsLoading(false)
       setLoading(false)
@@ -107,11 +107,11 @@ export function ImprovedOAuth({ onSuccess }: ImprovedOAuthProps) {
       localStorage.setItem('breezie_current_user', JSON.stringify(mockUser))
       localStorage.setItem('breezie_session', JSON.stringify(mockSession))
 
-      toast.success('GitHub登录成功！（演示模式）')
+      toast.success('GitHub login successful! (Demo mode)')
       onSuccess?.()
     } catch (error: any) {
       console.error('GitHub login error:', error)
-      toast.error(`GitHub登录失败: ${error.message || '未知错误'}`)
+      toast.error(`GitHub login failed: ${error.message || 'Unknown error'}`)
     } finally {
       setIsLoading(false)
       setLoading(false)
@@ -124,10 +124,10 @@ export function ImprovedOAuth({ onSuccess }: ImprovedOAuthProps) {
         <CardTitle className="flex items-center justify-center gap-2">
           {connectionStatus === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
           {connectionStatus === 'error' && <AlertCircle className="w-5 h-5 text-red-500" />}
-          第三方登录
+          Social Login
         </CardTitle>
         <p className="text-sm text-gray-600">
-          使用第三方账号快速登录（演示模式）
+          Quick login with third-party accounts (Demo mode)
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -156,7 +156,7 @@ export function ImprovedOAuth({ onSuccess }: ImprovedOAuthProps) {
           ) : (
             <Mail className="w-4 h-4 mr-2 text-red-500" />
           )}
-          使用 Google 登录
+          Sign in with Google
         </Button>
 
         {/* GitHub Login */}
@@ -170,17 +170,17 @@ export function ImprovedOAuth({ onSuccess }: ImprovedOAuthProps) {
           ) : (
             <Github className="w-4 h-4 mr-2" />
           )}
-          使用 GitHub 登录
+          Sign in with GitHub
         </Button>
 
         {/* Status Info */}
         <div className="text-xs text-center text-gray-500 space-y-1">
-          <div>当前模式：演示模式（本地模拟登录）</div>
-          <div>状态：{connectionStatus === 'success' ? '✅ 已连接' : connectionStatus === 'error' ? '❌ 连接失败' : '⚪ 未测试'}</div>
+          <div>Current mode: Demo mode (Local simulation login)</div>
+          <div>Status: {connectionStatus === 'success' ? '✅ Connected' : connectionStatus === 'error' ? '❌ Connection failed' : '⚪ Not tested'}</div>
         </div>
 
         <div className="text-xs text-center text-gray-500">
-          登录即表示您同意我们的服务条款和隐私政策
+          By signing in, you agree to our Terms of Service and Privacy Policy
         </div>
       </CardContent>
     </Card>

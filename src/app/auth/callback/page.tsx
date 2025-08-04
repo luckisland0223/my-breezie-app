@@ -20,7 +20,7 @@ export default function AuthCallback() {
         
         if (error) {
           console.error('Auth callback error:', error)
-          toast.error('登录失败')
+          toast.error('Login failed')
           router.push('/')
           return
         }
@@ -70,14 +70,14 @@ export default function AuthCallback() {
           localStorage.setItem('breezie_current_user', JSON.stringify(user))
           localStorage.setItem('breezie_session', JSON.stringify(session))
 
-          toast.success('登录成功！')
+          toast.success('Login successful!')
           router.push('/')
         } else {
           router.push('/')
         }
       } catch (error) {
         console.error('Auth callback error:', error)
-        toast.error('登录处理失败')
+        toast.error('Login processing failed')
         router.push('/')
       }
     }
@@ -89,7 +89,7 @@ export default function AuthCallback() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mb-4"></div>
-        <p>正在处理登录...</p>
+        <p>Processing login...</p>
       </div>
     </div>
   )

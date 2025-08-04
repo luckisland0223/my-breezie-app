@@ -210,9 +210,9 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
       <CardContent>
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'signin' | 'signup' | 'oauth')}>
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="signin">邮箱登录</TabsTrigger>
-            <TabsTrigger value="signup">注册账号</TabsTrigger>
-            <TabsTrigger value="oauth">第三方登录</TabsTrigger>
+            <TabsTrigger value="signin">Email Sign In</TabsTrigger>
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="oauth">Social Login</TabsTrigger>
           </TabsList>
           
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">

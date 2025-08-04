@@ -38,7 +38,7 @@ export function OAuthAuth({ onSuccess }: OAuthAuthProps) {
 
       if (error) {
         console.error('Google login error:', error)
-        toast.error(`Google登录失败: ${error.message}`)
+        toast.error(`Google login failed: ${error.message}`)
         return
       }
 
@@ -46,7 +46,7 @@ export function OAuthAuth({ onSuccess }: OAuthAuthProps) {
       // OAuth会重定向，不需要在这里处理成功状态
     } catch (error: any) {
       console.error('Google login error:', error)
-      toast.error(`Google登录失败: ${error.message || '未知错误'}`)
+      toast.error(`Google login failed: ${error.message || 'Unknown error'}`)
     } finally {
       setIsLoading(false)
       setLoading(false)
@@ -72,7 +72,7 @@ export function OAuthAuth({ onSuccess }: OAuthAuthProps) {
 
       if (error) {
         console.error('GitHub login error:', error)
-        toast.error(`GitHub登录失败: ${error.message}`)
+        toast.error(`GitHub login failed: ${error.message}`)
         return
       }
 
@@ -80,7 +80,7 @@ export function OAuthAuth({ onSuccess }: OAuthAuthProps) {
       // OAuth会重定向，不需要在这里处理成功状态
     } catch (error: any) {
       console.error('GitHub login error:', error)
-      toast.error(`GitHub登录失败: ${error.message || '未知错误'}`)
+      toast.error(`GitHub login failed: ${error.message || 'Unknown error'}`)
     } finally {
       setIsLoading(false)
       setLoading(false)
