@@ -131,6 +131,10 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 创建触发器在用户注册时自动创建配置
+-- 先删除现有触发器（如果存在）
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+-- 创建新的触发器
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW

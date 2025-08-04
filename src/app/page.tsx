@@ -14,6 +14,7 @@ import { EmotionAdvice } from '@/components/EmotionAdvice'
 import { useEmotionStore } from '@/store/emotionDatabase'
 import UserProfile from '@/components/UserProfile'
 import { SyncStatus } from '@/components/SyncStatus'
+import { DatabaseConfigStatus } from '@/components/DatabaseConfigStatus'
 import type { EmotionType } from '@/store/emotion'
 import { BarChart3, Home, Cloud, Heart, TrendingUp, Calendar, Zap, ArrowRight, Sparkles } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
@@ -112,6 +113,9 @@ export default function HomePage() {
       default:
         return (
           <div className="space-y-8">
+            {/* Database Configuration Status */}
+            <DatabaseConfigStatus />
+            
             {/* Welcome area */}
             {showWelcome && (
               <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">

@@ -1,13 +1,26 @@
 import { createClient } from '@supabase/supabase-js'
 import { useSupabaseStore } from '@/store/supabase'
+import { getDbConfig, validateDbConfig } from '@/config/database'
 
 let supabaseClient: ReturnType<typeof createClient> | null = null
 
 export function getSupabaseClient() {
+  // 首先尝试从配置文件获取
+  const fileConfig = getDbConfig()
+  
+  // 如果文件配置可用，使用文件配置
+  if (validateDbConfig(fileConfig)) {
+    if (!supabaseClient) {
+      supabaseClient = createClient(fileConfig.url, fileConfig.anonKey)
+    }
+    return supabaseClient
+  }
+  
+  // 否则使用store配置（原有方式）
   const { config } = useSupabaseStore.getState()
   
   if (!config.isConfigured) {
-    throw new Error('Supabase not configured. Please configure your Supabase URL and API Key in settings.')
+    throw new Error('Supabase not configured. Please configure your Supabase URL and API Key in src/config/database.ts file or in the settings page.')
   }
   
   // Create new client if it doesn't exist or config changed
