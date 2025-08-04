@@ -25,7 +25,7 @@ export function DatabaseConfigStatus() {
       <Alert className="border-green-200 bg-green-50">
         <CheckCircle className="h-4 w-4 text-green-600" />
         <AlertDescription className="text-green-800">
-          <strong>数据库已配置</strong> - 云端存储和同步功能已启用
+          <strong>Database Configured</strong> - Cloud storage and sync enabled
         </AlertDescription>
       </Alert>
     )
@@ -36,12 +36,12 @@ export function DatabaseConfigStatus() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-orange-800">
           <AlertCircle className="h-5 w-5" />
-          数据库未配置
+          Database Not Configured
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-orange-700 text-sm">
-          当前使用本地存储模式。要启用云端存储和跨设备同步，请配置Supabase数据库。
+          Currently using local storage mode. To enable cloud storage and cross-device sync, please configure Supabase database.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-2">
@@ -52,29 +52,37 @@ export function DatabaseConfigStatus() {
             className="flex items-center gap-2"
           >
             <Settings className="h-4 w-4" />
-            界面配置
+            Settings
           </Button>
           
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              // 打开配置文件的提示
-              alert('请编辑 src/config/database.ts 文件，在其中直接设置您的Supabase配置信息。')
-            }}
+            onClick={() => window.open('https://github.com/luckisland0223/my-breezie-app/blob/main/docs/quick_code_setup.md', '_blank')}
             className="flex items-center gap-2"
           >
             <FileText className="h-4 w-4" />
-            代码配置
+            Setup Guide
           </Button>
         </div>
-
-        <Alert>
-          <AlertDescription className="text-xs">
-            <strong>代码配置：</strong> 编辑 <code>src/config/database.ts</code> 文件<br/>
-            <strong>界面配置：</strong> 使用设置页面进行配置
-          </AlertDescription>
-        </Alert>
+        
+        <div className="bg-white p-3 rounded-lg border border-orange-200">
+          <p className="text-xs text-orange-600 font-medium mb-2">Configuration Status:</p>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span>Supabase URL:</span>
+              <Badge variant={config.supabaseUrl ? "default" : "destructive"}>
+                {config.supabaseUrl ? "Set" : "Missing"}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span>API Key:</span>
+              <Badge variant={config.supabaseAnonKey ? "default" : "destructive"}>
+                {config.supabaseAnonKey ? "Set" : "Missing"}
+              </Badge>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   )
