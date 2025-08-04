@@ -9,19 +9,13 @@ interface AuthProviderProps {
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const { initializeAuth, setLoading } = useAuthStore()
+  const { initializeAuth } = useAuthStore()
 
   useEffect(() => {
-    // Initialize authentication from localStorage on app start
-    setLoading(true)
-    
-    // Small delay to ensure localStorage is available
-    const timer = setTimeout(() => {
-      initializeAuth()
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [initializeAuth, setLoading])
+    // Initialize authentication from localStorage immediately
+    // No loading state needed for localStorage check
+    initializeAuth()
+  }, [initializeAuth])
 
   return <>{children}</>
 }

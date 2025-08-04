@@ -85,6 +85,9 @@ export const useAuthStore = create<AuthState>()(
               isLoggedIn: true,
               isLoading: false
             })
+          } else {
+            // No saved user, set loading to false immediately
+            set({ isLoading: false })
           }
         } catch (error) {
           console.error('Failed to initialize auth from localStorage:', error)

@@ -24,7 +24,12 @@ export default function UserProfile() {
   const [showAuthDialog, setShowAuthDialog] = useState(false)
 
   if (isLoading) {
-    return <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
+    return (
+      <Button variant="outline" size="sm" disabled>
+        <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mr-1" />
+        Loading...
+      </Button>
+    )
   }
 
   const handleSignOut = async () => {
