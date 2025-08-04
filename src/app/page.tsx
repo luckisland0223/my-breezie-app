@@ -7,17 +7,20 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ChatInterface } from '@/components/ChatInterface'
 import { EmotionTracker } from '@/components/EmotionTracker'
+import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
+import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
+import { DailyWellnessTip } from '@/components/DailyWellnessTip'
 import UserProfile from '@/components/UserProfile'
 import { useAuthStore } from '@/store/auth'
 import { useEmotionStore } from '@/store/emotionDatabase'
 import { SyncStatus } from '@/components/SyncStatus'
 import { DatabaseConfigStatus } from '@/components/DatabaseConfigStatus'
-import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart } from 'lucide-react'
+import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function HomePage() {
   const { user, isLoggedIn, isLoading } = useAuthStore()
-  const { loadFromDatabase } = useEmotionStore()
+  const { loadFromDatabase, records } = useEmotionStore()
   const [activeTab, setActiveTab] = useState('journey')
   const [showChat, setShowChat] = useState(false)
 
@@ -27,14 +30,6 @@ export default function HomePage() {
       loadFromDatabase(user.id)
     }
   }, [user?.id, isLoggedIn, loadFromDatabase])
-
-  const handleStartJourney = () => {
-    if (!isLoggedIn) {
-      toast.error('Please sign in to start your emotional journey')
-      return
-    }
-    setShowChat(true)
-  }
 
   const handleStartConversation = () => {
     if (!isLoggedIn) {
@@ -176,44 +171,42 @@ export default function HomePage() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Journey Tab - Start Conversations */}
+            {/* Journey Tab - Enhanced with Multiple Features */}
             <TabsContent value="journey" className="space-y-6">
-              <div className="text-center py-8">
-                <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-                  <Sparkles className="w-12 h-12 text-white" />
+              {/* Welcome Section with Single CTA */}
+              <div className="text-center py-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                  <Sparkles className="w-10 h-10 text-white" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">
                   Welcome back, {user?.user_name || 'Friend'}
                 </h2>
-                <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                  Ready to explore your emotions today? Start a conversation with Breezie to discover insights about your feelings and get personalized support.
+                <p className="text-gray-600 mb-6 max-w-xl mx-auto">
+                  Ready to explore your emotions today? Start a conversation with Breezie or check in with a quick emotion record.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    size="lg" 
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
-                    onClick={handleStartConversation}
-                  >
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    Start a Conversation
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                  
-                  <Button 
-                    size="lg" 
-                    variant="outline"
-                    className="border-2 border-purple-200 hover:border-purple-400 text-purple-700 hover:text-purple-800 px-8 py-4 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
-                    onClick={handleStartJourney}
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Start a Journey
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </div>
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
+                  onClick={handleStartConversation}
+                >
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Start a Conversation
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
+
+              {/* Dashboard Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Quick Emotion Check */}
+                <QuickEmotionCheck />
                 
-                <div className="mt-8 text-sm text-gray-500">
-                  <p>💡 Tip: Breezie will help you identify and understand your emotions through conversation</p>
+                {/* Daily Wellness Tip */}
+                <DailyWellnessTip />
+                
+                {/* Recent Emotion Trend - Full Width */}
+                <div className="lg:col-span-2">
+                  <RecentEmotionTrend />
                 </div>
               </div>
 
@@ -224,28 +217,36 @@ export default function HomePage() {
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <MessageCircle className="w-6 h-6 text-blue-600" />
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">Ready</p>
-                    <p className="text-gray-600">Start your conversation</p>
+                    <p className="text-2xl font-bold text-gray-900">{records.length}</p>
+                    <p className="text-gray-600">Total Records</p>
                   </CardContent>
                 </Card>
                 
                 <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Heart className="w-6 h-6 text-green-600" />
+                      <TrendingUp className="w-6 h-6 text-green-600" />
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">Safe</p>
-                    <p className="text-gray-600">Supportive environment</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {records.length > 0 ? (records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1) : '0'}
+                    </p>
+                    <p className="text-gray-600">Avg Impact Score</p>
                   </CardContent>
                 </Card>
                 
                 <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Sparkles className="w-6 h-6 text-purple-600" />
+                      <Target className="w-6 h-6 text-purple-600" />
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">Personal</p>
-                    <p className="text-gray-600">Tailored to you</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {records.filter(r => {
+                        const today = new Date()
+                        const recordDate = new Date(r.timestamp)
+                        return recordDate.toDateString() === today.toDateString()
+                      }).length}
+                    </p>
+                    <p className="text-gray-600">Today's Check-ins</p>
                   </CardContent>
                 </Card>
               </div>
