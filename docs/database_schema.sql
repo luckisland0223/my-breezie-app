@@ -27,7 +27,6 @@ CREATE TABLE public.emotion_records (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     
     -- AI分析结果
-    conversation_summary JSONB, -- 对话总结
     emotion_evaluation JSONB,   -- 情绪评估
     polarity_analysis JSONB,    -- 极性分析
     
