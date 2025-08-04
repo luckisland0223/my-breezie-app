@@ -73,22 +73,21 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="space-y-8">
-            {/* Calendar Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  Emotion Calendar
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <EmotionCalendar />
-              </CardContent>
-            </Card>
-
             {/* Charts and Statistics Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Emotion Distribution Chart */}
+              {/* Calendar Section - moved to left column */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Emotion Calendar
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EmotionCalendar />
+                </CardContent>
+              </Card>
+              {/* Emotion Distribution Chart - moved to right column */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -100,13 +99,15 @@ export default function AnalyticsPage() {
                   <EmotionChart records={filteredRecords} />
                 </CardContent>
               </Card>
+            </div>
 
-              {/* Quick Stats */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Statistics</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            {/* Quick Stats - moved below as full width */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Statistics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-blue-600">{records.length}</div>
                     <div className="text-sm text-gray-600">Total Records</div>
@@ -136,9 +137,11 @@ export default function AnalyticsPage() {
                       </div>
                     </>
                   )}
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
+
+
 
             {/* Insights Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

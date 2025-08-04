@@ -157,17 +157,49 @@ export function EmotionTracker() {
 
         {/* Calendar Tab - TOP PRIORITY */}
         <TabsContent value="calendar" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Emotion Calendar
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <EmotionCalendar />
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Emotion Calendar
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmotionCalendar />
+              </CardContent>
+            </Card>
+            {/* Quick Stats - moved to right column */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Statistics</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600">{records.length}</div>
+                  <div className="text-sm text-gray-600">Total Records</div>
+                </div>
+                
+                {records.length > 0 && (
+                  <>
+                    <div className="text-center">
+                      <div className="text-2xl font-semibold text-green-600">
+                        {(records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1)}
+                      </div>
+                      <div className="text-sm text-gray-600">Avg Behavioral Impact Score</div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">
+                        📊 Analytics Available
+                      </div>
+                      <div className="text-sm text-gray-600">View detailed insights in Analytics tab</div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Analytics Tab */}
@@ -199,20 +231,12 @@ export function EmotionTracker() {
                 
                 {records.length > 0 && (
                   <div className="text-center">
-                    <div className="text-2xl mb-1">
-                      📊 Analytics
+                    <div className="text-2xl font-semibold text-green-600">
+                      {(records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1)}
                     </div>
-                    <div className="text-sm text-gray-600">Emotion Insights</div>
-                    <div className="text-xs text-gray-500">{records.length} total records</div>
+                    <div className="text-sm text-gray-600">Avg Behavioral Impact Score</div>
                   </div>
                 )}
-
-                <div className="text-center">
-                  <div className="text-2xl font-semibold text-green-600">
-                    {records.length > 0 ? (records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1) : 'N/A'}
-                  </div>
-                  <div className="text-sm text-gray-600">Avg Behavioral Impact Score</div>
-                </div>
               </CardContent>
             </Card>
           </div>

@@ -134,18 +134,18 @@ export function EmotionCalendar() {
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         {/* Weekday Headers */}
-        <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
+        <div className="grid grid-cols-7 gap-2 mb-3">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="p-2 text-center text-xs font-medium text-gray-600">
+            <div key={day} className="text-center text-xs font-medium text-gray-500">
               {day}
             </div>
           ))}
         </div>
 
         {/* Calendar Days */}
-        <div className="grid grid-cols-7">
+        <div className="grid grid-cols-7 gap-2">
           {dailyEmotions.map((dayData, index) => {
             const isCurrentMonth = dayData.date.getMonth() === currentDate.getMonth()
             const isTodayDate = isToday(dayData.date)
@@ -155,10 +155,14 @@ export function EmotionCalendar() {
               <div
                 key={index}
                 className={`
-                  aspect-square p-1 border-r border-b border-gray-100 cursor-pointer transition-all duration-200 min-h-[60px]
-                  ${isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 text-gray-400'}
-                  ${isTodayDate ? 'ring-2 ring-blue-500 ring-inset' : ''}
-                  ${hasEmotions ? 'hover:shadow-md' : ''}
+                  aspect-square p-1 cursor-pointer transition-all duration-200 min-h-[60px] rounded-2xl border-2
+                  ${isCurrentMonth 
+                    ? hasEmotions 
+                      ? 'bg-white border-gray-200 hover:bg-gray-50 hover:shadow-lg hover:border-gray-300' 
+                      : 'bg-white border-gray-100 hover:bg-gray-50 hover:border-gray-200'
+                    : 'bg-gray-50 text-gray-400 border-gray-100'}
+                  ${isTodayDate ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
+                  ${hasEmotions ? 'shadow-sm' : ''}
                 `}
                 onClick={() => handleDayClick(dayData)}
               >
