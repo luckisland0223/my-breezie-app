@@ -16,13 +16,14 @@ export async function POST(request: NextRequest) {
     
     console.log('🧹 Cleaning up user data for email:', email)
     
-    // Try to find any existing profile with this email
+    // Step 1: Try to find any existing profile with this email
     const { data: existingProfile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('email', email)
       .single()
     
+    let cleanedProfile = false
     if (existingProfile) {
       console.log('Found existing profile:', existingProfile.id)
       
@@ -43,16 +44,67 @@ export async function POST(request: NextRequest) {
         .delete()
         .eq('id', existingProfile.id)
       
-      console.log('✅ Cleaned up user data')
+      cleanedProfile = true
+      console.log('✅ Cleaned up database profile and records')
     } else {
-      console.log('No existing profile found for this email')
+      console.log('No existing profile found in database for this email')
+    }
+    
+    // Step 2: Check if user exists in Auth system (this is likely the real issue)
+    // Note: We can't directly delete users from Auth via API, but we can provide guidance
+    
+    // Try to sign up with a test to see what the actual error is
+    const { data: testSignup, error: testError } = await supabase.auth.signUp({
+      email: email,
+      password: 'temporary-test-password-12345',
+      options: {
+        data: {
+          user_name: 'test-user-' + Date.now()
+        }
+      }
+    })
+    
+    let authStatus = 'unknown'
+    let authMessage = ''
+    
+    if (testError) {
+      authStatus = 'blocked'
+      authMessage = testError.message
+      console.log('Auth signup test failed:', testError.message)
+    } else if (testSignup.user) {
+      authStatus = 'available'
+      authMessage = 'Email is available for registration'
+      
+      // Clean up the test user we just created
+      if (testSignup.user.id) {
+        // Try to delete the test profile that might have been auto-created
+        await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', testSignup.user.id)
+      }
+      
+      console.log('✅ Email is available for registration')
     }
     
     return NextResponse.json({
-      success: true,
-      message: 'User cleanup completed. You can now register with this email.',
+      success: authStatus === 'available',
+      message: authStatus === 'available' 
+        ? 'User cleanup completed. Email is now available for registration.' 
+        : 'User cleanup completed, but email is still blocked in Auth system.',
       email: email,
-      cleaned_profile: !!existingProfile
+      database_cleanup: {
+        cleaned_profile: cleanedProfile,
+        profile_found: !!existingProfile
+      },
+      auth_status: {
+        status: authStatus,
+        message: authMessage,
+        blocked: authStatus === 'blocked'
+      },
+      next_steps: authStatus === 'blocked' 
+        ? 'The email is still blocked in Supabase Auth. You need to delete the user from Supabase Dashboard → Authentication → Users.'
+        : 'Email is ready for registration!'
     })
     
   } catch (error) {

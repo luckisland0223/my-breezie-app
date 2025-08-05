@@ -142,12 +142,23 @@ export function AuthFixer({ onAuthFixed }: AuthFixerProps) {
         setStatus({
           type: 'success',
           message: 'User cleanup completed!',
-          details: `Email ${emailToCleanup} can now be used for registration`
+          details: `Email ${emailToCleanup} is now available for registration`
         })
         toast.success('User cleanup successful! You can now register with this email.', {
           duration: 5000
         })
         setEmailToCleanup('')
+      } else if (data.auth_status?.blocked) {
+        setStatus({
+          type: 'warning',
+          message: 'Manual cleanup required',
+          details: `Database cleaned, but email is still blocked in Supabase Auth. ${data.next_steps}`,
+          action: 'manual_auth_cleanup'
+        })
+        toast.error('Email still blocked in Auth system', {
+          description: 'Need to delete user from Supabase Dashboard',
+          duration: 8000
+        })
       } else {
         setStatus({
           type: 'error',
@@ -319,6 +330,22 @@ export function AuthFixer({ onAuthFixed }: AuthFixerProps) {
           </div>
         )}
         
+        {status.action === 'manual_auth_cleanup' && (
+          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+            <p className="text-sm font-medium text-orange-800">🔧 Manual Cleanup Required:</p>
+            <p className="text-xs text-orange-700 mt-1 mb-2">
+              The email is still blocked in Supabase Auth system. To fix this:
+            </p>
+            <ol className="text-xs text-orange-700 list-decimal list-inside space-y-1">
+              <li>Go to <strong>Supabase Dashboard</strong></li>
+              <li>Navigate to <strong>Authentication → Users</strong></li>
+              <li>Find the user with this email</li>
+              <li>Click the <strong>Delete</strong> button</li>
+              <li>Come back and try registration again</li>
+            </ol>
+          </div>
+        )}
+
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm font-medium text-red-800">⚠️ Fresh Database Setup:</p>
           <p className="text-xs text-red-700 mt-1">
