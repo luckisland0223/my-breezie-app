@@ -24,7 +24,8 @@ export function EmotionCalendar() {
   const [selectedDay, setSelectedDay] = useState<DayEmotions | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
-  const records = useEmotionStore((state) => state.records)
+  const getCurrentUserRecords = useEmotionStore((state) => state.getCurrentUserRecords)
+  const records = getCurrentUserRecords()
   const deleteRecord = useEmotionStore((state) => state.deleteRecord)
   
   // Group emotions by day

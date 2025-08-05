@@ -42,7 +42,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   }
 
   const handleExportData = () => {
-    const records = useEmotionStore.getState().records
+    const records = useEmotionStore.getState().getCurrentUserRecords()
     const dataStr = JSON.stringify(records, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
     const url = URL.createObjectURL(dataBlob)

@@ -230,7 +230,8 @@ interface EmotionAdviceProps {
 export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
   const [refreshKey, setRefreshKey] = useState(0)
   
-  const records = useEmotionStore((state) => state.records)
+  const getCurrentUserRecords = useEmotionStore((state) => state.getCurrentUserRecords)
+  const records = getCurrentUserRecords()
   const stats = useEmotionStore((state) => state.getEmotionStats())
 
   // Get recent emotion pattern (last 7 days)

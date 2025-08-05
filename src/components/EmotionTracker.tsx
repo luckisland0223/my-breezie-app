@@ -47,7 +47,8 @@ export function EmotionTracker() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   
   // Store hooks
-  const records = useEmotionStore((state) => state.records)
+  const getCurrentUserRecords = useEmotionStore((state) => state.getCurrentUserRecords)
+  const records = getCurrentUserRecords()
   const getEmotionStats = useEmotionStore((state) => state.getEmotionStats)
   const getRecentEmotions = useEmotionStore((state) => state.getRecentEmotions)
   const clearAllRecords = useEmotionStore((state) => state.clearAllRecords)

@@ -14,7 +14,8 @@ import Link from 'next/link'
 export default function ProfilePage() {
   const { user, isLoggedIn, isLoading, getDisplayName } = useAuthStore()
   const router = useRouter()
-  const records = useEmotionStore((state) => state.records)
+  const getCurrentUserRecords = useEmotionStore((state) => state.getCurrentUserRecords)
+  const records = getCurrentUserRecords()
   
   // Redirect if not authenticated
   useEffect(() => {

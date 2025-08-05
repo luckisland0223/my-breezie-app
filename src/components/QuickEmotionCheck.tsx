@@ -107,7 +107,7 @@ export function QuickEmotionCheck() {
       if (data.success) {
         
         // Save to local store to update UI
-        addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`, 'quick_check')
+        addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`, 'quick_check', undefined, undefined, user?.id)
         
         toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully!`)
         setSelectedEmotion(null)

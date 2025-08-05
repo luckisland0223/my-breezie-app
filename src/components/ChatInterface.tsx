@@ -106,7 +106,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       if (data.success) {
         
         // Save to local store to update UI
-        addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
+        addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis, user.id)
         
         // Trigger data refresh event
         window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
@@ -179,7 +179,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       }
       
       // Still save to local store as fallback
-      addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
+      addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis, user?.id)
       return false
     }
   }

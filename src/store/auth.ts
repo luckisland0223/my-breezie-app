@@ -5,14 +5,25 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'
 // Sync user data from database
 async function syncUserDataFromDatabase(userId: string) {
   try {
-    const response = await fetch(`/api/sync?userId=${userId}`)
-    if (response.ok) {
-      const data = await response.json()
-      // We'll handle emotion data sync in the emotion store
-
+    // Import the emotion store dynamically to avoid circular dependency
+    const { useEmotionStore } = await import('./emotion')
+    const loadUserRecordsFromDatabase = useEmotionStore.getState().loadUserRecordsFromDatabase
+    
+    // Load user-specific emotion records
+    await loadUserRecordsFromDatabase(userId)
+    
+    // Try to sync other data if the API exists
+    try {
+      const response = await fetch(`/api/sync?userId=${userId}`)
+      if (response.ok) {
+        const data = await response.json()
+        // Handle other sync data if needed
+      }
+    } catch (error) {
+      // Sync API might not exist, which is fine
     }
   } catch (error) {
-    
+    console.error('Failed to sync user data:', error)
   }
 }
 
@@ -70,6 +81,9 @@ export const useAuthStore = create<AuthState>()(
             isLoggedIn: true,
             isLoading: false
           })
+          
+          // Sync user data from database
+          syncUserDataFromDatabase(user.id)
         } else {
           set({ 
             session: null, 
