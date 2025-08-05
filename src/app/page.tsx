@@ -16,6 +16,7 @@ import { useAuthStore } from '@/store/auth'
 import { useEmotionStore } from '@/store/emotionDatabase'
 import { SyncStatus } from '@/components/SyncStatus'
 import { StatusIndicator } from '@/components/StatusIndicator'
+import { AuthFixer } from '@/components/AuthFixer'
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -26,13 +27,29 @@ export default function HomePage() {
   const { loadFromDatabase, records } = useEmotionStore()
   const [activeTab, setActiveTab] = useState('journey')
   const [showChat, setShowChat] = useState(false)
+  const [authError, setAuthError] = useState(false)
 
   // Load user data when logged in
   useEffect(() => {
     if (user?.id && isLoggedIn) {
-      loadFromDatabase(user.id)
+      loadFromDatabase(user.id).catch(() => {
+        // If loading fails, it might be an auth issue
+        setAuthError(true)
+      })
     }
   }, [user?.id, isLoggedIn, loadFromDatabase])
+
+  // Listen for authentication errors from emotion recording
+  useEffect(() => {
+    const handleAuthError = (event: CustomEvent) => {
+      if (event.detail?.error?.includes('401') || event.detail?.error?.includes('Authentication')) {
+        setAuthError(true)
+      }
+    }
+
+    window.addEventListener('authError', handleAuthError as EventListener)
+    return () => window.removeEventListener('authError', handleAuthError as EventListener)
+  }, [])
 
   const handleStartConversation = () => {
     if (!isLoggedIn) {
@@ -49,6 +66,15 @@ export default function HomePage() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your emotional wellness journey...</p>
         </div>
+      </div>
+    )
+  }
+
+  // Show AuthFixer if there's an authentication error
+  if (authError && isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <AuthFixer onAuthFixed={() => setAuthError(false)} />
       </div>
     )
   }

@@ -157,16 +157,18 @@ export function QuickEmotionCheck() {
           }
         })
       } else if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+        // Trigger auth error event for the main page to handle
+        window.dispatchEvent(new CustomEvent('authError', { 
+          detail: { error: error.message } 
+        }))
+        
         toast.error('Authentication expired. Need to re-verify identity.', {
           duration: 6000,
           action: {
-            label: 'Re-verify',
+            label: 'Fix Authentication',
             onClick: () => {
-              // Clear potentially expired auth data
-              if (typeof window !== 'undefined') {
-                localStorage.clear()
-              }
-              window.location.href = '/auth/signin'
+              // The AuthFixer component will handle this
+              window.location.reload()
             }
           }
         })
