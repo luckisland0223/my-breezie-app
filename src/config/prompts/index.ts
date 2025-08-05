@@ -5,7 +5,7 @@
 
 import { SYSTEM_PROMPT, buildSystemPrompt } from './system'
 import { CONVERSATION_EXAMPLES, getExamplePrompt } from './examples'
-import { EMOTION_CONTEXTS, getEmotionContext, getEmotionGuidance, getEmotionFocusAreas } from './emotions'
+import { EMOTION_CONTEXTS, getEmotionContext, getEmotionGuidance, getEmotionFocusAreas, getEmotionSupport, getComfortTechniques, getPracticalSuggestions } from './emotions'
 import { FALLBACK_RESPONSES, getRandomFallback, getAllFallbackTypes } from './fallbacks'
 import type { EmotionType } from '@/store/emotion'
 
@@ -62,7 +62,7 @@ export function buildFullPrompt(
 ): string {
   const systemPrompt = buildSystemPrompt()
   const examplePrompt = getExamplePrompt()
-  const emotionContext = getEmotionContext(emotion)
+  const emotionContext = getEmotionSupport(emotion)
   
   // 构造对话历史（过滤掉system消息）
   const filteredHistory = conversationHistory.filter(msg => msg.role !== 'system')
@@ -111,6 +111,9 @@ export {
   getEmotionContext,
   getEmotionGuidance,
   getEmotionFocusAreas,
+  getEmotionSupport,
+  getComfortTechniques,
+  getPracticalSuggestions,
   
   // Fallback回复
   FALLBACK_RESPONSES,
