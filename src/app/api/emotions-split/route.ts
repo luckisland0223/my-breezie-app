@@ -298,7 +298,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Emotion record created successfully, returning response')
+    console.log('✅ 情绪记录创建成功，准备返回响应')
+    console.log('📤 返回给客户端的数据:', {
+      success: true,
+      recordId: record.id,
+      emotion: record.emotion,
+      recordType: record.recordType,
+      timestamp: record.timestamp
+    })
+    console.log('🎯 API操作完成 - 数据库同步成功!')
+    console.log('═'.repeat(60))
+    
     return NextResponse.json({
       success: true,
       record

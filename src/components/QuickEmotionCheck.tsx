@@ -73,6 +73,14 @@ export function QuickEmotionCheck() {
     }
 
     try {
+      console.log('💾 QuickEmotionCheck - 开始数据库同步...')
+      console.log('📤 发送数据:', {
+        userId: user.id,
+        recordType: 'quick_check',
+        emotion: selectedEmotion,
+        intensity: intensity
+      })
+
       // 调用数据库API保存快速情绪检查
       const response = await fetch('/api/emotions-split', {
         method: 'POST',
@@ -88,18 +96,26 @@ export function QuickEmotionCheck() {
         })
       })
 
+      console.log('📡 API响应状态:', response.status, response.statusText)
+
       if (!response.ok) {
+        console.error('❌ API请求失败:', response.status, response.statusText)
         const errorData = await response.json()
+        console.error('❌ 错误详情:', errorData)
         throw new Error(errorData.error || 'Failed to record emotion')
       }
 
       const data = await response.json()
+      console.log('📥 API响应数据:', data)
       
       if (data.success) {
+        console.log('✅ 数据库同步成功!')
+        console.log('💾 已保存的记录:', data.record)
+        
         // 同时保存到本地store以更新UI
         addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`, 'quick_check')
         
-        toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully!`)
+        toast.success(`${getEmotionEmoji(selectedEmotion)} 情绪记录成功同步到数据库！`)
         setSelectedEmotion(null)
         setIntensity(5)
         
@@ -107,7 +123,11 @@ export function QuickEmotionCheck() {
         window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
           detail: { record: data.record, type: 'quick_check' } 
         }))
+        
+        console.log('🔄 本地数据已更新，事件已触发')
+        console.log('─'.repeat(50))
       } else {
+        console.error('❌ 数据库同步失败: API返回success=false')
         throw new Error('Failed to record emotion')
       }
 

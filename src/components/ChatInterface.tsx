@@ -79,6 +79,15 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     }
 
     try {
+      console.log('💾 ChatInterface - 开始对话情绪记录数据库同步...')
+      console.log('📤 发送数据:', {
+        userId: user.id,
+        recordType: 'conversation',
+        emotion: emotion,
+        behavioralImpactScore: behavioralImpactScore,
+        conversationTextLength: conversationText.length
+      })
+
       const response = await fetch('/api/emotions-split', {
         method: 'POST',
         headers: {
@@ -95,14 +104,22 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         })
       })
 
+      console.log('📡 对话记录API响应状态:', response.status, response.statusText)
+
       if (!response.ok) {
+        console.error('❌ 对话记录API请求失败:', response.status, response.statusText)
         const errorData = await response.json()
+        console.error('❌ 对话记录错误详情:', errorData)
         throw new Error(errorData.error || 'Failed to save conversation record')
       }
 
       const data = await response.json()
+      console.log('📥 对话记录API响应数据:', data)
       
       if (data.success) {
+        console.log('✅ 对话情绪记录数据库同步成功!')
+        console.log('💾 已保存的对话记录:', data.record)
+        
         // 同时保存到本地store以更新UI
         addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
         
@@ -111,8 +128,12 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           detail: { record: data.record, type: 'conversation' } 
         }))
         
+        console.log('🔄 对话记录本地数据已更新，事件已触发')
+        console.log('─'.repeat(50))
+        
         return true
       } else {
+        console.error('❌ 对话记录数据库同步失败: API返回success=false')
         throw new Error('Failed to save conversation record')
       }
 
@@ -332,7 +353,15 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setSelectedEmotion(emotion)
     
     // Calculate behavioral impact score
+    console.log('🎭 ChatInterface - 开始计算情绪记录的 Behavioral Impact Score...')
+    console.log(`📊 情绪: ${emotion}, 强度: ${intensity}`)
+    console.log(`💬 对话内容长度: ${conversationText.length} 字符`)
+    
     const behavioralScore = calculateBehavioralImpactScore(emotion, intensity, conversationText)
+    
+    console.log(`🧮 计算完成的影响分数:`, behavioralScore)
+    console.log(`✅ 最终影响分数: ${behavioralScore.overall_score}/10`)
+    console.log('─'.repeat(50))
     
     // Save to database
     const saved = await saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
@@ -351,9 +380,22 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setShowEmotionSelection(false)
     
     if (saved) {
-      toast.success(`Emotion recorded: ${emotion} (Behavioral Impact Score: ${behavioralScore.overall_score}/10)`)
+      console.log('🎉 对话情绪记录操作完成 - 数据库同步成功!')
+      toast.success(`${emotion} 情绪记录已成功同步到数据库！影响分数: ${behavioralScore.overall_score}/10`, {
+        duration: 4000
+      })
     } else {
-      toast.success(`Emotion recorded locally: ${emotion} (Saved to cloud storage failed)`)
+      console.log('⚠️ 对话情绪记录操作完成 - 仅保存到本地')
+      toast.warning(`${emotion} 情绪记录已保存到本地（数据库同步失败）`, {
+        duration: 5000,
+        action: {
+          label: '重试',
+          onClick: () => {
+            // 可以在这里添加重试逻辑
+            console.log('用户点击重试按钮')
+          }
+        }
+      })
     }
   }
 
@@ -363,10 +405,30 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setIsTyping(true)
     
     // Calculate behavioral impact score
+    console.log('🎭 ChatInterface Inline - 开始计算内联情绪选择的 Behavioral Impact Score...')
+    console.log(`📊 情绪: ${emotion}, 强度: 5 (默认)`)
+    console.log(`💬 对话内容长度: ${conversationText.length} 字符`)
+    
     const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
     
+    console.log(`🧮 内联计算完成的影响分数:`, behavioralScore)
+    console.log(`✅ 内联最终影响分数: ${behavioralScore.overall_score}/10`)
+    console.log('─'.repeat(50))
+    
     // Save to database
-    await saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    const saved = await saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    
+    if (saved) {
+      console.log('🎉 内联情绪记录操作完成 - 数据库同步成功!')
+      toast.success(`${emotion} 情绪记录已成功同步到数据库！`, {
+        duration: 3000
+      })
+    } else {
+      console.log('⚠️ 内联情绪记录操作完成 - 仅保存到本地')
+      toast.warning(`${emotion} 情绪记录已保存到本地（数据库同步失败）`, {
+        duration: 4000
+      })
+    }
     
     try {
       // Get personalized AI response based on user's story and selected emotion

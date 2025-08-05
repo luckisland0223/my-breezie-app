@@ -243,11 +243,46 @@ export default function HomePage() {
                     </div>
                     <p className="text-2xl font-bold text-gray-900">
                       {(() => {
-                        const chatRecords = records.filter(r => r.recordType === 'chat')
-                        return chatRecords.length > 0 ? (chatRecords.reduce((sum, r) => sum + r.behavioralImpact, 0) / chatRecords.length).toFixed(1) : '0'
+                        console.log('🎯 开始计算 Avg Impact Score (最近3条记录)...')
+                        
+                        // 过滤出聊天记录并按时间排序（最新的在前）
+                        const chatRecords = records
+                          .filter(r => r.recordType === 'chat')
+                          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                        
+                        console.log(`📊 找到 ${chatRecords.length} 条聊天记录`)
+                        
+                        if (chatRecords.length === 0) {
+                          console.log('❌ 没有聊天记录，返回 0')
+                          return '0'
+                        }
+                        
+                        // 取最近的3条记录
+                        const recentRecords = chatRecords.slice(0, 3)
+                        console.log(`🔍 取最近的 ${recentRecords.length} 条记录进行计算`)
+                        
+                        // 展示每条记录的影响分数
+                        console.log('📝 最近的聊天记录详情：')
+                        recentRecords.forEach((record, index) => {
+                          console.log(`  ${index + 1}. [${record.emotion}] Impact: ${record.behavioralImpact} (${new Date(record.timestamp).toLocaleString()})`)
+                        })
+                        
+                        // 计算总和
+                        const totalImpact = recentRecords.reduce((sum, r) => {
+                          console.log(`  累加: ${sum} + ${r.behavioralImpact} = ${sum + r.behavioralImpact}`)
+                          return sum + r.behavioralImpact
+                        }, 0)
+                        
+                        // 计算平均值
+                        const avgImpact = totalImpact / recentRecords.length
+                        console.log(`🧮 最近3条记录计算结果: ${totalImpact} ÷ ${recentRecords.length} = ${avgImpact}`)
+                        console.log(`✅ 最终显示: ${avgImpact.toFixed(1)}`)
+                        console.log('─'.repeat(50))
+                        
+                        return avgImpact.toFixed(1)
                       })()}
                     </p>
-                    <p className="text-gray-600">Avg Impact Score</p>
+                    <p className="text-gray-600">Avg Impact Score (最近3条)</p>
                   </CardContent>
                 </Card>
                 
