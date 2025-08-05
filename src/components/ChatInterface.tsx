@@ -13,6 +13,7 @@ import { EmotionSelectionDialog } from './EmotionSelectionDialog'
 import { calculateBehavioralImpactScore } from '@/lib/behavioralImpactScore'
 import { getRandomResponse } from '@/config/emotionResponses'
 import { emotionConfig } from '@/config/emotionConfig'
+import { getRandomFallback } from '@/config/prompts'
 
 interface ChatInterfaceProps {
   onBack: () => void
@@ -216,7 +217,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     } catch (error) {
       console.error('Chat error:', error)
       toast.error('Sorry, I had trouble responding. Please try again.')
-      const fallbackResponse = "Let me try to understand what you're sharing. Could you tell me more about how you're feeling?"
+      const fallbackResponse = getRandomFallback('chatError')
       setAiResponse(fallbackResponse)
       addChatMessage({ content: fallbackResponse, role: 'assistant' })
     } finally {
@@ -297,8 +298,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     } catch (error) {
       console.error('Error getting personalized response:', error)
       
-      // Fallback to a contextual response that acknowledges their story
-      const fallbackResponse = `I can see that ${emotion.toLowerCase()} really resonates with what you've shared. Your experience matters, and I'm here to understand more about what you're going through. Can you tell me more about this feeling?`
+      // 使用配置化的fallback回复
+      const fallbackResponse = getRandomFallback('emotionSelectionError')
       const newResponse = aiResponse + "\n\n" + fallbackResponse
       setAiResponse(newResponse)
       addChatMessage({ content: fallbackResponse, role: 'assistant' })
@@ -311,7 +312,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
 
   const handleSkipEmotion = () => {
     setShowEmotionSelection(false)
-    const skipResponse = "That's perfectly fine! You can always share your emotions later if you'd like. Let's continue our conversation. What else would you like to talk about?"
+    const skipResponse = "No worries at all! What else is going on with you?"
     setAiResponse(skipResponse)
     addChatMessage({ content: skipResponse, role: 'assistant' })
     toast.success("Emotion selection skipped")
