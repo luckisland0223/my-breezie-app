@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { useEmotionStore } from '@/store/emotionDatabase'
+import { useEmotionStore } from '@/store/emotion'
 import { useAuthStore } from '@/store/auth'
 import { Calendar, Heart, TrendingUp, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -14,8 +14,20 @@ import Link from 'next/link'
 export default function ProfilePage() {
   const { user, isLoggedIn, isLoading, getDisplayName } = useAuthStore()
   const router = useRouter()
-  const getCurrentUserRecords = useEmotionStore((state) => state.getCurrentUserRecords)
-  const records = getCurrentUserRecords()
+  const allRecords = useEmotionStore((state) => state.records)
+  // Filter records for current user
+  const records = useMemo(() => {
+    try {
+      const savedUser = localStorage.getItem('breezie_current_user')
+      if (savedUser) {
+        const user = JSON.parse(savedUser)
+        return allRecords.filter((record) => record.user_id === user.id)
+      }
+    } catch (error) {
+      // Ignore error
+    }
+    return allRecords
+  }, [allRecords])
   
   // Redirect if not authenticated
   useEffect(() => {

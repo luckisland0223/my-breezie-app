@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { useEmotionStore } from '@/store/emotionDatabase'
+import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType, EmotionRecord } from '@/store/emotion'
 import { emotionConfig, getEmotionEmoji, getEmotionDisplay } from '@/config/emotionConfig'
 import { Lightbulb, TrendingUp, Heart, RefreshCw, Sparkles } from 'lucide-react'
@@ -230,8 +230,20 @@ interface EmotionAdviceProps {
 export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
   const [refreshKey, setRefreshKey] = useState(0)
   
-  const getCurrentUserRecords = useEmotionStore((state) => state.getCurrentUserRecords)
-  const records = getCurrentUserRecords()
+  const allRecords = useEmotionStore((state) => state.records)
+  // Filter records for current user
+  const records = useMemo(() => {
+    try {
+      const savedUser = localStorage.getItem('breezie_current_user')
+      if (savedUser) {
+        const user = JSON.parse(savedUser)
+        return allRecords.filter((record) => record.user_id === user.id)
+      }
+    } catch (error) {
+      // Ignore error
+    }
+    return allRecords
+  }, [allRecords])
   const stats = useEmotionStore((state) => state.getEmotionStats())
 
   // Get recent emotion pattern (last 7 days)

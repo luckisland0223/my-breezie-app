@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { useEmotionStore } from '@/store/emotionDatabase'
+import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType, EmotionRecord, PolarityType } from '@/store/emotion'
 import { EmotionCalendar } from '@/components/EmotionCalendar'
 import { EmotionChart } from '@/components/EmotionChart'
@@ -47,8 +47,20 @@ export function EmotionTracker() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   
   // Store hooks
-  const getCurrentUserRecords = useEmotionStore((state) => state.getCurrentUserRecords)
-  const records = getCurrentUserRecords()
+  const allRecords = useEmotionStore((state) => state.records)
+  // Filter records for current user
+  const records = useMemo(() => {
+    try {
+      const savedUser = localStorage.getItem('breezie_current_user')
+      if (savedUser) {
+        const user = JSON.parse(savedUser)
+        return allRecords.filter((record) => record.user_id === user.id)
+      }
+    } catch (error) {
+      // Ignore error
+    }
+    return allRecords
+  }, [allRecords])
   const getEmotionStats = useEmotionStore((state) => state.getEmotionStats)
   const getRecentEmotions = useEmotionStore((state) => state.getRecentEmotions)
   const clearAllRecords = useEmotionStore((state) => state.clearAllRecords)

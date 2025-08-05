@@ -42,7 +42,19 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   }
 
   const handleExportData = () => {
-    const records = useEmotionStore.getState().getCurrentUserRecords()
+    const state = useEmotionStore.getState()
+    let records = state.records
+    
+    // Filter for current user
+    try {
+      const savedUser = localStorage.getItem('breezie_current_user')
+      if (savedUser) {
+        const user = JSON.parse(savedUser)
+        records = state.records.filter((record) => record.user_id === user.id)
+      }
+    } catch (error) {
+      // Use all records as fallback
+    }
     const dataStr = JSON.stringify(records, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
     const url = URL.createObjectURL(dataBlob)

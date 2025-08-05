@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useEmotionStore } from '@/store/emotionDatabase'
+import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType, EmotionRecord } from '@/store/emotion'
 import { emotionConfig, getEmotionEmoji, getEmotionDisplay } from '@/config/emotionConfig'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Trash2 } from 'lucide-react'
@@ -24,8 +24,20 @@ export function EmotionCalendar() {
   const [selectedDay, setSelectedDay] = useState<DayEmotions | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
-  const getCurrentUserRecords = useEmotionStore((state) => state.getCurrentUserRecords)
-  const records = getCurrentUserRecords()
+  const allRecords = useEmotionStore((state) => state.records)
+  // Filter records for current user
+  const records = useMemo(() => {
+    try {
+      const savedUser = localStorage.getItem('breezie_current_user')
+      if (savedUser) {
+        const user = JSON.parse(savedUser)
+        return allRecords.filter((record) => record.user_id === user.id)
+      }
+    } catch (error) {
+      // Ignore error
+    }
+    return allRecords
+  }, [allRecords])
   const deleteRecord = useEmotionStore((state) => state.deleteRecord)
   
   // Group emotions by day

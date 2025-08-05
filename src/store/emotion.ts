@@ -265,7 +265,19 @@ export const useEmotionStore = create<EmotionState>()(
 
       // Get records by emotion (filtered by current user)
       getRecordsByEmotion: (emotion: EmotionType) => {
-        const currentUserId = get().getCurrentUserRecords().length > 0 ? get().getCurrentUserRecords()[0].user_id : null
+        const currentUserId = (() => {
+          try {
+            const savedUser = localStorage.getItem('breezie_current_user')
+            if (savedUser) {
+              const user = JSON.parse(savedUser)
+              return user.id
+            }
+          } catch (error) {
+            // Ignore error
+          }
+          return null
+        })()
+        
         return get().records.filter((record) => 
           record.emotion === emotion && 
           (currentUserId ? record.user_id === currentUserId : true)

@@ -17,6 +17,7 @@ import type { DatabaseEmotionRecord } from '@/lib/supabase/database'
 function dbRecordToLocal(dbRecord: DatabaseEmotionRecord): EmotionRecord {
   return {
     id: dbRecord.id,
+    user_id: dbRecord.user_id,
     emotion: dbRecord.emotion,
     behavioralImpact: dbRecord.intensity, // Map intensity to behavioralImpact
     note: dbRecord.note || '',
@@ -128,7 +129,22 @@ export const useEmotionStore = create<EmotionState>()(
         polarityAnalysis?: EmotionPolarityAnalysis,
         userId?: string
       ) => {
+        // Get current user ID if not provided
+        const currentUserId = userId || (() => {
+          try {
+            const savedUser = localStorage.getItem('breezie_current_user')
+            if (savedUser) {
+              const user = JSON.parse(savedUser)
+              return user.id
+            }
+          } catch (error) {
+            console.warn('Could not get current user ID for emotion record')
+          }
+          return 'anonymous' // Fallback for non-authenticated users
+        })()
+
         const newRecord: Omit<EmotionRecord, 'id'> = {
+          user_id: currentUserId,
           emotion,
           behavioralImpact: intensity, // Map intensity parameter to behavioralImpact field
           note,
