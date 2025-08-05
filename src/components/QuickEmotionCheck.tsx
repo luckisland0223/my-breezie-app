@@ -123,7 +123,15 @@ export function QuickEmotionCheck() {
             onClick: () => window.location.href = '/settings'
           }
         })
-      } else if (error.message?.includes('Authentication failed')) {
+      } else if (error.message?.includes('Access denied') || error.message?.includes('row-level security policy')) {
+        toast.error('访问被拒绝。请重新登录以确保正确认证。', {
+          duration: 5000,
+          action: {
+            label: '重新登录',
+            onClick: () => window.location.href = '/auth/signin'
+          }
+        })
+      } else if (error.message?.includes('Authentication failed') || error.message?.includes('Authentication required')) {
         toast.error('认证失败，请重新登录。', {
           duration: 5000,
           action: {

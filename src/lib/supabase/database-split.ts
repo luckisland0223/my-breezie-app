@@ -88,11 +88,12 @@ export async function updateUserProfile(userId: string, updates: Partial<Databas
 // ===========================================
 
 export async function createQuickEmotionCheck(
-  record: Omit<DatabaseQuickEmotionCheck, 'id' | 'created_at'>
+  record: Omit<DatabaseQuickEmotionCheck, 'id' | 'created_at'>,
+  supabaseClient?: any
 ): Promise<DatabaseQuickEmotionCheck | null> {
   try {
     console.log('Creating quick emotion check with record:', record)
-    const supabase = getSupabaseClient()
+    const supabase = supabaseClient || getSupabaseClient()
     
     const { data, error } = await supabase
       .from('quick_emotion_checks')
@@ -178,14 +179,15 @@ export async function deleteQuickEmotionCheck(recordId: string, userId: string):
 // ===========================================
 
 export async function createConversationEmotionRecord(
-  record: Omit<DatabaseConversationEmotionRecord, 'id' | 'created_at'>
+  record: Omit<DatabaseConversationEmotionRecord, 'id' | 'created_at'>,
+  supabaseClient?: any
 ): Promise<DatabaseConversationEmotionRecord | null> {
   try {
     console.log('Creating conversation emotion record with record:', {
       ...record,
       conversation_text_length: record.conversation_text?.length || 0
     })
-    const supabase = getSupabaseClient()
+    const supabase = supabaseClient || getSupabaseClient()
     
     const { data, error } = await supabase
       .from('conversation_emotion_records')

@@ -6,6 +6,7 @@ import {
   createConversationEmotionRecord,
   createEmotionRecord  // 兼容性函数
 } from '@/lib/supabase/database-split'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   try {
@@ -72,6 +73,18 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // 创建服务器端Supabase客户端以获取认证用户
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      console.warn('Authentication failed:', authError)
+      return NextResponse.json(
+        { error: 'Authentication required. Please sign in.' },
+        { status: 401 }
+      )
+    }
+
     const {
       userId,
       recordType, // 'quick_check' | 'conversation'
@@ -86,16 +99,29 @@ export async function POST(request: NextRequest) {
 
     console.log('API Request received:', {
       userId,
+      authenticatedUserId: user.id,
       recordType,
       emotion,
       intensity: intensity || behavioralImpactScore,
       hasConversationText: !!conversationText
     })
 
-    if (!userId || !emotion || !recordType) {
-      console.warn('Missing required fields:', { userId: !!userId, emotion: !!emotion, recordType: !!recordType })
+    // 验证用户ID匹配
+    if (userId && userId !== user.id) {
+      console.warn('User ID mismatch:', { provided: userId, authenticated: user.id })
       return NextResponse.json(
-        { error: 'User ID, emotion, and recordType are required' },
+        { error: 'User ID does not match authenticated user' },
+        { status: 403 }
+      )
+    }
+
+    // 使用认证用户的ID
+    const authenticatedUserId = user.id
+
+    if (!emotion || !recordType) {
+      console.warn('Missing required fields:', { emotion: !!emotion, recordType: !!recordType })
+      return NextResponse.json(
+        { error: 'Emotion and recordType are required' },
         { status: 400 }
       )
     }
@@ -122,11 +148,11 @@ export async function POST(request: NextRequest) {
       let quickRecord
       try {
         quickRecord = await createQuickEmotionCheck({
-          user_id: userId,
+          user_id: authenticatedUserId,
           emotion,
           intensity: parseInt(intensity),
           timestamp: new Date().toISOString()
-        })
+        }, supabase)
       } catch (dbError: any) {
         console.error('Database error creating quick emotion check:', dbError)
         
@@ -135,6 +161,14 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { error: 'Database tables do not exist. Please run the database setup script.' },
             { status: 503 }
+          )
+        }
+        
+        // RLS策略错误
+        if (dbError.message?.includes('row-level security policy')) {
+          return NextResponse.json(
+            { error: 'Access denied. Please ensure you are properly authenticated.' },
+            { status: 403 }
           )
         }
         
@@ -192,14 +226,14 @@ export async function POST(request: NextRequest) {
       let conversationRecord
       try {
         conversationRecord = await createConversationEmotionRecord({
-          user_id: userId,
+          user_id: authenticatedUserId,
           emotion,
           behavioral_impact_score: impactScore,
           conversation_text: conversationText,
           emotion_evaluation: emotionEvaluation,
           polarity_analysis: polarityAnalysis,
           timestamp: new Date().toISOString()
-        })
+        }, supabase)
       } catch (dbError: any) {
         console.error('Database error creating conversation emotion record:', dbError)
         
@@ -208,6 +242,14 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { error: 'Database tables do not exist. Please run the database setup script.' },
             { status: 503 }
+          )
+        }
+        
+        // RLS策略错误
+        if (dbError.message?.includes('row-level security policy')) {
+          return NextResponse.json(
+            { error: 'Access denied. Please ensure you are properly authenticated.' },
+            { status: 403 }
           )
         }
         
@@ -284,6 +326,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Database tables do not exist. Please run the database setup script.' },
         { status: 503 }
+      )
+    }
+    
+    // RLS策略错误的特殊处理
+    if (error.message?.includes('row-level security policy')) {
+      return NextResponse.json(
+        { error: 'Access denied. Please ensure you are properly authenticated.' },
+        { status: 403 }
       )
     }
     
