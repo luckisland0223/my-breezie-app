@@ -6,7 +6,7 @@ import { useSupabaseStore } from '@/store/supabase'
 export async function createClient() {
   const cookieStore = await cookies()
 
-  // 首先尝试从配置文件获取
+  // First try to get from config file
   const fileConfig = getDbConfig()
   let supabaseUrl = ''
   let supabaseAnonKey = ''
@@ -15,7 +15,7 @@ export async function createClient() {
     supabaseUrl = fileConfig.url
     supabaseAnonKey = fileConfig.anonKey
   } else {
-    // 否则尝试从store获取（如果在服务器环境中可用）
+    // Otherwise try to get from store (if available in server environment)
     try {
       const storeConfig = useSupabaseStore.getState().config
       if (storeConfig.isConfigured) {
@@ -23,7 +23,7 @@ export async function createClient() {
         supabaseAnonKey = storeConfig.anonKey
       }
     } catch (error) {
-      // 在服务器环境中store可能不可用，这是正常的
+      // Store may not be available in server environment, this is normal
     }
   }
   

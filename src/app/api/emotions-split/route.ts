@@ -71,11 +71,11 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // 创建服务器端Supabase客户端以获取认证用户
+    // Create server-side Supabase client to get authenticated user
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    // 开发环境调试：如果有userId参数，在开发环境中允许跳过认证检查
+    // Development debugging: allow skipping auth check if userId parameter is provided
     const isDevelopment = process.env.NODE_ENV === 'development'
     const hasUserId = requestBody.userId
     
