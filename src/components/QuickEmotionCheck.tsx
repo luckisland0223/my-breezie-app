@@ -87,7 +87,7 @@ export function QuickEmotionCheck() {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include'
+        credentials: 'include',
         body: JSON.stringify({
           userId: user.id,
           recordType: 'quick_check',
