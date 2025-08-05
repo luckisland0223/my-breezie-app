@@ -1,46 +1,129 @@
-import { NextResponse } from 'next/server'
-import { testSupabaseConnection } from '@/lib/supabase/client'
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseClient } from '@/lib/supabase/client'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Check all required environment variables
-    const envChecks = {
-      gemini_api_key: !!process.env.GEMINI_API_KEY,
-      node_env: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
+    console.log('Health check started...')
+    
+    const supabase = getSupabaseClient()
+    console.log('Supabase client created successfully')
+
+    // 检查基本连接
+    console.log('Testing basic connection...')
+    const { data: connectionTest, error: connectionError } = await supabase
+      .from('profiles')
+      .select('count')
+      .limit(1)
+
+    if (connectionError) {
+      console.error('Connection test failed:', connectionError)
+      
+      // 表不存在的特殊处理
+      if (connectionError.code === 'PGRST116' || connectionError.message?.includes('does not exist')) {
+        return NextResponse.json({
+          status: 'error',
+          message: 'Database connection successful, but tables do not exist',
+          issue: 'missing_tables',
+          solution: 'Please run the database setup script to create the required tables',
+          connectionError: {
+            code: connectionError.code,
+            message: connectionError.message,
+            details: connectionError.details,
+            hint: connectionError.hint
+          }
+        }, { status: 503 })
+      }
+
+      // 其他连接错误
+      return NextResponse.json({
+        status: 'error',
+        message: 'Database connection failed',
+        issue: 'connection_failed',
+        solution: 'Please check your Supabase configuration in src/config/database.ts',
+        connectionError: {
+          code: connectionError.code,
+          message: connectionError.message,
+          details: connectionError.details,
+          hint: connectionError.hint
+        }
+      }, { status: 503 })
     }
 
-    // Test database connection
-    let dbCheck = { success: false, message: 'Not tested' }
-    try {
-      dbCheck = await testSupabaseConnection()
-    } catch (error) {
-      dbCheck = { 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Database connection failed' 
+    console.log('Basic connection successful, checking individual tables...')
+
+    // 检查每个表是否存在
+    const tables = ['profiles', 'quick_emotion_checks', 'conversation_emotion_records']
+    const tableStatus: Record<string, boolean> = {}
+    const tableErrors: Record<string, any> = {}
+
+    for (const table of tables) {
+      try {
+        console.log(`Checking table: ${table}`)
+        const { data, error } = await supabase
+          .from(table)
+          .select('count')
+          .limit(1)
+
+        if (error) {
+          console.error(`Table ${table} check failed:`, error)
+          tableStatus[table] = false
+          tableErrors[table] = {
+            code: error.code,
+            message: error.message,
+            details: error.details,
+            hint: error.hint
+          }
+        } else {
+          console.log(`Table ${table} exists`)
+          tableStatus[table] = true
+        }
+      } catch (err: any) {
+        console.error(`Table ${table} check error:`, err)
+        tableStatus[table] = false
+        tableErrors[table] = {
+          message: err.message,
+          stack: err.stack
+        }
       }
     }
 
-    const checks = {
-      ...envChecks,
-      database: dbCheck
+    const missingTables = Object.entries(tableStatus)
+      .filter(([table, exists]) => !exists)
+      .map(([table]) => table)
+
+    if (missingTables.length > 0) {
+      console.warn('Missing tables:', missingTables)
+      return NextResponse.json({
+        status: 'error',
+        message: `Missing database tables: ${missingTables.join(', ')}`,
+        issue: 'missing_tables',
+        solution: 'Please run the database setup script to create the required tables',
+        missingTables,
+        tableStatus,
+        tableErrors
+      }, { status: 503 })
     }
 
-    const allGood = envChecks.gemini_api_key && dbCheck.success
-
+    console.log('All tables exist, health check passed')
     return NextResponse.json({
-      status: allGood ? 'healthy' : 'unhealthy',
-      message: allGood ? 'All services are healthy' : 'Some services are not working properly',
-      checks,
-      version: '2.0.0'
-    }, { 
-      status: allGood ? 200 : 500 
+      status: 'healthy',
+      message: 'Database connection and all tables are working correctly',
+      tableStatus,
+      timestamp: new Date().toISOString()
     })
-  } catch (error) {
+
+  } catch (error: any) {
+    console.error('Health check error:', error)
+    
     return NextResponse.json({
       status: 'error',
       message: 'Health check failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      issue: 'unknown_error',
+      solution: 'Please check the server logs for more details',
+      error: {
+        message: error.message,
+        stack: error.stack
+      }
     }, { status: 500 })
   }
 }

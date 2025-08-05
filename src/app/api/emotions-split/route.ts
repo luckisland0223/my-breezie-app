@@ -59,8 +59,19 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  let requestBody: any
+  
   try {
-    const body = await request.json()
+    requestBody = await request.json()
+  } catch (error) {
+    console.error('Failed to parse request body:', error)
+    return NextResponse.json(
+      { error: 'Invalid JSON in request body' },
+      { status: 400 }
+    )
+  }
+
+  try {
     const {
       userId,
       recordType, // 'quick_check' | 'conversation'
@@ -71,9 +82,18 @@ export async function POST(request: NextRequest) {
       behavioralImpactScore,
       emotionEvaluation,
       polarityAnalysis
-    } = body
+    } = requestBody
+
+    console.log('API Request received:', {
+      userId,
+      recordType,
+      emotion,
+      intensity: intensity || behavioralImpactScore,
+      hasConversationText: !!conversationText
+    })
 
     if (!userId || !emotion || !recordType) {
+      console.warn('Missing required fields:', { userId: !!userId, emotion: !!emotion, recordType: !!recordType })
       return NextResponse.json(
         { error: 'User ID, emotion, and recordType are required' },
         { status: 400 }
@@ -85,25 +105,59 @@ export async function POST(request: NextRequest) {
     if (recordType === 'quick_check') {
       // 创建快速情绪检查记录
       if (!intensity || intensity < 1 || intensity > 10) {
+        console.warn('Invalid intensity for quick check:', intensity)
         return NextResponse.json(
           { error: 'Intensity must be between 1 and 10 for quick checks' },
           { status: 400 }
         )
       }
 
-      const quickRecord = await createQuickEmotionCheck({
+      console.log('Creating quick emotion check with data:', {
         user_id: userId,
         emotion,
         intensity: parseInt(intensity),
         timestamp: new Date().toISOString()
       })
 
+      let quickRecord
+      try {
+        quickRecord = await createQuickEmotionCheck({
+          user_id: userId,
+          emotion,
+          intensity: parseInt(intensity),
+          timestamp: new Date().toISOString()
+        })
+      } catch (dbError: any) {
+        console.error('Database error creating quick emotion check:', dbError)
+        
+        // 表不存在错误
+        if (dbError.code === 'PGRST116' || dbError.message?.includes('does not exist')) {
+          return NextResponse.json(
+            { error: 'Database tables do not exist. Please run the database setup script.' },
+            { status: 503 }
+          )
+        }
+        
+        // 认证错误
+        if (dbError.message?.includes('JWT') || dbError.message?.includes('authentication')) {
+          return NextResponse.json(
+            { error: 'Authentication failed. Please sign in again.' },
+            { status: 401 }
+          )
+        }
+        
+        throw dbError // 重新抛出其他错误
+      }
+
       if (!quickRecord) {
+        console.error('Failed to create quick emotion check - no record returned')
         return NextResponse.json(
-          { error: 'Failed to create quick emotion check' },
+          { error: 'Failed to create quick emotion check. Please check database connection and table structure.' },
           { status: 500 }
         )
       }
+
+      console.log('Quick emotion check created successfully:', quickRecord.id)
 
       record = {
         id: quickRecord.id,
@@ -119,28 +173,64 @@ export async function POST(request: NextRequest) {
     } else if (recordType === 'conversation') {
       // 创建对话情绪记录
       if (!conversationText) {
+        console.warn('Missing conversation text for conversation record')
         return NextResponse.json(
           { error: 'Conversation text is required for conversation records' },
           { status: 400 }
         )
       }
 
-      const conversationRecord = await createConversationEmotionRecord({
+      const impactScore = behavioralImpactScore || intensity || 5.0
+      console.log('Creating conversation emotion record with data:', {
         user_id: userId,
         emotion,
-        behavioral_impact_score: behavioralImpactScore || intensity || 5.0,
-        conversation_text: conversationText,
-        emotion_evaluation: emotionEvaluation,
-        polarity_analysis: polarityAnalysis,
+        behavioral_impact_score: impactScore,
+        conversation_text_length: conversationText.length,
         timestamp: new Date().toISOString()
       })
 
+      let conversationRecord
+      try {
+        conversationRecord = await createConversationEmotionRecord({
+          user_id: userId,
+          emotion,
+          behavioral_impact_score: impactScore,
+          conversation_text: conversationText,
+          emotion_evaluation: emotionEvaluation,
+          polarity_analysis: polarityAnalysis,
+          timestamp: new Date().toISOString()
+        })
+      } catch (dbError: any) {
+        console.error('Database error creating conversation emotion record:', dbError)
+        
+        // 表不存在错误
+        if (dbError.code === 'PGRST116' || dbError.message?.includes('does not exist')) {
+          return NextResponse.json(
+            { error: 'Database tables do not exist. Please run the database setup script.' },
+            { status: 503 }
+          )
+        }
+        
+        // 认证错误
+        if (dbError.message?.includes('JWT') || dbError.message?.includes('authentication')) {
+          return NextResponse.json(
+            { error: 'Authentication failed. Please sign in again.' },
+            { status: 401 }
+          )
+        }
+        
+        throw dbError // 重新抛出其他错误
+      }
+
       if (!conversationRecord) {
+        console.error('Failed to create conversation emotion record - no record returned')
         return NextResponse.json(
-          { error: 'Failed to create conversation emotion record' },
+          { error: 'Failed to create conversation emotion record. Please check database connection and table structure.' },
           { status: 500 }
         )
       }
+
+      console.log('Conversation emotion record created successfully:', conversationRecord.id)
 
       record = {
         id: conversationRecord.id,
@@ -159,21 +249,54 @@ export async function POST(request: NextRequest) {
       }
 
     } else {
+      console.warn('Invalid recordType:', recordType)
       return NextResponse.json(
         { error: 'Invalid recordType. Must be "quick_check" or "conversation"' },
         { status: 400 }
       )
     }
 
+    console.log('Emotion record created successfully, returning response')
     return NextResponse.json({
       success: true,
       record
     })
 
-  } catch (error) {
-    console.error('Create emotion record API error:', error)
+  } catch (error: any) {
+    console.error('Create emotion record API error:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      stack: error.stack
+    })
+    
+    // 数据库连接错误的特殊处理
+    if (error.message?.includes('connect') || error.message?.includes('ECONNREFUSED')) {
+      return NextResponse.json(
+        { error: 'Database connection failed. Please check your Supabase configuration.' },
+        { status: 503 }
+      )
+    }
+    
+    // 表不存在错误的特殊处理
+    if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
+      return NextResponse.json(
+        { error: 'Database tables do not exist. Please run the database setup script.' },
+        { status: 503 }
+      )
+    }
+    
+    // 认证错误的特殊处理
+    if (error.message?.includes('JWT') || error.message?.includes('authentication')) {
+      return NextResponse.json(
+        { error: 'Authentication failed. Please sign in again.' },
+        { status: 401 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: `Internal server error: ${error.message}` },
       { status: 500 }
     )
   }

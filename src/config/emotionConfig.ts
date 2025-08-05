@@ -52,13 +52,13 @@ export const emotionConfig: Record<EmotionType, {
   },
   'Anxiety': {
     emoji: '😟',
-    color: '#8B5CF6',
-    bgColor: '#F3E8FF',
-    textColor: 'text-violet-700',
+    color: '#EA580C',
+    bgColor: '#FED7AA',
+    textColor: 'text-orange-700',
     description: 'Feeling worried or anxious'
   },
   'Love': {
-    emoji: '❤️',
+    emoji: '😍',
     color: '#EF4444',
     bgColor: '#FEE2E2',
     textColor: 'text-red-600',

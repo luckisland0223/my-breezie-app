@@ -111,9 +111,37 @@ export function QuickEmotionCheck() {
         throw new Error('Failed to record emotion')
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error recording quick emotion check:', error)
-      toast.error('Failed to record emotion. Please try again.')
+      
+      // 根据错误类型显示不同的提示
+      if (error.message?.includes('Database tables do not exist')) {
+        toast.error('数据库表不存在。请前往设置页面进行一键设置。', {
+          duration: 5000,
+          action: {
+            label: '前往设置',
+            onClick: () => window.location.href = '/settings'
+          }
+        })
+      } else if (error.message?.includes('Authentication failed')) {
+        toast.error('认证失败，请重新登录。', {
+          duration: 5000,
+          action: {
+            label: '重新登录',
+            onClick: () => window.location.href = '/auth/signin'
+          }
+        })
+      } else if (error.message?.includes('Database connection failed')) {
+        toast.error('数据库连接失败。请检查 Supabase 配置。', {
+          duration: 5000,
+          action: {
+            label: '前往设置',
+            onClick: () => window.location.href = '/settings'
+          }
+        })
+      } else {
+        toast.error('记录情绪失败，请稍后重试。')
+      }
     }
   }
 
@@ -212,7 +240,7 @@ export function QuickEmotionCheck() {
         <Button 
           onClick={handleQuickRecord} 
           disabled={!selectedEmotion}
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
           Record Emotion

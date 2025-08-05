@@ -116,8 +116,36 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         throw new Error('Failed to save conversation record')
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving conversation emotion record:', error)
+      
+      // 根据错误类型显示不同的提示
+      if (error.message?.includes('Database tables do not exist')) {
+        toast.error('数据库表不存在。请前往设置页面进行一键设置。', {
+          duration: 5000,
+          action: {
+            label: '前往设置',
+            onClick: () => window.location.href = '/settings'
+          }
+        })
+      } else if (error.message?.includes('Authentication failed')) {
+        toast.error('认证失败，请重新登录。', {
+          duration: 5000,
+          action: {
+            label: '重新登录',
+            onClick: () => window.location.href = '/auth/signin'
+          }
+        })
+      } else if (error.message?.includes('Database connection failed')) {
+        toast.error('数据库连接失败。请检查 Supabase 配置。', {
+          duration: 5000,
+          action: {
+            label: '前往设置',
+            onClick: () => window.location.href = '/settings'
+          }
+        })
+      }
+      
       // Still save to local store as fallback
       addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
       return false

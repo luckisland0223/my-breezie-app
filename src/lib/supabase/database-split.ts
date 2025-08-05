@@ -90,19 +90,33 @@ export async function updateUserProfile(userId: string, updates: Partial<Databas
 export async function createQuickEmotionCheck(
   record: Omit<DatabaseQuickEmotionCheck, 'id' | 'created_at'>
 ): Promise<DatabaseQuickEmotionCheck | null> {
-  const supabase = getSupabaseClient()
-  const { data, error } = await supabase
-    .from('quick_emotion_checks')
-    .insert([record])
-    .select()
-    .single()
+  try {
+    console.log('Creating quick emotion check with record:', record)
+    const supabase = getSupabaseClient()
+    
+    const { data, error } = await supabase
+      .from('quick_emotion_checks')
+      .insert([record])
+      .select()
+      .single()
 
-  if (error) {
-    console.error('Error creating quick emotion check:', error)
-    return null
+    if (error) {
+      console.error('Error creating quick emotion check:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        record
+      })
+      throw error // 抛出错误而不是返回null，让上层处理
+    }
+
+    console.log('Quick emotion check created successfully:', data)
+    return data as unknown as DatabaseQuickEmotionCheck
+  } catch (error: any) {
+    console.error('Exception in createQuickEmotionCheck:', error)
+    throw error // 重新抛出错误
   }
-
-  return data as unknown as DatabaseQuickEmotionCheck
 }
 
 export async function getUserQuickEmotionChecks(userId: string): Promise<DatabaseQuickEmotionCheck[]> {
@@ -166,19 +180,39 @@ export async function deleteQuickEmotionCheck(recordId: string, userId: string):
 export async function createConversationEmotionRecord(
   record: Omit<DatabaseConversationEmotionRecord, 'id' | 'created_at'>
 ): Promise<DatabaseConversationEmotionRecord | null> {
-  const supabase = getSupabaseClient()
-  const { data, error } = await supabase
-    .from('conversation_emotion_records')
-    .insert([record])
-    .select()
-    .single()
+  try {
+    console.log('Creating conversation emotion record with record:', {
+      ...record,
+      conversation_text_length: record.conversation_text?.length || 0
+    })
+    const supabase = getSupabaseClient()
+    
+    const { data, error } = await supabase
+      .from('conversation_emotion_records')
+      .insert([record])
+      .select()
+      .single()
 
-  if (error) {
-    console.error('Error creating conversation emotion record:', error)
-    return null
+    if (error) {
+      console.error('Error creating conversation emotion record:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        record: {
+          ...record,
+          conversation_text_length: record.conversation_text?.length || 0
+        }
+      })
+      throw error // 抛出错误而不是返回null，让上层处理
+    }
+
+    console.log('Conversation emotion record created successfully:', data.id)
+    return data as unknown as DatabaseConversationEmotionRecord
+  } catch (error: any) {
+    console.error('Exception in createConversationEmotionRecord:', error)
+    throw error // 重新抛出错误
   }
-
-  return data as unknown as DatabaseConversationEmotionRecord
 }
 
 export async function getUserConversationEmotionRecords(userId: string): Promise<DatabaseConversationEmotionRecord[]> {
