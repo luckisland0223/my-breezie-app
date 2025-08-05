@@ -61,7 +61,7 @@ export function QuickEmotionCheck() {
     }
   }, [isDragging, handleMouseMove, handleMouseUp])
 
-  const handleQuickRecord = () => {
+  const handleQuickRecord = async () => {
     if (!isLoggedIn || !user?.id) {
       toast.error('Please sign in to record emotions')
       return
@@ -72,10 +72,49 @@ export function QuickEmotionCheck() {
       return
     }
 
-    addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`, 'quick_check')
-    toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully!`)
-    setSelectedEmotion(null)
-    setIntensity(5)
+    try {
+      // 调用数据库API保存快速情绪检查
+      const response = await fetch('/api/emotions-split', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          recordType: 'quick_check',
+          emotion: selectedEmotion,
+          intensity: intensity,
+          note: `Quick check: ${selectedEmotion} at intensity ${intensity}`
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to record emotion')
+      }
+
+      const data = await response.json()
+      
+      if (data.success) {
+        // 同时保存到本地store以更新UI
+        addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`, 'quick_check')
+        
+        toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully!`)
+        setSelectedEmotion(null)
+        setIntensity(5)
+        
+        // 触发数据刷新事件
+        window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
+          detail: { record: data.record, type: 'quick_check' } 
+        }))
+      } else {
+        throw new Error('Failed to record emotion')
+      }
+
+    } catch (error) {
+      console.error('Error recording quick emotion check:', error)
+      toast.error('Failed to record emotion. Please try again.')
+    }
   }
 
   if (!isLoggedIn) {

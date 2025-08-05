@@ -65,6 +65,65 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const endChatSession = useEmotionStore((state) => state.endChatSession)
   const addEmotionRecord = useEmotionStore((state) => state.addEmotionRecord)
 
+  // Helper function to save conversation emotion record to database
+  const saveConversationEmotionRecord = async (
+    emotion: EmotionType, 
+    behavioralImpactScore: number, 
+    conversationText: string,
+    emotionEvaluation?: any,
+    polarityAnalysis?: any
+  ) => {
+    if (!user?.id) {
+      console.error('User not logged in, cannot save to database')
+      return false
+    }
+
+    try {
+      const response = await fetch('/api/emotions-split', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          recordType: 'conversation',
+          emotion: emotion,
+          conversationText: conversationText,
+          behavioralImpactScore: behavioralImpactScore,
+          emotionEvaluation: emotionEvaluation,
+          polarityAnalysis: polarityAnalysis
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to save conversation record')
+      }
+
+      const data = await response.json()
+      
+      if (data.success) {
+        // 同时保存到本地store以更新UI
+        addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
+        
+        // 触发数据刷新事件
+        window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
+          detail: { record: data.record, type: 'conversation' } 
+        }))
+        
+        return true
+      } else {
+        throw new Error('Failed to save conversation record')
+      }
+
+    } catch (error) {
+      console.error('Error saving conversation emotion record:', error)
+      // Still save to local store as fallback
+      addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
+      return false
+    }
+  }
+
   // Initialize conversation with welcome message
   useEffect(() => {
     if (!hasInitialMessage && !currentSession) {
@@ -232,15 +291,15 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     }
   }
 
-  const handleEmotionSelect = (emotion: EmotionType, intensity: number) => {
+  const handleEmotionSelect = async (emotion: EmotionType, intensity: number) => {
     // Update selected emotion
     setSelectedEmotion(emotion)
     
     // Calculate behavioral impact score
     const behavioralScore = calculateBehavioralImpactScore(emotion, intensity, conversationText)
     
-    // Create emotion record
-    addEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    // Save to database
+    const saved = await saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
     // Get emotion-specific response
     const emotionResponse = getRandomResponse(emotion)
@@ -254,7 +313,12 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     }
     
     setShowEmotionSelection(false)
-    toast.success(`Emotion recorded: ${emotion} (Behavioral Impact Score: ${behavioralScore.overall_score}/10)`)
+    
+    if (saved) {
+      toast.success(`Emotion recorded: ${emotion} (Behavioral Impact Score: ${behavioralScore.overall_score}/10)`)
+    } else {
+      toast.success(`Emotion recorded locally: ${emotion} (Saved to cloud storage failed)`)
+    }
   }
 
   const handleInlineEmotionSelect = async (emotion: EmotionType) => {
@@ -265,8 +329,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // Calculate behavioral impact score
     const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
     
-    // Create emotion record
-    addEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    // Save to database
+    await saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
     try {
       // Get personalized AI response based on user's story and selected emotion
@@ -347,7 +411,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   }
 
   // 完成并保存对话记录
-  const handleCompleteSession = () => {
+  const handleCompleteSession = async () => {
     if (currentSession) {
       // 检查是否有实际的对话内容
       const userMessages = currentSession.messages?.filter(msg => msg.role === 'user') || []
@@ -366,8 +430,13 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       // If no emotion was selected during conversation, create a record with representative emotion
       if (!selectedEmotion || selectedEmotion === 'Other') {
         const behavioralScore = calculateBehavioralImpactScore(repEmotion, 5, conversationText)
-        addEmotionRecord(repEmotion, behavioralScore.overall_score, conversationText)
-        toast.success(`Conversation saved with representative emotion: ${repEmotion}`)
+        const saved = await saveConversationEmotionRecord(repEmotion, behavioralScore.overall_score, conversationText)
+        
+        if (saved) {
+          toast.success(`Conversation saved with representative emotion: ${repEmotion}`)
+        } else {
+          toast.success(`Conversation saved locally with emotion: ${repEmotion} (Cloud sync failed)`)
+        }
       }
       
       endChatSession()

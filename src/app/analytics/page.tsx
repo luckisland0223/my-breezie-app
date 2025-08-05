@@ -6,16 +6,16 @@ import { Button } from '@/components/ui/button'
 
 import { EmotionCalendar } from '@/components/EmotionCalendar'
 import { EmotionChart } from '@/components/EmotionChart'
-import { useEmotionStore } from '@/store/emotionDatabase'
+import { useEmotionRecords } from '@/hooks/useEmotionRecords'
 import { useAuthStore } from '@/store/auth'
-import { ArrowLeft, Calendar, BarChart3, TrendingUp, Heart } from 'lucide-react'
+import { ArrowLeft, Calendar, BarChart3, TrendingUp, Heart, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { subDays } from 'date-fns'
 
 export default function AnalyticsPage() {
   const router = useRouter()
   const { user, isLoggedIn } = useAuthStore()
-  const { records } = useEmotionStore()
+  const { records, loading, error, refreshRecords } = useEmotionRecords()
   const [timeRange, setTimeRange] = useState<10 | 15 | 30>(30)
 
   // Filter records based on time range
@@ -31,6 +31,17 @@ export default function AnalyticsPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Please sign in to view analytics</h1>
           <Button onClick={() => router.push('/')}>Go to Home</Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your emotion analytics...</p>
         </div>
       </div>
     )
@@ -59,9 +70,48 @@ export default function AnalyticsPage() {
                 <p className="text-xs text-gray-500">Insights into your emotional journey</p>
               </div>
             </div>
+            
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshRecords}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </Button>
+              
+              <div className="flex items-center space-x-2">
+                <Heart className="w-5 h-5 text-red-500" />
+                <span className="text-sm text-gray-600">
+                  {records.length} records
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Error Display */}
+      {error && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+              <p className="text-red-700">Error loading data: {error}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={refreshRecords}
+                className="ml-auto"
+              >
+                Try Again
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
