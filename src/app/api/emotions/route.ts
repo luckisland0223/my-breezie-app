@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseClient } from '@/lib/supabase/client'
-import { createEmotionRecord, getUserEmotionRecords } from '@/lib/supabase/database'
+import { getAllUserEmotionRecords, createQuickEmotionCheck, createConversationEmotionRecord } from '@/lib/supabase/database-split'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const records = await getUserEmotionRecords(userId)
+    const records = await getAllUserEmotionRecords(userId)
 
     return NextResponse.json({
       success: true,
@@ -48,14 +48,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const record = await createEmotionRecord({
+    // Default to quick check if no specific type is provided
+    const record = await createQuickEmotionCheck({
       user_id: userId,
       emotion,
-      intensity,
-      note,
-      timestamp: new Date().toISOString(),
-      emotion_evaluation: emotionEvaluation,
-      polarity_analysis: polarityAnalysis
+      intensity: parseInt(intensity),
+      timestamp: new Date().toISOString()
     })
 
     if (!record) {
