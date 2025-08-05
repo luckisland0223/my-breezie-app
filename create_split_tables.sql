@@ -8,46 +8,14 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- STEP 0: Clean up old tables (keep profiles only)
 -- ===========================================
 
--- ⚠️ SAFETY CHECK: Verify profiles table exists before cleanup
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles') THEN
-        RAISE NOTICE '⚠️ WARNING: profiles table does not exist. Creating it first...';
-        
-        -- Create profiles table if it doesn't exist
-        CREATE TABLE public.profiles (
-            id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-            email TEXT,
-            user_name TEXT UNIQUE NOT NULL,
-            avatar_url TEXT,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-        );
-        
-        -- Enable RLS for profiles
-        ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-        
-        -- Create RLS policies for profiles
-        CREATE POLICY "Users can view own profile" ON public.profiles
-            FOR SELECT USING (auth.uid() = id);
-        CREATE POLICY "Users can update own profile" ON public.profiles
-            FOR UPDATE USING (auth.uid() = id);
-        CREATE POLICY "Users can insert own profile" ON public.profiles
-            FOR INSERT WITH CHECK (auth.uid() = id);
-            
-        RAISE NOTICE '✅ profiles table created with proper RLS policies';
-    ELSE
-        RAISE NOTICE '✅ profiles table exists - will be preserved during cleanup';
-    END IF;
-END $$;
-
--- Drop old emotion-related tables if they exist
+-- 🗑️ COMPLETE CLEANUP: Drop ALL existing tables and start fresh
 DROP TABLE IF EXISTS public.emotion_records CASCADE;
 DROP TABLE IF EXISTS public.emotion_records_backup_before_split CASCADE;
 DROP TABLE IF EXISTS public.chat_sessions CASCADE;
 DROP TABLE IF EXISTS public.chat_messages CASCADE;
 DROP TABLE IF EXISTS public.quick_emotion_checks CASCADE;
 DROP TABLE IF EXISTS public.conversation_emotion_records CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
 
 -- Drop old indexes if they exist
 DROP INDEX IF EXISTS public.idx_emotion_records_user_id;
@@ -70,10 +38,44 @@ DROP POLICY IF EXISTS "Users can update own chat sessions" ON public.chat_sessio
 DROP POLICY IF EXISTS "Users can view own chat messages" ON public.chat_messages;
 DROP POLICY IF EXISTS "Users can insert own chat messages" ON public.chat_messages;
 
--- Note: We keep the profiles table and its policies intact
+-- ===========================================
+-- STEP 1: Create Fresh Profiles Table
+-- ===========================================
+CREATE TABLE public.profiles (
+    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    email TEXT NOT NULL,
+    user_name TEXT UNIQUE NOT NULL,
+    full_name TEXT,
+    avatar_url TEXT,
+    bio TEXT,
+    timezone TEXT DEFAULT 'UTC',
+    notification_preferences JSONB DEFAULT '{"email": true, "push": false, "wellness_tips": true}',
+    privacy_settings JSONB DEFAULT '{"profile_public": false, "analytics_sharing": false}',
+    subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'premium', 'enterprise')),
+    onboarding_completed BOOLEAN DEFAULT false,
+    last_active TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Add profile indexes
+CREATE INDEX IF NOT EXISTS idx_profiles_user_name ON public.profiles(user_name);
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
+CREATE INDEX IF NOT EXISTS idx_profiles_last_active ON public.profiles(last_active);
+
+-- Enable RLS for profiles
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies for profiles
+CREATE POLICY "Users can view own profile" ON public.profiles
+    FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON public.profiles  
+    FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users can insert own profile" ON public.profiles
+    FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- ===========================================
--- STEP 1: Quick Emotion Checks Table (Simple & Fast)
+-- STEP 2: Quick Emotion Checks Table (Simple & Fast)
 -- ===========================================
 CREATE TABLE IF NOT EXISTS public.quick_emotion_checks (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -85,7 +87,7 @@ CREATE TABLE IF NOT EXISTS public.quick_emotion_checks (
 );
 
 -- ===========================================
--- STEP 2: Conversation Emotion Records Table (AI Analysis)
+-- STEP 3: Conversation Emotion Records Table (AI Analysis)
 -- ===========================================
 CREATE TABLE IF NOT EXISTS public.conversation_emotion_records (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -100,7 +102,7 @@ CREATE TABLE IF NOT EXISTS public.conversation_emotion_records (
 );
 
 -- ===========================================
--- STEP 3: Create Performance Indexes
+-- STEP 4: Create Performance Indexes
 -- ===========================================
 
 -- Quick Emotion Checks indexes
@@ -116,13 +118,13 @@ CREATE INDEX IF NOT EXISTS idx_conversation_emotion_records_emotion ON public.co
 CREATE INDEX IF NOT EXISTS idx_conversation_emotion_records_user_emotion ON public.conversation_emotion_records(user_id, emotion);
 
 -- ===========================================
--- STEP 4: Enable Row Level Security
+-- STEP 5: Enable Row Level Security
 -- ===========================================
 ALTER TABLE public.quick_emotion_checks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversation_emotion_records ENABLE ROW LEVEL SECURITY;
 
 -- ===========================================
--- STEP 5: Create RLS Policies for Cross-Device Access
+-- STEP 6: Create RLS Policies for Cross-Device Access
 -- ===========================================
 
 -- Drop existing policies if they exist
@@ -163,8 +165,43 @@ CREATE POLICY "Users can delete own conversation records" ON public.conversation
     FOR DELETE USING (auth.uid() = user_id);
 
 -- ===========================================
--- STEP 6: Add Table Comments
+-- STEP 7: Auto-Create Profile on User Signup
 -- ===========================================
+
+-- Create function to auto-create user profile
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.profiles (id, email, user_name, full_name)
+    VALUES (
+        NEW.id, 
+        NEW.email, 
+        COALESCE(NEW.raw_user_meta_data->>'user_name', split_part(NEW.email, '@', 1)),
+        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'user_name', split_part(NEW.email, '@', 1))
+    )
+    ON CONFLICT (id) DO UPDATE SET
+        email = EXCLUDED.email,
+        last_active = timezone('utc'::text, now()),
+        updated_at = timezone('utc'::text, now());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Drop existing trigger if it exists
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+-- Create trigger to auto-create profile on signup
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.handle_new_user();
+
+-- ===========================================
+-- STEP 8: Add Table Comments
+-- ===========================================
+COMMENT ON TABLE public.profiles IS 
+'User profiles: Complete user information, preferences, and settings for personalized experience';
+
 COMMENT ON TABLE public.quick_emotion_checks IS 
 'Quick emotion check records: User subjective emotion feelings recorded via slider interface';
 
@@ -172,7 +209,7 @@ COMMENT ON TABLE public.conversation_emotion_records IS
 'Conversation emotion records: Deep emotion insights and behavioral impact assessments from AI conversations';
 
 -- ===========================================
--- STEP 7: Verification and Status Check
+-- STEP 9: Verification and Status Check
 -- ===========================================
 
 -- Check that old tables are gone and new tables exist
@@ -188,7 +225,7 @@ SELECT
     is_nullable
 FROM information_schema.columns 
 WHERE table_schema = 'public' 
-  AND table_name IN ('quick_emotion_checks', 'conversation_emotion_records')
+  AND table_name IN ('profiles', 'quick_emotion_checks', 'conversation_emotion_records')
 ORDER BY table_name, ordinal_position;
 
 -- Check RLS policies
@@ -201,7 +238,7 @@ SELECT
     qual
 FROM pg_policies 
 WHERE schemaname = 'public' 
-  AND tablename IN ('quick_emotion_checks', 'conversation_emotion_records');
+  AND tablename IN ('profiles', 'quick_emotion_checks', 'conversation_emotion_records');
 
 -- Check indexes
 SELECT 
@@ -211,12 +248,23 @@ SELECT
     indexdef
 FROM pg_indexes 
 WHERE schemaname = 'public' 
-  AND tablename IN ('quick_emotion_checks', 'conversation_emotion_records');
+  AND tablename IN ('profiles', 'quick_emotion_checks', 'conversation_emotion_records');
+
+-- Check trigger exists
+SELECT 
+    trigger_name,
+    event_manipulation,
+    event_object_table,
+    trigger_schema,
+    trigger_name
+FROM information_schema.triggers 
+WHERE trigger_name = 'on_auth_user_created';
 
 -- Final status
 SELECT 
     '🎉 Database setup complete!' as final_status,
-    'Tables: quick_emotion_checks, conversation_emotion_records' as tables_created,
+    'Tables: profiles, quick_emotion_checks, conversation_emotion_records' as tables_created,
     'RLS enabled with proper cross-device policies' as security_status,
     'Performance indexes created for fast queries' as performance_status,
-    'Old tables cleaned up, profiles table preserved' as cleanup_status;
+    'Auto-profile creation trigger installed' as automation_status,
+    'Complete fresh database - all old tables removed' as cleanup_status;
