@@ -168,46 +168,28 @@ export default function AnalyticsPage() {
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-600">
                           {(() => {
-                            console.log('📊 Analytics Page - 开始计算 Average Impact Score (最近3条记录)...')
-                            
-                            // 过滤出聊天记录并按时间排序（最新的在前）
+                            // Filter chat records and sort by time (newest first)
                             const chatRecords = records
                               .filter(r => r.recordType === 'chat')
                               .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
                             
-                            console.log(`📈 Analytics - 找到 ${chatRecords.length} 条聊天记录`)
-                            
                             if (chatRecords.length === 0) {
-                              console.log('❌ Analytics - 没有聊天记录，返回 0')
                               return '0'
                             }
                             
-                            // 取最近的3条记录
+                            // Get the most recent 3 records
                             const recentRecords = chatRecords.slice(0, 3)
-                            console.log(`🔍 Analytics - 取最近的 ${recentRecords.length} 条聊天记录进行计算`)
                             
-                            // 展示每条记录的影响分数
-                            console.log('📝 Analytics - 最近的聊天记录详情：')
-                            recentRecords.forEach((record, index) => {
-                              console.log(`  ${index + 1}. [${record.emotion}] Impact: ${record.behavioralImpact} (${new Date(record.timestamp).toLocaleString()})`)
-                            })
+                            // Calculate total
+                            const totalImpact = recentRecords.reduce((sum, r) => sum + r.behavioralImpact, 0)
                             
-                            // 计算总和
-                            const totalImpact = recentRecords.reduce((sum, r) => {
-                              console.log(`  累加: ${sum} + ${r.behavioralImpact} = ${sum + r.behavioralImpact}`)
-                              return sum + r.behavioralImpact
-                            }, 0)
-                            
-                            // 计算平均值
+                            // Calculate average
                             const avgImpact = totalImpact / recentRecords.length
-                            console.log(`🧮 Analytics最近3条记录计算结果: ${totalImpact} ÷ ${recentRecords.length} = ${avgImpact}`)
-                            console.log(`✅ Analytics最终显示: ${avgImpact.toFixed(1)}`)
-                            console.log('─'.repeat(50))
                             
                             return avgImpact.toFixed(1)
                           })()}
                         </div>
-                        <div className="text-sm text-gray-600">Average Impact Score (最近3条)</div>
+                        <div className="text-sm text-gray-600">Average Impact Score (Recent 3)</div>
                       </div>
                       
                       <div className="text-center">

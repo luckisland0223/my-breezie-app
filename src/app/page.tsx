@@ -243,7 +243,7 @@ export default function HomePage() {
                     </div>
                     <p className="text-2xl font-bold text-gray-900">
                       {(() => {
-                        // 过滤出聊天记录并按时间排序（最新的在前）
+                        // Filter chat records and sort by time (newest first)
                         const chatRecords = records
                           .filter(r => r.recordType === 'chat')
                           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
@@ -252,19 +252,19 @@ export default function HomePage() {
                           return '0'
                         }
                         
-                        // 取最近的3条记录
+                        // Get the most recent 3 records
                         const recentRecords = chatRecords.slice(0, 3)
                         
-                        // 计算总和
+                        // Calculate total
                         const totalImpact = recentRecords.reduce((sum, r) => sum + r.behavioralImpact, 0)
                         
-                        // 计算平均值
+                        // Calculate average
                         const avgImpact = totalImpact / recentRecords.length
                         
                         return avgImpact.toFixed(1)
                       })()}
                     </p>
-                    <p className="text-gray-600">Avg Impact Score (最近3条)</p>
+                    <p className="text-gray-600">Avg Impact Score (Recent 3)</p>
                   </CardContent>
                 </Card>
                 

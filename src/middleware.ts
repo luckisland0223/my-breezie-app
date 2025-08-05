@@ -6,7 +6,7 @@ import { getDbConfig, validateDbConfig } from '@/config/database'
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next()
 
-  // 获取Supabase配置
+  // Get Supabase configuration
   const fileConfig = getDbConfig()
   
   if (validateDbConfig(fileConfig)) {
@@ -27,13 +27,13 @@ export async function middleware(request: NextRequest) {
       }
     )
 
-    // 只是刷新user对象，让Supabase处理session
+    // Refresh user object, let Supabase handle session
     await supabase.auth.getUser()
   }
   
-  // 为API路由添加CORS头部
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    response.headers.set('Access-Control-Allow-Origin', '*')
+  // Add CORS headers for API routes (not needed in development)
+  if (request.nextUrl.pathname.startsWith('/api/') && process.env.NODE_ENV !== 'development') {
+    response.headers.set('Access-Control-Allow-Origin', request.headers.get('origin') || '*')
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     response.headers.set('Access-Control-Allow-Credentials', 'true')

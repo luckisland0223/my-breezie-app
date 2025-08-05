@@ -185,45 +185,27 @@ export function EmotionTracker() {
                     <div className="text-center">
                       <div className="text-2xl font-semibold text-green-600">
                         {(() => {
-                          console.log('📈 EmotionTracker - 开始计算 Avg Behavioral Impact Score (最近3条记录)...')
-                          
-                          // 按时间排序所有记录（最新的在前）
+                          // Sort all records by time (newest first)
                           const sortedRecords = records
                             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
                           
-                          console.log(`📊 总记录数: ${records.length}`)
-                          
                           if (sortedRecords.length === 0) {
-                            console.log('❌ 没有记录，返回 0')
                             return '0'
                           }
                           
-                          // 取最近的3条记录
+                          // Get the most recent 3 records
                           const recentRecords = sortedRecords.slice(0, 3)
-                          console.log(`🔍 取最近的 ${recentRecords.length} 条记录进行计算`)
                           
-                          // 展示每条记录的影响分数
-                          console.log('📝 最近的记录影响分数：')
-                          recentRecords.forEach((record, index) => {
-                            console.log(`  ${index + 1}. [${record.emotion}] ${record.recordType}: ${record.behavioralImpact} (${new Date(record.timestamp).toLocaleString()})`)
-                          })
+                          // Calculate total
+                          const totalImpact = recentRecords.reduce((sum, r) => sum + r.behavioralImpact, 0)
                           
-                          // 计算总和
-                          const totalImpact = recentRecords.reduce((sum, r) => {
-                            console.log(`  累加: ${sum} + ${r.behavioralImpact} = ${sum + r.behavioralImpact}`)
-                            return sum + r.behavioralImpact
-                          }, 0)
-                          
-                          // 计算平均值
+                          // Calculate average
                           const avgImpact = totalImpact / recentRecords.length
-                          console.log(`🧮 EmotionTracker最近3条记录计算结果: ${totalImpact} ÷ ${recentRecords.length} = ${avgImpact}`)
-                          console.log(`✅ EmotionTracker最终显示: ${avgImpact.toFixed(1)}`)
-                          console.log('─'.repeat(50))
                           
                           return avgImpact.toFixed(1)
                         })()}
                       </div>
-                      <div className="text-sm text-gray-600">Avg Behavioral Impact Score (最近3条)</div>
+                      <div className="text-sm text-gray-600">Avg Behavioral Impact Score (Recent 3)</div>
                     </div>
                     
                     <div className="text-center">
@@ -270,45 +252,27 @@ export function EmotionTracker() {
                   <div className="text-center">
                     <div className="text-2xl font-semibold text-green-600">
                       {(() => {
-                        console.log('📊 EmotionTracker Quick Statistics - 开始计算 Avg Behavioral Impact Score (最近3条记录)...')
-                        
-                        // 按时间排序所有记录（最新的在前）
+                        // Sort all records by time (newest first)
                         const sortedRecords = records
                           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
                         
-                        console.log(`📈 总记录数: ${records.length}`)
-                        
                         if (sortedRecords.length === 0) {
-                          console.log('❌ 没有记录，返回 0')
                           return '0'
                         }
                         
-                        // 取最近的3条记录
+                        // Get the most recent 3 records
                         const recentRecords = sortedRecords.slice(0, 3)
-                        console.log(`🔍 Quick Statistics - 取最近的 ${recentRecords.length} 条记录进行计算`)
                         
-                        // 展示每条记录的影响分数
-                        console.log('📝 Quick Statistics - 最近的记录影响分数：')
-                        recentRecords.forEach((record, index) => {
-                          console.log(`  ${index + 1}. [${record.emotion}] ${record.recordType}: ${record.behavioralImpact} (${new Date(record.timestamp).toLocaleString()})`)
-                        })
+                        // Calculate total
+                        const totalImpact = recentRecords.reduce((sum, r) => sum + r.behavioralImpact, 0)
                         
-                        // 计算总和
-                        const totalImpact = recentRecords.reduce((sum, r) => {
-                          console.log(`  累加: ${sum} + ${r.behavioralImpact} = ${sum + r.behavioralImpact}`)
-                          return sum + r.behavioralImpact
-                        }, 0)
-                        
-                        // 计算平均值
+                        // Calculate average
                         const avgImpact = totalImpact / recentRecords.length
-                        console.log(`🧮 Quick Statistics最近3条记录计算结果: ${totalImpact} ÷ ${recentRecords.length} = ${avgImpact}`)
-                        console.log(`✅ Quick Statistics最终显示: ${avgImpact.toFixed(1)}`)
-                        console.log('─'.repeat(50))
                         
                         return avgImpact.toFixed(1)
                       })()}
                     </div>
-                    <div className="text-sm text-gray-600">Avg Behavioral Impact Score (最近3条)</div>
+                    <div className="text-sm text-gray-600">Avg Behavioral Impact Score (Recent 3)</div>
                   </div>
                 )}
               </CardContent>

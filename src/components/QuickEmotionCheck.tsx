@@ -65,9 +65,9 @@ export function QuickEmotionCheck() {
 
   const handleQuickRecord = async () => {
     if (!isLoggedIn || !user?.id) {
-      toast.error('请先登录以记录情绪', {
+      toast.error('Please sign in to record emotions', {
         action: {
-          label: '前往登录',
+          label: 'Go to Sign In',
           onClick: () => window.location.href = '/auth/signin'
         }
       })
@@ -75,19 +75,19 @@ export function QuickEmotionCheck() {
     }
 
     if (!selectedEmotion) {
-      toast.error('请先选择一个情绪')
+      toast.error('Please select an emotion first')
       return
     }
 
     try {
 
-      // 调用数据库API保存快速情绪检查
+      // Call database API to save quick emotion check
       const response = await fetch('/api/emotions-split', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // 确保cookies被发送
+        credentials: 'include'
         body: JSON.stringify({
           userId: user.id,
           recordType: 'quick_check',
@@ -106,14 +106,14 @@ export function QuickEmotionCheck() {
       
       if (data.success) {
         
-        // 同时保存到本地store以更新UI
+        // Save to local store to update UI
         addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`, 'quick_check')
         
-        toast.success(`${getEmotionEmoji(selectedEmotion)} 情绪记录成功同步到数据库！`)
+        toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully!`)
         setSelectedEmotion(null)
         setIntensity(5)
         
-        // 触发数据刷新事件
+        // Trigger data refresh event
         window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
           detail: { record: data.record, type: 'quick_check' } 
         }))
@@ -122,32 +122,32 @@ export function QuickEmotionCheck() {
       }
 
     } catch (error: any) {
-      // 根据错误类型显示不同的提示
+      // Show different messages based on error type
       if (error.message?.includes('Database tables do not exist')) {
-        toast.error('数据库表不存在。请前往设置页面进行一键设置。', {
+        toast.error('Database tables do not exist. Please go to settings page for setup.', {
           duration: 5000,
           action: {
-            label: '前往设置',
+            label: 'Go to Settings',
             onClick: () => window.location.href = '/settings'
           }
         })
       } else if (error.message?.includes('Access denied') || error.message?.includes('row-level security policy')) {
-        toast.error('访问被拒绝。请重新登录以确保正确认证。', {
+        toast.error('Access denied. Please sign in again for proper authentication.', {
           duration: 5000,
           action: {
-            label: '重新登录',
+            label: 'Sign In',
             onClick: () => {
               window.location.href = '/auth/signin'
             }
           }
         })
       } else if (error.message?.includes('Authentication failed') || error.message?.includes('Authentication required')) {
-        toast.error('登录状态已过期，请重新登录。', {
+        toast.error('Authentication expired. Please sign in again.', {
           duration: 6000,
           action: {
-            label: '立即登录',
+            label: 'Sign In Now',
             onClick: () => {
-              // 清除本地认证状态
+              // Clear local auth state
               if (typeof window !== 'undefined') {
                 localStorage.removeItem('supabase.auth.token')
                 localStorage.removeItem('sb-*')
@@ -157,12 +157,12 @@ export function QuickEmotionCheck() {
           }
         })
       } else if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
-        toast.error('登录状态已过期，需要重新验证身份。', {
+        toast.error('Authentication expired. Need to re-verify identity.', {
           duration: 6000,
           action: {
-            label: '重新验证',
+            label: 'Re-verify',
             onClick: () => {
-              // 清除可能过期的认证数据
+              // Clear potentially expired auth data
               if (typeof window !== 'undefined') {
                 localStorage.clear()
               }
@@ -171,10 +171,10 @@ export function QuickEmotionCheck() {
           }
         })
       } else if (error.message?.includes('Database connection failed')) {
-        toast.error('数据库连接失败。请检查 Supabase 配置。', {
+        toast.error('Database connection failed. Please check Supabase configuration.', {
           duration: 5000,
           action: {
-            label: '前往设置',
+            label: 'Go to Settings',
             onClick: () => window.location.href = '/settings'
           }
         })

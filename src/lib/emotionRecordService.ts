@@ -1,20 +1,20 @@
-// 情绪记录服务 - 支持新的分表API
+// Emotion record service - Support for new split-table API
 import type { EmotionType, EmotionEvaluation, EmotionPolarityAnalysis } from '@/store/emotion'
 
 export interface QuickEmotionCheckData {
   emotion: EmotionType
-  intensity: number  // 1-10 用户主观选择
+  intensity: number  // 1-10 user subjective choice
 }
 
 export interface ConversationEmotionData {
   emotion: EmotionType
-  behavioralImpactScore: number  // AI计算的行为影响分数
-  conversationText: string       // 完整对话内容
+  behavioralImpactScore: number  // AI-calculated behavioral impact score
+  conversationText: string       // Complete conversation content
   emotionEvaluation?: EmotionEvaluation
   polarityAnalysis?: EmotionPolarityAnalysis
 }
 
-// 创建快速情绪检查记录
+// Create quick emotion check record
 export async function createQuickEmotionCheckRecord(
   userId: string,
   data: QuickEmotionCheckData
@@ -43,7 +43,7 @@ export async function createQuickEmotionCheckRecord(
     const result = await response.json()
     
     if (result.success) {
-      // 触发数据刷新事件
+      // Trigger data refresh event
       window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
         detail: { record: result.record, type: 'quick_check' } 
       }))
@@ -58,7 +58,7 @@ export async function createQuickEmotionCheckRecord(
   }
 }
 
-// 创建对话情绪记录
+// Create conversation emotion record
 export async function createConversationEmotionRecord(
   userId: string,
   data: ConversationEmotionData
@@ -89,7 +89,7 @@ export async function createConversationEmotionRecord(
     const result = await response.json()
     
     if (result.success) {
-      // 触发数据刷新事件
+      // Trigger data refresh event
       window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
         detail: { record: result.record, type: 'conversation' } 
       }))
@@ -104,7 +104,7 @@ export async function createConversationEmotionRecord(
   }
 }
 
-// 获取用户所有情绪记录
+// Get all user emotion records
 export async function getUserEmotionRecords(
   userId: string,
   options?: {

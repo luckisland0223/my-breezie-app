@@ -387,7 +387,7 @@ export const useEmotionStore = create<EmotionState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
-          // 确保从localStorage恢复的数据中的日期字段被正确转换为Date对象
+          // Ensure date fields from localStorage are properly converted to Date objects
           if (state.lastSyncTime && typeof state.lastSyncTime === 'string') {
             state.lastSyncTime = new Date(state.lastSyncTime)
           }

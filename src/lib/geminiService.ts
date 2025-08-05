@@ -25,7 +25,7 @@ const GEMINI_CONFIG = {
   temperature: API_CONFIG.temperature
 }
 
-// 在服务启动时验证配置
+// Validate configuration on service startup
 const configValidation = validatePromptConfig()
 if (!configValidation.isValid) {
 
@@ -43,10 +43,10 @@ export async function getGeminiResponse(
   apiKey: string
 ): Promise<string> {
   try {
-    // 使用新的prompt构造系统
+    // Use new prompt construction system
     const fullPrompt = buildFullPrompt(userMessage, emotion, conversationHistory)
     
-    // 构造Gemini API请求
+    // Construct Gemini API request
     const messages = [{
       role: 'user',
       parts: [{ text: fullPrompt }]
@@ -89,7 +89,7 @@ export async function getGeminiResponse(
   } catch (error) {
 
     
-    // 使用配置化的fallback回复
+    // Use configured fallback response
     return getRandomFallback('apiError')
   }
 }
