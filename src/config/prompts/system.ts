@@ -1,6 +1,6 @@
 /**
- * 系统基础Prompt配置
- * 用于定义AI助手的核心人格和行为准则
+ * System base prompt configuration
+ * Used to define AI assistant's core personality and behavioral guidelines
  */
 
 export const SYSTEM_PROMPT = {

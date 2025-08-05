@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseClient } from '@/lib/supabase/client'
 
-// 数据库表创建SQL
+// Database table creation SQL
 const createTablesSQL = [
-  // 1. 创建profiles表
+  // 1. Create profiles table
   `
   CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
@@ -15,7 +15,7 @@ const createTablesSQL = [
   );
   `,
 
-  // 2. 创建快速情绪检查表
+  // 2. Create quick emotion check table
   `
   CREATE TABLE IF NOT EXISTS public.quick_emotion_checks (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -27,7 +27,7 @@ const createTablesSQL = [
   );
   `,
 
-  // 3. 创建对话情绪记录表
+  // 3. Create conversation emotion record table
   `
   CREATE TABLE IF NOT EXISTS public.conversation_emotion_records (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -42,19 +42,19 @@ const createTablesSQL = [
   );
   `,
 
-  // 4. 创建索引
+  // 4. Create indexes
   `CREATE INDEX IF NOT EXISTS idx_profiles_user_name ON public.profiles(user_name);`,
   `CREATE INDEX IF NOT EXISTS idx_quick_emotion_checks_user_id ON public.quick_emotion_checks(user_id);`,
   `CREATE INDEX IF NOT EXISTS idx_quick_emotion_checks_timestamp ON public.quick_emotion_checks(timestamp);`,
   `CREATE INDEX IF NOT EXISTS idx_conversation_emotion_records_user_id ON public.conversation_emotion_records(user_id);`,
   `CREATE INDEX IF NOT EXISTS idx_conversation_emotion_records_timestamp ON public.conversation_emotion_records(timestamp);`,
 
-  // 5. 启用RLS
+  // 5. Enable RLS
   `ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;`,
   `ALTER TABLE public.quick_emotion_checks ENABLE ROW LEVEL SECURITY;`,
   `ALTER TABLE public.conversation_emotion_records ENABLE ROW LEVEL SECURITY;`,
 
-  // 6. 创建RLS策略
+  // 6. Create RLS policies
   `
   DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can view own profile') THEN

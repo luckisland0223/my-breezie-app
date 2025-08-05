@@ -10,46 +10,46 @@ export interface DatabaseProfile {
   updated_at: string
 }
 
-// 快速情绪检查记录接口
+// Quick emotion check record interface
 export interface DatabaseQuickEmotionCheck {
   id: string
   user_id: string
   emotion: EmotionType
-  intensity: number  // 1-10 用户主观选择的强度
+  intensity: number  // 1-10 user subjective intensity choice
   timestamp: string
   created_at: string
 }
 
-// 对话情绪记录接口
+// Conversation emotion record interface
 export interface DatabaseConversationEmotionRecord {
   id: string
   user_id: string
   emotion: EmotionType
-  behavioral_impact_score: number  // 0.00-10.00 AI计算的行为影响分数
-  conversation_text: string        // 完整对话内容
+  behavioral_impact_score: number  // 0.00-10.00 AI-calculated behavioral impact score
+  conversation_text: string        // Complete conversation content
   emotion_evaluation?: EmotionEvaluation
   polarity_analysis?: EmotionPolarityAnalysis
   timestamp: string
   created_at: string
 }
 
-// 统一的情绪记录接口（用于前端展示）
+// Unified emotion record interface (for frontend display)
 export interface UnifiedEmotionRecord {
   id: string
   user_id: string
   emotion: EmotionType
-  intensity: number  // 统一为整数显示
-  note: string      // 展示用的描述文本
+  intensity: number  // Unified as integer display
+  note: string      // Description text for display
   timestamp: string
   recordType: 'quick_check' | 'conversation'
   emotion_evaluation?: EmotionEvaluation
   polarity_analysis?: EmotionPolarityAnalysis
-  conversation_text?: string  // 只有对话记录才有
+  conversation_text?: string  // Only conversation records have this
   created_at: string
 }
 
 // ===========================================
-// 用户配置相关 (保持不变)
+// User configuration related (keep unchanged)
 // ===========================================
 
 export async function getUserProfile(userId: string): Promise<DatabaseProfile | null> {
@@ -84,7 +84,7 @@ export async function updateUserProfile(userId: string, updates: Partial<Databas
 }
 
 // ===========================================
-// 快速情绪检查相关
+// Quick emotion check related
 // ===========================================
 
 export async function createQuickEmotionCheck(
@@ -102,14 +102,14 @@ export async function createQuickEmotionCheck(
       .single()
 
     if (error) {
-      throw error // 抛出错误而不是返回null，让上层处理
+      throw error // Throw error instead of returning null, let upper layer handle
     }
 
 
     return data as unknown as DatabaseQuickEmotionCheck
   } catch (error: any) {
 
-    throw error // 重新抛出错误
+    throw error // Re-throw error
   }
 }
 
@@ -168,7 +168,7 @@ export async function deleteQuickEmotionCheck(recordId: string, userId: string):
 }
 
 // ===========================================
-// 对话情绪记录相关
+// Conversation emotion record related
 // ===========================================
 
 export async function createConversationEmotionRecord(
@@ -185,14 +185,14 @@ export async function createConversationEmotionRecord(
       .single()
 
     if (error) {
-      throw error // 抛出错误而不是返回null，让上层处理
+      throw error // Throw error instead of returning null, let upper layer handle
     }
 
 
     return data as unknown as DatabaseConversationEmotionRecord
   } catch (error: any) {
 
-    throw error // 重新抛出错误
+    throw error // Re-throw error
   }
 }
 
@@ -251,18 +251,18 @@ export async function deleteConversationEmotionRecord(recordId: string, userId: 
 }
 
 // ===========================================
-// 统一查询函数 (用于前端展示)
+// Unified query function (for frontend display)
 // ===========================================
 
 export async function getAllUserEmotionRecords(userId: string): Promise<UnifiedEmotionRecord[]> {
   try {
-    // 并行获取两种记录
+    // Get both types of records in parallel
     const [quickChecks, conversationRecords] = await Promise.all([
       getUserQuickEmotionChecks(userId),
       getUserConversationEmotionRecords(userId)
     ])
 
-    // 转换快速检查记录
+    // Convert quick check records
     const unifiedQuickChecks: UnifiedEmotionRecord[] = quickChecks.map(record => ({
       id: record.id,
       user_id: record.user_id,
@@ -274,12 +274,12 @@ export async function getAllUserEmotionRecords(userId: string): Promise<UnifiedE
       created_at: record.created_at
     }))
 
-    // 转换对话记录
+    // Convert conversation records
     const unifiedConversationRecords: UnifiedEmotionRecord[] = conversationRecords.map(record => ({
       id: record.id,
       user_id: record.user_id,
       emotion: record.emotion,
-      intensity: Math.round(record.behavioral_impact_score), // 转换为整数显示
+      intensity: Math.round(record.behavioral_impact_score), // Convert to integer display
       note: record.conversation_text.length > 100 
         ? record.conversation_text.substring(0, 100) + '...' 
         : record.conversation_text,
@@ -291,7 +291,7 @@ export async function getAllUserEmotionRecords(userId: string): Promise<UnifiedE
       created_at: record.created_at
     }))
 
-    // 合并并按时间排序
+    // Merge and sort by time
     const allRecords = [...unifiedQuickChecks, ...unifiedConversationRecords]
     allRecords.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
@@ -309,13 +309,13 @@ export async function getAllUserEmotionRecordsByDateRange(
   endDate: string
 ): Promise<UnifiedEmotionRecord[]> {
   try {
-    // 并行获取两种记录
+    // Get both types of records in parallel
     const [quickChecks, conversationRecords] = await Promise.all([
       getQuickEmotionChecksByDateRange(userId, startDate, endDate),
       getConversationEmotionRecordsByDateRange(userId, startDate, endDate)
     ])
 
-    // 转换逻辑同上
+    // Conversion logic same as above
     const unifiedQuickChecks: UnifiedEmotionRecord[] = quickChecks.map(record => ({
       id: record.id,
       user_id: record.user_id,
@@ -355,15 +355,15 @@ export async function getAllUserEmotionRecordsByDateRange(
 }
 
 // ===========================================
-// 数据同步函数 (更新版本)
+// Data sync functions (updated version)
 // ===========================================
 
 export async function syncUserData(userId: string) {
   try {
-    // 获取用户配置
+    // Get user configuration
     const profile = await getUserProfile(userId)
     
-    // 获取所有情绪记录（统一格式）
+    // Get all emotion records (unified format)
     const emotionRecords = await getAllUserEmotionRecords(userId)
     
     return {
@@ -382,10 +382,10 @@ export async function syncUserData(userId: string) {
 }
 
 // ===========================================
-// 兼容性函数 (向后兼容旧代码)
+// Compatibility functions (backward compatible with old code)
 // ===========================================
 
-// 兼容旧的createEmotionRecord函数
+// Compatible with old createEmotionRecord function
 export async function createEmotionRecord(record: {
   user_id: string
   emotion: EmotionType
@@ -396,11 +396,11 @@ export async function createEmotionRecord(record: {
   polarity_analysis?: EmotionPolarityAnalysis
 }): Promise<UnifiedEmotionRecord | null> {
   
-  // 根据note内容判断记录类型
+  // Determine record type based on note content
   const isQuickCheck = record.note.startsWith('Quick check:')
   
   if (isQuickCheck) {
-    // 创建快速检查记录
+    // Create quick check record
     const quickRecord = await createQuickEmotionCheck({
       user_id: record.user_id,
       emotion: record.emotion,
@@ -421,7 +421,7 @@ export async function createEmotionRecord(record: {
       created_at: quickRecord.created_at
     }
   } else {
-    // 创建对话记录
+    // Create conversation record
     const conversationRecord = await createConversationEmotionRecord({
       user_id: record.user_id,
       emotion: record.emotion,
@@ -450,7 +450,7 @@ export async function createEmotionRecord(record: {
   }
 }
 
-// 兼容旧的getUserEmotionRecords函数
+// Compatible with old getUserEmotionRecords function
 export async function getUserEmotionRecords(userId: string): Promise<UnifiedEmotionRecord[]> {
   return await getAllUserEmotionRecords(userId)
 }

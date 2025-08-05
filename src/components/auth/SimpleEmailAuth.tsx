@@ -56,7 +56,7 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
     }
   }
 
-  // 检查用户名可用性
+      // Check username availability
   const checkUsername = async (username: string) => {
     if (username.length < 2) {
       setUsernameStatus({ available: false, message: 'Username must be at least 2 characters long' })
@@ -86,7 +86,7 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
     }
   }
 
-  // 用户名输入防抖
+  // Username input debounce
   useEffect(() => {
     if (userName.trim().length >= 2) {
       const timeoutId = setTimeout(() => {
@@ -110,7 +110,7 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // 确保cookies被正确设置
+        credentials: 'include', // Ensure cookies are set correctly
         body: JSON.stringify({
           email: email.trim(),
           password: password
@@ -152,7 +152,7 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // 确保cookies被正确设置
+        credentials: 'include', // Ensure cookies are set correctly
         body: JSON.stringify({
           email: email.trim(),
           password: password,

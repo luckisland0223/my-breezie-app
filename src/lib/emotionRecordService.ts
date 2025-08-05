@@ -138,7 +138,7 @@ export async function getUserEmotionRecords(
   }
 }
 
-// 兼容性函数 - 支持旧的调用方式
+// Compatibility function - supports old calling method
 export async function addEmotionRecord(
   userId: string,
   emotion: EmotionType,
@@ -155,7 +155,7 @@ export async function addEmotionRecord(
       intensity
     })
   } else {
-    // chat/conversation 记录
+    // chat/conversation records
     return await createConversationEmotionRecord(userId, {
       emotion,
       behavioralImpactScore: intensity,
@@ -166,7 +166,7 @@ export async function addEmotionRecord(
   }
 }
 
-// 计算情绪统计数据
+// Calculate emotion statistics
 export function calculateEmotionStats(records: any[]) {
   const stats = {
     totalRecords: records.length,
@@ -184,22 +184,22 @@ export function calculateEmotionStats(records: any[]) {
   const emotionCounts: Record<string, number> = {}
 
   records.forEach(record => {
-    // 统计记录类型
+    // Count record types
     if (record.recordType === 'quick_check') {
       stats.quickCheckCount++
     } else {
       stats.conversationCount++
     }
 
-    // 统计情绪分布
+    // Count emotion distribution
     emotionCounts[record.emotion] = (emotionCounts[record.emotion] || 0) + 1
     totalIntensity += record.intensity
   })
 
-  // 计算平均强度
+  // Calculate average intensity
   stats.averageIntensity = Math.round((totalIntensity / records.length) * 10) / 10
 
-  // 找出最频繁的情绪
+  // Find most frequent emotion
   let maxCount = 0
   for (const [emotion, count] of Object.entries(emotionCounts)) {
     stats.emotionDistribution[emotion as EmotionType] = count
@@ -209,7 +209,7 @@ export function calculateEmotionStats(records: any[]) {
     }
   }
 
-  // 计算趋势（简单实现：比较最近一周和上周的平均强度）
+  // Calculate trend (simple implementation: compare average intensity of last week vs previous week)
   if (records.length >= 7) {
     const recentRecords = records.slice(0, 7)
     const olderRecords = records.slice(7, 14)
@@ -230,7 +230,7 @@ export function calculateEmotionStats(records: any[]) {
   return stats
 }
 
-// 导出用于事件监听的类型
+// Export types for event listening
 export interface EmotionRecordEvent extends CustomEvent {
   detail: {
     record: any

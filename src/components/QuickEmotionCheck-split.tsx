@@ -74,7 +74,7 @@ export function QuickEmotionCheckSplit() {
     setIsSubmitting(true)
 
     try {
-      // 调用新的分表API
+      // Call new split-table API
       const response = await fetch('/api/emotions-split', {
         method: 'POST',
         headers: {
@@ -101,7 +101,7 @@ export function QuickEmotionCheckSplit() {
         setSelectedEmotion(null)
         setIntensity(5)
         
-        // 触发数据刷新事件（如果需要更新其他组件）
+        // Trigger data refresh event (if other components need updating)
         window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
           detail: { record: data.record } 
         }))

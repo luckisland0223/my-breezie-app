@@ -54,12 +54,12 @@ export function SyncStatus() {
     }
   }
 
-  // 未登录时不显示任何同步信息
+  // Don't show any sync info when not logged in
   if (!isLoggedIn || !user) {
     return null
   }
 
-  // 正常情况下（在线且无错误且未同步中）不显示同步状态
+  // Don't show sync status in normal conditions (online, no errors, not syncing)
   if (isOnline && !syncError && !isSyncing) {
     return null
   }
@@ -80,10 +80,10 @@ export function SyncStatus() {
     return `${diffDays}d ago`
   }
 
-  // 只在需要用户关注时显示：同步中、离线、或出错
+  // Only show when user attention is needed: syncing, offline, or error
   return (
     <div className="flex items-center gap-2">
-      {/* 同步中状态 */}
+              {/* Syncing status */}
       {isSyncing && (
         <Badge variant="default" className="text-xs">
           <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
@@ -91,7 +91,7 @@ export function SyncStatus() {
         </Badge>
       )}
       
-      {/* 离线状态 */}
+              {/* Offline status */}
       {!isOnline && (
         <Badge variant="secondary" className="text-xs">
           <WifiOff className="w-3 h-3 mr-1" />
@@ -99,7 +99,7 @@ export function SyncStatus() {
         </Badge>
       )}
       
-      {/* 同步错误状态 */}
+              {/* Sync error status */}
       {syncError && !isSyncing && (
         <Badge variant="destructive" className="text-xs">
           <AlertCircle className="w-3 h-3 mr-1" />
@@ -107,7 +107,7 @@ export function SyncStatus() {
         </Badge>
       )}
       
-      {/* 手动同步按钮 - 只在出错或离线时显示 */}
+              {/* Manual sync button - only show when error or offline */}
       {(syncError || !isOnline) && (
         <Button
           variant="ghost"

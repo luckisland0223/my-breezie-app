@@ -20,7 +20,7 @@ export function DatabaseConfigStatus() {
     setIsConfigured(validateDbConfig(dbConfig))
   }, [])
 
-  // 如果配置正确，不显示任何内容（保持页面干净）
+  // If configuration is correct, don't display anything (keep page clean)
   if (isConfigured) {
     return null
   }

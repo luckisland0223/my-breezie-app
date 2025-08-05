@@ -250,13 +250,13 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       const additionalEmotions = commonEmotions.filter(emotion => !uniqueEmotions.includes(emotion))
       
       // Add contextual emotions based on text sentiment
-      if (lowerText.includes('work') || lowerText.includes('job') || lowerText.includes('工作')) {
+      if (lowerText.includes('work') || lowerText.includes('job')) {
         additionalEmotions.unshift('Frustration', 'Pride', 'Anxiety')
       }
-      if (lowerText.includes('family') || lowerText.includes('friend') || lowerText.includes('家人') || lowerText.includes('朋友')) {
+      if (lowerText.includes('family') || lowerText.includes('friend')) {
         additionalEmotions.unshift('Love', 'Gratitude', 'Loneliness')
       }
-      if (lowerText.includes('future') || lowerText.includes('plan') || lowerText.includes('未来') || lowerText.includes('计划')) {
+      if (lowerText.includes('future') || lowerText.includes('plan')) {
         additionalEmotions.unshift('Hope', 'Anxiety', 'Excitement')
       }
       
@@ -442,7 +442,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       }
     } catch (error) {
       
-      // 使用配置化的fallback回复
+      // Use configured fallback response
       const fallbackResponse = getRandomFallback('emotionSelectionError')
       const newResponse = aiResponse + "\n\n" + fallbackResponse
       setAiResponse(newResponse)
@@ -482,7 +482,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     return detectedEmotions.length > 0 ? detectedEmotions[0]! : 'Other'
   }
 
-  // 简单退出，不保存任何记录
+      // Simple exit, don't save any records
   const handleBackToJourney = () => {
     if (currentSession) {
       endChatSession()
@@ -490,14 +490,14 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     onBack()
   }
 
-  // 完成并保存对话记录
+      // Complete and save conversation record
   const handleCompleteSession = async () => {
     if (currentSession) {
-      // 检查是否有实际的对话内容
+      // Check if there's actual conversation content
       const userMessages = currentSession.messages?.filter(msg => msg.role === 'user') || []
       
       if (userMessages.length === 0) {
-        // 没有用户消息，显示提示而不保存
+        // No user messages, show notification without saving
         toast.info('No conversation to save')
         handleBackToJourney()
         return

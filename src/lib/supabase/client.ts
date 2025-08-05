@@ -5,10 +5,10 @@ import { getDbConfig, validateDbConfig } from '@/config/database'
 let supabaseClient: ReturnType<typeof createClient> | null = null
 
 export function getSupabaseClient() {
-  // 首先尝试从配置文件获取
+  // First try to get from config file
   const fileConfig = getDbConfig()
   
-  // 如果文件配置可用，使用文件配置
+  // If file config is available, use file config
   if (validateDbConfig(fileConfig)) {
     if (!supabaseClient) {
       supabaseClient = createClient(fileConfig.url, fileConfig.anonKey)
@@ -16,7 +16,7 @@ export function getSupabaseClient() {
     return supabaseClient
   }
   
-  // 否则使用store配置（原有方式）
+  // Otherwise use store config (original method)
   const { config } = useSupabaseStore.getState()
   
   if (!config.isConfigured) {

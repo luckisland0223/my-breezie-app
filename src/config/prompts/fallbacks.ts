@@ -1,6 +1,6 @@
 /**
- * Fallback回复配置
- * 管理各种错误情况下的备用回复
+ * Fallback response configuration
+ * Manage backup responses for various error situations
  */
 
 export const FALLBACK_RESPONSES = {

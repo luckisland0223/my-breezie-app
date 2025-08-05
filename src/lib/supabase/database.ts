@@ -41,7 +41,7 @@ export interface DatabaseChatMessage {
   created_at: string
 }
 
-// 用户配置相关
+// User configuration related
 export async function getUserProfile(userId: string): Promise<DatabaseProfile | null> {
   const supabase = getSupabaseClient()
   const { data, error } = await supabase
@@ -73,7 +73,7 @@ export async function updateUserProfile(userId: string, updates: Partial<Databas
   return true
 }
 
-// 情绪记录相关
+// Emotion records related
 export async function createEmotionRecord(record: Omit<DatabaseEmotionRecord, 'id' | 'created_at'>): Promise<DatabaseEmotionRecord | null> {
   const supabase = getSupabaseClient()
   const { data, error } = await supabase
@@ -144,7 +144,7 @@ export async function deleteEmotionRecord(recordId: string, userId: string): Pro
   return true
 }
 
-// 聊天会话相关
+// Chat session related
 export async function createChatSession(session: Omit<DatabaseChatSession, 'id' | 'created_at'>): Promise<DatabaseChatSession | null> {
   const supabase = getSupabaseClient()
   const { data, error } = await supabase
@@ -177,7 +177,7 @@ export async function updateChatSession(sessionId: string, userId: string, updat
   return true
 }
 
-// 聊天消息相关
+// Chat message related
 export async function createChatMessage(message: Omit<DatabaseChatMessage, 'id' | 'created_at'>): Promise<DatabaseChatMessage | null> {
   const supabase = getSupabaseClient()
   const { data, error } = await supabase
@@ -211,13 +211,13 @@ export async function getChatMessages(sessionId: string, userId: string): Promis
   return (data || []) as unknown as DatabaseChatMessage[]
 }
 
-// 数据同步函数
+// Data sync functions
 export async function syncUserData(userId: string) {
   try {
-    // 获取用户配置
+    // Get user configuration
     const profile = await getUserProfile(userId)
     
-    // 获取情绪记录
+    // Get emotion records
     const emotionRecords = await getUserEmotionRecords(userId)
     
     return {

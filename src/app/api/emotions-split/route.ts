@@ -4,7 +4,7 @@ import {
   getAllUserEmotionRecordsByDateRange,
   createQuickEmotionCheck,
   createConversationEmotionRecord,
-  createEmotionRecord  // 兼容性函数
+  createEmotionRecord  // Compatibility function
 } from '@/lib/supabase/database-split'
 import { createClient } from '@/lib/supabase/server'
 
@@ -26,14 +26,14 @@ export async function GET(request: NextRequest) {
     let records
 
     if (startDate && endDate) {
-      // 按日期范围查询
+      // Query by date range
       records = await getAllUserEmotionRecordsByDateRange(userId, startDate, endDate)
     } else {
-      // 查询所有记录
+      // Query all records
       records = await getAllUserEmotionRecords(userId)
     }
 
-    // 根据记录类型过滤
+    // Filter by record type
     if (recordType && recordType !== 'all') {
       if (recordType === 'quick') {
         records = records.filter(r => r.recordType === 'quick_check')
@@ -79,7 +79,13 @@ export async function POST(request: NextRequest) {
     const isDevelopment = process.env.NODE_ENV === 'development'
     const hasUserId = requestBody.userId
     
-    if ((authError || !user) && !(isDevelopment && hasUserId)) {
+    // In development, use userId from request body if no authenticated user
+    let authenticatedUserId = user?.id
+    if (!authenticatedUserId && isDevelopment && hasUserId) {
+      authenticatedUserId = hasUserId
+    }
+    
+    if (!authenticatedUserId) {
       return NextResponse.json(
         { 
           error: 'Authentication required. Please sign in.',
@@ -87,7 +93,8 @@ export async function POST(request: NextRequest) {
           debug: isDevelopment ? {
             hasUserId: !!hasUserId,
             authError: authError?.message,
-            cookies: request.headers.get('cookie') ? 'Present' : 'Missing'
+            cookies: request.headers.get('cookie') ? 'Present' : 'Missing',
+            userFromAuth: !!user
           } : undefined
         },
         { status: 401 }
@@ -106,17 +113,7 @@ export async function POST(request: NextRequest) {
       polarityAnalysis
     } = requestBody
 
-    // 使用认证用户的ID，或在开发环境中使用提供的userId
-    const authenticatedUserId = user?.id || (isDevelopment ? userId : null)
-    
-    if (!authenticatedUserId) {
-      return NextResponse.json(
-        { error: 'No valid user ID available' },
-        { status: 403 }
-      )
-    }
-    
-    // 验证用户ID匹配
+    // Validate user ID matches if both are available
     if (userId && user?.id && userId !== user.id) {
       return NextResponse.json(
         { error: 'User ID does not match authenticated user' },
@@ -134,7 +131,7 @@ export async function POST(request: NextRequest) {
     let record
 
     if (recordType === 'quick_check') {
-      // 创建快速情绪检查记录
+      // Create quick emotion check record
       if (!intensity || intensity < 1 || intensity > 10) {
         return NextResponse.json(
           { error: 'Intensity must be between 1 and 10 for quick checks' },
@@ -152,7 +149,7 @@ export async function POST(request: NextRequest) {
         }, supabase)
       } catch (dbError: any) {
         
-        // 表不存在错误
+        // Table does not exist error
         if (dbError.code === 'PGRST116' || dbError.message?.includes('does not exist')) {
           return NextResponse.json(
             { error: 'Database tables do not exist. Please run the database setup script.' },
@@ -160,7 +157,7 @@ export async function POST(request: NextRequest) {
           )
         }
         
-        // RLS策略错误
+        // RLS policy error
         if (dbError.message?.includes('row-level security policy')) {
           return NextResponse.json(
             { error: 'Access denied. Please ensure you are properly authenticated.' },
@@ -168,7 +165,7 @@ export async function POST(request: NextRequest) {
           )
         }
         
-        // 认证错误
+        // Authentication error
         if (dbError.message?.includes('JWT') || dbError.message?.includes('authentication')) {
           return NextResponse.json(
             { error: 'Authentication failed. Please sign in again.' },
@@ -176,7 +173,7 @@ export async function POST(request: NextRequest) {
           )
         }
         
-        throw dbError // 重新抛出其他错误
+        throw dbError // Re-throw other errors
       }
 
       if (!quickRecord) {
@@ -198,7 +195,7 @@ export async function POST(request: NextRequest) {
       }
 
     } else if (recordType === 'conversation') {
-      // 创建对话情绪记录
+      // Create conversation emotion record
       if (!conversationText) {
         return NextResponse.json(
           { error: 'Conversation text is required for conversation records' },
@@ -221,7 +218,7 @@ export async function POST(request: NextRequest) {
         }, supabase)
       } catch (dbError: any) {
         
-        // 表不存在错误
+        // Table does not exist error
         if (dbError.code === 'PGRST116' || dbError.message?.includes('does not exist')) {
           return NextResponse.json(
             { error: 'Database tables do not exist. Please run the database setup script.' },
@@ -229,7 +226,7 @@ export async function POST(request: NextRequest) {
           )
         }
         
-        // RLS策略错误
+        // RLS policy error
         if (dbError.message?.includes('row-level security policy')) {
           return NextResponse.json(
             { error: 'Access denied. Please ensure you are properly authenticated.' },
@@ -237,7 +234,7 @@ export async function POST(request: NextRequest) {
           )
         }
         
-        // 认证错误
+        // Authentication error
         if (dbError.message?.includes('JWT') || dbError.message?.includes('authentication')) {
           return NextResponse.json(
             { error: 'Authentication failed. Please sign in again.' },
@@ -245,7 +242,7 @@ export async function POST(request: NextRequest) {
           )
         }
         
-        throw dbError // 重新抛出其他错误
+        throw dbError // Re-throw other errors
       }
 
       if (!conversationRecord) {
@@ -285,7 +282,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     
-    // 数据库连接错误的特殊处理
+    // Special handling for database connection errors
     if (error.message?.includes('connect') || error.message?.includes('ECONNREFUSED')) {
       return NextResponse.json(
         { error: 'Database connection failed. Please check your Supabase configuration.' },
@@ -293,7 +290,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // 表不存在错误的特殊处理
+    // Special handling for table does not exist errors
     if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
       return NextResponse.json(
         { error: 'Database tables do not exist. Please run the database setup script.' },
@@ -301,7 +298,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // RLS策略错误的特殊处理
+    // Special handling for RLS policy errors
     if (error.message?.includes('row-level security policy')) {
       return NextResponse.json(
         { error: 'Access denied. Please ensure you are properly authenticated.' },
@@ -309,7 +306,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // 认证错误的特殊处理
+    // Special handling for authentication errors
     if (error.message?.includes('JWT') || error.message?.includes('authentication')) {
       return NextResponse.json(
         { error: 'Authentication failed. Please sign in again.' },
@@ -337,8 +334,8 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    // 这里可以根据需要实现更新逻辑
-    // 由于当前应用主要是创建和读取，暂时返回不支持
+    // Update logic can be implemented here as needed
+    // Since the current app mainly creates and reads, temporarily return not supported
     return NextResponse.json(
       { error: 'Record updates not implemented yet' },
       { status: 501 }
@@ -367,8 +364,8 @@ export async function DELETE(request: NextRequest) {
       )  
     }
 
-    // 这里可以根据需要实现删除逻辑
-    // 由于当前应用主要是创建和读取，暂时返回不支持
+    // Delete logic can be implemented here as needed
+    // Since the current app mainly creates and reads, temporarily return not supported
     return NextResponse.json(
       { error: 'Record deletion not implemented yet' },
       { status: 501 }
