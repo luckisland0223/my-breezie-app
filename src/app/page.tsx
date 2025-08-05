@@ -16,7 +16,7 @@ import { useAuthStore } from '@/store/auth'
 import { useEmotionStore } from '@/store/emotionDatabase'
 import { SyncStatus } from '@/components/SyncStatus'
 import { StatusIndicator } from '@/components/StatusIndicator'
-import { AuthFixer } from '@/components/AuthFixer'
+
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -70,11 +70,26 @@ export default function HomePage() {
     )
   }
 
-  // Show AuthFixer if there's an authentication error
+  // Show simple error message if there's an authentication error
   if (authError && isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-        <AuthFixer onAuthFixed={() => setAuthError(false)} />
+        <div className="max-w-md mx-auto text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Heart className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">连接出现问题</h2>
+          <p className="text-gray-600 mb-4">请稍后再试，或重新登录</p>
+          <button 
+            onClick={() => {
+              setAuthError(false)
+              window.location.reload()
+            }}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            重新加载
+          </button>
+        </div>
       </div>
     )
   }
@@ -111,12 +126,7 @@ export default function HomePage() {
                       Analytics
                     </Button>
                   </Link>
-                  <Link href="/test-sync">
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                      <Database className="w-4 h-4" />
-                      Test Sync
-                    </Button>
-                  </Link>
+
                 </>
               )}
               <UserProfile />
