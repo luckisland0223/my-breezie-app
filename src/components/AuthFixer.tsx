@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, CheckCircle, Database, RefreshCw, LogIn } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { AlertTriangle, CheckCircle, Database, RefreshCw, LogIn, UserX } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface AuthFixerProps {
@@ -18,6 +19,7 @@ export function AuthFixer({ onAuthFixed }: AuthFixerProps) {
     details?: string
     action?: string
   }>({ type: 'idle', message: 'Click "Fix Authentication" to diagnose issues' })
+  const [emailToCleanup, setEmailToCleanup] = useState('')
 
   const handleFixAuth = async () => {
     setIsChecking(true)
@@ -111,6 +113,58 @@ export function AuthFixer({ onAuthFixed }: AuthFixerProps) {
         details: error instanceof Error ? error.message : 'Unknown error'
       })
       toast.error('Database setup failed')
+    } finally {
+      setIsChecking(false)
+    }
+  }
+
+  const handleCleanupUser = async () => {
+    if (!emailToCleanup.trim()) {
+      toast.error('Please enter an email address')
+      return
+    }
+    
+    setIsChecking(true)
+    setStatus({ type: 'idle', message: 'Cleaning up user data...' })
+    
+    try {
+      const response = await fetch('/api/cleanup-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: emailToCleanup.trim() })
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        setStatus({
+          type: 'success',
+          message: 'User cleanup completed!',
+          details: `Email ${emailToCleanup} can now be used for registration`
+        })
+        toast.success('User cleanup successful! You can now register with this email.', {
+          duration: 5000
+        })
+        setEmailToCleanup('')
+      } else {
+        setStatus({
+          type: 'error',
+          message: 'Failed to cleanup user',
+          details: data.details || data.error
+        })
+        toast.error('User cleanup failed', {
+          description: data.details || data.error
+        })
+      }
+    } catch (error) {
+      setStatus({
+        type: 'error',
+        message: 'Failed to cleanup user',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      })
+      toast.error('User cleanup failed')
     } finally {
       setIsChecking(false)
     }
@@ -220,6 +274,40 @@ export function AuthFixer({ onAuthFixed }: AuthFixerProps) {
             <LogIn className="h-4 w-4 mr-2" />
             Clear Auth & Sign In Again
           </Button>
+        </div>
+
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm font-medium text-blue-800 mb-2">🔧 User Already Exists Fix:</p>
+          <p className="text-xs text-blue-700 mb-3">
+            If you get "user already exists" when registering, enter the email below to clean up old data:
+          </p>
+          <div className="space-y-2">
+            <Input
+              type="email"
+              placeholder="Enter email to cleanup"
+              value={emailToCleanup}
+              onChange={(e) => setEmailToCleanup(e.target.value)}
+              className="text-sm"
+            />
+            <Button
+              onClick={handleCleanupUser}
+              disabled={isChecking || !emailToCleanup.trim()}
+              className="w-full"
+              variant="secondary"
+            >
+              {isChecking ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Cleaning up...
+                </>
+              ) : (
+                <>
+                  <UserX className="h-4 w-4 mr-2" />
+                  Cleanup User Data
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {status.action === 'run_sql_script' && (
