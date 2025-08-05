@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/react";
 import AuthProvider from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({
 					{children}
 					<Toaster position="top-center" richColors />
 				</AuthProvider>
+				<Analytics />
 			</body>
 		</html>
 	);
