@@ -105,7 +105,7 @@ const createTablesSQL = [
   END $$;
   `,
 
-  // 7. 创建更新触发器函数
+      // 7. Create update trigger function
   `
   CREATE OR REPLACE FUNCTION public.handle_updated_at()
   RETURNS TRIGGER AS $$
@@ -116,7 +116,7 @@ const createTablesSQL = [
   $$ LANGUAGE plpgsql;
   `,
 
-  // 8. 创建触发器
+      // 8. Create triggers
   `
   DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'handle_updated_at') THEN
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
     let successCount = 0
     let errorCount = 0
 
-    // 执行每个SQL命令
+    // Execute each SQL command
     for (let i = 0; i < createTablesSQL.length; i++) {
       const sqlCommand = createTablesSQL[i]
       if (!sqlCommand) continue
@@ -190,12 +190,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 如果无法使用rpc执行SQL，尝试直接创建表
+    // If unable to execute SQL using rpc, try creating tables directly
     if (errorCount === createTablesSQL.length) {
       
       
       try {
-        // 尝试简单的表存在性检查和创建
+        // Try simple table existence check and creation
         const { error: profilesError } = await supabase
           .from('profiles')
           .select('count')
@@ -261,7 +261,7 @@ export async function POST(request: NextRequest) {
       errorCount: 0,
       totalCommands: createTablesSQL.length,
       tablesCreated: ['profiles', 'quick_emotion_checks', 'conversation_emotion_records'],
-      message_zh: '数据库设置完成！现在您可以正常使用情绪记录功能了。'
+      message_zh: 'Database setup completed! You can now use the emotion recording functionality normally.'
     })
 
   } catch (error: any) {

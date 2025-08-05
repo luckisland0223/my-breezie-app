@@ -98,15 +98,15 @@ export const API_CONFIG = {
 
 // Export all functions
 export {
-  // 系统prompt
+  // System prompt
   SYSTEM_PROMPT,
   buildSystemPrompt,
   
-  // 示例
+  // Examples
   CONVERSATION_EXAMPLES, 
   getExamplePrompt,
   
-  // 情绪上下文
+  // Emotion contexts
   EMOTION_CONTEXTS,
   getEmotionContext,
   getEmotionGuidance,
@@ -115,13 +115,13 @@ export {
   getComfortTechniques,
   getPracticalSuggestions,
   
-  // Fallback回复
+  // Fallback responses
   FALLBACK_RESPONSES,
   getRandomFallback,
   getAllFallbackTypes
 }
 
-// 配置信息导出
+  // Configuration information export
 export const PROMPT_INFO = {
   version: PROMPT_CONFIG_VERSION,
   lastUpdated: LAST_UPDATED,

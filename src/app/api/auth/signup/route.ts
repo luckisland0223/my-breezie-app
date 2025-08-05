@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 用户名验证
+    // Username validation
     if (userName.length < 2 || userName.length > 30) {
       return NextResponse.json(
         { error: 'Username must be between 2 and 30 characters' },
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // 检查用户名是否已存在
+    // Check if username already exists
     const { data: existingProfile } = await supabase
       .from('profiles')
       .select('user_name')
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 创建用户账户
+    // Create user account
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,

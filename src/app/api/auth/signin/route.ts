@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // 用户登录
+    // User login
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 获取用户配置信息
+    // Get user configuration information
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')

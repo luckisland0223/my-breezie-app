@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 基本用户名验证
+    // Basic username validation
     if (username.length < 2) {
       return NextResponse.json(
         { available: false, error: 'Username must be at least 2 characters long' },
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 只允许字母、数字、下划线和连字符
+    // Only allow letters, numbers, underscores and hyphens
     if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
       return NextResponse.json(
         { available: false, error: 'Username can only contain letters, numbers, underscores, and hyphens' },
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseClient()
 
-    // 检查用户名是否存在
+    // Check if username exists
     const { data, error } = await supabase
       .from('profiles')
       .select('user_name')

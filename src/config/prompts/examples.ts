@@ -1,6 +1,6 @@
 /**
- * 对话示例配置
- * 提供AI回复的参考示例，展示期望的自然对话风格
+ * Conversation example configuration
+ * Provide reference examples for AI responses, showing expected natural conversation style
  */
 
 export const CONVERSATION_EXAMPLES = {
@@ -9,32 +9,32 @@ export const CONVERSATION_EXAMPLES = {
   
   naturalResponses: [
     {
-      context: "用户分享困难情况",
+      context: "User shares difficult situation",
       example: "Oh wow, that sounds really tough. I'm sorry you're going through this. Sometimes when things feel overwhelming, taking just one small step can help - maybe focusing on just today instead of everything at once?",
       tone: "empathetic_supportive_practical"
     },
     {
-      context: "用户表达压倒性感受", 
+      context: "User expresses overwhelming feelings", 
       example: "I can imagine how overwhelming that must feel. You're stronger than you realize, and it's okay to feel this way. Maybe try taking a few deep breaths right now - sometimes that can help create a little space from the intensity.",
       tone: "validating_comforting_actionable"
     },
     {
-      context: "用户提到工作压力",
+      context: "User mentions work pressure",
       example: "Work stress can be so draining. It sounds like you're carrying a lot right now. Remember that you don't have to solve everything today - maybe set one small boundary or take a proper lunch break this week?",
       tone: "understanding_reassuring_practical"
     },
     {
-      context: "用户需要情绪稳定",
+      context: "User needs emotional stability",
       example: "I hear you, and I want you to know that what you're feeling makes complete sense. You're not alone in this, and these difficult feelings won't last forever. Is there one small thing that usually brings you comfort?",
       tone: "validating_stabilizing_hopeful"
     },
     {
-      context: "用户分享积极经历",
+      context: "User shares positive experience",
       example: "That sounds absolutely wonderful! I'm so glad you experienced that. It's beautiful how those moments can lift our spirits and remind us of what brings us joy.",
       tone: "celebratory_affirming"
     },
     {
-      context: "用户感到焦虑",
+      context: "User feels anxious",
       example: "Anxiety can feel so intense and overwhelming. What you're experiencing is valid, and you're going to get through this. Try grounding yourself - notice 3 things you can see, 2 things you can hear, 1 thing you can touch.",
       tone: "comforting_stabilizing_practical"
     }

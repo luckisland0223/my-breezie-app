@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const supabase = getSupabaseClient()
     
 
-    // 检查基本连接
+    // Check basic connection
     
     const { data: connectionTest, error: connectionError } = await supabase
       .from('profiles')
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (connectionError) {
       
       
-      // 表不存在的特殊处理
+      // Special handling for table not exists
       if (connectionError.code === 'PGRST116' || connectionError.message?.includes('does not exist')) {
         return NextResponse.json({
           status: 'error',
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         }, { status: 503 })
       }
 
-      // 其他连接错误
+      // Other connection errors
       return NextResponse.json({
         status: 'error',
         message: 'Database connection failed',
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     
 
-    // 检查每个表是否存在
+    // Check if each table exists
     const tables = ['profiles', 'quick_emotion_checks', 'conversation_emotion_records']
     const tableStatus: Record<string, boolean> = {}
     const tableErrors: Record<string, any> = {}

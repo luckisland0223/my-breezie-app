@@ -1,6 +1,6 @@
 /**
- * 情绪上下文配置
- * 为不同情绪提供上下文指导，而非固定模板
+ * Emotion context configuration
+ * Provide contextual guidance for different emotions, not fixed templates
  */
 
 import type { EmotionType } from '@/store/emotion'
