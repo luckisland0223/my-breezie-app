@@ -72,7 +72,19 @@ export function buildFullPrompt(
       ).join('\n')}\n\n`
     : '\n\n'
   
-  return `${systemPrompt}\n\n${examplePrompt}\n\n${emotionContext}${conversationText}They just said: "${userMessage}"\n\nRespond naturally as their caring friend Breezie:`
+  // 检测是否为情绪选择后的后续回复
+  const isFollowUpResponse = userMessage.includes('Now that the user has selected') && filteredHistory.length > 0
+  
+  const followUpGuidance = isFollowUpResponse 
+    ? `\n\nIMPORTANT: This is a follow-up response after the user selected an emotion. You have already had a conversation with them (see above). Now:
+- Build naturally on what you already discussed
+- Don't repeat the same questions or observations
+- Go deeper into their emotional experience
+- Offer new insights, different questions, or fresh support
+- Show that you remember and understand their story`
+    : ''
+  
+  return `${systemPrompt}\n\n${examplePrompt}\n\n${emotionContext}${conversationText}${followUpGuidance}\n\nThey just said: "${userMessage}"\n\nRespond naturally as their caring friend Breezie:`
 }
 
 // API配置

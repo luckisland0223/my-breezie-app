@@ -277,7 +277,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userMessage: `The user has shared their story and selected "${emotion}" as the emotion that resonates most with them. Please respond to their original story with this emotional context in mind.`,
+          userMessage: `Now that the user has selected "${emotion}" as their main emotion, provide a follow-up response that goes deeper into this feeling. Don't repeat what you already said, but offer new support, ask different questions, or explore this emotion from a fresh angle. Build on the conversation naturally.`,
           emotion: emotion,
           conversationHistory: messages.map(msg => ({
             role: msg.role,
