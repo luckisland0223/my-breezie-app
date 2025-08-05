@@ -10,6 +10,7 @@ import { ArrowLeft, Bell, Palette, Shield, Download, Upload, Trash2 } from 'luci
 import { useRouter } from 'next/navigation'
 import { useEmotionStore } from '@/store/emotion'
 import { toast } from 'sonner'
+import { CompleteUserCleanup } from '@/components/CompleteUserCleanup'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -197,6 +198,9 @@ export default function SettingsPage() {
               </Button>
             </CardContent>
           </Card>
+
+          {/* User Account Management */}
+          <CompleteUserCleanup />
 
           {/* About */}
           <Card>
