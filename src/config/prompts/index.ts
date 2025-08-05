@@ -1,6 +1,6 @@
 /**
- * Prompt配置管理中心
- * 统一导出所有prompt配置，提供版本管理和验证
+ * Prompt configuration management center
+ * Unified export of all prompt configurations, providing version management and validation
  */
 
 import { SYSTEM_PROMPT, buildSystemPrompt } from './system'
@@ -9,11 +9,11 @@ import { EMOTION_CONTEXTS, getEmotionContext, getEmotionGuidance, getEmotionFocu
 import { FALLBACK_RESPONSES, getRandomFallback, getAllFallbackTypes } from './fallbacks'
 import type { EmotionType } from '@/store/emotion'
 
-// 配置版本管理
+// Configuration version management
 export const PROMPT_CONFIG_VERSION = "1.0.0"
 export const LAST_UPDATED = "2025-01-27"
 
-// 配置验证
+// Configuration validation
 interface ConfigValidation {
   isValid: boolean
   errors: string[]
@@ -24,17 +24,17 @@ export function validatePromptConfig(): ConfigValidation {
   const errors: string[] = []
   const warnings: string[] = []
   
-  // 检查系统prompt
+  // Check system prompt
   if (!SYSTEM_PROMPT.core || SYSTEM_PROMPT.core.length < 50) {
     errors.push("System prompt core is too short or missing")
   }
   
-  // 检查示例数量
+  // Check number of examples
   if (CONVERSATION_EXAMPLES.naturalResponses.length < 3) {
     warnings.push("Consider adding more conversation examples")
   }
   
-  // 检查emotion contexts
+  // Check emotion contexts
   const requiredEmotions: EmotionType[] = ['Anger', 'Sadness', 'Joy', 'Fear', 'Other']
   for (const emotion of requiredEmotions) {
     if (!EMOTION_CONTEXTS.contexts[emotion]) {
@@ -42,7 +42,7 @@ export function validatePromptConfig(): ConfigValidation {
     }
   }
   
-  // 检查fallback responses
+  // Check fallback responses
   if (FALLBACK_RESPONSES.general.length < 2) {
     errors.push("Not enough general fallback responses")
   }
@@ -54,7 +54,7 @@ export function validatePromptConfig(): ConfigValidation {
   }
 }
 
-// 主要的prompt构造函数
+// Main prompt construction function
 export function buildFullPrompt(
   userMessage: string,
   emotion: EmotionType,
@@ -64,7 +64,7 @@ export function buildFullPrompt(
   const examplePrompt = getExamplePrompt()
   const emotionContext = getEmotionSupport(emotion)
   
-  // 构造对话历史（过滤掉system消息）
+  // Construct conversation history (filter out system messages)
   const filteredHistory = conversationHistory.filter(msg => msg.role !== 'system')
   const conversationText = filteredHistory.length > 0 
     ? `\n\nPrevious conversation:\n${filteredHistory.map(msg => 
@@ -72,7 +72,7 @@ export function buildFullPrompt(
       ).join('\n')}\n\n`
     : '\n\n'
   
-  // 检测是否为情绪选择后的后续回复
+  // Detect if this is a follow-up response after emotion selection
   const isFollowUpResponse = userMessage.includes('Now that the user has selected') && filteredHistory.length > 0
   
   const followUpGuidance = isFollowUpResponse 
@@ -87,16 +87,16 @@ export function buildFullPrompt(
   return `${systemPrompt}\n\n${examplePrompt}\n\n${emotionContext}${conversationText}${followUpGuidance}\n\nThey just said: "${userMessage}"\n\nRespond naturally as their caring friend Breezie:`
 }
 
-// API配置
+// API configuration
 export const API_CONFIG = {
-  model: 'gemini-1.5-flash',  // 更新为可用的模型
+  model: 'gemini-1.5-flash',  // Updated to available model
   maxTokens: 600,
   temperature: 0.9,
   topP: 0.8,
   topK: 40
 } as const
 
-// 导出所有功能
+// Export all functions
 export {
   // 系统prompt
   SYSTEM_PROMPT,
