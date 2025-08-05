@@ -226,24 +226,46 @@ export const useEmotionStore = create<EmotionState>()(
         }
       },
 
-      // Load data from database
+      // Load data from database (using split tables)
       loadFromDatabase: async (userId: string) => {
         set({ isLoading: true })
         
         try {
-          const response = await fetch(`/api/emotions?userId=${userId}`)
+          const response = await fetch(`/api/emotions-split?userId=${userId}`, {
+            credentials: 'include'
+          })
           if (response.ok) {
             const data = await response.json()
-            const dbRecords = data.records.map(dbRecordToLocal)
             
-            set(() => ({
-              records: dbRecords,
-              stats: recalculateStats(dbRecords),
-              isLoading: false,
-              lastSyncTime: new Date()
-            }))
-            
-            return true
+            if (data.records && Array.isArray(data.records)) {
+              // Convert split table records to local format
+              const localRecords = data.records.map((record: any) => ({
+                id: record.id,
+                emotion: record.emotion,
+                behavioralImpact: record.intensity || record.behavioral_impact_score || 5,
+                note: record.note || record.conversation_text || '',
+                timestamp: new Date(record.timestamp),
+                recordType: record.recordType || 'quick_check',
+                emotionEvaluation: record.emotion_evaluation,
+                polarityAnalysis: record.polarity_analysis
+              }))
+              
+              set(() => ({
+                records: localRecords,
+                stats: recalculateStats(localRecords),
+                isLoading: false,
+                lastSyncTime: new Date()
+              }))
+              
+              return true
+            } else {
+              set({ 
+                records: [],
+                stats: {},
+                isLoading: false 
+              })
+              return true
+            }
           } else {
             set({ isLoading: false })
             return false
