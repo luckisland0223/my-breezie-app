@@ -338,8 +338,27 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     return detectedEmotions.length > 0 ? detectedEmotions[0]! : 'Other'
   }
 
-  const handleEndSession = () => {
+  // 简单退出，不保存任何记录
+  const handleBackToJourney = () => {
     if (currentSession) {
+      endChatSession()
+    }
+    onBack()
+  }
+
+  // 完成并保存对话记录
+  const handleCompleteSession = () => {
+    if (currentSession) {
+      // 检查是否有实际的对话内容
+      const userMessages = currentSession.messages?.filter(msg => msg.role === 'user') || []
+      
+      if (userMessages.length === 0) {
+        // 没有用户消息，显示提示而不保存
+        toast.info('No conversation to save')
+        handleBackToJourney()
+        return
+      }
+
       // Select representative emotion before ending session
       const repEmotion = selectRepresentativeEmotion()
       setRepresentativeEmotion(repEmotion)
@@ -362,15 +381,17 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
+            {/* Left: Back button */}
             <Button 
               variant="ghost" 
-              onClick={handleEndSession}
+              onClick={handleBackToJourney}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Journey
             </Button>
             
+            {/* Center: Title */}
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                 <MessageCircle className="w-4 h-4 text-white" />
@@ -378,7 +399,20 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
               <span className="font-semibold text-gray-900">Chat with Breezie</span>
             </div>
             
-            <div className="w-20"></div> {/* Spacer for balance */}
+            {/* Right: Complete & Save button (only show if there's conversation content) */}
+            <div className="w-32 flex justify-end">
+              {currentSession?.messages && currentSession.messages.filter(msg => msg.role === 'user').length > 0 ? (
+                <Button 
+                  onClick={handleCompleteSession}
+                  className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
+                  size="sm"
+                >
+                  Complete & Save
+                </Button>
+              ) : (
+                <div className="w-4">{/* Placeholder for balance */}</div>
+              )}
+            </div>
           </div>
         </div>
       </header>
