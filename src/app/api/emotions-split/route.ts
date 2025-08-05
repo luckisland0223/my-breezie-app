@@ -74,13 +74,31 @@ export async function POST(request: NextRequest) {
 
   try {
     // 创建服务器端Supabase客户端以获取认证用户
+    console.log('🔐 API - 开始服务器端认证检查...')
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
+    console.log('👤 API - 认证检查结果:', {
+      hasUser: !!user,
+      userId: user?.id,
+      userEmail: user?.email,
+      authError: authError?.message
+    })
+    
     if (authError || !user) {
-      console.warn('Authentication failed:', authError)
+      console.error('❌ API - 认证失败详情:', {
+        authError: authError?.message,
+        authErrorCode: authError?.status,
+        hasUser: !!user,
+        userAgent: request.headers.get('user-agent'),
+        cookies: request.headers.get('cookie') ? '存在' : '缺失'
+      })
+      
       return NextResponse.json(
-        { error: 'Authentication required. Please sign in.' },
+        { 
+          error: 'Authentication required. Please sign in.',
+          details: authError?.message || 'No valid authentication found'
+        },
         { status: 401 }
       )
     }

@@ -11,6 +11,38 @@ import type { EmotionType } from '@/store/emotion'
 import { Heart, Plus, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 
+// 认证状态检查函数
+const checkAuthStatus = async () => {
+  try {
+    console.log('🔍 执行认证状态检查...')
+    const response = await fetch('/api/auth-check')
+    const data = await response.json()
+    
+    console.log('📊 认证状态检查结果:', data)
+    
+    if (!data.authenticated) {
+      console.error('❌ 认证状态检查失败:', data.error)
+      return false
+    }
+    
+    if (data.session?.expires_soon) {
+      console.warn('⏰ 会话即将过期，建议刷新')
+      toast.warning('登录会话即将过期，请考虑重新登录', {
+        duration: 5000,
+        action: {
+          label: '刷新登录',
+          onClick: () => window.location.href = '/auth/signin'
+        }
+      })
+    }
+    
+    return true
+  } catch (error) {
+    console.error('💥 认证状态检查异常:', error)
+    return false
+  }
+}
+
 export function QuickEmotionCheck() {
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null)
   const [intensity, setIntensity] = useState(5)
@@ -62,13 +94,28 @@ export function QuickEmotionCheck() {
   }, [isDragging, handleMouseMove, handleMouseUp])
 
   const handleQuickRecord = async () => {
+    console.log('🔐 检查认证状态...')
+    console.log('📊 认证信息:', {
+      isLoggedIn,
+      hasUser: !!user,
+      userId: user?.id,
+      userEmail: user?.email,
+      userName: user?.user_name
+    })
+    
     if (!isLoggedIn || !user?.id) {
-      toast.error('Please sign in to record emotions')
+      console.error('❌ 认证检查失败 - 用户未登录')
+      toast.error('请先登录以记录情绪', {
+        action: {
+          label: '前往登录',
+          onClick: () => window.location.href = '/auth/signin'
+        }
+      })
       return
     }
 
     if (!selectedEmotion) {
-      toast.error('Please select an emotion first')
+      toast.error('请先选择一个情绪')
       return
     }
 
@@ -144,19 +191,60 @@ export function QuickEmotionCheck() {
           }
         })
       } else if (error.message?.includes('Access denied') || error.message?.includes('row-level security policy')) {
+        console.error('🚫 RLS策略错误 - 权限被拒绝')
         toast.error('访问被拒绝。请重新登录以确保正确认证。', {
           duration: 5000,
           action: {
             label: '重新登录',
-            onClick: () => window.location.href = '/auth/signin'
+            onClick: () => {
+              console.log('👤 用户点击重新登录按钮')
+              window.location.href = '/auth/signin'
+            }
           }
         })
       } else if (error.message?.includes('Authentication failed') || error.message?.includes('Authentication required')) {
-        toast.error('认证失败，请重新登录。', {
-          duration: 5000,
+        console.error('🔑 认证失败 - 需要重新登录')
+        toast.error('登录状态已过期，请重新登录。', {
+          duration: 6000,
           action: {
-            label: '重新登录',
-            onClick: () => window.location.href = '/auth/signin'
+            label: '立即登录',
+            onClick: () => {
+              console.log('🔐 用户点击立即登录按钮')
+              // 清除本地认证状态
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('supabase.auth.token')
+                localStorage.removeItem('sb-*')
+              }
+              window.location.href = '/auth/signin'
+            }
+          }
+        })
+      } else if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+        console.error('🚨 401未授权错误 - 认证token可能已过期')
+        
+        // 执行详细的认证状态检查
+        checkAuthStatus().then(isValid => {
+          if (!isValid) {
+            console.log('🔧 认证状态检查确认问题，准备清除本地状态')
+          }
+        })
+        
+        toast.error('登录状态已过期，需要重新验证身份。', {
+          duration: 6000,
+          action: {
+            label: '重新验证',
+            onClick: async () => {
+              console.log('🔄 用户点击重新验证按钮')
+              // 先检查认证状态
+              const authValid = await checkAuthStatus()
+              if (!authValid) {
+                // 清除可能过期的认证数据
+                if (typeof window !== 'undefined') {
+                  localStorage.clear()
+                }
+              }
+              window.location.href = '/auth/signin'
+            }
           }
         })
       } else if (error.message?.includes('Database connection failed')) {

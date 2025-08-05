@@ -150,19 +150,48 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           }
         })
       } else if (error.message?.includes('Access denied') || error.message?.includes('row-level security policy')) {
+        console.error('🚫 ChatInterface - RLS策略错误 - 权限被拒绝')
         toast.error('访问被拒绝。请重新登录以确保正确认证。', {
           duration: 5000,
           action: {
             label: '重新登录',
-            onClick: () => window.location.href = '/auth/signin'
+            onClick: () => {
+              console.log('👤 ChatInterface - 用户点击重新登录按钮')
+              window.location.href = '/auth/signin'
+            }
           }
         })
       } else if (error.message?.includes('Authentication failed') || error.message?.includes('Authentication required')) {
-        toast.error('认证失败，请重新登录。', {
-          duration: 5000,
+        console.error('🔑 ChatInterface - 认证失败 - 需要重新登录')
+        toast.error('登录状态已过期，请重新登录。', {
+          duration: 6000,
           action: {
-            label: '重新登录',
-            onClick: () => window.location.href = '/auth/signin'
+            label: '立即登录',
+            onClick: () => {
+              console.log('🔐 ChatInterface - 用户点击立即登录按钮')
+              // 清除本地认证状态
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('supabase.auth.token')
+                localStorage.removeItem('sb-*')
+              }
+              window.location.href = '/auth/signin'
+            }
+          }
+        })
+      } else if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+        console.error('🚨 ChatInterface - 401未授权错误 - 认证token可能已过期')
+        toast.error('登录状态已过期，需要重新验证身份。', {
+          duration: 6000,
+          action: {
+            label: '重新验证',
+            onClick: () => {
+              console.log('🔄 ChatInterface - 用户点击重新验证按钮')
+              // 清除可能过期的认证数据
+              if (typeof window !== 'undefined') {
+                localStorage.clear()
+              }
+              window.location.href = '/auth/signin'
+            }
           }
         })
       } else if (error.message?.includes('Database connection failed')) {
