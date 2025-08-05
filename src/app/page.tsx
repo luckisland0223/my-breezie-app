@@ -17,7 +17,7 @@ import { useEmotionStore } from '@/store/emotionDatabase'
 import { SyncStatus } from '@/components/SyncStatus'
 import { StatusIndicator } from '@/components/StatusIndicator'
 import { AuthFixer } from '@/components/AuthFixer'
-import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target } from 'lucide-react'
+import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -104,12 +104,20 @@ export default function HomePage() {
             <div className="flex items-center space-x-4">
               <StatusIndicator />
               {isLoggedIn && (
-                <Link href="/analytics">
-                  <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4" />
-                    Analytics
-                  </Button>
-                </Link>
+                <>
+                  <Link href="/analytics">
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4" />
+                      Analytics
+                    </Button>
+                  </Link>
+                  <Link href="/test-sync">
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <Database className="w-4 h-4" />
+                      Test Sync
+                    </Button>
+                  </Link>
+                </>
               )}
               <UserProfile />
             </div>
