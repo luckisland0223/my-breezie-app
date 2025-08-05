@@ -49,7 +49,7 @@ export const getDbConfig = (): DatabaseConfig => {
         }
       }
     } catch (error) {
-      console.warn('Failed to load stored database config:', error)
+      // Failed to load stored database config
     }
   }
   

@@ -84,6 +84,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保cookies被发送
         body: JSON.stringify({
           userId: user.id,
           recordType: 'conversation',
@@ -303,6 +304,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保cookies被发送
         body: JSON.stringify({
           userMessage,
           emotion: selectedEmotion || 'Other',
@@ -418,6 +420,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保cookies被发送
         body: JSON.stringify({
           userMessage: `Now that the user has selected "${emotion}" as their main emotion, provide a follow-up response that goes deeper into this feeling. Don't repeat what you already said, but offer new support, ask different questions, or explore this emotion from a fresh angle. Build on the conversation naturally.`,
           emotion: emotion,

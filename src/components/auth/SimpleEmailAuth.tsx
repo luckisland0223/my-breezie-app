@@ -110,6 +110,7 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保cookies被正确设置
         body: JSON.stringify({
           email: email.trim(),
           password: password
@@ -133,7 +134,6 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
       onSuccess?.()
 
     } catch (error) {
-      console.error('Sign in error:', error)
       toast.error('Sign in failed. Please try again.')
     } finally {
       setIsSubmitting(false)
@@ -152,6 +152,7 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保cookies被正确设置
         body: JSON.stringify({
           email: email.trim(),
           password: password,
@@ -176,7 +177,6 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
       onSuccess?.()
 
     } catch (error) {
-      console.error('Sign up error:', error)
       toast.error('Sign up failed. Please try again.')
     } finally {
       setIsSubmitting(false)

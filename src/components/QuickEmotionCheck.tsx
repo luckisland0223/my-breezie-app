@@ -11,31 +11,7 @@ import type { EmotionType } from '@/store/emotion'
 import { Heart, Plus, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 
-// 认证状态检查函数
-const checkAuthStatus = async () => {
-  try {
-    const response = await fetch('/api/auth-check')
-    const data = await response.json()
-    
-    if (!data.authenticated) {
-      return false
-    }
-    
-    if (data.session?.expires_soon) {
-      toast.warning('登录会话即将过期，请考虑重新登录', {
-        duration: 5000,
-        action: {
-          label: '刷新登录',
-          onClick: () => window.location.href = '/auth/signin'
-        }
-      })
-    }
-    
-    return true
-  } catch (error) {
-    return false
-  }
-}
+
 
 export function QuickEmotionCheck() {
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null)
@@ -111,6 +87,7 @@ export function QuickEmotionCheck() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保cookies被发送
         body: JSON.stringify({
           userId: user.id,
           recordType: 'quick_check',
@@ -180,25 +157,14 @@ export function QuickEmotionCheck() {
           }
         })
       } else if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
-        // 执行详细的认证状态检查
-        checkAuthStatus().then(isValid => {
-          if (!isValid) {
-            // 认证状态检查确认问题，准备清除本地状态
-          }
-        })
-        
         toast.error('登录状态已过期，需要重新验证身份。', {
           duration: 6000,
           action: {
             label: '重新验证',
-            onClick: async () => {
-              // 先检查认证状态
-              const authValid = await checkAuthStatus()
-              if (!authValid) {
-                // 清除可能过期的认证数据
-                if (typeof window !== 'undefined') {
-                  localStorage.clear()
-                }
+            onClick: () => {
+              // 清除可能过期的认证数据
+              if (typeof window !== 'undefined') {
+                localStorage.clear()
               }
               window.location.href = '/auth/signin'
             }

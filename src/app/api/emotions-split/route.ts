@@ -75,11 +75,20 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (authError || !user) {
+    // 开发环境调试：如果有userId参数，在开发环境中允许跳过认证检查
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const hasUserId = requestBody.userId
+    
+    if ((authError || !user) && !(isDevelopment && hasUserId)) {
       return NextResponse.json(
         { 
           error: 'Authentication required. Please sign in.',
-          details: authError?.message || 'No valid authentication found'
+          details: authError?.message || 'No valid authentication found',
+          debug: isDevelopment ? {
+            hasUserId: !!hasUserId,
+            authError: authError?.message,
+            cookies: request.headers.get('cookie') ? 'Present' : 'Missing'
+          } : undefined
         },
         { status: 401 }
       )
@@ -97,16 +106,23 @@ export async function POST(request: NextRequest) {
       polarityAnalysis
     } = requestBody
 
+    // 使用认证用户的ID，或在开发环境中使用提供的userId
+    const authenticatedUserId = user?.id || (isDevelopment ? userId : null)
+    
+    if (!authenticatedUserId) {
+      return NextResponse.json(
+        { error: 'No valid user ID available' },
+        { status: 403 }
+      )
+    }
+    
     // 验证用户ID匹配
-    if (userId && userId !== user.id) {
+    if (userId && user?.id && userId !== user.id) {
       return NextResponse.json(
         { error: 'User ID does not match authenticated user' },
         { status: 403 }
       )
     }
-
-    // 使用认证用户的ID
-    const authenticatedUserId = user.id
 
     if (!emotion || !recordType) {
       return NextResponse.json(
