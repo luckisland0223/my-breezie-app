@@ -24,6 +24,25 @@ interface TestResult {
   message: string
   data?: any
   error?: string
+  sync_data?: {
+    user_id: string
+    profile: any
+    quick_checks: {
+      count: number
+      records: any[]
+      error: string | null
+    }
+    conversations: {
+      count: number
+      records: any[]
+      error: string | null
+    }
+    errors: {
+      profile: string | null
+      quick_checks: string | null
+      conversations: string | null
+    }
+  }
 }
 
 export function CrossDeviceSyncTest() {
