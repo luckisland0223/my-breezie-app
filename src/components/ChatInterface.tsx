@@ -105,10 +105,10 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       
       if (data.success) {
         
-        // 同时保存到本地store以更新UI
+        // Save to local store to update UI
         addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
         
-        // 触发数据刷新事件
+        // Trigger data refresh event
         window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
           detail: { record: data.record, type: 'conversation' } 
         }))
@@ -206,26 +206,26 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const extractEmotionsFromText = (text: string): EmotionType[] => {
     const lowerText = text.toLowerCase()
     const emotionKeywords: Partial<Record<EmotionType, string[]>> = {
-      'Anger': ['angry', 'mad', 'furious', 'irritated', 'frustrated', '愤怒', '生气', '恼火', '火大'],
-      'Disgust': ['disgusted', 'grossed', 'repulsed', '恶心', '厌恶', '反感'],
-      'Fear': ['scared', 'afraid', 'terrified', 'anxious', 'worried', '害怕', '恐惧', '担心', '焦虑'],
-      'Joy': ['happy', 'joyful', 'excited', 'cheerful', 'glad', '开心', '快乐', '高兴', '兴奋'],
-      'Sadness': ['sad', 'depressed', 'down', 'upset', 'hurt', '难过', '悲伤', '沮丧', '伤心'],
-      'Surprise': ['surprised', 'shocked', 'amazed', 'astonished', '惊讶', '震惊', '吃惊'],
-      'Love': ['love', 'adore', 'care', 'affection', '爱', '喜欢', '关心', '爱情'],
-      'Hope': ['trust', 'confident', 'secure', 'hopeful', '信任', '相信', '安全感', '希望'],
-      'Excitement': ['excited', 'eager', 'looking forward', '期待', '兴奋', '盼望'],
-      'Anxiety': ['anxious', 'nervous', 'worried', 'stressed', '焦虑', '紧张', '担心', '压力'],
-      'Pride': ['proud', 'accomplished', 'satisfied', '骄傲', '自豪', '满意'],
-      'Shame': ['ashamed', 'embarrassed', 'guilty', '羞愧', '尴尬', '内疚'],
-      'Envy': ['jealous', 'envious', '嫉妒', '羡慕'],
-      'Guilt': ['guilty', 'regretful', 'sorry', '内疚', '后悔', '抱歉'],
-      'Boredom': ['bored', 'tired', 'uninterested', '无聊', '疲倦', '没兴趣'],
-      'Confusion': ['confused', 'puzzled', 'uncertain', '困惑', '迷惑', '不确定'],
-      'Gratitude': ['grateful', 'thankful', 'appreciative', '感激', '感谢', '欣赏'],
-      'Loneliness': ['lonely', 'isolated', 'alone', '孤独', '寂寞', '独自'],
-      'Frustration': ['frustrated', 'annoyed', 'impatient', '沮丧', '恼火', '不耐烦'],
-      'Contentment': ['content', 'peaceful', 'satisfied', '满足', '平静', '满意']
+      'Anger': ['angry', 'mad', 'furious', 'irritated', 'frustrated'],
+      'Disgust': ['disgusted', 'grossed', 'repulsed'],
+      'Fear': ['scared', 'afraid', 'terrified', 'anxious', 'worried'],
+      'Joy': ['happy', 'joyful', 'excited', 'cheerful', 'glad'],
+      'Sadness': ['sad', 'depressed', 'down', 'upset', 'hurt'],
+      'Surprise': ['surprised', 'shocked', 'amazed', 'astonished'],
+      'Love': ['love', 'adore', 'care', 'affection'],
+      'Hope': ['trust', 'confident', 'secure', 'hopeful'],
+      'Excitement': ['excited', 'eager', 'looking forward'],
+      'Anxiety': ['anxious', 'nervous', 'worried', 'stressed'],
+      'Pride': ['proud', 'accomplished', 'satisfied'],
+      'Shame': ['ashamed', 'embarrassed', 'guilty'],
+      'Envy': ['jealous', 'envious'],
+      'Guilt': ['guilty', 'regretful', 'sorry'],
+      'Boredom': ['bored', 'tired', 'uninterested'],
+      'Confusion': ['confused', 'puzzled', 'uncertain'],
+      'Gratitude': ['grateful', 'thankful', 'appreciative'],
+      'Loneliness': ['lonely', 'isolated', 'alone'],
+      'Frustration': ['frustrated', 'annoyed', 'impatient'],
+      'Contentment': ['content', 'peaceful', 'satisfied']
     }
 
     const detectedEmotions: EmotionType[] = []
@@ -375,16 +375,16 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setShowEmotionSelection(false)
     
     if (saved) {
-      toast.success(`${emotion} 情绪记录已成功同步到数据库！影响分数: ${behavioralScore.overall_score}/10`, {
+      toast.success(`${emotion} emotion recorded successfully! Impact score: ${behavioralScore.overall_score}/10`, {
         duration: 4000
       })
     } else {
-      toast.warning(`${emotion} 情绪记录已保存到本地（数据库同步失败）`, {
+      toast.warning(`${emotion} emotion saved locally (database sync failed)`, {
         duration: 5000,
         action: {
-          label: '重试',
+          label: 'Retry',
           onClick: () => {
-            // 可以在这里添加重试逻辑
+            // Can add retry logic here
           }
         }
       })
@@ -403,11 +403,11 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     const saved = await saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
     if (saved) {
-      toast.success(`${emotion} 情绪记录已成功同步到数据库！`, {
+      toast.success(`${emotion} emotion recorded successfully!`, {
         duration: 3000
       })
     } else {
-      toast.warning(`${emotion} 情绪记录已保存到本地（数据库同步失败）`, {
+      toast.warning(`${emotion} emotion saved locally (database sync failed)`, {
         duration: 4000
       })
     }

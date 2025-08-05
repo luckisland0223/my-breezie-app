@@ -179,7 +179,7 @@ export function QuickEmotionCheck() {
           }
         })
       } else {
-        toast.error('记录情绪失败，请稍后重试。')
+        toast.error('Failed to record emotion. Please try again later.')
       }
     }
   }
