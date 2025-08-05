@@ -16,12 +16,12 @@ export default function SettingsPage() {
 
   const handleNotificationChange = (checked: boolean) => {
     setNotifications(checked)
-    toast.success(checked ? '已开启情绪提醒' : '已关闭情绪提醒')
+    toast.success(checked ? 'Emotion reminders enabled' : 'Emotion reminders disabled')
   }
 
   const handleAutoSaveChange = (checked: boolean) => {
     setAutoSave(checked)
-    toast.success(checked ? '已开启自动保存' : '已关闭自动保存')
+    toast.success(checked ? 'Auto-save enabled' : 'Auto-save disabled')
   }
 
   return (
@@ -34,7 +34,7 @@ export default function SettingsPage() {
             className="mb-4 hover:bg-blue-50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            返回
+            Back
           </Button>
           
           <div className="flex items-center gap-3 mb-2">
@@ -42,29 +42,29 @@ export default function SettingsPage() {
               <Heart className="w-5 h-5 text-white" />
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              设置
+              Settings
             </h1>
           </div>
-          <p className="text-gray-600">个性化你的 Breezie 体验</p>
+          <p className="text-gray-600">Personalize your Breezie experience</p>
         </div>
 
         <div className="space-y-6">
-          {/* 通知设置 */}
+          {/* Notification Settings */}
           <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Bell className="w-5 h-5 text-blue-500" />
-                通知设置
+                Notification Settings
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="notifications" className="text-sm font-medium">
-                    每日情绪提醒
+                    Daily Emotion Reminders
                   </Label>
                   <p className="text-xs text-gray-500 mt-1">
-                    提醒你记录每天的情绪状态
+                    Remind you to record your daily emotional state
                   </p>
                 </div>
                 <Switch
@@ -77,10 +77,10 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="autoSave" className="text-sm font-medium">
-                    自动保存对话
+                    Auto-save Conversations
                   </Label>
                   <p className="text-xs text-gray-500 mt-1">
-                    自动保存你与 Breezie 的对话记录
+                    Automatically save your conversation records with Breezie
                   </p>
                 </div>
                 <Switch
@@ -92,26 +92,26 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* 外观设置 */}
+          {/* Appearance Settings */}
           <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Palette className="w-5 h-5 text-purple-500" />
-                外观设置
+                Appearance Settings
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-sm text-gray-600">
-                <p>Breezie 会自动适应你的系统主题设置</p>
-                <p className="text-xs text-gray-500 mt-1">支持浅色和深色模式</p>
+                <p>Breezie automatically adapts to your system theme settings</p>
+                <p className="text-xs text-gray-500 mt-1">Supports light and dark modes</p>
               </div>
             </CardContent>
           </Card>
 
-          {/* 关于 Breezie */}
+          {/* About Breezie */}
           <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-lg">关于 Breezie</CardTitle>
+              <CardTitle className="text-lg">About Breezie</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
@@ -120,19 +120,19 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">Breezie</h3>
-                  <p className="text-sm text-gray-600">情绪健康助手 v1.0.0</p>
+                  <p className="text-sm text-gray-600">Emotional Health Assistant v1.0.0</p>
                 </div>
               </div>
               
               <div className="text-sm text-gray-600 space-y-2">
-                <p>🌟 通过智能对话帮助你理解和管理情绪</p>
-                <p>📊 追踪情绪变化，发现内心规律</p>
-                <p>💝 陪伴你的情绪健康之旅</p>
+                <p>🌟 Help you understand and manage emotions through intelligent conversations</p>
+                <p>📊 Track emotional changes and discover inner patterns</p>
+                <p>💝 Accompany you on your emotional health journey</p>
               </div>
               
               <div className="pt-3 border-t border-gray-100">
                 <p className="text-xs text-gray-500">
-                  你的隐私和数据安全是我们的首要关注
+                  Your privacy and data security are our top priority
                 </p>
               </div>
             </CardContent>

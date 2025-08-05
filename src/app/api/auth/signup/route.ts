@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // Create user account
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
+      email: email.trim().toLowerCase(),
       password,
       options: {
         data: {

@@ -14,7 +14,22 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // User login
+    // First, check if the email exists in the profiles table
+    const { data: existingProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, email, user_name')
+      .eq('email', email.trim().toLowerCase())
+      .single()
+
+    if (profileError || !existingProfile) {
+      console.log('Email not found in profiles table:', email)
+      return NextResponse.json(
+        { error: 'No account found with this email address. Please sign up first.' },
+        { status: 404 }
+      )
+    }
+
+    // If email exists in profiles, proceed with authentication
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -22,20 +37,34 @@ export async function POST(request: NextRequest) {
 
     if (authError) {
       console.error('Signin error:', authError)
-      return NextResponse.json(
-        { error: authError.message },
-        { status: 400 }
-      )
+      
+      // Handle specific authentication errors
+      if (authError.message.includes('Invalid login credentials')) {
+        return NextResponse.json(
+          { error: 'Invalid email or password' },
+          { status: 401 }
+        )
+      } else if (authError.message.includes('Email not confirmed')) {
+        return NextResponse.json(
+          { error: 'Please confirm your email address first' },
+          { status: 401 }
+        )
+      } else {
+        return NextResponse.json(
+          { error: authError.message },
+          { status: 400 }
+        )
+      }
     }
 
     if (!authData.user || !authData.session) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Authentication failed' },
         { status: 401 }
       )
     }
 
-    // Get user configuration information
+    // Get complete user profile information
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')

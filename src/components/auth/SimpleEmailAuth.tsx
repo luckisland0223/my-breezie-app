@@ -120,7 +120,12 @@ export function SimpleEmailAuth({ onSuccess }: SimpleEmailAuthProps) {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(data.error || 'Sign in failed')
+        // Handle specific error messages from the API
+        if (data.error?.includes('No account found')) {
+          toast.error('No account found with this email address. Please sign up first.')
+        } else {
+          toast.error(data.error || 'Sign in failed')
+        }
         return
       }
 

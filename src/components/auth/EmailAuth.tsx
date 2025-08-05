@@ -55,36 +55,46 @@ export function EmailAuth({ onSuccess }: EmailAuthProps) {
 
   // Handle sign in
   const handleSignIn = async () => {
-    if (!isReady()) {
-      toast.error('Please configure Supabase first')
-      return
-    }
-
     setIsSubmitting(true)
     setLoading(true)
 
     try {
-      const client = getSupabaseClient()
-      
-      const { data, error } = await client.auth.signInWithPassword({
-        email: email.trim(),
-        password: password
+      // Use the API endpoint instead of direct Supabase client
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password
+        })
       })
 
-      if (error) {
-        throw error
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Sign in failed')
       }
 
-      if (data.session) {
+      if (data.success && data.session) {
+        // Update the Supabase client with the new session
+        const client = getSupabaseClient()
+        await client.auth.setSession(data.session)
+        
         setSession(data.session)
         toast.success('Successfully signed in!')
         onSuccess?.()
+      } else {
+        throw new Error('Authentication failed')
       }
 
     } catch (error: any) {
       console.error('Sign in error:', error)
       
-      if (error.message.includes('Invalid login credentials')) {
+      if (error.message.includes('No account found')) {
+        toast.error('No account found with this email address. Please sign up first.')
+      } else if (error.message.includes('Invalid email or password')) {
         toast.error('Invalid email or password')
       } else if (error.message.includes('Email not confirmed')) {
         toast.error('Please confirm your email address first')
