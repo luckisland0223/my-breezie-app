@@ -4,39 +4,49 @@ import { createClient } from '@/lib/supabase/server'
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
+    console.log('Signin attempt for email:', email)
 
     if (!email || !password) {
+      console.log('Missing email or password')
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
       )
     }
 
-    const supabase = await createClient()
-
-    // First, check if the email exists in the profiles table
-    const { data: existingProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, email, user_name')
-      .eq('email', email.trim().toLowerCase())
-      .single()
-
-    if (profileError || !existingProfile) {
-      console.log('Email not found in profiles table:', email)
+    console.log('Creating Supabase client...')
+    let supabase
+    try {
+      supabase = await createClient()
+      console.log('Supabase client created successfully')
+    } catch (clientError) {
+      console.error('Failed to create Supabase client:', clientError)
       return NextResponse.json(
-        { error: 'No account found with this email address. Please sign up first.' },
-        { status: 404 }
+        { error: 'Database connection failed' },
+        { status: 500 }
       )
     }
 
-    // If email exists in profiles, proceed with authentication
+    // Temporarily skip email checking in profiles table to debug the issue
+    console.log('Skipping profile check for debugging, proceeding directly with authentication')
+
+    // Proceed with authentication
+    console.log('Attempting Supabase authentication for email:', email)
+    
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password,
     })
 
+    console.log('Authentication result:', {
+      success: !authError,
+      hasUser: !!authData?.user,
+      hasSession: !!authData?.session,
+      error: authError?.message || 'none'
+    })
+
     if (authError) {
-      console.error('Signin error:', authError)
+      console.error('Signin error details:', authError)
       
       // Handle specific authentication errors
       if (authError.message.includes('Invalid login credentials')) {
