@@ -256,9 +256,10 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     toast.success(`Emotion recorded: ${emotion} (Behavioral Impact Score: ${behavioralScore.overall_score}/10)`)
   }
 
-  const handleInlineEmotionSelect = (emotion: EmotionType) => {
+  const handleInlineEmotionSelect = async (emotion: EmotionType) => {
     setSelectedEmotion(emotion)
     setShowInlineEmotions(false)
+    setIsTyping(true)
     
     // Calculate behavioral impact score
     const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
@@ -266,35 +267,44 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // Create emotion record
     addEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
-    // Create caring and guiding response based on emotion
-    const emotionResponses: Record<EmotionType, string> = {
-      'Anger': 'That anger feels intense and heavy right now. Let\'s breathe through this together and find some calm. What\'s stirring up these feelings?',
-      'Sadness': 'There\'s deep sadness here, and that\'s completely valid. Sadness shows us what matters most. You don\'t have to face this alone.',
-      'Fear': 'This fear and uncertainty feels overwhelming right now. Fear often shows us what we care about deeply. Let\'s take this step by step together.',
-      'Joy': 'This lightness and joy is beautiful! Let\'s stay with this feeling. What\'s bringing you this happiness?',
-      'Anxiety': 'Everything feels overwhelming and racing right now. That exhausting feeling in your mind and body is so hard to carry. Let\'s find some grounding together.',
-      'Love': 'There\'s such warmth and love here. This feeling is powerful and meaningful. What\'s filling your heart with this love?',
-      'Surprise': 'Something unexpected has stirred up a lot of feelings. This surprise brings both excitement and uncertainty. What\'s caught you off guard?',
-      'Disgust': 'Something feels really wrong or disturbing right now. These feelings often reflect your values and boundaries. Your reaction matters.',
-      'Pride': 'There\'s real accomplishment and pride here. This moment represents your efforts and growth. What\'s filling you with this pride?',
-      'Shame': 'This shame feels so heavy and painful. Shame is one of the hardest emotions to carry. You deserve compassion, especially from yourself.',
-      'Envy': 'These feelings of envy are so human - they show you have real desires and needs. What is this envy telling you about what you truly want?',
-      'Guilt': 'This guilt is weighing heavily on you. Guilt often comes from a caring heart, even when that heart is hurting. Let\'s work through this together.',
-      'Hope': 'There\'s hope here, like a precious light. Even in difficult times, hope keeps us moving forward. What is this hope telling you?',
-      'Excitement': 'This energy and excitement is wonderful! That anticipation and enthusiasm feels alive. What\'s got you feeling so energized?',
-      'Boredom': 'This restless, empty feeling is surprisingly uncomfortable. Sometimes boredom asks us to seek something more meaningful or engaging. What might reignite your interest?',
-      'Confusion': 'Everything feels unclear and jumbled right now. Confusion can be disorienting, and it\'s okay to not have all the answers. Let\'s explore this uncertainty together.',
-      'Gratitude': 'This gratitude feels so warming. Finding things to appreciate opens our hearts in beautiful ways. What\'s touching your heart right now?',
-      'Loneliness': 'There\'s deep loneliness and disconnection here. Loneliness is one of our deepest human pains. You\'ve reached out, and that takes courage.',
-      'Frustration': 'This frustration is building up inside you. When things aren\'t going as needed, frustration tells us something needs to change. What\'s causing this?',
-      'Contentment': 'There\'s such peaceful contentment here. This sense of satisfaction and inner peace is precious. What\'s contributing to this calm?',
-      'Other': 'There\'s something complex here that\'s hard to name. Sometimes emotions are too nuanced for simple labels. Help me understand what you\'re feeling.'
+    try {
+      // Get personalized AI response based on user's story and selected emotion
+      const messages = currentSession?.messages || []
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userMessage: `The user has shared their story and selected "${emotion}" as the emotion that resonates most with them. Please respond to their original story with this emotional context in mind.`,
+          emotion: emotion,
+          conversationHistory: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }))
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const personalizedResponse = data.response
+        const newResponse = aiResponse + "\n\n" + personalizedResponse
+        setAiResponse(newResponse)
+        addChatMessage({ content: personalizedResponse, role: 'assistant' })
+      } else {
+        throw new Error('Failed to get personalized response')
+      }
+    } catch (error) {
+      console.error('Error getting personalized response:', error)
+      
+      // Fallback to a contextual response that acknowledges their story
+      const fallbackResponse = `I can see that ${emotion.toLowerCase()} really resonates with what you've shared. Your experience matters, and I'm here to understand more about what you're going through. Can you tell me more about this feeling?`
+      const newResponse = aiResponse + "\n\n" + fallbackResponse
+      setAiResponse(newResponse)
+      addChatMessage({ content: fallbackResponse, role: 'assistant' })
+    } finally {
+      setIsTyping(false)
     }
-    
-    const supportiveResponse = emotionResponses[emotion] || emotionResponses['Other']
-    const newResponse = aiResponse + "\n\n" + supportiveResponse
-    setAiResponse(newResponse)
-    addChatMessage({ content: supportiveResponse, role: 'assistant' })
     
     toast.success(`Emotion recorded: ${emotion}`)
   }
