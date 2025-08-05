@@ -20,7 +20,7 @@ export interface GeminiResponse {
 // Gemini API configuration
 const GEMINI_CONFIG = {
   model: API_CONFIG.model,
-  baseURL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+  baseURL: `https://generativelanguage.googleapis.com/v1beta/models/${API_CONFIG.model}:generateContent`,
   maxTokens: API_CONFIG.maxTokens,
   temperature: API_CONFIG.temperature
 }

@@ -77,7 +77,7 @@ export function buildFullPrompt(
 
 // API配置
 export const API_CONFIG = {
-  model: 'gemini-pro',
+  model: 'gemini-1.5-flash',  // 更新为可用的模型
   maxTokens: 600,
   temperature: 0.9,
   topP: 0.8,
