@@ -72,6 +72,50 @@ export function AuthFixer({ onAuthFixed }: AuthFixerProps) {
     }
   }
 
+  const handleSetupFreshDatabase = async () => {
+    setIsChecking(true)
+    setStatus({ type: 'idle', message: 'Setting up fresh database...' })
+    
+    try {
+      const response = await fetch('/api/setup-fresh-database', {
+        method: 'POST',
+        credentials: 'include'
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        setStatus({
+          type: 'success',
+          message: 'Fresh database setup completed!',
+          details: `Created: ${data.tables_created.join(', ')}`
+        })
+        toast.success('Database setup successful! Try using the app now.', {
+          duration: 5000
+        })
+        onAuthFixed?.()
+      } else {
+        setStatus({
+          type: 'error',
+          message: 'Failed to setup database',
+          details: data.details || data.error
+        })
+        toast.error('Database setup failed', {
+          description: data.details || data.error
+        })
+      }
+    } catch (error) {
+      setStatus({
+        type: 'error',
+        message: 'Failed to setup database',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      })
+      toast.error('Database setup failed')
+    } finally {
+      setIsChecking(false)
+    }
+  }
+
   const handleClearAuth = () => {
     // Clear all auth-related localStorage
     localStorage.removeItem('auth-storage')
@@ -150,6 +194,25 @@ export function AuthFixer({ onAuthFixed }: AuthFixerProps) {
           </Button>
 
           <Button
+            onClick={handleSetupFreshDatabase}
+            disabled={isChecking}
+            className="w-full"
+            variant="destructive"
+          >
+            {isChecking ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Setting up...
+              </>
+            ) : (
+              <>
+                <Database className="h-4 w-4 mr-2" />
+                Setup Fresh Database
+              </>
+            )}
+          </Button>
+
+          <Button
             onClick={handleClearAuth}
             variant="outline"
             className="w-full"
@@ -161,12 +224,19 @@ export function AuthFixer({ onAuthFixed }: AuthFixerProps) {
 
         {status.action === 'run_sql_script' && (
           <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm font-medium text-yellow-800">Action Required:</p>
+            <p className="text-sm font-medium text-yellow-800">Quick Fix Available:</p>
             <p className="text-xs text-yellow-700 mt-1">
-              Run the <code>create_split_tables.sql</code> script in your Supabase SQL Editor to create the required database tables.
+              Click "Setup Fresh Database" above to automatically create all required tables, or manually run the <code>create_split_tables.sql</code> script in your Supabase SQL Editor.
             </p>
           </div>
         )}
+        
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm font-medium text-red-800">⚠️ Fresh Database Setup:</p>
+          <p className="text-xs text-red-700 mt-1">
+            The red "Setup Fresh Database" button will <strong>delete all existing tables</strong> and create fresh ones. This fixes all database issues but removes existing data.
+          </p>
+        </div>
       </CardContent>
     </Card>
   )
