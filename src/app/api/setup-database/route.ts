@@ -142,7 +142,10 @@ export async function POST(request: NextRequest) {
 
     // 执行每个SQL命令
     for (let i = 0; i < createTablesSQL.length; i++) {
-      const sql = createTablesSQL[i].trim()
+      const sqlCommand = createTablesSQL[i]
+      if (!sqlCommand) continue
+      
+      const sql = sqlCommand.trim()
       if (!sql) continue
 
       try {
