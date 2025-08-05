@@ -216,7 +216,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     } catch (error) {
       console.error('Chat error:', error)
       toast.error('Sorry, I had trouble responding. Please try again.')
-      const fallbackResponse = "I apologize, but I'm having trouble connecting right now. Please try sending your message again."
+      const fallbackResponse = "Let me try to understand what you're sharing. Could you tell me more about how you're feeling?"
       setAiResponse(fallbackResponse)
       addChatMessage({ content: fallbackResponse, role: 'assistant' })
     } finally {

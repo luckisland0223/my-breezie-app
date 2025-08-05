@@ -151,12 +151,12 @@ export async function getGeminiResponse(
     
     // Return fallback response
     const fallbackResponses = [
-      "I'm here to listen and support you. Sometimes technology has hiccups, but my care for your wellbeing is constant. How are you feeling right now? What would you like to talk about?",
-      "I apologize for the technical difficulty. What matters most is that you're reaching out. How are you feeling right now, and what's on your mind?",
-      "Even when technology isn't perfect, your feelings and experiences matter deeply. I'm here to support you. What would be most helpful to talk about right now?"
+      "I'm here with you. Tell me what's on your mind right now.",
+      "Let's focus on you. What's happening in your world today?",
+      "I'm listening. What would you like to share with me?"
     ]
     
     const randomIndex = Math.floor(Math.random() * fallbackResponses.length)
-    return fallbackResponses[randomIndex] || "I'm here to support you. Could you tell me more about what you're experiencing?"
+    return fallbackResponses[randomIndex] || "I'm here with you. What's going on?"
   }
 }
