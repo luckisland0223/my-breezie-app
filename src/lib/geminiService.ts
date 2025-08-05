@@ -28,12 +28,12 @@ const GEMINI_CONFIG = {
 // 在服务启动时验证配置
 const configValidation = validatePromptConfig()
 if (!configValidation.isValid) {
-  console.error('Prompt configuration validation failed:', configValidation.errors)
+
   if (configValidation.warnings.length > 0) {
-    console.warn('Prompt configuration warnings:', configValidation.warnings)
+  
   }
 } else {
-  console.log(`Prompt configuration loaded successfully (v${PROMPT_INFO.version})`)
+  
 }
 
 export async function getGeminiResponse(
@@ -62,12 +62,6 @@ export async function getGeminiResponse(
       }
     }
 
-    console.log('Sending request to Gemini API:', {
-      url: `${GEMINI_CONFIG.baseURL}?key=${apiKey}`,
-      model: GEMINI_CONFIG.model,
-      messageCount: messages.length
-    })
-
     const response = await fetch(`${GEMINI_CONFIG.baseURL}?key=${apiKey}`, {
       method: 'POST',
       headers: {
@@ -78,27 +72,22 @@ export async function getGeminiResponse(
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Gemini API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText
-      })
       throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
     }
 
     const data = await response.json()
-    console.log('Gemini API response:', data)
+
 
     if (data.candidates && data.candidates[0] && data.candidates[0].content) {
       const content = data.candidates[0].content.parts[0].text
       return content.trim()
     } else {
-      console.error('Unexpected Gemini API response format:', data)
+
       throw new Error('Invalid response format from Gemini API')
     }
 
   } catch (error) {
-    console.error('Gemini API error:', error)
+
     
     // 使用配置化的fallback回复
     return getRandomFallback('apiError')

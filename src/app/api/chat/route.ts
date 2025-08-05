@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY
     
     if (!apiKey) {
-      console.error('GEMINI_API_KEY not found in environment variables')
+
       return NextResponse.json(
         { 
           error: 'Service configuration error',
@@ -46,11 +46,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Log configuration info (for debugging, no sensitive information)
-    console.log('Gemini API Configuration:', {
-      model: 'gemini-pro',
-      apiKeyPresent: !!apiKey,
-      apiKeyLength: apiKey?.length || 0
-    })
 
     // Call Gemini API
     const response = await getGeminiResponse(
@@ -65,7 +60,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    console.error('Chat API error:', error)
+
     
     // Return generic error response
     return NextResponse.json(

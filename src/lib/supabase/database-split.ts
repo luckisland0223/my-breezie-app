@@ -61,7 +61,7 @@ export async function getUserProfile(userId: string): Promise<DatabaseProfile | 
     .single()
 
   if (error) {
-    console.error('Error fetching user profile:', error)
+    
     return null
   }
 
@@ -76,7 +76,7 @@ export async function updateUserProfile(userId: string, updates: Partial<Databas
     .eq('id', userId)
 
   if (error) {
-    console.error('Error updating user profile:', error)
+    
     return false
   }
 
@@ -92,7 +92,7 @@ export async function createQuickEmotionCheck(
   supabaseClient?: any
 ): Promise<DatabaseQuickEmotionCheck | null> {
   try {
-    console.log('Creating quick emotion check with record:', record)
+
     const supabase = supabaseClient || getSupabaseClient()
     
     const { data, error } = await supabase
@@ -102,20 +102,13 @@ export async function createQuickEmotionCheck(
       .single()
 
     if (error) {
-      console.error('Error creating quick emotion check:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-        record
-      })
       throw error // 抛出错误而不是返回null，让上层处理
     }
 
-    console.log('Quick emotion check created successfully:', data)
+
     return data as unknown as DatabaseQuickEmotionCheck
   } catch (error: any) {
-    console.error('Exception in createQuickEmotionCheck:', error)
+
     throw error // 重新抛出错误
   }
 }
@@ -129,7 +122,7 @@ export async function getUserQuickEmotionChecks(userId: string): Promise<Databas
     .order('timestamp', { ascending: false })
 
   if (error) {
-    console.error('Error fetching quick emotion checks:', error)
+    
     return []
   }
 
@@ -151,7 +144,7 @@ export async function getQuickEmotionChecksByDateRange(
     .order('timestamp', { ascending: false })
 
   if (error) {
-    console.error('Error fetching quick emotion checks by date range:', error)
+    
     return []
   }
 
@@ -167,7 +160,7 @@ export async function deleteQuickEmotionCheck(recordId: string, userId: string):
     .eq('user_id', userId)
 
   if (error) {
-    console.error('Error deleting quick emotion check:', error)
+    
     return false
   }
 
@@ -183,10 +176,6 @@ export async function createConversationEmotionRecord(
   supabaseClient?: any
 ): Promise<DatabaseConversationEmotionRecord | null> {
   try {
-    console.log('Creating conversation emotion record with record:', {
-      ...record,
-      conversation_text_length: record.conversation_text?.length || 0
-    })
     const supabase = supabaseClient || getSupabaseClient()
     
     const { data, error } = await supabase
@@ -196,23 +185,13 @@ export async function createConversationEmotionRecord(
       .single()
 
     if (error) {
-      console.error('Error creating conversation emotion record:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-        record: {
-          ...record,
-          conversation_text_length: record.conversation_text?.length || 0
-        }
-      })
       throw error // 抛出错误而不是返回null，让上层处理
     }
 
-    console.log('Conversation emotion record created successfully:', data.id)
+
     return data as unknown as DatabaseConversationEmotionRecord
   } catch (error: any) {
-    console.error('Exception in createConversationEmotionRecord:', error)
+
     throw error // 重新抛出错误
   }
 }
@@ -226,7 +205,7 @@ export async function getUserConversationEmotionRecords(userId: string): Promise
     .order('timestamp', { ascending: false })
 
   if (error) {
-    console.error('Error fetching conversation emotion records:', error)
+    
     return []
   }
 
@@ -248,7 +227,7 @@ export async function getConversationEmotionRecordsByDateRange(
     .order('timestamp', { ascending: false })
 
   if (error) {
-    console.error('Error fetching conversation emotion records by date range:', error)
+    
     return []
   }
 
@@ -264,7 +243,7 @@ export async function deleteConversationEmotionRecord(recordId: string, userId: 
     .eq('user_id', userId)
 
   if (error) {
-    console.error('Error deleting conversation emotion record:', error)
+    
     return false
   }
 
@@ -319,7 +298,7 @@ export async function getAllUserEmotionRecords(userId: string): Promise<UnifiedE
     return allRecords
 
   } catch (error) {
-    console.error('Error fetching all user emotion records:', error)
+    
     return []
   }
 }
@@ -370,7 +349,7 @@ export async function getAllUserEmotionRecordsByDateRange(
     return allRecords
 
   } catch (error) {
-    console.error('Error fetching user emotion records by date range:', error)
+    
     return []
   }
 }
@@ -393,7 +372,7 @@ export async function syncUserData(userId: string) {
       success: true
     }
   } catch (error) {
-    console.error('Error syncing user data:', error)
+    
     return {
       profile: null,
       emotionRecords: [],

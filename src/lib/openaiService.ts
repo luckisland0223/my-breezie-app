@@ -242,7 +242,7 @@ export async function callOpenAI(messages: ChatMessage[], apiKey: string): Promi
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error('OpenAI API Error Details:', errorData)
+      
       
       // Provide more user-friendly error messages
       if (response.status === 401) {
@@ -278,7 +278,7 @@ export async function callOpenAI(messages: ChatMessage[], apiKey: string): Promi
       } : undefined
     }
   } catch (error) {
-    console.error('OpenAI API call failed:', error)
+
     throw error
   }
 }
@@ -306,7 +306,7 @@ export async function getOpenAIResponse(
     
     return response.content
   } catch (error) {
-    console.error('OpenAI response generation failed:', error)
+
     
     // Provide friendly error fallback
     if (error instanceof Error) {

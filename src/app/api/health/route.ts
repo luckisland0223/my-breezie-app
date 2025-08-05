@@ -3,20 +3,20 @@ import { getSupabaseClient } from '@/lib/supabase/client'
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Health check started...')
+    
     
     const supabase = getSupabaseClient()
-    console.log('Supabase client created successfully')
+    
 
     // 检查基本连接
-    console.log('Testing basic connection...')
+    
     const { data: connectionTest, error: connectionError } = await supabase
       .from('profiles')
       .select('count')
       .limit(1)
 
     if (connectionError) {
-      console.error('Connection test failed:', connectionError)
+      
       
       // 表不存在的特殊处理
       if (connectionError.code === 'PGRST116' || connectionError.message?.includes('does not exist')) {
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       }, { status: 503 })
     }
 
-    console.log('Basic connection successful, checking individual tables...')
+    
 
     // 检查每个表是否存在
     const tables = ['profiles', 'quick_emotion_checks', 'conversation_emotion_records']
@@ -58,14 +58,14 @@ export async function GET(request: NextRequest) {
 
     for (const table of tables) {
       try {
-        console.log(`Checking table: ${table}`)
+        
         const { data, error } = await supabase
           .from(table)
           .select('count')
           .limit(1)
 
         if (error) {
-          console.error(`Table ${table} check failed:`, error)
+          
           tableStatus[table] = false
           tableErrors[table] = {
             code: error.code,
@@ -74,11 +74,11 @@ export async function GET(request: NextRequest) {
             hint: error.hint
           }
         } else {
-          console.log(`Table ${table} exists`)
+          
           tableStatus[table] = true
         }
       } catch (err: any) {
-        console.error(`Table ${table} check error:`, err)
+        
         tableStatus[table] = false
         tableErrors[table] = {
           message: err.message,
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       .map(([table]) => table)
 
     if (missingTables.length > 0) {
-      console.warn('Missing tables:', missingTables)
+      
       return NextResponse.json({
         status: 'error',
         message: `Missing database tables: ${missingTables.join(', ')}`,
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
       }, { status: 503 })
     }
 
-    console.log('All tables exist, health check passed')
+    
     return NextResponse.json({
       status: 'healthy',
       message: 'Database connection and all tables are working correctly',
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Health check error:', error)
+    
     
     return NextResponse.json({
       status: 'error',

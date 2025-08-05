@@ -131,10 +131,10 @@ const createTablesSQL = [
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Starting database setup...')
+    
     
     const supabase = getSupabaseClient()
-    console.log('Supabase client created')
+    
 
     const results = []
     let successCount = 0
@@ -149,11 +149,11 @@ export async function POST(request: NextRequest) {
       if (!sql) continue
 
       try {
-        console.log(`Executing SQL command ${i + 1}/${createTablesSQL.length}`)
+        
         const { data, error } = await supabase.rpc('exec_sql', { sql_query: sql })
         
         if (error) {
-          console.error(`SQL command ${i + 1} failed:`, error)
+          
           results.push({
             index: i + 1,
             sql: sql.substring(0, 100) + '...',
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
           })
           errorCount++
         } else {
-          console.log(`SQL command ${i + 1} executed successfully`)
+          
           results.push({
             index: i + 1,
             sql: sql.substring(0, 100) + '...',
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
           successCount++
         }
       } catch (err: any) {
-        console.error(`Exception executing SQL command ${i + 1}:`, err)
+        
         results.push({
           index: i + 1,
           sql: sql.substring(0, 100) + '...',
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
 
     // 如果无法使用rpc执行SQL，尝试直接创建表
     if (errorCount === createTablesSQL.length) {
-      console.log('RPC method failed, trying direct table creation...')
+      
       
       try {
         // 尝试简单的表存在性检查和创建
@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
         })
         
       } catch (directError: any) {
-        console.error('Direct table check also failed:', directError)
+        
         
         return NextResponse.json({
           success: false,
@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (errorCount > 0) {
-      console.warn(`Database setup completed with ${errorCount} errors out of ${createTablesSQL.length} commands`)
+      
       return NextResponse.json({
         success: false,
         message: `Database setup completed with ${errorCount} errors`,
@@ -253,7 +253,7 @@ export async function POST(request: NextRequest) {
       }, { status: 207 }) // 207 Multi-Status
     }
 
-    console.log('Database setup completed successfully!')
+    
     return NextResponse.json({
       success: true,
       message: 'Database setup completed successfully!',
@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Database setup error:', error)
+    
     
     return NextResponse.json({
       success: false,

@@ -9,10 +9,10 @@ async function syncUserDataFromDatabase(userId: string) {
     if (response.ok) {
       const data = await response.json()
       // We'll handle emotion data sync in the emotion store
-      console.log('User data synced from database')
+
     }
   } catch (error) {
-    console.error('Failed to sync user data:', error)
+    
   }
 }
 
@@ -87,7 +87,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           await fetch('/api/auth/signout', { method: 'POST' })
         } catch (error) {
-          console.error('Logout API error:', error)
+    
         }
         
         // Clear local storage
@@ -135,7 +135,7 @@ export const useAuthStore = create<AuthState>()(
             set({ isLoading: false })
           }
         } catch (error) {
-          console.error('Failed to initialize auth from localStorage:', error)
+      
           localStorage.removeItem('breezie_current_user')
           localStorage.removeItem('breezie_session')
           set({ isLoading: false })

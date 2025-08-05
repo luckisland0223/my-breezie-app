@@ -51,7 +51,7 @@ export async function getUserProfile(userId: string): Promise<DatabaseProfile | 
     .single()
 
   if (error) {
-    console.error('Error fetching user profile:', error)
+    
     return null
   }
 
@@ -66,7 +66,7 @@ export async function updateUserProfile(userId: string, updates: Partial<Databas
     .eq('id', userId)
 
   if (error) {
-    console.error('Error updating user profile:', error)
+    
     return false
   }
 
@@ -83,7 +83,7 @@ export async function createEmotionRecord(record: Omit<DatabaseEmotionRecord, 'i
     .single()
 
   if (error) {
-    console.error('Error creating emotion record:', error)
+    
     return null
   }
 
@@ -99,7 +99,7 @@ export async function getUserEmotionRecords(userId: string): Promise<DatabaseEmo
     .order('timestamp', { ascending: false })
 
   if (error) {
-    console.error('Error fetching emotion records:', error)
+    
     return []
   }
 
@@ -121,7 +121,7 @@ export async function getEmotionRecordsByDateRange(
     .order('timestamp', { ascending: false })
 
   if (error) {
-    console.error('Error fetching emotion records by date range:', error)
+    
     return []
   }
 
@@ -137,7 +137,7 @@ export async function deleteEmotionRecord(recordId: string, userId: string): Pro
     .eq('user_id', userId)
 
   if (error) {
-    console.error('Error deleting emotion record:', error)
+    
     return false
   }
 
@@ -154,7 +154,7 @@ export async function createChatSession(session: Omit<DatabaseChatSession, 'id' 
     .single()
 
   if (error) {
-    console.error('Error creating chat session:', error)
+    
     return null
   }
 
@@ -170,7 +170,7 @@ export async function updateChatSession(sessionId: string, userId: string, updat
     .eq('user_id', userId)
 
   if (error) {
-    console.error('Error updating chat session:', error)
+    
     return false
   }
 
@@ -187,7 +187,7 @@ export async function createChatMessage(message: Omit<DatabaseChatMessage, 'id' 
     .single()
 
   if (error) {
-    console.error('Error creating chat message:', error)
+    
     return null
   }
 
@@ -204,7 +204,7 @@ export async function getChatMessages(sessionId: string, userId: string): Promis
     .order('timestamp', { ascending: true })
 
   if (error) {
-    console.error('Error fetching chat messages:', error)
+    
     return []
   }
 
@@ -226,7 +226,7 @@ export async function syncUserData(userId: string) {
       success: true
     }
   } catch (error) {
-    console.error('Error syncing user data:', error)
+    
     return {
       profile: null,
       emotionRecords: [],
