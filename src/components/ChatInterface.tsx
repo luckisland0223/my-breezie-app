@@ -65,6 +65,8 @@ What would you like to talk about?`)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [currentSuggestions, setCurrentSuggestions] = useState<EmotionSuggestion[]>([])
   const [usedSuggestions, setUsedSuggestions] = useState<string[]>([])
+  const [selectedSuggestion, setSelectedSuggestion] = useState<EmotionSuggestion | null>(null)
+  const [suggestionMode, setSuggestionMode] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const currentSession = useEmotionStore((state) => state.currentSession)
@@ -145,44 +147,78 @@ What would you like to talk about?`
   }
 
   // Handle suggestion system
-  const generateSuggestions = (emotion: EmotionType) => {
+  const generateSuggestions = async (emotion: EmotionType) => {
     if (isNegativeEmotion(emotion)) {
       const suggestions = getRandomSuggestions(emotion, 4)
       setCurrentSuggestions(suggestions)
+      setSuggestionMode(true)
+      
+      // Add Breezie's suggestion message
+      const suggestionMessage = "Here are some suggestions that might help you feel better:"
+      setAiResponse(prev => prev + "\n\n" + suggestionMessage)
+      addMessage(suggestionMessage, 'assistant')
       setShowSuggestions(true)
     } else {
       setShowSuggestions(false)
       setCurrentSuggestions([])
+      setSuggestionMode(false)
     }
   }
 
-  const handleSuggestionClick = (suggestion: EmotionSuggestion) => {
-    // Add suggestion to used list
-    setUsedSuggestions(prev => [...prev, suggestion.id])
-    
-    // Set as input value
-    setInputValue(suggestion.text)
-    
-    // Hide suggestions temporarily
-    setShowSuggestions(false)
-    
-    // Send the suggestion as user message
-    setTimeout(() => {
-      handleSendMessage()
-    }, 100)
+  const handleSuggestionSelect = (suggestion: EmotionSuggestion) => {
+    setSelectedSuggestion(suggestion)
   }
 
-  const handleRejectSuggestions = () => {
+  const handleConfirmSuggestion = async () => {
+    if (!selectedSuggestion) return
+    
+    // Add suggestion to used list
+    setUsedSuggestions(prev => [...prev, selectedSuggestion.id])
+    
+    // Add user's selection as a message
+    const selectionMessage = `I'd like to try: "${selectedSuggestion.text}"`
+    addMessage(selectionMessage, 'user')
+    
+    // Reset suggestion mode
     setShowSuggestions(false)
-    setCurrentSuggestions([])
+    setSuggestionMode(false)
+    setSelectedSuggestion(null)
+    setIsTyping(true)
     
-    // Send a message to Breezie indicating user wants more personalized help
-    const rejectMessage = "I don't find these suggestions helpful right now. Can you help me understand what I need better?"
-    setInputValue(rejectMessage)
-    
-    setTimeout(() => {
-      handleSendMessage()
-    }, 100)
+    try {
+      // Get Breezie's follow-up response based on the selected suggestion
+      const messages = currentSession?.messages || []
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          userMessage: `The user selected this suggestion: "${selectedSuggestion.text}". Provide supportive follow-up guidance, encouragement, or ask how they plan to implement it. Be specific and helpful about this particular suggestion.`,
+          emotion: selectedEmotion,
+          conversationHistory: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }))
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const followUpResponse = data.response
+        setAiResponse(followUpResponse)
+        addMessage(followUpResponse, 'assistant')
+      } else {
+        throw new Error('Failed to get follow-up response')
+      }
+    } catch (error) {
+      const fallbackResponse = "That's a great choice! How do you feel about trying this approach?"
+      setAiResponse(fallbackResponse)
+      addMessage(fallbackResponse, 'assistant')
+    } finally {
+      setIsTyping(false)
+    }
   }
 
   const handleMoreSuggestions = () => {
@@ -200,6 +236,54 @@ What would you like to talk about?`
         const freshSuggestions = getRandomSuggestions(selectedEmotion, 4)
         setCurrentSuggestions(freshSuggestions)
       }
+      setSelectedSuggestion(null)
+    }
+  }
+
+  const handleRejectSuggestions = async () => {
+    setShowSuggestions(false)
+    setSuggestionMode(false)
+    setCurrentSuggestions([])
+    setSelectedSuggestion(null)
+    
+    // Add user's rejection message
+    const rejectMessage = "None of these suggestions feel right for me right now."
+    addMessage(rejectMessage, 'user')
+    setIsTyping(true)
+    
+    try {
+      // Get personalized response from Breezie
+      const messages = currentSession?.messages || []
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          userMessage: "The user rejected the suggestions. Ask them more personal questions to understand what kind of support they need. Be empathetic and help them explore their feelings more deeply.",
+          emotion: selectedEmotion,
+          conversationHistory: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }))
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const personalizedResponse = data.response
+        setAiResponse(personalizedResponse)
+        addMessage(personalizedResponse, 'assistant')
+      } else {
+        throw new Error('Failed to get personalized response')
+      }
+    } catch (error) {
+      const fallbackResponse = "I understand those suggestions don't feel right for you. Can you tell me more about what you think might help you feel better right now?"
+      setAiResponse(fallbackResponse)
+      addMessage(fallbackResponse, 'assistant')
+    } finally {
+      setIsTyping(false)
     }
   }
 
@@ -690,6 +774,60 @@ What would you like to talk about?`
                       </div>
                     </div>
                   )}
+                  
+                  {/* Suggestion Selection Interface */}
+                  {showSuggestions && currentSuggestions.length > 0 && (
+                    <div className="bg-green-50/50 backdrop-blur-sm rounded-2xl p-6 border border-green-200/50">
+                      <div className="text-center mb-4">
+                        <p className="text-gray-700 font-medium mb-2">💡 Please choose one of these suggestions:</p>
+                        <p className="text-sm text-gray-600">Select the one that feels most helpful to you right now</p>
+                      </div>
+                      
+                      <div className="space-y-3 mb-4">
+                        {currentSuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion.id}
+                            onClick={() => handleSuggestionSelect(suggestion)}
+                            className={`w-full text-left p-4 rounded-xl transition-all duration-200 border-2 ${
+                              selectedSuggestion?.id === suggestion.id
+                                ? 'bg-green-100 border-green-400 shadow-md'
+                                : 'bg-white hover:bg-green-50 border-gray-200 hover:border-green-300'
+                            }`}
+                            disabled={isTyping}
+                          >
+                            <div className="font-medium text-gray-800">{suggestion.text}</div>
+                            <div className="text-xs text-gray-500 mt-1 capitalize">{suggestion.category} support</div>
+                          </button>
+                        ))}
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleMoreSuggestions}
+                            className="text-sm text-blue-600 hover:text-blue-800 underline"
+                            disabled={isTyping}
+                          >
+                            More suggestions
+                          </button>
+                          <button
+                            onClick={handleRejectSuggestions}
+                            className="text-sm text-gray-500 hover:text-gray-700 underline"
+                            disabled={isTyping}
+                          >
+                            None of these help
+                          </button>
+                        </div>
+                        <Button
+                          onClick={handleConfirmSuggestion}
+                          disabled={!selectedSuggestion || isTyping}
+                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Confirm Selection
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center text-gray-400 py-12">
@@ -720,50 +858,11 @@ What would you like to talk about?`
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={lastUserMessage || "Share your thoughts and feelings here..."}
+                placeholder={suggestionMode ? "Please select from Breezie's suggestions above..." : (lastUserMessage || "Share your thoughts and feelings here...")}
                 className="w-full h-40 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
-                disabled={isTyping}
+                disabled={isTyping || suggestionMode}
                 autoFocus
               />
-              
-              {/* Suggestion Buttons for Negative Emotions */}
-              {showSuggestions && currentSuggestions.length > 0 && (
-                <div className="mt-4 p-4 bg-blue-50/50 rounded-2xl border border-blue-200/50">
-                  <div className="text-sm font-medium text-gray-700 mb-3">
-                    💡 Here are some suggestions that might help:
-                  </div>
-                  <div className="space-y-2 mb-4">
-                    {currentSuggestions.map((suggestion) => (
-                      <button
-                        key={suggestion.id}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="w-full text-left p-3 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-xl transition-all duration-200 text-sm"
-                        disabled={isTyping}
-                      >
-                        <div className="font-medium text-gray-800">{suggestion.text}</div>
-                        <div className="text-xs text-gray-500 mt-1 capitalize">{suggestion.category} support</div>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <button
-                      onClick={handleMoreSuggestions}
-                      className="text-xs text-blue-600 hover:text-blue-800 underline"
-                      disabled={isTyping}
-                    >
-                      More suggestions
-                    </button>
-                    <button
-                      onClick={handleRejectSuggestions}
-                      className="text-xs text-gray-500 hover:text-gray-700 underline"
-                      disabled={isTyping}
-                    >
-                      These don't help me
-                    </button>
-                  </div>
-                </div>
-              )}
-              
               <div className="flex justify-between items-center mt-4">
                 <div className="text-xs text-gray-400 flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -771,7 +870,7 @@ What would you like to talk about?`
                 </div>
                 <Button 
                   onClick={handleSendMessage} 
-                  disabled={!inputValue.trim() || isTyping}
+                  disabled={!inputValue.trim() || isTyping || suggestionMode}
                   className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4 mr-2" />
