@@ -154,8 +154,8 @@ export default function HomePage() {
                           return '0'
                         }
                         
-                        // Get the most recent 3 records
-                        const recentRecords = chatRecords.slice(0, 3)
+                        // Get the most recent 5 records
+                        const recentRecords = chatRecords.slice(0, 5)
                         
                         // Calculate total
                         const totalImpact = recentRecords.reduce((sum, r) => sum + r.behavioralImpact, 0)
@@ -166,7 +166,7 @@ export default function HomePage() {
                         return avgImpact.toFixed(1)
                       })()}
                     </p>
-                    <p className="text-gray-600">Avg Impact Score (Recent 3)</p>
+                    <p className="text-gray-600">Avg Impact Score (Recent 5)</p>
                   </CardContent>
                 </Card>
                 
