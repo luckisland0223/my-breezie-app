@@ -56,23 +56,9 @@ export function EmotionCalendar() {
       let primaryEmotion: EmotionType = 'Joy' // Default
       
       if (dayRecords.length > 0) {
-        // Find most frequent emotion for the day
-        const emotionCount: Record<string, number> = {}
-        dayRecords.forEach(record => {
-          emotionCount[record.emotion] = (emotionCount[record.emotion] || 0) + 1
-        })
-        
-        const mostFrequent = Object.entries(emotionCount)
-          .filter(([_, count]) => count === Math.max(...Object.values(emotionCount)))
-          .map(([emotion]) => emotion as EmotionType)
-        
-        if (mostFrequent.length === 1 && mostFrequent[0]) {
-          primaryEmotion = mostFrequent[0]
-        } else {
-          // If tie, use most recent
-          const sortedRecords = dayRecords.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-          primaryEmotion = sortedRecords[0]?.emotion || 'Joy'
-        }
+        // Use the most recent (last) emotion for the day
+        const sortedRecords = dayRecords.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        primaryEmotion = sortedRecords[0]?.emotion || 'Joy'
       }
       
       dayEmotionsArray.push({
@@ -187,13 +173,14 @@ export function EmotionCalendar() {
                   
                   {/* Emotions */}
                   {hasEmotions && (
-                    <div className="flex-1 flex flex-col justify-center items-center">
-                      <div className="text-sm mb-0.5">
+                    <div className="flex-1 flex flex-col justify-center items-center relative">
+                      <div className="text-lg">
                         {getEmotionEmoji(dayData.primaryEmotion)}
                       </div>
-                      <div className="text-[10px] text-gray-600 leading-tight text-center">
-                        {dayData.emotions.length} record{dayData.emotions.length !== 1 ? 's' : ''}
-                      </div>
+                      {/* Multiple records indicator dot */}
+                      {dayData.emotions.length > 1 && (
+                        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-blue-500 rounded-full border border-white"></div>
+                      )}
                     </div>
                   )}
                 </div>
