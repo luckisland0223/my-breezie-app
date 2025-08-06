@@ -11,11 +11,7 @@ import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
 import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
 import { DailyWellnessTip } from '@/components/DailyWellnessTip'
 import { AchievementBadge } from '@/components/AchievementBadge'
-import UserProfile from '@/components/UserProfile'
-import { useAuthStore } from '@/store/auth'
-import { useEmotionStore } from '@/store/emotionDatabase'
-import { SyncStatus } from '@/components/SyncStatus'
-import { StatusIndicator } from '@/components/StatusIndicator'
+import { useEmotionStore } from '@/store/emotion'
 
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database } from 'lucide-react'
 import { toast } from 'sonner'
@@ -23,76 +19,15 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function HomePage() {
-  const { user, isLoggedIn, isLoading } = useAuthStore()
-  const { loadFromDatabase, records } = useEmotionStore()
+  const { records } = useEmotionStore()
   const [activeTab, setActiveTab] = useState('journey')
   const [showChat, setShowChat] = useState(false)
-  const [authError, setAuthError] = useState(false)
-
-  // Load user data when logged in
-  useEffect(() => {
-    if (user?.id && isLoggedIn) {
-      loadFromDatabase(user.id).catch(() => {
-        // If loading fails, it might be an auth issue
-        setAuthError(true)
-      })
-    }
-  }, [user?.id, isLoggedIn, loadFromDatabase])
-
-  // Listen for authentication errors from emotion recording
-  useEffect(() => {
-    const handleAuthError = (event: CustomEvent) => {
-      if (event.detail?.error?.includes('401') || event.detail?.error?.includes('Authentication')) {
-        setAuthError(true)
-      }
-    }
-
-    window.addEventListener('authError', handleAuthError as EventListener)
-    return () => window.removeEventListener('authError', handleAuthError as EventListener)
-  }, [])
 
   const handleStartConversation = () => {
-    if (!isLoggedIn) {
-      toast.error('Please sign in to start a conversation')
-      return
-    }
     setShowChat(true)
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your emotional wellness journey...</p>
-        </div>
-      </div>
-    )
-  }
 
-  // Show simple error message if there's an authentication error
-  if (authError && isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-        <div className="max-w-md mx-auto text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-8 h-8 text-white" />
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">连接出现问题</h2>
-          <p className="text-gray-600 mb-4">请稍后再试，或重新登录</p>
-          <button 
-            onClick={() => {
-              setAuthError(false)
-              window.location.reload()
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            重新加载
-          </button>
-        </div>
-      </div>
-    )
-  }
 
   if (showChat) {
     return <ChatInterface onBack={() => setShowChat(false)} />
@@ -117,97 +52,24 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <StatusIndicator />
-              {isLoggedIn && (
-                <>
-                  <Link href="/analytics">
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4" />
-                      Analytics
-                    </Button>
-                  </Link>
-
-                </>
-              )}
-              <UserProfile />
+              <Link href="/analytics">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  分析
+                </Button>
+              </Link>
+              <Link href="/settings">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  设置
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </header>
 
-      {!isLoggedIn ? (
-        /* Welcome Screen for Non-logged Users */
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center mb-12">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-              <Heart className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Welcome to <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Breezie</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Your AI-powered emotional wellness companion. Track your emotions, have meaningful conversations, 
-              and discover insights about your emotional patterns.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-medium shadow-lg"
-                onClick={() => window.location.href = '/auth/signin'}
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Get Started
-              </Button>
-            </div>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-lg">
-                  <MessageCircle className="w-6 h-6 text-blue-500" />
-                  AI Conversations
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Have meaningful conversations with our AI assistant that understands your emotions and provides personalized support.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-lg">
-                  <BarChart3 className="w-6 h-6 text-green-500" />
-                  Emotion Analytics
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Track your emotional patterns over time with detailed analytics and behavioral impact scores.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-lg">
-                  <Calendar className="w-6 h-6 text-purple-500" />
-                  Daily Tracking
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Keep a daily record of your emotional journey with our intuitive calendar and tracking tools.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      ) : (
-        /* Main App Interface for Logged Users */
+      {/* Main App Interface */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 lg:w-80 mx-auto">
@@ -229,10 +91,10 @@ export default function HomePage() {
                   <Sparkles className="w-10 h-10 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                  Welcome back, {user?.user_name || 'Friend'}
+                  欢迎来到 Breezie
                 </h2>
                 <p className="text-gray-600 mb-6 max-w-xl mx-auto">
-                  Ready to explore your emotions today? Start a conversation with Breezie or check in with a quick emotion record.
+                  准备好探索今天的情绪了吗？与 Breezie 开始对话，或者快速记录一下情绪。
                 </p>
                 
                 <Button 
@@ -241,13 +103,12 @@ export default function HomePage() {
                   onClick={handleStartConversation}
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  Start a Conversation
+                  开始对话
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
 
-              {/* Sync Status - Only when syncing or has issues */}
-              <SyncStatus />
+
 
               {/* Dashboard Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -443,7 +304,6 @@ export default function HomePage() {
             </TabsContent>
           </Tabs>
         </div>
-      )}
 
       {/* Footer information */}
       <footer className="bg-white/50 backdrop-blur-sm border-t border-white/20 mt-16">

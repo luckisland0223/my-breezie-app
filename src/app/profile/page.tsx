@@ -1,209 +1,201 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useEmotionStore } from '@/store/emotion'
-import { useAuthStore } from '@/store/auth'
 import { Calendar, Heart, TrendingUp, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function ProfilePage() {
-  const { user, isLoggedIn, isLoading, getDisplayName } = useAuthStore()
   const router = useRouter()
-  const allRecords = useEmotionStore((state) => state.records)
-  // Filter records for current user
-  const records = useMemo(() => {
-    try {
-      const savedUser = localStorage.getItem('breezie_current_user')
-      if (savedUser) {
-        const user = JSON.parse(savedUser)
-        return allRecords.filter((record) => record.user_id === user.id)
-      }
-    } catch (error) {
-      // Ignore error
-    }
-    return allRecords
-  }, [allRecords])
+  const records = useEmotionStore((state) => state.records)
   
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      router.push('/auth/signin')
+  // Calculate statistics
+  const stats = useMemo(() => {
+    const totalRecords = records.length
+    const totalDays = new Set(records.map(r => new Date(r.timestamp).toDateString())).size
+    const avgIntensity = records.length > 0 
+      ? (records.reduce((sum, r) => sum + r.behavioralImpact, 0) / records.length).toFixed(1)
+      : '0'
+    
+    // Most common emotion
+    const emotionCounts = records.reduce((acc, record) => {
+      acc[record.emotion] = (acc[record.emotion] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    const mostCommonEmotion = Object.entries(emotionCounts)
+      .sort(([,a], [,b]) => b - a)[0]?.[0] || 'None'
+    
+    return {
+      totalRecords,
+      totalDays,
+      avgIntensity,
+      mostCommonEmotion
     }
-  }, [isLoading, isLoggedIn, router])
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-      </div>
-    )
-  }
-
-  if (!isLoggedIn || !user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle>Sign In Required</CardTitle>
-            <p className="text-gray-600">Please sign in to view your profile.</p>
-          </CardHeader>
-          <CardContent className="text-center">
-            <Button asChild>
-              <Link href="/auth/signin">Sign In</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  const totalRecords = records.length
-  const thisWeekRecords = records.filter(record => {
-    const weekAgo = new Date()
-    weekAgo.setDate(weekAgo.getDate() - 7)
-    return new Date(record.timestamp) >= weekAgo
-  }).length
-
-  const lastMonthRecords = records.filter(record => {
-    const monthAgo = new Date()
-    monthAgo.setMonth(monthAgo.getMonth() - 1)
-    return new Date(record.timestamp) >= monthAgo
-  }).length
+  }, [records])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              onClick={() => router.back()}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <h1 className="text-2xl font-bold">Profile</h1>
-            <div></div>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="mb-4 hover:bg-blue-50"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            返回
+          </Button>
+          
+          <div className="flex items-center gap-4 mb-6">
+            <Avatar className="w-16 h-16">
+              <AvatarImage src="" alt="用户头像" />
+              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xl">
+                <Heart className="w-8 h-8" />
+              </AvatarFallback>
+            </Avatar>
+            
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">我的情绪档案</h1>
+              <p className="text-gray-600">情绪管理之旅的个人概览</p>
+            </div>
           </div>
+        </div>
 
-          {/* Profile Header */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={user.avatar_url ?? ''} />
-                  <AvatarFallback className="text-2xl">
-                    {getDisplayName()[0]?.toUpperCase() ?? 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <CardTitle className="text-3xl">{getDisplayName()}</CardTitle>
-                  <p className="text-gray-600 text-lg">{user.email}</p>
-                  <div className="flex gap-2 mt-2">
-                    <Badge variant="secondary">
-                      Breezie User
-                    </Badge>
-                    <Badge variant="outline">
-                      Active
-                    </Badge>
-                  </div>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Calendar className="w-6 h-6 text-blue-600" />
               </div>
-            </CardHeader>
-          </Card>
-
-          {/* Emotion Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-                <Heart className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalRecords}</div>
-                <p className="text-xs text-muted-foreground">
-                  Emotions recorded all time
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">This Week</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{thisWeekRecords}</div>
-                <p className="text-xs text-muted-foreground">
-                  Recent activity
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">This Month</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{lastMonthRecords}</div>
-                <p className="text-xs text-muted-foreground">
-                  Monthly progress
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Account Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Username</label>
-                  <p className="text-lg font-medium">@{user.user_name || getDisplayName()}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Email Address</label>
-                  <p className="text-lg font-medium">{user.email || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Member Since</label>
-                  <p className="text-lg font-medium">{user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Today'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Account Status</label>
-                  <p className="text-lg font-medium text-green-600">Active</p>
-                </div>
-              </div>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalRecords}</p>
+              <p className="text-gray-600">总记录数</p>
             </CardContent>
           </Card>
+          
+          <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <TrendingUp className="w-6 h-6 text-green-600" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalDays}</p>
+              <p className="text-gray-600">记录天数</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Heart className="w-6 h-6 text-purple-600" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">{stats.avgIntensity}</p>
+              <p className="text-gray-600">平均强度</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <TrendingUp className="w-6 h-6 text-orange-600" />
+              </div>
+              <p className="text-lg font-bold text-gray-900">{stats.mostCommonEmotion}</p>
+              <p className="text-gray-600">最常见情绪</p>
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Quick Actions */}
-          <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                最近活动
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-4">
-                <Button asChild>
-                  <Link href="/">Go to Dashboard</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link href="/tracker">View Analytics</Link>
-                </Button>
-              </div>
+              {records.length > 0 ? (
+                <div className="space-y-3">
+                  {records
+                    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                    .slice(0, 5)
+                    .map((record, index) => (
+                      <div key={record.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                        <div>
+                          <span className="font-medium text-gray-900">{record.emotion}</span>
+                          <p className="text-sm text-gray-600">
+                            {new Date(record.timestamp).toLocaleDateString('zh-CN')}
+                          </p>
+                        </div>
+                        <Badge variant="secondary">{record.behavioralImpact}/10</Badge>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>还没有情绪记录</p>
+                  <p className="text-sm">开始记录你的情绪之旅吧！</p>
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Heart className="w-5 h-5" />
+                情绪分布
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {records.length > 0 ? (
+                <div className="space-y-3">
+                  {Object.entries(
+                    records.reduce((acc, record) => {
+                      acc[record.emotion] = (acc[record.emotion] || 0) + 1
+                      return acc
+                    }, {} as Record<string, number>)
+                  )
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5)
+                    .map(([emotion, count]) => (
+                      <div key={emotion} className="flex justify-between items-center">
+                        <span className="text-gray-700">{emotion}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full"
+                              style={{ width: `${(count / records.length) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-sm text-gray-600 w-8">{count}</span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  <Heart className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>还没有情绪数据</p>
+                  <p className="text-sm">开始记录后就能看到分布了</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link href="/">
+            <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white">
+              <Heart className="w-4 h-4 mr-2" />
+              返回首页
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

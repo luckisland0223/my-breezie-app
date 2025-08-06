@@ -2,8 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useEmotionStore } from '@/store/emotionDatabase'
-import { useAuthStore } from '@/store/auth'
+import { useEmotionStore } from '@/store/emotion'
 import { 
   Trophy, 
   Heart, 
@@ -32,11 +31,6 @@ interface Achievement {
 
 export function AchievementBadge() {
   const { records, getRecentEmotions } = useEmotionStore()
-  const { isLoggedIn } = useAuthStore()
-
-  if (!isLoggedIn) {
-    return null
-  }
 
   const recentEmotions = getRecentEmotions(7)
   const totalRecords = records.length

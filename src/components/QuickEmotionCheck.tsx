@@ -4,21 +4,18 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { useEmotionStore } from '@/store/emotionDatabase'
-import { useAuthStore } from '@/store/auth'
+import { useEmotionStore } from '@/store/emotion'
 import { primaryEmotions, getEmotionEmoji, emotionConfig } from '@/config/emotionConfig'
 import type { EmotionType } from '@/store/emotion'
 import { Heart, Plus, Zap } from 'lucide-react'
 import { toast } from 'sonner'
-
-
 
 export function QuickEmotionCheck() {
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null)
   const [intensity, setIntensity] = useState(5)
   const [isDragging, setIsDragging] = useState(false)
   const sliderRef = useRef<HTMLDivElement>(null)
-  const { user, isLoggedIn } = useAuthStore()
+
   const { addEmotionRecord } = useEmotionStore()
 
   // Calculate intensity based on pixel position
@@ -26,13 +23,21 @@ export function QuickEmotionCheck() {
     if (!sliderRef.current) return intensity
     
     const rect = sliderRef.current.getBoundingClientRect()
-    const relativeX = clientX - rect.left
-    const percentage = Math.max(0, Math.min(1, relativeX / rect.width))
-    
-    // Map percentage to 1-10 range and round to nearest integer
-    const rawValue = 1 + percentage * 9
-    return Math.round(rawValue)
+    const position = Math.max(0, Math.min(clientX - rect.left, rect.width))
+    const percentage = position / rect.width
+    return Math.round(percentage * 10) || 1
   }
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (isDragging) {
+      const newIntensity = calculateIntensityFromPosition(e.clientX)
+      setIntensity(newIntensity)
+    }
+  }, [isDragging, calculateIntensityFromPosition])
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false)
+  }, [])
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true)
@@ -40,17 +45,11 @@ export function QuickEmotionCheck() {
     setIntensity(newIntensity)
   }
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging) return
+  const handleSliderClick = (e: React.MouseEvent) => {
     const newIntensity = calculateIntensityFromPosition(e.clientX)
     setIntensity(newIntensity)
-  }, [isDragging, intensity])
+  }
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-  }, [])
-
-  // Add global mouse event listeners for dragging
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove)
@@ -63,229 +62,139 @@ export function QuickEmotionCheck() {
     }
   }, [isDragging, handleMouseMove, handleMouseUp])
 
-  const handleQuickRecord = async () => {
-    if (!isLoggedIn || !user?.id) {
-      toast.error('Please sign in to record emotions', {
-        action: {
-          label: 'Go to Sign In',
-          onClick: () => window.location.href = '/auth/signin'
-        }
-      })
-      return
-    }
-
+  const handleQuickRecord = () => {
     if (!selectedEmotion) {
-      toast.error('Please select an emotion first')
+      toast.error('请先选择一种情绪')
       return
     }
 
     try {
-
-      // Call database API to save quick emotion check
-      const response = await fetch('/api/emotions-split', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          userId: user.id,
-          recordType: 'quick_check',
-          emotion: selectedEmotion,
-          intensity: intensity,
-          note: `Quick check: ${selectedEmotion} at intensity ${intensity}`
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to record emotion')
-      }
-
-      const data = await response.json()
+      // Save to local store
+      addEmotionRecord(selectedEmotion, intensity, `快速检查: ${selectedEmotion}，强度 ${intensity}`, 'quick_check')
       
-      if (data.success) {
-        
-        // Save to local store to update UI
-        addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion} at intensity ${intensity}`, 'quick_check', undefined, undefined, user?.id)
-        
-        toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully!`)
-        setSelectedEmotion(null)
-        setIntensity(5)
-        
-        // Trigger data refresh event
-        window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
-          detail: { record: data.record, type: 'quick_check' } 
-        }))
-      } else {
-        throw new Error('Failed to record emotion')
-      }
+      toast.success(`${getEmotionEmoji(selectedEmotion)} 情绪记录成功！强度: ${intensity}/10`)
+      setSelectedEmotion(null)
+      setIntensity(5)
 
     } catch (error: any) {
-      // Show different messages based on error type
-      if (error.message?.includes('Database tables do not exist')) {
-        toast.error('Database tables do not exist. Please go to settings page for setup.', {
-          duration: 5000,
-          action: {
-            label: 'Go to Settings',
-            onClick: () => window.location.href = '/settings'
-          }
-        })
-      } else if (error.message?.includes('Access denied') || error.message?.includes('row-level security policy')) {
-        toast.error('Access denied. Please sign in again for proper authentication.', {
-          duration: 5000,
-          action: {
-            label: 'Sign In',
-            onClick: () => {
-              window.location.href = '/auth/signin'
-            }
-          }
-        })
-      } else if (error.message?.includes('Authentication failed') || error.message?.includes('Authentication required')) {
-        toast.error('Authentication expired. Please sign in again.', {
-          duration: 6000,
-          action: {
-            label: 'Sign In Now',
-            onClick: () => {
-              // Clear local auth state
-              if (typeof window !== 'undefined') {
-                localStorage.removeItem('supabase.auth.token')
-                localStorage.removeItem('sb-*')
-              }
-              window.location.href = '/auth/signin'
-            }
-          }
-        })
-      } else if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
-        // Trigger auth error event for the main page to handle
-        window.dispatchEvent(new CustomEvent('authError', { 
-          detail: { error: error.message } 
-        }))
-        
-        toast.error('Authentication expired. Need to re-verify identity.', {
-          duration: 6000,
-          action: {
-            label: 'Fix Authentication',
-            onClick: () => {
-              // The AuthFixer component will handle this
-              window.location.reload()
-            }
-          }
-        })
-      } else if (error.message?.includes('Database connection failed')) {
-        toast.error('Database connection failed. Please check Supabase configuration.', {
-          duration: 5000,
-          action: {
-            label: 'Go to Settings',
-            onClick: () => window.location.href = '/settings'
-          }
-        })
-      } else {
-        toast.error('Failed to record emotion. Please try again later.')
-      }
+      toast.error('保存情绪记录失败')
     }
   }
 
-  if (!isLoggedIn) {
-    return null
+  const getIntensityColor = (value: number) => {
+    if (value <= 3) return 'bg-green-500'
+    if (value <= 6) return 'bg-yellow-500'
+    return 'bg-red-500'
+  }
+
+  const getIntensityLabel = (value: number) => {
+    if (value <= 3) return '轻微'
+    if (value <= 6) return '中等'
+    return '强烈'
   }
 
   return (
-    <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
+    <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Zap className="w-5 h-5 text-orange-500" />
-          Quick Emotion Check
+          <Zap className="w-5 h-5 text-yellow-500" />
+          快速情绪检查
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-gray-600 text-sm">
-          How are you feeling right now? Record it quickly!
-        </p>
-        
-        {/* Primary Emotions Grid */}
-        <div className="grid grid-cols-4 gap-2">
-          {primaryEmotions.slice(0, 8).map((emotion) => {
-            const config = emotionConfig[emotion]
-            const isSelected = selectedEmotion === emotion
-            return (
-              <Button
-                key={emotion}
-                variant={isSelected ? "default" : "outline"}
-                size="sm"
-                className={`p-2 h-auto flex-col gap-1 transition-all duration-200 ${
-                  isSelected 
-                    ? 'bg-gradient-to-br shadow-lg scale-105' 
-                    : 'hover:shadow-md hover:scale-102'
-                }`}
-                style={isSelected ? {
-                  backgroundColor: config.color,
-                  borderColor: config.color
-                } : {}}
-                onClick={() => setSelectedEmotion(emotion)}
-              >
-                <span className="text-2xl">{config.emoji}</span>
-                <span className="text-xs font-medium text-center leading-tight">
-                  {emotion}
-                </span>
-              </Button>
-            )
-          })}
+        {/* Emotion Selection */}
+        <div>
+          <p className="text-sm text-gray-600 mb-3">选择当前情绪：</p>
+          <div className="grid grid-cols-3 gap-2">
+            {primaryEmotions.map((emotion) => {
+              const config = emotionConfig[emotion]
+              const isSelected = selectedEmotion === emotion
+              
+              return (
+                <button
+                  key={emotion}
+                  onClick={() => setSelectedEmotion(emotion)}
+                  className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${
+                    isSelected
+                      ? `border-${config.color}-500 bg-${config.color}-50 shadow-md`
+                      : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">{getEmotionEmoji(emotion)}</div>
+                  <div className={`text-xs font-medium ${
+                    isSelected ? `text-${config.color}-700` : 'text-gray-600'
+                  }`}>
+{emotion}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         {/* Intensity Slider */}
         {selectedEmotion && (
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">
-                Intensity: {intensity}/10
-              </span>
-              <Badge 
-                variant="secondary"
-                style={{ 
-                  backgroundColor: emotionConfig[selectedEmotion].bgColor,
-                  color: emotionConfig[selectedEmotion].color 
-                }}
-              >
-                {getEmotionEmoji(selectedEmotion)} {selectedEmotion}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">强度等级：</p>
+              <Badge variant="secondary" className="flex items-center gap-1">
+                {intensity}/10 - {getIntensityLabel(intensity)}
               </Badge>
             </div>
+            
             <div 
               ref={sliderRef}
-              className="relative h-3 bg-gray-200 rounded-full cursor-pointer select-none"
+              className="relative h-8 bg-gray-200 rounded-full cursor-pointer select-none"
               onMouseDown={handleMouseDown}
-              style={{
-                background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}40 0%, ${emotionConfig[selectedEmotion].color} ${(intensity - 1) / 9 * 100}%, #e5e7eb ${(intensity - 1) / 9 * 100}%, #e5e7eb 100%)`
-              }}
+              onClick={handleSliderClick}
             >
+              {/* Background track with gradient */}
+              <div className="absolute inset-0 bg-gradient-to-r from-green-300 via-yellow-300 to-red-300 rounded-full opacity-50"></div>
+              
+              {/* Active track */}
+              <div 
+                className={`absolute top-0 left-0 h-full ${getIntensityColor(intensity)} rounded-full transition-all duration-200`}
+                style={{ width: `${(intensity / 10) * 100}%` }}
+              ></div>
+              
               {/* Slider thumb */}
-              <div
-                className="absolute top-1/2 w-5 h-5 bg-white border-2 rounded-full shadow-lg transition-transform duration-75"
-                style={{
-                  left: `${(intensity - 1) / 9 * 100}%`,
-                  borderColor: emotionConfig[selectedEmotion].color,
-                  transform: `translate(-50%, -50%) ${isDragging ? 'scale(1.2)' : 'scale(1)'}`,
-                  cursor: isDragging ? 'grabbing' : 'grab'
-                }}
-              />
+              <div 
+                className={`absolute top-1/2 w-6 h-6 ${getIntensityColor(intensity)} border-2 border-white rounded-full shadow-lg transform -translate-y-1/2 cursor-grab active:cursor-grabbing transition-all duration-200 ${
+                  isDragging ? 'scale-110' : 'hover:scale-105'
+                }`}
+                style={{ left: `calc(${(intensity / 10) * 100}% - 12px)` }}
+              ></div>
+              
+              {/* Scale markers */}
+              <div className="absolute inset-0 flex justify-between items-center px-2 pointer-events-none">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                  <div key={num} className="w-0.5 h-2 bg-gray-400 opacity-50"></div>
+                ))}
+              </div>
             </div>
+            
             <div className="flex justify-between text-xs text-gray-500">
-              <span>Mild</span>
-              <span>Moderate</span>
-              <span>Intense</span>
+              <span>1 - 轻微</span>
+              <span>5 - 中等</span>
+              <span>10 - 强烈</span>
             </div>
           </div>
         )}
 
         {/* Record Button */}
         <Button 
-          onClick={handleQuickRecord} 
+          onClick={handleQuickRecord}
           disabled={!selectedEmotion}
-          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Record Emotion
+          记录情绪
         </Button>
+
+        {/* Quick Tips */}
+        <div className="text-xs text-gray-500 text-center">
+          💡 快速记录你的当前情绪状态，帮助追踪情绪变化
+        </div>
       </CardContent>
     </Card>
   )

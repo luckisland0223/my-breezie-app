@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useEmotionStore } from '@/store/emotionDatabase'
-import { useAuthStore } from '@/store/auth'
+import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType } from '@/store/emotion'
 import { Send, ArrowLeft, MessageCircle, User, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
@@ -58,128 +57,26 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [conversationEnded, setConversationEnded] = useState(false)
   const [representativeEmotion, setRepresentativeEmotion] = useState<EmotionType | null>(null)
 
-  const { user } = useAuthStore()
   const currentSession = useEmotionStore((state) => state.currentSession)
   const startChatSession = useEmotionStore((state) => state.startChatSession)
-  const addChatMessage = useEmotionStore((state) => state.addChatMessage)
+  const addMessage = useEmotionStore((state) => state.addMessage)
   const endChatSession = useEmotionStore((state) => state.endChatSession)
   const addEmotionRecord = useEmotionStore((state) => state.addEmotionRecord)
 
-  // Helper function to save conversation emotion record to database
-  const saveConversationEmotionRecord = async (
+  // Helper function to save conversation emotion record locally
+  const saveConversationEmotionRecord = (
     emotion: EmotionType, 
     behavioralImpactScore: number, 
     conversationText: string,
     emotionEvaluation?: any,
     polarityAnalysis?: any
   ) => {
-    if (!user?.id) {
-      return false
-    }
-
     try {
-
-      const response = await fetch('/api/emotions-split', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          userId: user.id,
-          recordType: 'conversation',
-          emotion: emotion,
-          conversationText: conversationText,
-          behavioralImpactScore: behavioralImpactScore,
-          emotionEvaluation: emotionEvaluation,
-          polarityAnalysis: polarityAnalysis
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to save conversation record')
-      }
-
-      const data = await response.json()
-      
-      if (data.success) {
-        
-        // Save to local store to update UI
-        addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis, user.id)
-        
-        // Trigger data refresh event
-        window.dispatchEvent(new CustomEvent('emotionRecordAdded', { 
-          detail: { record: data.record, type: 'conversation' } 
-        }))
-        
-        return true
-      } else {
-        throw new Error('Failed to save conversation record')
-      }
-
+      // Save to local store
+      addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
+      return true
     } catch (error: any) {
-      
-      // Show different messages based on error type
-      if (error.message?.includes('Database tables do not exist')) {
-        toast.error('Database tables do not exist. Please go to settings page for setup.', {
-          duration: 5000,
-          action: {
-            label: 'Go to Settings',
-            onClick: () => window.location.href = '/settings'
-          }
-        })
-      } else if (error.message?.includes('Access denied') || error.message?.includes('row-level security policy')) {
-        toast.error('Access denied. Please sign in again for proper authentication.', {
-          duration: 5000,
-          action: {
-            label: 'Sign In',
-            onClick: () => {
-              window.location.href = '/auth/signin'
-            }
-          }
-        })
-      } else if (error.message?.includes('Authentication failed') || error.message?.includes('Authentication required')) {
-        toast.error('Authentication expired. Please sign in again.', {
-          duration: 6000,
-          action: {
-            label: 'Sign In Now',
-            onClick: () => {
-              // Clear local auth state
-              if (typeof window !== 'undefined') {
-                localStorage.removeItem('supabase.auth.token')
-                localStorage.removeItem('sb-*')
-              }
-              window.location.href = '/auth/signin'
-            }
-          }
-        })
-      } else if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
-        toast.error('Authentication expired. Need to re-verify identity.', {
-          duration: 6000,
-          action: {
-            label: 'Re-verify',
-            onClick: () => {
-              // Clear potentially expired auth data
-              if (typeof window !== 'undefined') {
-                localStorage.clear()
-              }
-              window.location.href = '/auth/signin'
-            }
-          }
-        })
-      } else if (error.message?.includes('Database connection failed')) {
-        toast.error('Database connection failed. Please check Supabase configuration.', {
-          duration: 5000,
-          action: {
-            label: 'Go to Settings',
-            onClick: () => window.location.href = '/settings'
-          }
-        })
-      }
-      
-      // Still save to local store as fallback
-      addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis, user?.id)
+      toast.error('保存对话记录失败')
       return false
     }
   }
@@ -187,16 +84,14 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   // Initialize conversation with welcome message
   useEffect(() => {
     if (!hasInitialMessage && !currentSession) {
-      const welcomeMessage = user?.user_name 
-        ? `Hello ${user.user_name}! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What's on your mind right now?`
-        : `Hello! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What would you like to talk about?`
+      const welcomeMessage = `你好！我是 Breezie，你的情绪健康伙伴。我在这里倾听并支持你度过今天的任何经历。你想聊什么呢？`
       
       startChatSession('Other') // Start with a default emotion
       setAiResponse(welcomeMessage)
-      addChatMessage({ content: welcomeMessage, role: 'assistant' })
+      addMessage(welcomeMessage, 'assistant')
       setHasInitialMessage(true)
     }
-  }, [hasInitialMessage, currentSession, startChatSession, addChatMessage, user?.user_name])
+  }, [hasInitialMessage, currentSession, startChatSession, addMessage])
 
   const handleTypewriterComplete = () => {
     // Typewriter animation completed
@@ -290,7 +185,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setAiResponse('')
 
     // Add user message to chat
-    addChatMessage({ content: userMessage, role: 'user' })
+    addMessage(userMessage, 'user')
     setConversationText(prev => prev + ' ' + userMessage)
 
     // Check if this is the first user message to show emotion selection
@@ -319,7 +214,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         const data = await response.json()
         const aiMessage = data.response
         setAiResponse(aiMessage)
-        addChatMessage({ content: aiMessage, role: 'assistant' })
+        addMessage(aiMessage, 'assistant')
         setConversationText(prev => prev + ' ' + aiMessage)
 
         // Show inline emotion selection after first exchange (user message + AI response)
@@ -338,7 +233,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       toast.error('Sorry, I had trouble responding. Please try again.')
       const fallbackResponse = getRandomFallback('chatError')
       setAiResponse(fallbackResponse)
-      addChatMessage({ content: fallbackResponse, role: 'assistant' })
+      addMessage(fallbackResponse, 'assistant')
     } finally {
       setIsTyping(false)
     }
@@ -358,13 +253,13 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // Calculate behavioral impact score
     const behavioralScore = calculateBehavioralImpactScore(emotion, intensity, conversationText)
     
-    // Save to database
-    const saved = await saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    // Save locally
+    const saved = saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
     // Get emotion-specific response
     const emotionResponse = getRandomResponse(emotion)
     setAiResponse(emotionResponse)
-    addChatMessage({ content: emotionResponse, role: 'assistant' })
+    addMessage(emotionResponse, 'assistant')
     
     // Update session emotion
     if (currentSession) {
@@ -399,8 +294,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // Calculate behavioral impact score
     const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
     
-    // Save to database
-    const saved = await saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    // Save locally
+    const saved = saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
     if (saved) {
       toast.success(`${emotion} emotion recorded successfully!`, {
@@ -436,7 +331,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         const personalizedResponse = data.response
         const newResponse = aiResponse + "\n\n" + personalizedResponse
         setAiResponse(newResponse)
-        addChatMessage({ content: personalizedResponse, role: 'assistant' })
+        addMessage(personalizedResponse, 'assistant')
       } else {
         throw new Error('Failed to get personalized response')
       }
@@ -446,7 +341,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       const fallbackResponse = getRandomFallback('emotionSelectionError')
       const newResponse = aiResponse + "\n\n" + fallbackResponse
       setAiResponse(newResponse)
-      addChatMessage({ content: fallbackResponse, role: 'assistant' })
+      addMessage(fallbackResponse, 'assistant')
     } finally {
       setIsTyping(false)
     }
@@ -458,7 +353,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setShowEmotionSelection(false)
     const skipResponse = "No worries at all! What else is going on with you?"
     setAiResponse(skipResponse)
-    addChatMessage({ content: skipResponse, role: 'assistant' })
+    addMessage(skipResponse, 'assistant')
     toast.success("Emotion selection skipped")
   }
 
@@ -720,7 +615,6 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         <EmotionSelectionDialog
           onEmotionSelect={handleEmotionSelect}
           onSkip={handleSkipEmotion}
-          userName={user?.user_name}
         />
       )}
     </div>

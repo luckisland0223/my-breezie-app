@@ -2,19 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useEmotionStore } from '@/store/emotionDatabase'
-import { useAuthStore } from '@/store/auth'
+import { useEmotionStore } from '@/store/emotion'
 import { getEmotionEmoji, emotionConfig } from '@/config/emotionConfig'
 import { TrendingUp, TrendingDown, Calendar } from 'lucide-react'
 import { format, subDays, isToday, isYesterday } from 'date-fns'
 
 export function RecentEmotionTrend() {
-  const { isLoggedIn } = useAuthStore()
   const { records } = useEmotionStore()
-
-  if (!isLoggedIn) {
-    return null
-  }
 
   // Get last 7 days of records
   const sevenDaysAgo = subDays(new Date(), 7)

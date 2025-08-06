@@ -22,7 +22,7 @@ export type RecordType = 'chat' | 'quick_check'
 
 export interface EmotionRecord {
   id: string
-  user_id: string // User ID to associate record with specific user
+  user_id?: string // User ID (optional, for future use)
   emotion: EmotionType // User's initially selected emotion
   behavioralImpact: number // Emotion's impact on behavior (1-10)
   note: string
@@ -163,14 +163,10 @@ interface EmotionState {
   addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, recordType?: RecordType, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis, userId?: string) => void
   getRecordsByEmotion: (emotion: EmotionType) => EmotionRecord[]
   getRecordsByDateRange: (startDate: Date, endDate: Date) => EmotionRecord[]
-  getRecordsByUser: (userId: string) => EmotionRecord[]
-  getCurrentUserRecords: () => EmotionRecord[]
   getEmotionStats: () => EmotionStats
   getRecentEmotions: (days: number) => EmotionRecord[]
   clearAllRecords: () => void
   deleteRecord: (recordId: string) => void
-  loadUserRecordsFromDatabase: (userId: string) => Promise<void>
-  setRecords: (records: EmotionRecord[]) => void
   
   // Chat actions
   startChatSession: (emotion: EmotionType) => void
@@ -224,25 +220,11 @@ export const useEmotionStore = create<EmotionState>()(
 
       // Add emotion record
       addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, recordType: RecordType = 'chat', emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis, userId?: string) => {
-        // Get current user ID if not provided
-        const currentUserId = userId || (() => {
-          try {
-            const savedUser = localStorage.getItem('breezie_current_user')
-            if (savedUser) {
-              const user = JSON.parse(savedUser)
-              return user.id
-            }
-          } catch (error) {
-            console.warn('Could not get current user ID for emotion record')
-          }
-          return 'anonymous' // Fallback for non-authenticated users
-        })()
-
         const newRecord: EmotionRecord = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          user_id: currentUserId,
+          user_id: userId || 'local',
           emotion,
-          behavioralImpact: intensity, // Use the passed intensity value directly
+          behavioralImpact: intensity,
           note,
           timestamp: new Date(),
           recordType,
@@ -263,67 +245,18 @@ export const useEmotionStore = create<EmotionState>()(
         })
       },
 
-      // Get records by emotion (filtered by current user)
+      // Get records by emotion
       getRecordsByEmotion: (emotion: EmotionType) => {
-        const currentUserId = (() => {
-          try {
-            const savedUser = localStorage.getItem('breezie_current_user')
-            if (savedUser) {
-              const user = JSON.parse(savedUser)
-              return user.id
-            }
-          } catch (error) {
-            // Ignore error
-          }
-          return null
-        })()
-        
-        return get().records.filter((record) => 
-          record.emotion === emotion && 
-          (currentUserId ? record.user_id === currentUserId : true)
-        )
+        return get().records.filter((record) => record.emotion === emotion)
       },
 
-      // Get records by date range (filtered by current user)
+      // Get records by date range
       getRecordsByDateRange: (startDate: Date, endDate: Date) => {
-        const currentUserId = (() => {
-          try {
-            const savedUser = localStorage.getItem('breezie_current_user')
-            if (savedUser) {
-              const user = JSON.parse(savedUser)
-              return user.id
-            }
-          } catch (error) {
-            // Ignore error
-          }
-          return null
-        })()
-        
         return get().records.filter(
           (record) =>
             record.timestamp >= startDate && 
-            record.timestamp <= endDate &&
-            (currentUserId ? record.user_id === currentUserId : true)
+            record.timestamp <= endDate
         )
-      },
-
-      // Get records by specific user ID
-      getRecordsByUser: (userId: string) => {
-        return get().records.filter((record) => record.user_id === userId)
-      },
-
-      // Get records for current authenticated user
-      getCurrentUserRecords: () => {
-        try {
-          const savedUser = localStorage.getItem('breezie_current_user')
-          if (savedUser) {
-            const user = JSON.parse(savedUser)
-            return get().records.filter((record) => record.user_id === user.id)
-          }
-        } catch (error) {
-          // Ignore error
-        }
-        return get().records // Return all records if no user found (fallback)
       },
 
       // Get statistics data
@@ -331,28 +264,12 @@ export const useEmotionStore = create<EmotionState>()(
         return get().stats
       },
 
-      // Get recent records from last few days (filtered by current user)
+      // Get recent records from last few days
       getRecentEmotions: (days: number) => {
-        const currentUserId = (() => {
-          try {
-            const savedUser = localStorage.getItem('breezie_current_user')
-            if (savedUser) {
-              const user = JSON.parse(savedUser)
-              return user.id
-            }
-          } catch (error) {
-            // Ignore error
-          }
-          return null
-        })()
-        
         const now = new Date()
         const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
         return get().records
-          .filter((record) => 
-            new Date(record.timestamp) >= daysAgo &&
-            (currentUserId ? record.user_id === currentUserId : true)
-          )
+          .filter((record) => new Date(record.timestamp) >= daysAgo)
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       },
 
@@ -428,47 +345,7 @@ export const useEmotionStore = create<EmotionState>()(
         }
       },
 
-      // Load user records from database
-      loadUserRecordsFromDatabase: async (userId: string) => {
-        try {
-          const response = await fetch(`/api/emotions?userId=${userId}`)
-          if (response.ok) {
-            const data = await response.json()
-            if (data.success && data.records) {
-              // Transform database records to match our interface
-              const transformedRecords: EmotionRecord[] = data.records.map((record: any) => ({
-                id: record.id,
-                user_id: record.user_id,
-                emotion: record.emotion,
-                behavioralImpact: record.intensity || record.behavioral_impact || 5,
-                note: record.note || '',
-                timestamp: new Date(record.timestamp),
-                recordType: record.record_type || 'quick_check',
-                emotionEvaluation: record.emotion_evaluation,
-                polarityAnalysis: record.polarity_analysis,
-              }))
-              
-              // Replace all records with user-specific records
-              const newStats = recalculateStats(transformedRecords)
-              set({
-                records: transformedRecords,
-                stats: newStats,
-              })
-            }
-          }
-        } catch (error) {
-          console.error('Failed to load user records from database:', error)
-        }
-      },
 
-      // Set records directly (for data loading)
-      setRecords: (records: EmotionRecord[]) => {
-        const newStats = recalculateStats(records)
-        set({
-          records,
-          stats: newStats,
-        })
-      },
     }),
     {
       name: 'emotion-storage',
