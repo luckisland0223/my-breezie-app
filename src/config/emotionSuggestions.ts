@@ -433,6 +433,9 @@ export const COMFORT_RESPONSES: Record<EmotionType, string[]> = {
 // Get a comfort response for the given emotion
 export function getComfortResponse(emotion: EmotionType): string {
   const responses = COMFORT_RESPONSES[emotion] || COMFORT_RESPONSES['Other']
+  if (!responses || responses.length === 0) {
+    return "I'm here with you, and your feelings are valid 💙"
+  }
   return responses[Math.floor(Math.random() * responses.length)]
 }
 
