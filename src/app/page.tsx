@@ -38,6 +38,7 @@ export default function HomePage() {
               <MessageCircle className="w-8 h-8 text-white" />
             </div>
             <p className="text-gray-600">Loading chat...</p>
+            <p className="text-xs text-gray-400 mt-2">Gentle care, everywhere</p>
           </div>
         </div>
       }>
@@ -60,7 +61,7 @@ export default function HomePage() {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Breezie
                 </h1>
-                <p className="text-xs text-gray-500">Emotional Wellness Assistant</p>
+                <p className="text-xs text-gray-500">Gentle care, everywhere</p>
               </div>
             </div>
             
@@ -90,6 +91,7 @@ export default function HomePage() {
               <Heart className="w-8 h-8 text-white" />
             </div>
             <p className="text-gray-600">Loading your journey...</p>
+            <p className="text-xs text-gray-400 mt-2">Gentle care, everywhere</p>
           </div>
         </div>
       }>
@@ -101,7 +103,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <p className="text-gray-600 mb-2">
-              <strong>Breezie v2.0</strong> - Your Emotional Wellness Journey
+              <strong>Breezie v2.0</strong> - Gentle care, everywhere
             </p>
             <p className="text-sm text-gray-500">
               Powered by AI • Designed for Your Wellbeing • Privacy-First Approach
