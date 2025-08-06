@@ -152,6 +152,11 @@ What would you like to talk about?`
       const suggestions = getRandomSuggestions(emotion, 4)
       setCurrentSuggestions(suggestions)
       setSuggestionMode(true)
+      
+      // Add Breezie's suggestion announcement message
+      const suggestionMessage = "Here are some suggestions that might help you feel better:"
+      setAiResponse(prev => prev + "\n\n" + suggestionMessage)
+      addMessage(suggestionMessage, 'assistant')
       setShowSuggestions(true)
     } else {
       setShowSuggestions(false)
@@ -783,46 +788,48 @@ What would you like to talk about?`
           </div>
         </div>
 
-        {/* User Input Area */}
-        <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
-          <div className="p-6">
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mr-3">
-                <User className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="text-gray-800 font-semibold">Your Thoughts</span>
-                <div className="text-xs text-gray-400">Press Enter to send, Shift + Enter for new line</div>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <textarea
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={suggestionMode ? "Please select from Breezie's suggestions above..." : (lastUserMessage || "Share your thoughts and feelings here...")}
-                className="w-full h-40 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
-                disabled={isTyping || suggestionMode}
-                autoFocus
-              />
-              <div className="flex justify-between items-center mt-4">
-                <div className="text-xs text-gray-400 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  Online
+        {/* User Input Area - Hidden when suggestions are showing */}
+        {!showSuggestions && (
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mr-3">
+                  <User className="w-5 h-5 text-white" />
                 </div>
-                <Button 
-                  onClick={handleSendMessage} 
-                  disabled={!inputValue.trim() || isTyping || suggestionMode}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Send
-                </Button>
+                <div>
+                  <span className="text-gray-800 font-semibold">Your Thoughts</span>
+                  <div className="text-xs text-gray-400">Press Enter to send, Shift + Enter for new line</div>
+                </div>
+              </div>
+              
+              <div className="relative">
+                <textarea
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={lastUserMessage || "Share your thoughts and feelings here..."}
+                  className="w-full h-40 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                  disabled={isTyping}
+                  autoFocus
+                />
+                <div className="flex justify-between items-center mt-4">
+                  <div className="text-xs text-gray-400 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    Online
+                  </div>
+                  <Button 
+                    onClick={handleSendMessage} 
+                    disabled={!inputValue.trim() || isTyping}
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    Send
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Suggestion Selection Interface - Moved outside chat box */}
         {showSuggestions && currentSuggestions.length > 0 && (
