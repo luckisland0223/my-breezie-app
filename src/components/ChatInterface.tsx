@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType } from '@/store/emotion'
-import { Send, ArrowLeft, MessageCircle, User, Sparkles } from 'lucide-react'
+import { Send, ArrowLeft, MessageCircle, User, Sparkles, History, ChevronDown, ChevronUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { EmotionSelectionDialog } from './EmotionSelectionDialog'
@@ -56,6 +56,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType>('Other')
   const [conversationEnded, setConversationEnded] = useState(false)
   const [representativeEmotion, setRepresentativeEmotion] = useState<EmotionType | null>(null)
+  const [showConversationHistory, setShowConversationHistory] = useState(false)
 
   const currentSession = useEmotionStore((state) => state.currentSession)
   const startChatSession = useEmotionStore((state) => state.startChatSession)
@@ -522,7 +523,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
             </div>
             
             {/* AI Response - Fixed Height Container */}
-            <div className="text-gray-800 leading-relaxed text-lg min-h-[300px] max-h-[500px] overflow-y-auto">
+            <div className="text-gray-800 leading-relaxed text-lg h-[400px] overflow-y-auto border border-gray-100 rounded-2xl p-4 bg-gray-50/30">
               {isTyping ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex space-x-2">
@@ -628,29 +629,52 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           </div>
         </div>
 
-        {/* Chat History */}
+        {/* Conversation History Button */}
         {currentSession?.messages && currentSession.messages.length > 1 && (
-          <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Conversation History</h3>
-              <div className="space-y-4 max-h-64 overflow-y-auto">
-                {currentSession.messages.slice(1).map((message, index) => ( // Skip first welcome message
-                  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                      message.role === 'user' 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      <p className="text-sm">{message.content}</p>
-                      <p className="text-xs opacity-70 mt-1">
-                        {format(message.timestamp, 'HH:mm:ss')}
-                      </p>
-                    </div>
+          <div className="space-y-4">
+            {/* Toggle Button */}
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setShowConversationHistory(!showConversationHistory)}
+                className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white hover:border-gray-300 transition-all duration-200"
+              >
+                <History className="w-4 h-4" />
+                <span className="font-medium">
+                  Conversation History ({currentSession.messages.length - 1} messages)
+                </span>
+                {showConversationHistory ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+
+            {/* Collapsible History */}
+            {showConversationHistory && (
+              <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg animate-in slide-in-from-top-2 duration-300">
+                <CardContent className="p-6">
+                  <div className="space-y-4 max-h-80 overflow-y-auto">
+                    {currentSession.messages.slice(1).map((message, index) => ( // Skip first welcome message
+                      <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+                          message.role === 'user' 
+                            ? 'bg-blue-500 text-white' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          <p className="text-sm">{message.content}</p>
+                          <p className="text-xs opacity-70 mt-1">
+                            {format(message.timestamp, 'HH:mm:ss')}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
       </div>
 
