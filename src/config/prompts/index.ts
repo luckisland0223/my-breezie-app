@@ -54,46 +54,44 @@ export function validatePromptConfig(): ConfigValidation {
   }
 }
 
-// Main prompt construction function
+// Main prompt construction function - Optimized for speed
 export function buildFullPrompt(
   userMessage: string,
   emotion: EmotionType,
   conversationHistory: Array<{role: 'user' | 'assistant' | 'system'; content: string}> = []
 ): string {
-  const systemPrompt = buildSystemPrompt()
-  const examplePrompt = getExamplePrompt()
+  // Use shorter, more focused prompts for better performance
+  const systemPrompt = "You are Breezie, a caring AI emotional wellness companion. Respond warmly and supportively in 2-3 sentences."
   const emotionContext = getEmotionSupport(emotion)
   
-  // Construct conversation history (filter out system messages)
-  const filteredHistory = conversationHistory.filter(msg => msg.role !== 'system')
-  const conversationText = filteredHistory.length > 0 
-    ? `\n\nPrevious conversation:\n${filteredHistory.map(msg => 
-        `${msg.role === 'user' ? 'Them' : 'You'}: ${msg.content}`
-      ).join('\n')}\n\n`
-    : '\n\n'
+  // Limit conversation history to last 2 exchanges for speed
+  const filteredHistory = conversationHistory
+    .filter(msg => msg.role !== 'system')
+    .slice(-4) // Only last 2 exchanges (4 messages)
   
-  // Detect if this is a follow-up response after emotion selection
+  const conversationText = filteredHistory.length > 0 
+    ? `\nRecent context: ${filteredHistory.map(msg => 
+        `${msg.role === 'user' ? 'User' : 'You'}: ${msg.content.substring(0, 100)}${msg.content.length > 100 ? '...' : ''}`
+      ).join(' | ')}\n`
+    : ''
+  
+  // Detect if this is a follow-up response
   const isFollowUpResponse = userMessage.includes('Now that the user has selected') && filteredHistory.length > 0
   
   const followUpGuidance = isFollowUpResponse 
-    ? `\n\nIMPORTANT: This is a follow-up response after the user selected an emotion. You have already had a conversation with them (see above). Now:
-- Build naturally on what you already discussed
-- Don't repeat the same questions or observations
-- Go deeper into their emotional experience
-- Offer new insights, different questions, or fresh support
-- Show that you remember and understand their story`
+    ? "\nBuild on previous conversation, offer new support."
     : ''
   
-  return `${systemPrompt}\n\n${examplePrompt}\n\n${emotionContext}${conversationText}${followUpGuidance}\n\nThey just said: "${userMessage}"\n\nRespond naturally as their caring friend Breezie:`
+  return `${systemPrompt}\n${emotionContext}${conversationText}${followUpGuidance}\n\nUser: "${userMessage}"\n\nBreezie:`
 }
 
-// API configuration
+// API configuration - Optimized for speed
 export const API_CONFIG = {
-  model: 'gemini-1.5-flash',  // Updated to available model
-  maxTokens: 600,
-  temperature: 0.9,
-  topP: 0.8,
-  topK: 40
+  model: 'gemini-1.5-flash-8b',  // Use faster 8B model for better speed
+  maxTokens: 400,  // Reduced for faster responses
+  temperature: 0.7,  // Lower temperature for faster processing
+  topP: 0.9,
+  topK: 20  // Lower topK for faster processing
 } as const
 
 // Export all functions

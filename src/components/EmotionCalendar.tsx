@@ -154,7 +154,7 @@ export function EmotionCalendar() {
               <div
                 key={index}
                 className={`
-                  aspect-square p-1 cursor-pointer transition-all duration-200 min-h-[60px] rounded-2xl border-2
+                  aspect-square p-1 cursor-pointer transition-all duration-200 min-h-[60px] rounded-2xl border-2 relative
                   ${isCurrentMonth 
                     ? hasEmotions 
                       ? 'bg-white border-gray-200 hover:bg-gray-50 hover:shadow-lg hover:border-gray-300' 
@@ -173,17 +173,18 @@ export function EmotionCalendar() {
                   
                   {/* Emotions */}
                   {hasEmotions && (
-                    <div className="flex-1 flex flex-col justify-center items-center relative">
+                    <div className="flex-1 flex flex-col justify-center items-center">
                       <div className="text-lg">
                         {getEmotionEmoji(dayData.primaryEmotion)}
                       </div>
-                      {/* Multiple records indicator dot */}
-                      {dayData.emotions.length > 1 && (
-                        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-blue-500 rounded-full border border-white"></div>
-                      )}
                     </div>
                   )}
                 </div>
+                
+                {/* Multiple records indicator dot - positioned in lower right corner of the entire cell */}
+                {hasEmotions && dayData.emotions.length > 1 && (
+                  <div className="absolute bottom-1 right-1 w-2 h-2 bg-blue-500 rounded-full border border-white shadow-sm"></div>
+                )}
               </div>
             )
           })}

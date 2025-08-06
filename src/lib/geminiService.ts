@@ -62,13 +62,29 @@ export async function getGeminiResponse(
       }
     }
 
-    const response = await fetch(`${GEMINI_CONFIG.baseURL}?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody)
-    })
+    // Add timeout and retry logic for better performance
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+    
+    let response: Response
+    try {
+      response = await fetch(`${GEMINI_CONFIG.baseURL}?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+    } catch (error: any) {
+      clearTimeout(timeoutId)
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout - API response too slow')
+      }
+      throw error
+    }
 
     if (!response.ok) {
       const errorText = await response.text()
