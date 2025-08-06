@@ -174,7 +174,7 @@ export function EmotionCalendar() {
                   {/* Emotions */}
                   {hasEmotions && (
                     <div className="flex-1 flex flex-col justify-center items-center">
-                      <div className="text-lg">
+                      <div className="text-2xl">
                         {getEmotionEmoji(dayData.primaryEmotion)}
                       </div>
                     </div>

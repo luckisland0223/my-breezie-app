@@ -112,9 +112,9 @@ export function DailyWellnessTip() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className={`p-3 rounded-lg ${currentTip.bgColor}`}>
-            <IconComponent className={`w-7 h-7 ${currentTip.color}`} />
+        <div className="flex items-center gap-2 mb-3">
+          <div className={`p-2 rounded-lg ${currentTip.bgColor}`}>
+            <IconComponent className={`w-5 h-5 ${currentTip.color}`} />
           </div>
           <Badge variant="secondary" className="text-sm font-medium">
             {currentTip.category}
