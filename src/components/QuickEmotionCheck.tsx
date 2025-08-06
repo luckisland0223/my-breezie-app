@@ -64,20 +64,20 @@ export function QuickEmotionCheck() {
 
   const handleQuickRecord = () => {
     if (!selectedEmotion) {
-      toast.error('请先选择一种情绪')
+      toast.error('Please select an emotion first')
       return
     }
 
     try {
       // Save to local store
-      addEmotionRecord(selectedEmotion, intensity, `快速检查: ${selectedEmotion}，强度 ${intensity}`, 'quick_check')
+      addEmotionRecord(selectedEmotion, intensity, `Quick check: ${selectedEmotion}, intensity ${intensity}`, 'quick_check')
       
-      toast.success(`${getEmotionEmoji(selectedEmotion)} 情绪记录成功！强度: ${intensity}/10`)
+      toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully! Intensity: ${intensity}/10`)
       setSelectedEmotion(null)
       setIntensity(5)
 
     } catch (error: any) {
-      toast.error('保存情绪记录失败')
+      toast.error('Failed to save emotion record')
     }
   }
 
@@ -88,9 +88,9 @@ export function QuickEmotionCheck() {
   }
 
   const getIntensityLabel = (value: number) => {
-    if (value <= 3) return '轻微'
-    if (value <= 6) return '中等'
-    return '强烈'
+    if (value <= 3) return 'Mild'
+    if (value <= 6) return 'Moderate'
+    return 'Intense'
   }
 
   return (
@@ -98,13 +98,13 @@ export function QuickEmotionCheck() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Zap className="w-5 h-5 text-yellow-500" />
-          快速情绪检查
+          Quick Emotion Check
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Emotion Selection */}
         <div>
-          <p className="text-sm text-gray-600 mb-3">选择当前情绪：</p>
+          <p className="text-sm text-gray-600 mb-3">Select current emotion:</p>
           <div className="grid grid-cols-3 gap-2">
             {primaryEmotions.map((emotion) => {
               const config = emotionConfig[emotion]
@@ -136,7 +136,7 @@ export function QuickEmotionCheck() {
         {selectedEmotion && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">强度等级：</p>
+              <p className="text-sm text-gray-600">Intensity Level:</p>
               <Badge variant="secondary" className="flex items-center gap-1">
                 {intensity}/10 - {getIntensityLabel(intensity)}
               </Badge>
@@ -174,9 +174,9 @@ export function QuickEmotionCheck() {
             </div>
             
             <div className="flex justify-between text-xs text-gray-500">
-              <span>1 - 轻微</span>
-              <span>5 - 中等</span>
-              <span>10 - 强烈</span>
+              <span>1 - Mild</span>
+              <span>5 - Moderate</span>
+              <span>10 - Intense</span>
             </div>
           </div>
         )}
@@ -188,12 +188,12 @@ export function QuickEmotionCheck() {
           className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-4 h-4 mr-2" />
-          记录情绪
+          Record Emotion
         </Button>
 
         {/* Quick Tips */}
         <div className="text-xs text-gray-500 text-center">
-          💡 快速记录你的当前情绪状态，帮助追踪情绪变化
+          💡 Quickly record your current emotional state to help track mood changes
         </div>
       </CardContent>
     </Card>

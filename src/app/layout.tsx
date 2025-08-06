@@ -5,8 +5,8 @@ import { Geist } from "next/font/google";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 export const metadata: Metadata = {
-	title: "Breezie - 情绪管理助手",
-	description: "智能情绪管理和疏导对话应用",
+	  title: "Breezie - Emotional Wellness Assistant",
+  description: "Intelligent emotion management and supportive conversation app",
 	icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

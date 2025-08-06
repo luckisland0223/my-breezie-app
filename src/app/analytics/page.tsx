@@ -57,7 +57,7 @@ export default function AnalyticsPage() {
                 className="flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                刷新
+                Refresh
               </Button>
               
               <div className="flex items-center space-x-2">

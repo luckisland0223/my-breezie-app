@@ -49,20 +49,20 @@ export default function ProfilePage() {
             className="mb-4 hover:bg-blue-50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            返回
+            Back
           </Button>
           
           <div className="flex items-center gap-4 mb-6">
             <Avatar className="w-16 h-16">
-              <AvatarImage src="" alt="用户头像" />
+              <AvatarImage src="" alt="User Avatar" />
               <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xl">
                 <Heart className="w-8 h-8" />
               </AvatarFallback>
             </Avatar>
             
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">我的情绪档案</h1>
-              <p className="text-gray-600">情绪管理之旅的个人概览</p>
+              <h1 className="text-2xl font-bold text-gray-900">My Emotion Profile</h1>
+              <p className="text-gray-600">Personal overview of your emotional wellness journey</p>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function ProfilePage() {
                 <Calendar className="w-6 h-6 text-blue-600" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{stats.totalRecords}</p>
-              <p className="text-gray-600">总记录数</p>
+              <p className="text-gray-600">Total Records</p>
             </CardContent>
           </Card>
           
@@ -84,7 +84,7 @@ export default function ProfilePage() {
                 <TrendingUp className="w-6 h-6 text-green-600" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{stats.totalDays}</p>
-              <p className="text-gray-600">记录天数</p>
+              <p className="text-gray-600">Days Tracked</p>
             </CardContent>
           </Card>
           
@@ -94,7 +94,7 @@ export default function ProfilePage() {
                 <Heart className="w-6 h-6 text-purple-600" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{stats.avgIntensity}</p>
-              <p className="text-gray-600">平均强度</p>
+              <p className="text-gray-600">Average Intensity</p>
             </CardContent>
           </Card>
           
@@ -104,7 +104,7 @@ export default function ProfilePage() {
                 <TrendingUp className="w-6 h-6 text-orange-600" />
               </div>
               <p className="text-lg font-bold text-gray-900">{stats.mostCommonEmotion}</p>
-              <p className="text-gray-600">最常见情绪</p>
+              <p className="text-gray-600">Most Common Emotion</p>
             </CardContent>
           </Card>
         </div>
@@ -114,7 +114,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                最近活动
+                Recent Activity
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -138,8 +138,8 @@ export default function ProfilePage() {
               ) : (
                 <div className="text-center text-gray-500 py-8">
                   <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>还没有情绪记录</p>
-                  <p className="text-sm">开始记录你的情绪之旅吧！</p>
+                  <p>No emotion records yet</p>
+                  <p className="text-sm">Start recording your emotional journey!</p>
                 </div>
               )}
             </CardContent>
@@ -149,7 +149,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Heart className="w-5 h-5" />
-                情绪分布
+                Emotion Distribution
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -181,8 +181,8 @@ export default function ProfilePage() {
               ) : (
                 <div className="text-center text-gray-500 py-8">
                   <Heart className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>还没有情绪数据</p>
-                  <p className="text-sm">开始记录后就能看到分布了</p>
+                  <p>No emotion data yet</p>
+                  <p className="text-sm">You'll see the distribution once you start recording</p>
                 </div>
               )}
             </CardContent>
@@ -193,7 +193,7 @@ export default function ProfilePage() {
           <Link href="/">
             <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white">
               <Heart className="w-4 h-4 mr-2" />
-              返回首页
+              Back to Home
             </Button>
           </Link>
         </div>

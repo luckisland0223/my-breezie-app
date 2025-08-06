@@ -10,7 +10,7 @@ import { EmotionTracker } from '@/components/EmotionTracker'
 import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
 import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
 import { DailyWellnessTip } from '@/components/DailyWellnessTip'
-import { AchievementBadge } from '@/components/AchievementBadge'
+
 import { useEmotionStore } from '@/store/emotion'
 
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database } from 'lucide-react'
@@ -55,13 +55,13 @@ export default function HomePage() {
               <Link href="/analytics">
                 <Button variant="ghost" size="sm" className="flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
-                  分析
+                  Analytics
                 </Button>
               </Link>
               <Link href="/settings">
                 <Button variant="ghost" size="sm" className="flex items-center gap-2">
                   <Settings className="w-4 h-4" />
-                  设置
+                  Settings
                 </Button>
               </Link>
             </div>
@@ -91,10 +91,10 @@ export default function HomePage() {
                   <Sparkles className="w-10 h-10 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                  欢迎来到 Breezie
+                  Welcome to Breezie
                 </h2>
                 <p className="text-gray-600 mb-6 max-w-xl mx-auto">
-                  准备好探索今天的情绪了吗？与 Breezie 开始对话，或者快速记录一下情绪。
+                  Ready to explore your emotions today? Start a conversation with Breezie or quickly record your current mood.
                 </p>
                 
                 <Button 
@@ -103,7 +103,7 @@ export default function HomePage() {
                   onClick={handleStartConversation}
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  开始对话
+                  Start Conversation
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
@@ -123,10 +123,7 @@ export default function HomePage() {
                   <RecentEmotionTrend />
                 </div>
                 
-                {/* Achievement Badges - Full Width */}
-                <div className="lg:col-span-2">
-                  <AchievementBadge />
-                </div>
+
               </div>
 
               {/* Quick Stats */}

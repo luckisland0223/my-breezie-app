@@ -76,7 +76,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
       return true
     } catch (error: any) {
-      toast.error('保存对话记录失败')
+              toast.error('Failed to save conversation record')
       return false
     }
   }
@@ -84,7 +84,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   // Initialize conversation with welcome message
   useEffect(() => {
     if (!hasInitialMessage && !currentSession) {
-      const welcomeMessage = `你好！我是 Breezie，你的情绪健康伙伴。我在这里倾听并支持你度过今天的任何经历。你想聊什么呢？`
+      const welcomeMessage = `Hello! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What would you like to talk about?`
       
       startChatSession('Other') // Start with a default emotion
       setAiResponse(welcomeMessage)
@@ -97,34 +97,37 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // Typewriter animation completed
   }
 
-  // Extract potential emotions from user text
+  // Extract potential emotions from user text with improved sentiment analysis
   const extractEmotionsFromText = (text: string): EmotionType[] => {
     const lowerText = text.toLowerCase()
+    
+    // Enhanced emotion keywords with better coverage
     const emotionKeywords: Partial<Record<EmotionType, string[]>> = {
-      'Anger': ['angry', 'mad', 'furious', 'irritated', 'frustrated'],
-      'Disgust': ['disgusted', 'grossed', 'repulsed'],
-      'Fear': ['scared', 'afraid', 'terrified', 'anxious', 'worried'],
-      'Joy': ['happy', 'joyful', 'excited', 'cheerful', 'glad'],
-      'Sadness': ['sad', 'depressed', 'down', 'upset', 'hurt'],
-      'Surprise': ['surprised', 'shocked', 'amazed', 'astonished'],
-      'Love': ['love', 'adore', 'care', 'affection'],
-      'Hope': ['trust', 'confident', 'secure', 'hopeful'],
-      'Excitement': ['excited', 'eager', 'looking forward'],
-      'Anxiety': ['anxious', 'nervous', 'worried', 'stressed'],
-      'Pride': ['proud', 'accomplished', 'satisfied'],
-      'Shame': ['ashamed', 'embarrassed', 'guilty'],
-      'Envy': ['jealous', 'envious'],
-      'Guilt': ['guilty', 'regretful', 'sorry'],
-      'Boredom': ['bored', 'tired', 'uninterested'],
-      'Confusion': ['confused', 'puzzled', 'uncertain'],
-      'Gratitude': ['grateful', 'thankful', 'appreciative'],
-      'Loneliness': ['lonely', 'isolated', 'alone'],
-      'Frustration': ['frustrated', 'annoyed', 'impatient'],
-      'Contentment': ['content', 'peaceful', 'satisfied']
+      'Anger': ['angry', 'mad', 'furious', 'irritated', 'frustrated', 'rage', 'annoyed', 'pissed'],
+      'Disgust': ['disgusted', 'grossed', 'repulsed', 'sick of', 'revolting', 'disgusting'],
+      'Fear': ['scared', 'afraid', 'terrified', 'anxious', 'worried', 'frightened', 'panic', 'dread'],
+      'Joy': ['happy', 'joyful', 'excited', 'cheerful', 'glad', 'delighted', 'thrilled', 'amazing', 'wonderful', 'fantastic', 'great', 'awesome', 'love it', 'fun', 'enjoy'],
+      'Sadness': ['sad', 'depressed', 'down', 'upset', 'hurt', 'crying', 'tears', 'miserable', 'heartbroken'],
+      'Surprise': ['surprised', 'shocked', 'amazed', 'astonished', 'unexpected', 'wow', 'incredible'],
+      'Love': ['love', 'adore', 'care', 'affection', 'cherish', 'treasure', 'devoted'],
+      'Hope': ['hopeful', 'optimistic', 'confident', 'trust', 'believe', 'positive', 'looking forward'],
+      'Excitement': ['excited', 'eager', 'thrilled', 'can\'t wait', 'pumped', 'enthusiastic', 'anticipating'],
+      'Anxiety': ['anxious', 'nervous', 'worried', 'stressed', 'tense', 'overwhelmed', 'panic'],
+      'Pride': ['proud', 'accomplished', 'satisfied', 'achievement', 'success', 'pleased with'],
+      'Shame': ['ashamed', 'embarrassed', 'guilty', 'humiliated', 'mortified'],
+      'Envy': ['jealous', 'envious', 'wish i had', 'want what'],
+      'Guilt': ['guilty', 'regretful', 'sorry', 'remorse', 'shouldn\'t have'],
+      'Boredom': ['bored', 'tired', 'uninterested', 'dull', 'monotonous', 'nothing to do'],
+      'Confusion': ['confused', 'puzzled', 'uncertain', 'don\'t understand', 'unclear'],
+      'Gratitude': ['grateful', 'thankful', 'appreciative', 'blessed', 'fortunate'],
+      'Loneliness': ['lonely', 'isolated', 'alone', 'disconnected', 'missing'],
+      'Frustration': ['frustrated', 'annoyed', 'impatient', 'stuck', 'blocked'],
+      'Contentment': ['content', 'peaceful', 'satisfied', 'calm', 'serene', 'at ease']
     }
 
     const detectedEmotions: EmotionType[] = []
     
+    // First pass: Direct keyword matching
     for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
       if (keywords) {
         for (const keyword of keywords) {
@@ -139,33 +142,74 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // Remove duplicates
     const uniqueEmotions = [...new Set(detectedEmotions)]
     
-    // If we have few or no emotions detected, enrich with contextually relevant suggestions
+    // Sentiment analysis to determine overall tone
+    const positiveIndicators = [
+      'happy', 'excited', 'great', 'amazing', 'wonderful', 'fantastic', 'awesome', 'love', 'enjoy', 
+      'fun', 'good', 'nice', 'perfect', 'brilliant', 'excellent', 'thrilled', 'delighted', 'glad',
+      'amusement park', 'vacation', 'party', 'celebration', 'success', 'achievement', 'win'
+    ]
+    
+    const negativeIndicators = [
+      'sad', 'angry', 'frustrated', 'worried', 'scared', 'upset', 'hurt', 'disappointed', 'stressed',
+      'anxious', 'depressed', 'terrible', 'awful', 'horrible', 'bad', 'worst', 'hate', 'problem', 'issue'
+    ]
+    
+    const positiveCount = positiveIndicators.filter(indicator => lowerText.includes(indicator)).length
+    const negativeCount = negativeIndicators.filter(indicator => lowerText.includes(indicator)).length
+    
+    // Determine sentiment bias
+    const isPositive = positiveCount > negativeCount
+    const isNegative = negativeCount > positiveCount
+    
+    // If we have few emotions detected, add contextually appropriate suggestions
     if (uniqueEmotions.length < 3) {
-      const commonEmotions: EmotionType[] = ['Joy', 'Sadness', 'Anxiety', 'Hope', 'Contentment', 'Confusion', 'Excitement']
-      const additionalEmotions = commonEmotions.filter(emotion => !uniqueEmotions.includes(emotion))
+      const contextualEmotions: EmotionType[] = []
       
-      // Add contextual emotions based on text sentiment
+      // Add context-specific emotions
+      if (lowerText.includes('amusement park') || lowerText.includes('vacation') || lowerText.includes('party')) {
+        contextualEmotions.push('Excitement', 'Joy', 'Hope')
+      }
       if (lowerText.includes('work') || lowerText.includes('job')) {
-        additionalEmotions.unshift('Frustration', 'Pride', 'Anxiety')
+        if (isPositive) {
+          contextualEmotions.push('Pride', 'Contentment', 'Hope')
+        } else {
+          contextualEmotions.push('Frustration', 'Anxiety', 'Boredom')
+        }
       }
-      if (lowerText.includes('family') || lowerText.includes('friend')) {
-        additionalEmotions.unshift('Love', 'Gratitude', 'Loneliness')
+      if (lowerText.includes('family') || lowerText.includes('friend') || lowerText.includes('relationship')) {
+        if (isPositive) {
+          contextualEmotions.push('Love', 'Gratitude', 'Joy')
+        } else {
+          contextualEmotions.push('Loneliness', 'Sadness', 'Frustration')
+        }
       }
-      if (lowerText.includes('future') || lowerText.includes('plan')) {
-        additionalEmotions.unshift('Hope', 'Anxiety', 'Excitement')
+      if (lowerText.includes('future') || lowerText.includes('plan') || lowerText.includes('tomorrow')) {
+        if (isPositive) {
+          contextualEmotions.push('Hope', 'Excitement', 'Joy')
+        } else {
+          contextualEmotions.push('Anxiety', 'Fear', 'Confusion')
+        }
       }
       
-      // Combine detected and additional emotions
+      // Add sentiment-based fallback emotions
+      if (isPositive && contextualEmotions.length === 0) {
+        contextualEmotions.push('Joy', 'Hope', 'Excitement', 'Contentment', 'Gratitude')
+      } else if (isNegative && contextualEmotions.length === 0) {
+        contextualEmotions.push('Sadness', 'Anxiety', 'Frustration', 'Confusion')
+      } else if (contextualEmotions.length === 0) {
+        // Neutral sentiment - suggest balanced emotions
+        contextualEmotions.push('Contentment', 'Hope', 'Confusion', 'Gratitude')
+      }
+      
+      // Filter out emotions already detected and combine
+      const additionalEmotions = contextualEmotions.filter(emotion => !uniqueEmotions.includes(emotion))
       const allSuggestions = [...uniqueEmotions, ...additionalEmotions].slice(0, 5)
       
-      // Ensure we always have at least 3 suggestions
-      while (allSuggestions.length < 3 && allSuggestions.length < commonEmotions.length) {
-        const remaining = commonEmotions.filter(emotion => !allSuggestions.includes(emotion))
-        if (remaining.length > 0 && remaining[0]) {
-          allSuggestions.push(remaining[0])
-        } else {
-          break
-        }
+      // Ensure we have at least 3 suggestions
+      if (allSuggestions.length < 3) {
+        const neutralEmotions: EmotionType[] = ['Hope', 'Contentment', 'Gratitude', 'Confusion']
+        const remaining = neutralEmotions.filter(emotion => !allSuggestions.includes(emotion))
+        allSuggestions.push(...remaining.slice(0, 3 - allSuggestions.length))
       }
       
       return allSuggestions.slice(0, 5)
