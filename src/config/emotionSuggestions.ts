@@ -436,7 +436,8 @@ export function getComfortResponse(emotion: EmotionType): string {
   if (!responses || responses.length === 0) {
     return "I'm here with you, and your feelings are valid 💙"
   }
-  return responses[Math.floor(Math.random() * responses.length)]
+  const randomIndex = Math.floor(Math.random() * responses.length)
+  return responses[randomIndex] || "I'm here with you, and your feelings are valid 💙"
 }
 
 export function getRandomSuggestions(emotion: EmotionType, count: number = 4, userMessage?: string): EmotionSuggestion[] {
