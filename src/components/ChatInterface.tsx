@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType } from '@/store/emotion'
-import { Send, ArrowLeft, MessageCircle, User, Sparkles, History, ChevronDown, ChevronUp } from 'lucide-react'
+import { Send, ArrowLeft, MessageCircle, User, Sparkles, History, ChevronDown, ChevronUp, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { EmotionSelectionDialog } from './EmotionSelectionDialog'
@@ -60,13 +61,15 @@ What would you like to talk about?`)
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType>('Other')
   const [conversationEnded, setConversationEnded] = useState(false)
   const [representativeEmotion, setRepresentativeEmotion] = useState<EmotionType | null>(null)
-  const [showConversationHistory, setShowConversationHistory] = useState(false)
+
   const [isFirstMessage, setIsFirstMessage] = useState(true)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [currentSuggestions, setCurrentSuggestions] = useState<EmotionSuggestion[]>([])
   const [usedSuggestions, setUsedSuggestions] = useState<string[]>([])
   const [selectedSuggestion, setSelectedSuggestion] = useState<EmotionSuggestion | null>(null)
   const [suggestionMode, setSuggestionMode] = useState(false)
+  const [showMoreEmotions, setShowMoreEmotions] = useState(false)
+  const [showHistoryModal, setShowHistoryModal] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const currentSession = useEmotionStore((state) => state.currentSession)
@@ -147,9 +150,9 @@ What would you like to talk about?`
   }
 
   // Handle suggestion system
-  const generateSuggestions = async (emotion: EmotionType) => {
+  const generateSuggestions = async (emotion: EmotionType, userMessage?: string) => {
     if (isNegativeEmotion(emotion)) {
-      const suggestions = getRandomSuggestions(emotion, 4)
+      const suggestions = getRandomSuggestions(emotion, 4, userMessage)
       setCurrentSuggestions(suggestions)
       setSuggestionMode(true)
       
@@ -302,24 +305,57 @@ What would you like to talk about?`
       'Love': ['love', 'adore', 'care', 'affection', 'cherish', 'treasure', 'devoted'],
       'Hope': ['hopeful', 'optimistic', 'confident', 'trust', 'believe', 'positive', 'looking forward'],
       'Excitement': ['excited', 'eager', 'thrilled', 'can\'t wait', 'pumped', 'enthusiastic', 'anticipating'],
-      'Anxiety': ['anxious', 'nervous', 'worried', 'stressed', 'tense', 'overwhelmed', 'panic'],
+      'Anxiety': ['anxious', 'nervous', 'worried', 'stressed', 'tense', 'overwhelmed', 'panic', 'peer pressure', 'pressure from', 'feel pressured', 'forced to', 'have to fit in', 'everyone expects', 'social pressure'],
       'Pride': ['proud', 'accomplished', 'satisfied', 'achievement', 'success', 'pleased with'],
       'Shame': ['ashamed', 'embarrassed', 'guilty', 'humiliated', 'mortified'],
       'Envy': ['jealous', 'envious', 'wish i had', 'want what'],
       'Guilt': ['guilty', 'regretful', 'sorry', 'remorse', 'shouldn\'t have'],
       'Boredom': ['bored', 'tired', 'uninterested', 'dull', 'monotonous', 'nothing to do'],
-      'Confusion': ['confused', 'puzzled', 'uncertain', 'don\'t understand', 'unclear'],
+      'Confusion': ['confused', 'puzzled', 'uncertain', 'don\'t understand', 'unclear', 'don\'t know what to do', 'mixed feelings'],
       'Gratitude': ['grateful', 'thankful', 'appreciative', 'blessed', 'fortunate'],
-      'Loneliness': ['lonely', 'isolated', 'alone', 'disconnected', 'missing'],
-      'Frustration': ['frustrated', 'annoyed', 'impatient', 'stuck', 'blocked'],
+      'Loneliness': ['lonely', 'isolated', 'alone', 'disconnected', 'missing', 'left out', 'don\'t belong'],
+      'Frustration': ['frustrated', 'annoyed', 'impatient', 'stuck', 'blocked', 'can\'t handle', 'too much'],
       'Contentment': ['content', 'peaceful', 'satisfied', 'calm', 'serene', 'at ease']
+    }
+
+    // Contextual patterns that indicate specific emotions
+    const contextualPatterns: Partial<Record<EmotionType, string[]>> = {
+      'Anxiety': [
+        'peer pressure', 'social pressure', 'pressure from friends', 'pressure from family',
+        'everyone is doing', 'have to fit in', 'don\'t want to be left out',
+        'what will people think', 'afraid of judgment', 'worried about fitting in'
+      ],
+      'Frustration': [
+        'peer pressure', 'being pushed to', 'forced into', 'don\'t want to but',
+        'tired of people telling me', 'sick of expectations'
+      ],
+      'Confusion': [
+        'don\'t know if i should', 'not sure what\'s right', 'mixed about',
+        'torn between', 'conflicted about'
+      ],
+      'Loneliness': [
+        'feel left out', 'don\'t fit in', 'everyone else', 'i\'m the only one',
+        'nobody understands'
+      ]
     }
 
     const detectedEmotions: EmotionType[] = []
     
-    // First pass: Direct keyword matching
+    // First pass: Contextual pattern matching (higher priority)
+    for (const [emotion, patterns] of Object.entries(contextualPatterns)) {
+      if (patterns) {
+        for (const pattern of patterns) {
+          if (lowerText.includes(pattern)) {
+            detectedEmotions.push(emotion as EmotionType)
+            break
+          }
+        }
+      }
+    }
+    
+    // Second pass: Direct keyword matching
     for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
-      if (keywords) {
+      if (keywords && !detectedEmotions.includes(emotion as EmotionType)) {
         for (const keyword of keywords) {
           if (lowerText.includes(keyword)) {
             detectedEmotions.push(emotion as EmotionType)
@@ -355,7 +391,16 @@ What would you like to talk about?`
     if (uniqueEmotions.length < 3) {
       const contextualEmotions: EmotionType[] = []
       
-      // Add context-specific emotions
+      // Add context-specific emotions with improved peer pressure detection
+      if (lowerText.includes('peer pressure') || lowerText.includes('social pressure') || lowerText.includes('pressure from')) {
+        contextualEmotions.push('Anxiety', 'Frustration', 'Confusion', 'Loneliness')
+      }
+      if (lowerText.includes('fit in') || lowerText.includes('left out') || lowerText.includes('don\'t belong')) {
+        contextualEmotions.push('Anxiety', 'Loneliness', 'Sadness', 'Confusion')
+      }
+      if (lowerText.includes('everyone is') || lowerText.includes('everyone else') || lowerText.includes('what will people think')) {
+        contextualEmotions.push('Anxiety', 'Fear', 'Confusion')
+      }
       if (lowerText.includes('amusement park') || lowerText.includes('vacation') || lowerText.includes('party')) {
         contextualEmotions.push('Excitement', 'Joy', 'Hope')
       }
@@ -524,6 +569,7 @@ What would you like to talk about?`
   const handleInlineEmotionSelect = async (emotion: EmotionType) => {
     setSelectedEmotion(emotion)
     setShowInlineEmotions(false)
+    setShowMoreEmotions(false)
     setIsTyping(true)
     
     // Calculate behavioral impact score
@@ -581,7 +627,7 @@ What would you like to talk about?`
       setIsTyping(false)
       
       // Generate suggestions for negative emotions
-      generateSuggestions(emotion)
+      generateSuggestions(emotion, conversationText)
     }
     
     toast.success(`Emotion recorded: ${emotion}`)
@@ -686,7 +732,7 @@ What would you like to talk about?`
               {currentSession?.messages && currentSession.messages.filter(msg => msg.role === 'user').length > 0 ? (
                 <Button 
                   onClick={handleCompleteSession}
-                  className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700"
                   size="sm"
                 >
                   Complete & Save
@@ -740,40 +786,7 @@ What would you like to talk about?`
                     )}
                   </div>
                   
-                  {/* Inline Emotion Selection */}
-                  {showInlineEmotions && suggestedEmotions.length > 0 && (
-                    <div className="bg-blue-50/50 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/50">
-                      <div className="text-center mb-4">
-                        <p className="text-gray-700 font-medium mb-2">Based on what you've shared, I can sense these emotions. Which one feels most true to you right now?</p>
-                        <p className="text-sm text-gray-600">Choose one to help me understand you better</p>
-                      </div>
-                      
-                      <div className="flex flex-wrap justify-center gap-3 mb-4">
-                        {suggestedEmotions.map((emotion) => {
-                          const config = emotionConfig[emotion]
-                          return (
-                            <button
-                              key={emotion}
-                              onClick={() => handleInlineEmotionSelect(emotion)}
-                              className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-white/70 transition-all duration-200 min-w-[80px]"
-                            >
-                              <span className="text-2xl mb-1">{config.emoji}</span>
-                              <span className="text-sm font-medium text-gray-700">{emotion}</span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                      
-                      <div className="text-center">
-                        <button
-                          onClick={() => setShowInlineEmotions(false)}
-                          className="text-sm text-gray-500 hover:text-gray-700 underline"
-                        >
-                          Maybe later
-                        </button>
-                      </div>
-                    </div>
-                  )}
+
                   
 
                 </div>
@@ -788,8 +801,8 @@ What would you like to talk about?`
           </div>
         </div>
 
-        {/* User Input Area - Hidden when suggestions are showing */}
-        {!showSuggestions && (
+        {/* User Input Area - Hidden when suggestions or emotions are showing */}
+        {!showSuggestions && !showInlineEmotions && (
           <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
             <div className="p-6">
               <div className="flex items-center mb-4">
@@ -836,7 +849,7 @@ What would you like to talk about?`
           <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
             <div className="p-6">
               <div className="text-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">💡 Breezie's Suggestions</h3>
@@ -850,8 +863,8 @@ What would you like to talk about?`
                     onClick={() => handleSuggestionSelect(suggestion)}
                     className={`w-full text-left p-4 rounded-xl transition-all duration-200 border-2 ${
                       selectedSuggestion?.id === suggestion.id
-                        ? 'bg-green-100 border-green-400 shadow-md'
-                        : 'bg-white hover:bg-green-50 border-gray-200 hover:border-green-300'
+                        ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-400 shadow-md'
+                        : 'bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 border-gray-200 hover:border-blue-300'
                     }`}
                     disabled={isTyping}
                   >
@@ -881,7 +894,7 @@ What would you like to talk about?`
                 <Button
                   onClick={handleConfirmSuggestion}
                   disabled={!selectedSuggestion || isTyping}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Confirm Selection
                 </Button>
@@ -890,51 +903,139 @@ What would you like to talk about?`
           </div>
         )}
 
-        {/* Conversation History Button */}
-        {currentSession?.messages && currentSession.messages.length > 1 && (
-          <div className="space-y-4">
-            {/* Toggle Button */}
-            <div className="flex justify-center">
-              <Button
-                variant="outline"
-                onClick={() => setShowConversationHistory(!showConversationHistory)}
-                className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white hover:border-gray-300 transition-all duration-200"
-              >
-                <History className="w-4 h-4" />
-                <span className="font-medium">
-                  Conversation History ({currentSession.messages.length - 1} messages)
-                </span>
-                {showConversationHistory ? (
-                  <ChevronUp className="w-4 h-4" />
-                ) : (
-                  <ChevronDown className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
+        {/* Emotion Selection Interface - Moved outside chat box */}
+        {showInlineEmotions && suggestedEmotions.length > 0 && (
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">How are you feeling?</h3>
+                <p className="text-gray-600">Based on what you've shared, I can sense these emotions. Which one feels most true to you right now?</p>
+                <p className="text-sm text-gray-500 mt-1">Choose one to help me understand you better</p>
+              </div>
+              
+              <div className="flex flex-wrap justify-center gap-3 mb-6">
+                {suggestedEmotions.map((emotion) => {
+                  const config = emotionConfig[emotion]
+                  return (
+                    <button
+                      key={emotion}
+                      onClick={() => handleInlineEmotionSelect(emotion)}
+                      className="flex flex-col items-center p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 min-w-[90px]"
+                      disabled={isTyping}
+                    >
+                      <span className="text-3xl mb-2">{config.emoji}</span>
+                      <span className="text-sm font-medium text-gray-700">{emotion}</span>
+                    </button>
+                  )
+                })}
+              </div>
 
-            {/* Collapsible History */}
-            {showConversationHistory && (
-              <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg animate-in slide-in-from-top-2 duration-300">
-                <CardContent className="p-6">
-                  <div className="space-y-4 max-h-80 overflow-y-auto">
+              {/* More Emotions Dropdown */}
+              <div className="border-t border-gray-200 pt-4">
+                <button
+                  onClick={() => setShowMoreEmotions(!showMoreEmotions)}
+                  className="w-full flex items-center justify-center gap-2 p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                  disabled={isTyping}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {showMoreEmotions ? 'Show less emotions' : 'Don\'t see your emotion? Show more options'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showMoreEmotions ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showMoreEmotions && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-xl">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                      {Object.entries(emotionConfig)
+                        .filter(([emotion]) => !suggestedEmotions.includes(emotion as EmotionType))
+                        .map(([emotion, config]) => (
+                          <button
+                            key={emotion}
+                            onClick={() => handleInlineEmotionSelect(emotion as EmotionType)}
+                            className="flex flex-col items-center p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-white transition-all duration-200"
+                            disabled={isTyping}
+                          >
+                            <span className="text-2xl mb-1">{config.emoji}</span>
+                            <span className="text-xs font-medium text-gray-700 text-center">{emotion}</span>
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={() => {
+                    setShowInlineEmotions(false)
+                    setShowMoreEmotions(false)
+                  }}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                  disabled={isTyping}
+                >
+                  Maybe later
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Conversation History Modal */}
+        {currentSession?.messages && currentSession.messages.length > 1 && (
+          <div className="flex justify-center">
+            <Dialog open={showHistoryModal} onOpenChange={setShowHistoryModal}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white hover:border-gray-300 transition-all duration-200"
+                >
+                  <History className="w-4 h-4" />
+                  <span className="font-medium">
+                    Conversation History ({currentSession.messages.length - 1} messages)
+                  </span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <History className="w-5 h-5" />
+                    Conversation History
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="overflow-y-auto max-h-[60vh] pr-2">
+                  <div className="space-y-4">
                     {currentSession.messages.slice(1).map((message, index) => ( // Skip first welcome message
                       <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+                        <div className={`max-w-sm px-4 py-3 rounded-2xl ${
                           message.role === 'user' 
-                            ? 'bg-blue-500 text-white' 
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          <p className="text-sm">{message.content}</p>
-                          <p className="text-xs opacity-70 mt-1">
-                            {format(message.timestamp, 'HH:mm:ss')}
+                          <div className="flex items-center gap-2 mb-1">
+                            {message.role === 'user' ? (
+                              <User className="w-3 h-3 opacity-80" />
+                            ) : (
+                              <MessageCircle className="w-3 h-3 opacity-80" />
+                            )}
+                            <span className="text-xs font-medium opacity-80">
+                              {message.role === 'user' ? 'You' : 'Breezie'}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          <p className="text-xs opacity-70 mt-2">
+                            {format(message.timestamp, 'MMM d, HH:mm:ss')}
                           </p>
                         </div>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>

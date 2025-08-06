@@ -27,11 +27,12 @@ export const EMOTION_SUGGESTIONS: Record<EmotionType, EmotionSuggestion[]> = {
     { id: 'anger_5', text: 'Practice the 4-7-8 breathing technique', category: 'immediate' }
   ],
   'Anxiety': [
-    { id: 'anxiety_1', text: 'Use the 5-4-3-2-1 grounding technique', category: 'immediate' },
+    { id: 'anxiety_1', text: 'Use the 5-4-3-2-1 grounding technique to calm your mind', category: 'immediate' },
     { id: 'anxiety_2', text: 'Break down your worries into smaller, manageable steps', category: 'mindset' },
-    { id: 'anxiety_3', text: 'Practice progressive muscle relaxation', category: 'physical' },
+    { id: 'anxiety_3', text: 'Practice deep breathing: 4 counts in, hold for 4, out for 6', category: 'immediate' },
     { id: 'anxiety_4', text: 'Talk to someone you trust about your concerns', category: 'social' },
-    { id: 'anxiety_5', text: 'Focus on what you can control right now', category: 'mindset' }
+    { id: 'anxiety_5', text: 'Focus on what you can control right now', category: 'mindset' },
+    { id: 'anxiety_6', text: 'Write down your anxious thoughts to examine them objectively', category: 'activity' }
   ],
   'Fear': [
     { id: 'fear_1', text: 'Remind yourself that you are safe in this moment', category: 'mindset' },
@@ -157,7 +158,110 @@ export function getSuggestionsForEmotion(emotion: EmotionType): EmotionSuggestio
   return EMOTION_SUGGESTIONS[emotion] || EMOTION_SUGGESTIONS['Other']
 }
 
-export function getRandomSuggestions(emotion: EmotionType, count: number = 4): EmotionSuggestion[] {
+// Context-specific suggestions for peer pressure and social anxiety
+export const CONTEXTUAL_SUGGESTIONS: Record<string, EmotionSuggestion[]> = {
+  'peer_pressure': [
+    { id: 'peer_1', text: 'Practice saying "I need time to think about it" to buy yourself space', category: 'immediate' },
+    { id: 'peer_2', text: 'Remember your personal values and what feels right for you', category: 'mindset' },
+    { id: 'peer_3', text: 'Find friends who respect your boundaries and choices', category: 'social' },
+    { id: 'peer_4', text: 'Talk to a trusted adult about the pressure you\'re feeling', category: 'social' }
+  ],
+  'social_anxiety': [
+    { id: 'social_1', text: 'Start with small, low-pressure social interactions', category: 'immediate' },
+    { id: 'social_2', text: 'Practice self-compassion - everyone feels awkward sometimes', category: 'mindset' },
+    { id: 'social_3', text: 'Prepare conversation topics in advance to feel more confident', category: 'immediate' },
+    { id: 'social_4', text: 'Focus on listening to others rather than worrying about yourself', category: 'mindset' }
+  ],
+  'work_stress': [
+    { id: 'work_1', text: 'Break your workload into smaller, manageable tasks', category: 'immediate' },
+    { id: 'work_2', text: 'Set boundaries between work time and personal time', category: 'mindset' },
+    { id: 'work_3', text: 'Talk to your supervisor about workload concerns', category: 'social' },
+    { id: 'work_4', text: 'Take regular short breaks to prevent burnout', category: 'physical' }
+  ],
+  'relationship_conflict': [
+    { id: 'rel_1', text: 'Use "I" statements to express your feelings without blame', category: 'social' },
+    { id: 'rel_2', text: 'Take a cooling-off period before discussing heated topics', category: 'immediate' },
+    { id: 'rel_3', text: 'Focus on understanding their perspective before being understood', category: 'mindset' },
+    { id: 'rel_4', text: 'Consider couples counseling or mediation for ongoing issues', category: 'social' }
+  ],
+  'academic_pressure': [
+    { id: 'acad_1', text: 'Create a realistic study schedule that includes breaks', category: 'immediate' },
+    { id: 'acad_2', text: 'Remember that grades don\'t define your worth as a person', category: 'mindset' },
+    { id: 'acad_3', text: 'Seek help from teachers, tutors, or study groups', category: 'social' },
+    { id: 'acad_4', text: 'Practice stress-relief techniques during study sessions', category: 'physical' }
+  ],
+  'family_issues': [
+    { id: 'fam_1', text: 'Set healthy boundaries while maintaining respect', category: 'social' },
+    { id: 'fam_2', text: 'Find a neutral time and place for important conversations', category: 'immediate' },
+    { id: 'fam_3', text: 'Focus on what you can control in the family dynamic', category: 'mindset' },
+    { id: 'fam_4', text: 'Consider family therapy if conflicts are ongoing', category: 'social' }
+  ]
+}
+
+// Function to detect context from user message
+export function detectContext(userMessage: string): string | null {
+  const lowerText = userMessage.toLowerCase()
+  
+  // Peer pressure patterns (high priority)
+  if (lowerText.includes('peer pressure') || 
+      lowerText.includes('pressure from friends') || 
+      lowerText.includes('everyone is doing') ||
+      lowerText.includes('everyone else is') ||
+      lowerText.includes('fit in') ||
+      lowerText.includes('left out') ||
+      lowerText.includes('what will people think') ||
+      lowerText.includes('forced to') ||
+      lowerText.includes('have to do') && (lowerText.includes('friends') || lowerText.includes('group'))) {
+    return 'peer_pressure'
+  }
+  
+  // Social anxiety patterns
+  if ((lowerText.includes('social') || lowerText.includes('party') || lowerText.includes('meeting people')) && 
+      (lowerText.includes('anxious') || lowerText.includes('nervous') || lowerText.includes('awkward') || lowerText.includes('scared'))) {
+    return 'social_anxiety'
+  }
+  
+  // Work/job stress patterns
+  if (lowerText.includes('work') || lowerText.includes('job') || lowerText.includes('boss') || 
+      lowerText.includes('deadline') || lowerText.includes('office') || lowerText.includes('coworker') ||
+      lowerText.includes('overtime') || lowerText.includes('performance review')) {
+    return 'work_stress'
+  }
+  
+  // Relationship conflict patterns
+  if (lowerText.includes('relationship') || lowerText.includes('boyfriend') || lowerText.includes('girlfriend') || 
+      lowerText.includes('partner') || lowerText.includes('fight') || lowerText.includes('argument') ||
+      lowerText.includes('broke up') || lowerText.includes('dating') || lowerText.includes('marriage')) {
+    return 'relationship_conflict'
+  }
+  
+  // Academic pressure patterns
+  if (lowerText.includes('school') || lowerText.includes('exam') || lowerText.includes('test') || 
+      lowerText.includes('grade') || lowerText.includes('study') || lowerText.includes('homework') ||
+      lowerText.includes('college') || lowerText.includes('university') || lowerText.includes('assignment')) {
+    return 'academic_pressure'
+  }
+  
+  // Family issues patterns
+  if (lowerText.includes('family') || lowerText.includes('parents') || lowerText.includes('mom') || 
+      lowerText.includes('dad') || lowerText.includes('siblings') || lowerText.includes('brother') ||
+      lowerText.includes('sister') || lowerText.includes('mother') || lowerText.includes('father')) {
+    return 'family_issues'
+  }
+  
+  return null
+}
+
+export function getRandomSuggestions(emotion: EmotionType, count: number = 4, userMessage?: string): EmotionSuggestion[] {
+  // First, check if we have contextual suggestions
+  if (userMessage) {
+    const context = detectContext(userMessage)
+    if (context && CONTEXTUAL_SUGGESTIONS[context]) {
+      return CONTEXTUAL_SUGGESTIONS[context].slice(0, count)
+    }
+  }
+  
+  // Fall back to emotion-based suggestions
   const allSuggestions = getSuggestionsForEmotion(emotion)
   if (allSuggestions.length <= count) {
     return allSuggestions
