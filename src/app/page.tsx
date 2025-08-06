@@ -323,7 +323,7 @@ function MainContent({ activeTab, setActiveTab, handleStartConversation }: {
                             .map(([emotion, count], index) => (
                               <div key={emotion} className="flex justify-between items-center">
                                 <span className="text-gray-700">
-                                  {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'} {emotion}
+                                  {index + 1}. {emotion}
                                 </span>
                                 <span className="font-semibold text-gray-900">{count}</span>
                               </div>
