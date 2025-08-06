@@ -27,8 +27,39 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Temporarily skip email checking in profiles table to debug the issue
-    console.log('Skipping profile check for debugging, proceeding directly with authentication')
+    // Check if the email exists in the profiles table
+    console.log('Checking if email exists in profiles table...')
+    const { data: existingProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, email, user_name')
+      .eq('email', email.trim().toLowerCase())
+      .single()
+
+    if (profileError) {
+      console.error('Profile check error:', profileError)
+      
+      if (profileError.code === 'PGRST116') {
+        // No rows returned - email not found in profiles
+        console.log('Email not found in profiles table:', email)
+        return NextResponse.json(
+          { error: 'Account not found. This account may have been deleted.' },
+          { status: 404 }
+        )
+      } else if (profileError.message?.includes('relation "public.profiles" does not exist')) {
+        console.log('Profiles table does not exist, proceeding with authentication')
+      } else {
+        // Other database errors - could be permission issues
+        console.log('Profile check failed with error, but proceeding with authentication:', profileError)
+      }
+    } else if (!existingProfile) {
+      console.log('Email not found in profiles table:', email)
+      return NextResponse.json(
+        { error: 'Account not found. This account may have been deleted.' },
+        { status: 404 }
+      )
+    } else {
+      console.log('Email found in profiles table, proceeding with authentication')
+    }
 
     // Proceed with authentication
     console.log('Attempting Supabase authentication for email:', email)
