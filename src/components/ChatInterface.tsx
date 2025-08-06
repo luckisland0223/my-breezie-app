@@ -533,7 +533,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
             </div>
             
             {/* AI Response - Fixed Height Container */}
-            <div className="text-gray-800 leading-relaxed text-lg h-[400px] overflow-y-auto border border-gray-100 rounded-2xl p-4 bg-gray-50/30">
+            <div className="text-gray-800 leading-relaxed text-lg h-[280px] overflow-y-auto border border-gray-100 rounded-2xl p-4 bg-gray-50/30">
               {isTyping ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex space-x-2">
@@ -617,7 +617,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={lastUserMessage || "Share your thoughts and feelings here..."}
-                className="w-full h-28 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                className="w-full h-40 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
                 disabled={isTyping}
                 autoFocus
               />
