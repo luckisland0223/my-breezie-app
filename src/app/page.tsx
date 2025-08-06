@@ -10,6 +10,7 @@ import { EmotionTracker } from '@/components/EmotionTracker'
 import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
 import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
 import { DailyWellnessTip } from '@/components/DailyWellnessTip'
+import { ClientOnly } from '@/components/ClientOnly'
 
 import { useEmotionStore } from '@/store/emotion'
 
@@ -19,7 +20,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function HomePage() {
-  const { records } = useEmotionStore()
   const [activeTab, setActiveTab] = useState('journey')
   const [showChat, setShowChat] = useState(false)
 
@@ -30,7 +30,20 @@ export default function HomePage() {
 
 
   if (showChat) {
-    return <ChatInterface onBack={() => setShowChat(false)} />
+    return (
+      <ClientOnly fallback={
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <MessageCircle className="w-8 h-8 text-white" />
+            </div>
+            <p className="text-gray-600">Loading chat...</p>
+          </div>
+        </div>
+      }>
+        <ChatInterface onBack={() => setShowChat(false)} />
+      </ClientOnly>
+    )
   }
 
   return (
@@ -70,7 +83,45 @@ export default function HomePage() {
       </header>
 
       {/* Main App Interface */}
+      <ClientOnly fallback={
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <Heart className="w-8 h-8 text-white" />
+            </div>
+            <p className="text-gray-600">Loading your journey...</p>
+          </div>
+        </div>
+      }>
+        <MainContent activeTab={activeTab} setActiveTab={setActiveTab} handleStartConversation={handleStartConversation} />
+      </ClientOnly>
+
+      {/* Footer information */}
+      <footer className="bg-white/50 backdrop-blur-sm border-t border-white/20 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <p className="text-gray-600 mb-2">
+              <strong>Breezie v2.0</strong> - Your Emotional Wellness Journey
+            </p>
+            <p className="text-sm text-gray-500">
+              Powered by AI • Designed for Your Wellbeing • Privacy-First Approach
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+function MainContent({ activeTab, setActiveTab, handleStartConversation }: { 
+  activeTab: string, 
+  setActiveTab: (tab: string) => void,
+  handleStartConversation: () => void 
+}) {
+  const { records } = useEmotionStore()
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 lg:w-80 mx-auto">
               <TabsTrigger value="journey" className="flex items-center gap-2">
@@ -301,20 +352,5 @@ export default function HomePage() {
             </TabsContent>
           </Tabs>
         </div>
-
-      {/* Footer information */}
-      <footer className="bg-white/50 backdrop-blur-sm border-t border-white/20 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-gray-600 mb-2">
-              <strong>Breezie v2.0</strong> - Your Emotional Wellness Journey
-            </p>
-            <p className="text-sm text-gray-500">
-              Powered by AI • Designed for Your Wellbeing • Privacy-First Approach
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
   )
 }

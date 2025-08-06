@@ -152,11 +152,6 @@ What would you like to talk about?`
       const suggestions = getRandomSuggestions(emotion, 4)
       setCurrentSuggestions(suggestions)
       setSuggestionMode(true)
-      
-      // Add Breezie's suggestion message
-      const suggestionMessage = "Here are some suggestions that might help you feel better:"
-      setAiResponse(prev => prev + "\n\n" + suggestionMessage)
-      addMessage(suggestionMessage, 'assistant')
       setShowSuggestions(true)
     } else {
       setShowSuggestions(false)
@@ -775,59 +770,7 @@ What would you like to talk about?`
                     </div>
                   )}
                   
-                  {/* Suggestion Selection Interface */}
-                  {showSuggestions && currentSuggestions.length > 0 && (
-                    <div className="bg-green-50/50 backdrop-blur-sm rounded-2xl p-6 border border-green-200/50">
-                      <div className="text-center mb-4">
-                        <p className="text-gray-700 font-medium mb-2">💡 Please choose one of these suggestions:</p>
-                        <p className="text-sm text-gray-600">Select the one that feels most helpful to you right now</p>
-                      </div>
-                      
-                      <div className="space-y-3 mb-4">
-                        {currentSuggestions.map((suggestion) => (
-                          <button
-                            key={suggestion.id}
-                            onClick={() => handleSuggestionSelect(suggestion)}
-                            className={`w-full text-left p-4 rounded-xl transition-all duration-200 border-2 ${
-                              selectedSuggestion?.id === suggestion.id
-                                ? 'bg-green-100 border-green-400 shadow-md'
-                                : 'bg-white hover:bg-green-50 border-gray-200 hover:border-green-300'
-                            }`}
-                            disabled={isTyping}
-                          >
-                            <div className="font-medium text-gray-800">{suggestion.text}</div>
-                            <div className="text-xs text-gray-500 mt-1 capitalize">{suggestion.category} support</div>
-                          </button>
-                        ))}
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={handleMoreSuggestions}
-                            className="text-sm text-blue-600 hover:text-blue-800 underline"
-                            disabled={isTyping}
-                          >
-                            More suggestions
-                          </button>
-                          <button
-                            onClick={handleRejectSuggestions}
-                            className="text-sm text-gray-500 hover:text-gray-700 underline"
-                            disabled={isTyping}
-                          >
-                            None of these help
-                          </button>
-                        </div>
-                        <Button
-                          onClick={handleConfirmSuggestion}
-                          disabled={!selectedSuggestion || isTyping}
-                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Confirm Selection
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+
                 </div>
               ) : (
                 <div className="text-center text-gray-400 py-12">
@@ -880,6 +823,65 @@ What would you like to talk about?`
             </div>
           </div>
         </div>
+
+        {/* Suggestion Selection Interface - Moved outside chat box */}
+        {showSuggestions && currentSuggestions.length > 0 && (
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">💡 Breezie's Suggestions</h3>
+                <p className="text-gray-600">Select the one that feels most helpful to you right now</p>
+              </div>
+              
+              <div className="space-y-3 mb-6">
+                {currentSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion.id}
+                    onClick={() => handleSuggestionSelect(suggestion)}
+                    className={`w-full text-left p-4 rounded-xl transition-all duration-200 border-2 ${
+                      selectedSuggestion?.id === suggestion.id
+                        ? 'bg-green-100 border-green-400 shadow-md'
+                        : 'bg-white hover:bg-green-50 border-gray-200 hover:border-green-300'
+                    }`}
+                    disabled={isTyping}
+                  >
+                    <div className="font-medium text-gray-800">{suggestion.text}</div>
+                    <div className="text-xs text-gray-500 mt-1 capitalize">{suggestion.category} support</div>
+                  </button>
+                ))}
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleMoreSuggestions}
+                    className="text-sm text-blue-600 hover:text-blue-800 underline font-medium"
+                    disabled={isTyping}
+                  >
+                    More suggestions
+                  </button>
+                  <button
+                    onClick={handleRejectSuggestions}
+                    className="text-sm text-gray-500 hover:text-gray-700 underline"
+                    disabled={isTyping}
+                  >
+                    None of these help
+                  </button>
+                </div>
+                <Button
+                  onClick={handleConfirmSuggestion}
+                  disabled={!selectedSuggestion || isTyping}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Confirm Selection
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Conversation History Button */}
         {currentSession?.messages && currentSession.messages.length > 1 && (
