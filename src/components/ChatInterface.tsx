@@ -757,7 +757,7 @@ What would you like to talk about?`
               </div>
               <div>
                 <span className="text-gray-800 font-semibold text-lg">Breezie</span>
-                <div className="text-sm text-gray-500">Gentle care, everywhere</div>
+                <div className="text-sm text-gray-500">Feeling first, healing follows</div>
               </div>
             </div>
             
