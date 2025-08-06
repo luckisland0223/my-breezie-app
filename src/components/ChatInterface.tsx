@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useEmotionStore } from '@/store/emotion'
@@ -57,6 +57,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [conversationEnded, setConversationEnded] = useState(false)
   const [representativeEmotion, setRepresentativeEmotion] = useState<EmotionType | null>(null)
   const [showConversationHistory, setShowConversationHistory] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const currentSession = useEmotionStore((state) => state.currentSession)
   const startChatSession = useEmotionStore((state) => state.startChatSession)
@@ -81,6 +82,15 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       return false
     }
   }
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [currentSession?.messages, isTyping, aiResponse])
 
   // Initialize conversation with welcome message
   useEffect(() => {
@@ -508,82 +518,131 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
 
       {/* Chat Interface */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* AI Response Area */}
+        {/* Chat Messages Container */}
         <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="p-8">
-            {/* AI Avatar and Info */}
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
-                <MessageCircle className="w-6 h-6 text-white" />
+          <div className="p-6">
+            {/* Chat Header */}
+            <div className="flex items-center pb-4 border-b border-gray-100 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                <MessageCircle className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="text-gray-800 font-semibold text-lg">Breezie</span>
-                <div className="text-sm text-gray-500">AI Emotional Wellness Assistant</div>
+                <span className="text-gray-800 font-semibold">Breezie</span>
+                <div className="text-xs text-gray-500">AI Emotional Wellness Assistant</div>
               </div>
             </div>
             
-            {/* AI Response - Fixed Height Container */}
-            <div className="text-gray-800 leading-relaxed text-lg h-[400px] overflow-y-auto border border-gray-100 rounded-2xl p-4 bg-gray-50/30">
-              {isTyping ? (
-                <div className="flex items-center space-x-4">
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce"></div>
-                    <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            {/* Chat Messages - Fixed Height Container */}
+            <div className="h-[500px] overflow-y-auto space-y-4 px-2">
+              {/* Display all messages in conversation */}
+              {currentSession?.messages && currentSession.messages.map((message, index) => (
+                <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`flex items-start gap-3 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    {/* Avatar */}
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      message.role === 'user' 
+                        ? 'bg-gradient-to-br from-gray-500 to-gray-600' 
+                        : 'bg-gradient-to-br from-blue-500 to-purple-600'
+                    }`}>
+                      {message.role === 'user' ? (
+                        <User className="w-4 h-4 text-white" />
+                      ) : (
+                        <MessageCircle className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                    
+                    {/* Message Bubble */}
+                    <div className={`rounded-2xl px-4 py-3 ${
+                      message.role === 'user'
+                        ? 'bg-blue-500 text-white rounded-br-md'
+                        : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                    }`}>
+                      <p className="text-sm leading-relaxed">
+                        {index === currentSession.messages.length - 1 && message.role === 'assistant' && aiResponse ? (
+                          <TypewriterText text={message.content} onComplete={handleTypewriterComplete} />
+                        ) : (
+                          message.content
+                        )}
+                      </p>
+                      <p className={`text-xs mt-1 ${
+                        message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                      }`}>
+                        {format(message.timestamp, 'HH:mm')}
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-gray-600 font-medium">Thinking...</span>
                 </div>
-              ) : aiResponse ? (
-                <div className="space-y-4">
-                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                    <TypewriterText 
-                      text={aiResponse} 
-                      onComplete={handleTypewriterComplete}
-                    />
-                  </div>
-                  
-                  {/* Inline Emotion Selection */}
-                  {showInlineEmotions && suggestedEmotions.length > 0 && (
-                    <div className="bg-blue-50/50 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/50">
-                      <div className="text-center mb-4">
-                        <p className="text-gray-700 font-medium mb-2">Based on what you've shared, I can sense these emotions. Which one feels most true to you right now?</p>
-                        <p className="text-sm text-gray-600">Choose one to help me understand you better</p>
-                      </div>
-                      
-                      <div className="flex flex-wrap justify-center gap-3 mb-4">
-                        {suggestedEmotions.map((emotion) => {
-                          const config = emotionConfig[emotion]
-                          return (
-                            <button
-                              key={emotion}
-                              onClick={() => handleInlineEmotionSelect(emotion)}
-                              className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-white/70 transition-all duration-200 min-w-[80px]"
-                            >
-                              <span className="text-2xl mb-1">{config.emoji}</span>
-                              <span className="text-sm font-medium text-gray-700">{emotion}</span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                      
-                      <div className="text-center">
-                        <button
-                          onClick={() => setShowInlineEmotions(false)}
-                          className="text-sm text-gray-500 hover:text-gray-700 underline"
-                        >
-                          Maybe later
-                        </button>
+              ))}
+              
+              {/* Typing Indicator */}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="flex items-start gap-3 max-w-[80%]">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MessageCircle className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                        <span className="text-xs text-gray-500">Breezie is typing...</span>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              ) : (
+              )}
+              
+              {/* Empty State */}
+              {(!currentSession?.messages || currentSession.messages.length === 0) && !isTyping && (
                 <div className="text-center text-gray-400 py-12">
                   <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p className="text-lg">Ready to start our conversation...</p>
                   <p className="text-sm mt-2">I'm here to listen and support you</p>
                 </div>
               )}
+              
+              {/* Inline Emotion Selection */}
+              {showInlineEmotions && suggestedEmotions.length > 0 && (
+                <div className="flex justify-center">
+                  <div className="bg-blue-50/50 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/50 max-w-md">
+                    <div className="text-center mb-4">
+                      <p className="text-gray-700 font-medium mb-2 text-sm">Based on what you've shared, I can sense these emotions. Which one feels most true to you right now?</p>
+                      <p className="text-xs text-gray-600">Choose one to help me understand you better</p>
+                    </div>
+                    
+                    <div className="flex flex-wrap justify-center gap-2 mb-4">
+                      {suggestedEmotions.map((emotion) => {
+                        const config = emotionConfig[emotion]
+                        return (
+                          <button
+                            key={emotion}
+                            onClick={() => handleInlineEmotionSelect(emotion)}
+                            className="flex flex-col items-center p-2 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-white/70 transition-all duration-200 min-w-[60px]"
+                          >
+                            <span className="text-lg mb-1">{config.emoji}</span>
+                            <span className="text-xs font-medium text-gray-700">{emotion}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                    
+                    <div className="text-center">
+                      <button
+                        onClick={() => setShowInlineEmotions(false)}
+                        className="text-xs text-gray-500 hover:text-gray-700 underline"
+                      >
+                        Maybe later
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Scroll anchor */}
+              <div ref={messagesEndRef} />
             </div>
           </div>
         </div>
