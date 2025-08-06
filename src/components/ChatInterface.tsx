@@ -46,12 +46,15 @@ function TypewriterText({ text, onComplete }: { text: string; onComplete?: () =>
 export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [aiResponse, setAiResponse] = useState('')
+  const [aiResponse, setAiResponse] = useState(`Hello! I'm Breezie, your emotional wellness companion.
+I'm here to listen and support you through whatever you're experiencing today.
+Whether you're feeling happy, stressed, confused, or anything in between, this is a safe space to share.
+What would you like to talk about?`)
   const [lastUserMessage, setLastUserMessage] = useState('')
   const [showEmotionSelection, setShowEmotionSelection] = useState(false)
   const [showInlineEmotions, setShowInlineEmotions] = useState(false)
   const [suggestedEmotions, setSuggestedEmotions] = useState<EmotionType[]>([])
-  const [hasInitialMessage, setHasInitialMessage] = useState(false)
+  const [hasInitialMessage, setHasInitialMessage] = useState(true)
   const [conversationText, setConversationText] = useState('')
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType>('Other')
   const [conversationEnded, setConversationEnded] = useState(false)
@@ -121,15 +124,16 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
 
   // Initialize conversation with welcome message
   useEffect(() => {
-    if (!hasInitialMessage && !currentSession) {
-      const welcomeMessage = `Hello! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What would you like to talk about?`
+    if (!currentSession) {
+      const welcomeMessage = `Hello! I'm Breezie, your emotional wellness companion.
+I'm here to listen and support you through whatever you're experiencing today.
+Whether you're feeling happy, stressed, confused, or anything in between, this is a safe space to share.
+What would you like to talk about?`
       
       startChatSession('Other') // Start with a default emotion
-      setAiResponse(welcomeMessage)
       addMessage(welcomeMessage, 'assistant')
-      setHasInitialMessage(true)
     }
-  }, [hasInitialMessage, currentSession, startChatSession, addMessage])
+  }, [currentSession, startChatSession, addMessage])
 
   const handleTypewriterComplete = () => {
     // Typewriter animation completed
@@ -573,10 +577,15 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
               ) : aiResponse ? (
                 <div className="space-y-4">
                   <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                    <TypewriterText 
-                      text={aiResponse} 
-                      onComplete={handleTypewriterComplete}
-                    />
+                    {/* Show initial message immediately, use typewriter for subsequent messages */}
+                    {currentSession?.messages && currentSession.messages.length <= 1 ? (
+                      <div className="whitespace-pre-line">{aiResponse}</div>
+                    ) : (
+                      <TypewriterText 
+                        text={aiResponse} 
+                        onComplete={handleTypewriterComplete}
+                      />
+                    )}
                   </div>
                   
                   {/* Inline Emotion Selection */}
