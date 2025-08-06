@@ -6,7 +6,7 @@ import type { ChatMessage } from '@/lib/geminiService'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userMessage, emotion, conversationHistory } = body
+    const { userMessage, emotion, conversationHistory, engagementLevel, responseInstructions } = body
 
     // Validate input parameters
     if (!userMessage || typeof userMessage !== 'string') {
@@ -47,12 +47,14 @@ export async function POST(request: NextRequest) {
 
     // Log configuration info (for debugging, no sensitive information)
 
-    // Call Gemini API
+    // Call Gemini API with engagement-aware parameters
     const response = await getGeminiResponse(
       userMessage,
       emotion as EmotionType,
       conversationHistory || [],
-      apiKey
+      apiKey,
+      engagementLevel,
+      responseInstructions
     )
     
     return NextResponse.json({ 

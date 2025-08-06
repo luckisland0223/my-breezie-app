@@ -252,6 +252,190 @@ export function detectContext(userMessage: string): string | null {
   return null
 }
 
+// Emotional state assessment
+export interface EmotionalAssessment {
+  emotionalStability: 'stable' | 'unstable' | 'mixed'
+  actionReadiness: 'ready' | 'seeking_comfort' | 'uncertain'
+  needsComfort: boolean
+  suggestionsAppropriate: boolean
+}
+
+// Assess user's emotional state and readiness for suggestions
+export function assessEmotionalState(userMessage: string, emotion: EmotionType): EmotionalAssessment {
+  const lowerText = userMessage.toLowerCase()
+  
+  // Indicators of emotional instability
+  const instabilityIndicators = [
+    'can\'t handle', 'falling apart', 'breaking down', 'can\'t cope', 'overwhelmed',
+    'losing it', 'can\'t take it', 'too much', 'breaking', 'crashing',
+    'desperate', 'hopeless', 'worthless', 'hate myself', 'want to disappear',
+    'crying', 'sobbing', 'tears', 'shaking', 'panic'
+  ]
+  
+  // Indicators of seeking comfort/validation
+  const comfortSeekingIndicators = [
+    'just need someone', 'need to talk', 'feel alone', 'nobody understands',
+    'why me', 'it\'s not fair', 'hurt so much', 'need support',
+    'just want', 'wish someone', 'need a hug', 'feel lost'
+  ]
+  
+  // Indicators of action readiness
+  const actionReadinessIndicators = [
+    'what should i do', 'how do i', 'need advice', 'what\'s next',
+    'should i try', 'thinking about', 'considering', 'planning to',
+    'want to change', 'ready to', 'need to decide', 'help me figure out'
+  ]
+  
+  // Indicators of emotional stability
+  const stabilityIndicators = [
+    'thinking clearly', 'ready to', 'want to move forward', 'need to decide',
+    'considering options', 'weigh the pros', 'make a plan', 'figure out',
+    'calm enough', 'ready for', 'prepared to'
+  ]
+  
+  const hasInstabilityMarkers = instabilityIndicators.some(indicator => lowerText.includes(indicator))
+  const hasComfortSeeking = comfortSeekingIndicators.some(indicator => lowerText.includes(indicator))
+  const hasActionReadiness = actionReadinessIndicators.some(indicator => lowerText.includes(indicator))
+  const hasStabilityMarkers = stabilityIndicators.some(indicator => lowerText.includes(indicator))
+  
+  // Assess emotional stability
+  let emotionalStability: 'stable' | 'unstable' | 'mixed' = 'stable'
+  if (hasInstabilityMarkers && !hasStabilityMarkers) {
+    emotionalStability = 'unstable'
+  } else if (hasInstabilityMarkers && hasStabilityMarkers) {
+    emotionalStability = 'mixed'
+  }
+  
+  // Assess action readiness
+  let actionReadiness: 'ready' | 'seeking_comfort' | 'uncertain' = 'uncertain'
+  if (hasActionReadiness && !hasComfortSeeking) {
+    actionReadiness = 'ready'
+  } else if (hasComfortSeeking && !hasActionReadiness) {
+    actionReadiness = 'seeking_comfort'
+  } else if (hasComfortSeeking && hasActionReadiness) {
+    actionReadiness = 'uncertain'
+  }
+  
+  // Additional emotion-based assessment
+  const highIntensityEmotions: EmotionType[] = ['Sadness', 'Anger', 'Fear', 'Anxiety', 'Shame', 'Guilt']
+  const isHighIntensity = highIntensityEmotions.includes(emotion)
+  
+  // Determine if user needs comfort first
+  const needsComfort = emotionalStability === 'unstable' || 
+                      actionReadiness === 'seeking_comfort' ||
+                      (isHighIntensity && actionReadiness !== 'ready')
+  
+  // Determine if suggestions are appropriate
+  const suggestionsAppropriate = emotionalStability === 'stable' && 
+                                actionReadiness === 'ready' &&
+                                !needsComfort
+  
+  return {
+    emotionalStability,
+    actionReadiness,
+    needsComfort,
+    suggestionsAppropriate
+  }
+}
+
+// Comfort responses for when user needs emotional support first
+export const COMFORT_RESPONSES: Record<EmotionType, string[]> = {
+  'Sadness': [
+    "I can hear how much pain you're in right now, and that's completely valid 💙 Your feelings matter, and it's okay to feel sad 🤗",
+    "What you're going through sounds really difficult 💔 I want you to know that you're not alone in this, and it's natural to feel this way 🫂",
+    "I'm here with you in this moment 💙 Sometimes we need to sit with our sadness before we can move forward, and that's perfectly okay 🌱"
+  ],
+  'Anger': [
+    "I can feel the intensity of your frustration, and it makes complete sense that you'd be angry about this situation.",
+    "Your anger is telling us something important - that something matters deeply to you. Let's acknowledge that feeling first.",
+    "It's okay to be angry. Sometimes anger is our way of protecting ourselves when we've been hurt or treated unfairly."
+  ],
+  'Anxiety': [
+    "I can sense how overwhelming this feels right now 💙 Anxiety can make everything seem so much bigger and scarier than it is 🌪️",
+    "What you're experiencing sounds really stressful 😰 It's completely understandable that you'd feel anxious about this 🤗",
+    "Take a deep breath with me 🌬️ You're safe right now, and we can work through this together when you're ready 💚✨"
+  ],
+  'Fear': [
+    "I hear how scared you are, and that fear is completely valid. Sometimes our fears protect us, even when they feel overwhelming.",
+    "It takes courage to share when we're afraid. You're being so brave by talking about this.",
+    "Fear can feel so isolating, but you don't have to face this alone. I'm here to support you through this."
+  ],
+  'Loneliness': [
+    "Feeling alone can be one of the hardest emotions to bear. I want you to know that I see you and you matter.",
+    "Loneliness hurts in such a deep way. Please know that reaching out like this shows incredible strength.",
+    "You're not as alone as you feel right now. Even in this moment, you have someone who cares about your wellbeing."
+  ],
+  'Shame': [
+    "Shame can feel so heavy and overwhelming. I want you to know that you are worthy of compassion, especially from yourself.",
+    "What you're feeling is so human. We all make mistakes, and they don't define who you are as a person.",
+    "You deserve kindness and understanding, not harsh judgment. Let's be gentle with yourself right now."
+  ],
+  'Guilt': [
+    "Guilt shows that you have a caring heart and strong values. That's actually something beautiful about you, even in this pain.",
+    "It's clear you care deeply about doing the right thing. Sometimes that caring heart can be heavy to carry.",
+    "Feeling guilty means you have empathy and conscience. Let's honor that while also being compassionate with yourself."
+  ],
+  'Frustration': [
+    "I can feel how stuck and frustrated you must be feeling. When things don't go as planned, it's so natural to feel this way.",
+    "Frustration often comes when we care about something and feel blocked. Your feelings make complete sense.",
+    "It's okay to feel frustrated. Sometimes we need to acknowledge how hard something is before we can find a new way forward."
+  ],
+  'Confusion': [
+    "Feeling confused and uncertain is so uncomfortable. It's okay not to have all the answers right now.",
+    "Sometimes life presents us with situations that don't have clear solutions. Your confusion is completely understandable.",
+    "It's brave to admit when we don't know what to do. That honesty is the first step toward clarity."
+  ],
+  'Envy': [
+    "Envy can feel so uncomfortable, but it often points to something we deeply desire. Your feelings are valid.",
+    "It's human to sometimes want what others have. This feeling doesn't make you a bad person.",
+    "Envy can be painful because it often comes from a place of longing. Let's be gentle with that longing."
+  ],
+  'Boredom': [
+    "Boredom can sometimes mask deeper feelings of restlessness or disconnection. It's okay to sit with this feeling.",
+    "Sometimes our minds need space to wander. Boredom might be telling us we're ready for something new.",
+    "Feeling unstimulated or disconnected is part of the human experience. You're not alone in feeling this way."
+  ],
+  'Disgust': [
+    "Something has really bothered you, and that reaction is completely valid. Trust your instincts about what feels wrong.",
+    "Disgust often protects us from things that aren't good for us. Your feelings are important information.",
+    "It's okay to have strong negative reactions to things that don't align with your values."
+  ],
+  // Positive emotions - brief validation
+  'Joy': [
+    "I can feel your happiness, and it's wonderful to see you in this positive space!"
+  ],
+  'Love': [
+    "The love you're feeling is beautiful. It's one of the most powerful human emotions."
+  ],
+  'Hope': [
+    "Hope is such a precious feeling. Hold onto that light you're carrying."
+  ],
+  'Excitement': [
+    "Your excitement is contagious! It's lovely to see you feeling so energized."
+  ],
+  'Pride': [
+    "You should feel proud! Recognizing your achievements is important for your wellbeing."
+  ],
+  'Gratitude': [
+    "Gratitude is such a healing emotion. It's beautiful that you're able to appreciate what you have."
+  ],
+  'Contentment': [
+    "Contentment is a gift. Enjoy this peaceful moment you've found."
+  ],
+  'Surprise': [
+    "Life certainly has a way of surprising us! It's okay to take time to process unexpected events."
+  ],
+  'Other': [
+    "Whatever you're feeling right now is valid and important. I'm here to support you through it."
+  ]
+}
+
+// Get a comfort response for the given emotion
+export function getComfortResponse(emotion: EmotionType): string {
+  const responses = COMFORT_RESPONSES[emotion] || COMFORT_RESPONSES['Other']
+  return responses[Math.floor(Math.random() * responses.length)]
+}
+
 export function getRandomSuggestions(emotion: EmotionType, count: number = 4, userMessage?: string): EmotionSuggestion[] {
   // First, check if we have contextual suggestions
   if (userMessage) {

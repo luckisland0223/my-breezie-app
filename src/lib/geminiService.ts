@@ -40,11 +40,18 @@ export async function getGeminiResponse(
   userMessage: string,
   emotion: EmotionType,
   conversationHistory: ChatMessage[] = [],
-  apiKey: string
+  apiKey: string,
+  engagementLevel?: 'high' | 'medium' | 'normal',
+  responseInstructions?: string
 ): Promise<string> {
   try {
-    // Use new prompt construction system
-    const fullPrompt = buildFullPrompt(userMessage, emotion, conversationHistory)
+    // Use new prompt construction system with engagement awareness
+    let fullPrompt = buildFullPrompt(userMessage, emotion, conversationHistory)
+    
+    // Add engagement-specific instructions if provided
+    if (responseInstructions && engagementLevel) {
+      fullPrompt += `\n\nIMPORTANT RESPONSE GUIDANCE: ${responseInstructions}`
+    }
     
     // Construct Gemini API request
     const messages = [{

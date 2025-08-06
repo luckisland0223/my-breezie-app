@@ -14,7 +14,7 @@ import { calculateBehavioralImpactScore } from '@/lib/behavioralImpactScore'
 import { getRandomResponse } from '@/config/emotionResponses'
 import { emotionConfig } from '@/config/emotionConfig'
 import { getRandomFallback } from '@/config/prompts'
-import { isNegativeEmotion, getRandomSuggestions, type EmotionSuggestion } from '@/config/emotionSuggestions'
+import { isNegativeEmotion, getRandomSuggestions, assessEmotionalState, getComfortResponse, type EmotionSuggestion, type EmotionalAssessment } from '@/config/emotionSuggestions'
 
 interface ChatInterfaceProps {
   onBack: () => void
@@ -70,6 +70,9 @@ What would you like to talk about?`)
   const [suggestionMode, setSuggestionMode] = useState(false)
   const [showMoreEmotions, setShowMoreEmotions] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [showReadyForSuggestions, setShowReadyForSuggestions] = useState(false)
+  const [pendingEmotionForSuggestions, setPendingEmotionForSuggestions] = useState<EmotionType | null>(null)
+  const [pendingUserMessage, setPendingUserMessage] = useState<string>('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const currentSession = useEmotionStore((state) => state.currentSession)
@@ -149,19 +152,71 @@ What would you like to talk about?`
     // Typewriter animation completed
   }
 
-  // Handle suggestion system
+  // Handle suggestion system with emotional assessment
   const generateSuggestions = async (emotion: EmotionType, userMessage?: string) => {
-    if (isNegativeEmotion(emotion)) {
-      const suggestions = getRandomSuggestions(emotion, 4, userMessage)
+    if (isNegativeEmotion(emotion) && userMessage) {
+      // Assess user's emotional state and readiness
+      const assessment = assessEmotionalState(userMessage, emotion)
+      
+      if (assessment.needsComfort) {
+        // User needs comfort first - provide emotional support
+        const comfortMessage = getComfortResponse(emotion)
+        setAiResponse(prev => prev + "\n\n" + comfortMessage)
+        addMessage(comfortMessage, 'assistant')
+        
+        // Don't show suggestions yet - user needs comfort first
+        setShowSuggestions(false)
+        setCurrentSuggestions([])
+        setSuggestionMode(false)
+        
+        // Store pending suggestion info for when user is ready
+        setPendingEmotionForSuggestions(emotion)
+        setPendingUserMessage(userMessage)
+        
+        // Add a gentle follow-up after comfort and show "ready for suggestions" button
+        setTimeout(() => {
+          const followUpMessage = "Take all the time you need. When you're ready, I'm here to help you think through next steps."
+          setAiResponse(prev => prev + "\n\n" + followUpMessage)
+          addMessage(followUpMessage, 'assistant')
+          setShowReadyForSuggestions(true)
+        }, 2000)
+        
+      } else if (assessment.suggestionsAppropriate) {
+        // User is emotionally stable and ready for action - provide suggestions
+        const suggestions = getRandomSuggestions(emotion, 4, userMessage)
+        setCurrentSuggestions(suggestions)
+        setSuggestionMode(true)
+        
+        const suggestionMessage = "I can see you're ready to take action. Here are some suggestions that might help:"
+        setAiResponse(prev => prev + "\n\n" + suggestionMessage)
+        addMessage(suggestionMessage, 'assistant')
+        setShowSuggestions(true)
+        
+      } else {
+        // Mixed or uncertain state - provide gentle validation and ask for clarification
+        const validationMessage = getComfortResponse(emotion)
+        const clarificationMessage = "I want to make sure I support you in the best way. Are you looking for someone to listen and understand, or would you like some ideas on what you might do next?"
+        
+        setAiResponse(prev => prev + "\n\n" + validationMessage + "\n\n" + clarificationMessage)
+        addMessage(validationMessage, 'assistant')
+        addMessage(clarificationMessage, 'assistant')
+        
+        setShowSuggestions(false)
+        setCurrentSuggestions([])
+        setSuggestionMode(false)
+      }
+    } else if (isNegativeEmotion(emotion)) {
+      // Fallback for when we don't have user message context
+      const suggestions = getRandomSuggestions(emotion, 4)
       setCurrentSuggestions(suggestions)
       setSuggestionMode(true)
       
-      // Add Breezie's suggestion announcement message
       const suggestionMessage = "Here are some suggestions that might help you feel better:"
       setAiResponse(prev => prev + "\n\n" + suggestionMessage)
       addMessage(suggestionMessage, 'assistant')
       setShowSuggestions(true)
     } else {
+      // Positive emotions - no suggestions needed
       setShowSuggestions(false)
       setCurrentSuggestions([])
       setSuggestionMode(false)
@@ -170,6 +225,25 @@ What would you like to talk about?`
 
   const handleSuggestionSelect = (suggestion: EmotionSuggestion) => {
     setSelectedSuggestion(suggestion)
+  }
+
+  const handleReadyForSuggestions = () => {
+    if (pendingEmotionForSuggestions && pendingUserMessage) {
+      // Now provide the suggestions since user is ready
+      const suggestions = getRandomSuggestions(pendingEmotionForSuggestions, 4, pendingUserMessage)
+      setCurrentSuggestions(suggestions)
+      setSuggestionMode(true)
+      
+      const suggestionMessage = "I'm glad you're ready to explore some options. Here are some suggestions that might help:"
+      setAiResponse(prev => prev + "\n\n" + suggestionMessage)
+      addMessage(suggestionMessage, 'assistant')
+      setShowSuggestions(true)
+      
+      // Clean up pending state
+      setShowReadyForSuggestions(false)
+      setPendingEmotionForSuggestions(null)
+      setPendingUserMessage('')
+    }
   }
 
   const handleConfirmSuggestion = async () => {
@@ -454,6 +528,53 @@ What would you like to talk about?`
     return uniqueEmotions.slice(0, 5)
   }
 
+  // Detect emotional engagement level
+  const detectEmotionalEngagement = (userMessage: string, userMessages: any[]): 'high' | 'medium' | 'normal' => {
+    const messageLength = userMessage.length
+    const recentMessages = userMessages.slice(-3) // Look at last 3 messages
+    
+    // High engagement indicators
+    const highEngagementIndicators = [
+      // Emotional intensity markers
+      'really', 'so', 'very', 'extremely', 'totally', 'completely', 'absolutely',
+      // Repetitive expressions
+      '!!!', '...', '??', 
+      // Emotional outpouring markers
+      'just', 'i mean', 'you know', 'like', 'honestly', 'seriously',
+      // Urgency markers
+      'need to', 'have to', 'can\'t', 'don\'t know what to do'
+    ]
+    
+    const emotionalWords = [
+      'feel', 'feeling', 'felt', 'emotion', 'heart', 'soul', 'mind',
+      'crying', 'tears', 'upset', 'happy', 'sad', 'angry', 'scared',
+      'love', 'hate', 'worried', 'excited', 'nervous', 'overwhelmed'
+    ]
+    
+    const lowerMessage = userMessage.toLowerCase()
+    const highEngagementCount = highEngagementIndicators.filter(indicator => lowerMessage.includes(indicator)).length
+    const emotionalWordCount = emotionalWords.filter(word => lowerMessage.includes(word)).length
+    
+    // High engagement criteria
+    const isLongMessage = messageLength > 200
+    const hasMultipleRecentMessages = recentMessages.length >= 2
+    const hasHighEngagementMarkers = highEngagementCount >= 3
+    const hasEmotionalContent = emotionalWordCount >= 2
+    const hasMultipleSentences = userMessage.split(/[.!?]+/).length > 3
+    
+    if ((isLongMessage && hasEmotionalContent) || 
+        (hasMultipleRecentMessages && hasHighEngagementMarkers) ||
+        (hasMultipleSentences && emotionalWordCount >= 3)) {
+      return 'high'
+    }
+    
+    if (hasEmotionalContent || hasHighEngagementMarkers || messageLength > 100) {
+      return 'medium'
+    }
+    
+    return 'normal'
+  }
+
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isTyping) return
 
@@ -472,8 +593,18 @@ What would you like to talk about?`
     const messages = currentSession?.messages || []
     const userMessages = messages.filter(msg => msg.role === 'user')
     
+    // Detect emotional engagement level
+    const engagementLevel = detectEmotionalEngagement(userMessage, userMessages)
+    
     try {
-      // Get AI response
+      // Get AI response with engagement-aware instructions
+      let responseInstructions = ""
+      if (engagementLevel === 'high') {
+        responseInstructions = "The user is highly emotionally engaged with long or multiple messages. Provide a comprehensive response (3-4 paragraphs) with varied language and fresh perspectives. Avoid repetitive phrases like 'my heart aches' or 'whirlwind of emotions'. Be authentic, caring, and specific to their unique situation. Use different emotional validation approaches and offer personalized support. Include 3-5 relevant emojis throughout your response to add extra warmth and emotional connection."
+      } else if (engagementLevel === 'medium') {
+        responseInstructions = "The user is moderately emotionally engaged. Provide a thoughtful response (2-3 paragraphs) with natural, varied language that shows understanding and offers appropriate support. Avoid generic phrases and be specific to their situation. Include 2-3 relevant emojis to add warmth and emotional connection."
+      }
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -483,6 +614,8 @@ What would you like to talk about?`
         body: JSON.stringify({
           userMessage,
           emotion: selectedEmotion || 'Other',
+          engagementLevel,
+          responseInstructions,
           conversationHistory: messages.map(msg => ({
             role: msg.role,
             content: msg.content
@@ -527,14 +660,8 @@ What would you like to talk about?`
   }
 
   const handleEmotionSelect = async (emotion: EmotionType, intensity: number) => {
-    // Update selected emotion
+    // Update selected emotion (but don't save to records yet - only save on Complete & Save)
     setSelectedEmotion(emotion)
-    
-    // Calculate behavioral impact score
-    const behavioralScore = calculateBehavioralImpactScore(emotion, intensity, conversationText)
-    
-    // Save locally
-    const saved = saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
     // Get emotion-specific response
     const emotionResponse = getRandomResponse(emotion)
@@ -549,21 +676,7 @@ What would you like to talk about?`
     
     setShowEmotionSelection(false)
     
-    if (saved) {
-      toast.success(`${emotion} emotion recorded successfully! Impact score: ${behavioralScore.overall_score}/10`, {
-        duration: 4000
-      })
-    } else {
-      toast.warning(`${emotion} emotion saved locally (database sync failed)`, {
-        duration: 5000,
-        action: {
-          label: 'Retry',
-          onClick: () => {
-            // Can add retry logic here
-          }
-        }
-      })
-    }
+    // Emotion selected but not saved to records yet - will save on Complete & Save
   }
 
   const handleInlineEmotionSelect = async (emotion: EmotionType) => {
@@ -572,21 +685,7 @@ What would you like to talk about?`
     setShowMoreEmotions(false)
     setIsTyping(true)
     
-    // Calculate behavioral impact score
-    const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
-    
-    // Save locally
-    const saved = saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
-    
-    if (saved) {
-      toast.success(`${emotion} emotion recorded successfully!`, {
-        duration: 3000
-      })
-    } else {
-      toast.warning(`${emotion} emotion saved locally (database sync failed)`, {
-        duration: 4000
-      })
-    }
+    // Emotion selected but not saved to records yet - will save on Complete & Save
     
     try {
       // Get personalized AI response based on user's story and selected emotion
@@ -630,7 +729,7 @@ What would you like to talk about?`
       generateSuggestions(emotion, conversationText)
     }
     
-    toast.success(`Emotion recorded: ${emotion}`)
+    // Emotion recorded silently in handleInlineEmotionSelect
   }
 
   const handleSkipEmotion = () => {
@@ -676,8 +775,7 @@ What would you like to talk about?`
       const userMessages = currentSession.messages?.filter(msg => msg.role === 'user') || []
       
       if (userMessages.length === 0) {
-        // No user messages, show notification without saving
-        toast.info('No conversation to save')
+        // No user messages, exit without saving
         handleBackToJourney()
         return
       }
@@ -686,17 +784,12 @@ What would you like to talk about?`
       const repEmotion = selectRepresentativeEmotion()
       setRepresentativeEmotion(repEmotion)
       
-      // If no emotion was selected during conversation, create a record with representative emotion
-      if (!selectedEmotion || selectedEmotion === 'Other') {
-        const behavioralScore = calculateBehavioralImpactScore(repEmotion, 5, conversationText)
-        const saved = await saveConversationEmotionRecord(repEmotion, behavioralScore.overall_score, conversationText)
-        
-        if (saved) {
-          toast.success(`Conversation saved with representative emotion: ${repEmotion}`)
-        } else {
-          toast.success(`Conversation saved locally with emotion: ${repEmotion} (Cloud sync failed)`)
-        }
-      }
+      // Save emotion record (either selected emotion or representative emotion)
+      const emotionToSave = selectedEmotion && selectedEmotion !== 'Other' ? selectedEmotion : repEmotion
+      const behavioralScore = calculateBehavioralImpactScore(emotionToSave, 5, conversationText)
+      const saved = await saveConversationEmotionRecord(emotionToSave, behavioralScore.overall_score, conversationText)
+      
+      // Emotion record saved silently - no disruptive notifications
       
       endChatSession()
     }
@@ -841,6 +934,19 @@ What would you like to talk about?`
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Ready for Suggestions Button */}
+        {showReadyForSuggestions && (
+          <div className="flex justify-center mb-6">
+            <Button
+              onClick={handleReadyForSuggestions}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              I'm ready for suggestions
+            </Button>
           </div>
         )}
 

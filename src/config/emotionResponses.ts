@@ -28,20 +28,20 @@ export const emotionResponses: Record<EmotionType, string[]> = {
     "What would make you feel safer right now? Let's explore your options together."
   ],
   'Joy': [
-    "Seeing you so happy makes me happy too! Can you share what's bringing you such joy?",
-    "Joyful feelings are life's most precious gifts. Let's celebrate this moment together!",
-    "Your happiness is contagious! I hope this wonderful mood stays with you.",
-    "Joy represents life's most beautiful moments. Treasure this feeling.",
-    "Your smile is truly beautiful. Keep nurturing this happiness within you!",
-    "This joy you're experiencing - how can we help it grow and last even longer?"
+    "Seeing you so happy makes me happy too! 😊✨ Can you share what's bringing you such joy?",
+    "Joyful feelings are life's most precious gifts 🎉 Let's celebrate this moment together!",
+    "Your happiness is contagious! 🌟 I hope this wonderful mood stays with you.",
+    "Joy represents life's most beautiful moments 🌈 Treasure this feeling.",
+    "Your smile is truly beautiful 😊💙 Keep nurturing this happiness within you!",
+    "This joy you're experiencing - how can we help it grow and last even longer? ✨🌻"
   ],
   'Sadness': [
-    "I understand your sadness right now. These feelings are real and important.",
-    "When we're sad, having someone listen and understand is truly valuable. I'm here with you.",
-    "Allowing yourself to feel sadness is an important step in processing emotions.",
-    "Sadness is part of the healing process. Don't rush to push it away.",
-    "Your sadness is completely valid. I'm here to support you through this difficult time.",
-    "What do you need most right now? Sometimes just being heard can make a difference."
+    "I understand your sadness right now 💙 These feelings are real and important.",
+    "When we're sad, having someone listen and understand is truly valuable 🤗 I'm here with you.",
+    "Allowing yourself to feel sadness is an important step in processing emotions 💚",
+    "Sadness is part of the healing process 🌱 Don't rush to push it away.",
+    "Your sadness is completely valid 💙 I'm here to support you through this difficult time 🫂",
+    "What do you need most right now? 💭 Sometimes just being heard can make a difference ✨"
   ],
   'Surprise': [
     "Surprise keeps us alert and curious about the world. What caught you off guard?",
@@ -52,12 +52,12 @@ export const emotionResponses: Record<EmotionType, string[]> = {
     "How are you processing this surprise? Sometimes the unexpected leads to wonderful opportunities."
   ],
   'Anxiety': [
-    "I understand you're feeling anxious. This is a very common and natural response.",
-    "Anxiety can feel overwhelming, but remember you're not alone. I'm here with you.",
-    "When anxiety rises, try focusing on your breathing. Take slow, deep breaths.",
-    "Anxiety often signals that something matters to us. What's on your mind?",
-    "You're brave for acknowledging these anxious feelings. Let's work through this together.",
-    "What would help you feel more grounded right now?"
+    "I understand you're feeling anxious 💙 This is a very common and natural response.",
+    "Anxiety can feel overwhelming, but remember you're not alone 🤗 I'm here with you.",
+    "When anxiety rises, try focusing on your breathing 🌬️ Take slow, deep breaths.",
+    "Anxiety often signals that something matters to us 💭 What's on your mind?",
+    "You're brave for acknowledging these anxious feelings 🌟 Let's work through this together.",
+    "What would help you feel more grounded right now? 🌱✨"
   ],
   'Love': [
     "Love is one of life's most beautiful emotions. I can feel the warmth in your words.",
