@@ -239,10 +239,22 @@ export function EmotionCalendar() {
                             <div className="text-sm text-gray-600">
                               {format(new Date(record.timestamp), 'h:mm a')}
                             </div>
-                            {record.note && (
-                              <div className="text-sm text-gray-700 italic mt-2">
-                                "{record.note}"
-                              </div>
+                            {/* Display different content based on record type */}
+                            {record.recordType === 'quick_check' ? (
+                              // For quick checks, show the note as before
+                              record.note && (
+                                <div className="text-sm text-gray-700 italic mt-2">
+                                  "{record.note}"
+                                </div>
+                              )
+                            ) : (
+                              // For conversation records, show the conversation summary
+                              record.conversationSummary && (
+                                <div className="text-sm text-gray-700 mt-2">
+                                  <div className="font-medium text-gray-800 mb-1">Conversation Summary:</div>
+                                  <div className="italic">"{record.conversationSummary}"</div>
+                                </div>
+                              )
                             )}
                           </div>
                         </div>

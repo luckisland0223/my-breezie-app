@@ -30,6 +30,7 @@ export interface EmotionRecord {
   recordType: RecordType // Type of record: 'chat' for conversation records, 'quick_check' for quick emotion checks
   emotionEvaluation?: EmotionEvaluation // AI emotion assessment (optional)
   polarityAnalysis?: EmotionPolarityAnalysis // Emotion polarity analysis (enhanced)
+  conversationSummary?: string // Summary of conversation for chat records
 }
 
 // Enhanced: Emotion behavioral impact assessment algorithm
@@ -160,7 +161,7 @@ interface EmotionState {
   currentSession: ChatSession | null
   
   // Actions
-  addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, recordType?: RecordType, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis, userId?: string) => void
+  addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, recordType?: RecordType, emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis, userId?: string, conversationSummary?: string) => void
   getRecordsByEmotion: (emotion: EmotionType) => EmotionRecord[]
   getRecordsByDateRange: (startDate: Date, endDate: Date) => EmotionRecord[]
   getEmotionStats: () => EmotionStats
@@ -219,7 +220,7 @@ export const useEmotionStore = create<EmotionState>()(
       currentSession: null,
 
       // Add emotion record
-      addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, recordType: RecordType = 'chat', emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis, userId?: string) => {
+      addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, recordType: RecordType = 'chat', emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis, userId?: string, conversationSummary?: string) => {
         const newRecord: EmotionRecord = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           user_id: userId || 'local',
@@ -230,6 +231,7 @@ export const useEmotionStore = create<EmotionState>()(
           recordType,
           emotionEvaluation,
           polarityAnalysis,
+          conversationSummary,
         }
 
         set((state) => {

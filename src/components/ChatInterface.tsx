@@ -65,6 +65,30 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const endChatSession = useEmotionStore((state) => state.endChatSession)
   const addEmotionRecord = useEmotionStore((state) => state.addEmotionRecord)
 
+    // Helper function to generate conversation summary
+  const generateConversationSummary = (messages: any[]) => {
+    const userMessages = messages.filter(msg => msg.role === 'user')
+    if (userMessages.length === 0) return 'No conversation content'
+    
+    // Create a concise summary of the conversation
+    const topics = userMessages.map(msg => {
+      const content = msg.content.toLowerCase()
+      // Extract key topics/themes
+      if (content.includes('work') || content.includes('job')) return 'work'
+      if (content.includes('family') || content.includes('relationship')) return 'relationships'
+      if (content.includes('health') || content.includes('sick')) return 'health'
+      if (content.includes('school') || content.includes('study')) return 'education'
+      if (content.includes('money') || content.includes('financial')) return 'finances'
+      if (content.includes('future') || content.includes('plan')) return 'future planning'
+      return 'personal thoughts'
+    })
+    
+    const uniqueTopics = [...new Set(topics)]
+    const firstMessage = userMessages[0].content.substring(0, 100) + (userMessages[0].content.length > 100 ? '...' : '')
+    
+    return `Discussed: ${uniqueTopics.join(', ')}. Started with: "${firstMessage}"`
+  }
+
   // Helper function to save conversation emotion record locally
   const saveConversationEmotionRecord = (
     emotion: EmotionType, 
@@ -74,11 +98,14 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     polarityAnalysis?: any
   ) => {
     try {
-      // Save to local store
-      addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis)
+      // Generate conversation summary for chat records
+      const conversationSummary = currentSession?.messages ? generateConversationSummary(currentSession.messages) : undefined
+      
+      // Save to local store with conversation summary
+      addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis, undefined, conversationSummary)
       return true
     } catch (error: any) {
-              toast.error('Failed to save conversation record')
+            toast.error('Failed to save conversation record')
       return false
     }
   }
