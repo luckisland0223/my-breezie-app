@@ -60,6 +60,7 @@ What would you like to talk about?`)
   const [conversationEnded, setConversationEnded] = useState(false)
   const [representativeEmotion, setRepresentativeEmotion] = useState<EmotionType | null>(null)
   const [showConversationHistory, setShowConversationHistory] = useState(false)
+  const [isFirstMessage, setIsFirstMessage] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const currentSession = useEmotionStore((state) => state.currentSession)
@@ -269,6 +270,7 @@ What would you like to talk about?`
     setLastUserMessage(userMessage)
     setIsTyping(true)
     setAiResponse('')
+    setIsFirstMessage(false) // Disable first message state after user's first input
 
     // Add user message to chat
     addMessage(userMessage, 'user')
@@ -577,8 +579,8 @@ What would you like to talk about?`
               ) : aiResponse ? (
                 <div className="space-y-4">
                   <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                    {/* Show initial message immediately, use typewriter for subsequent messages */}
-                    {currentSession?.messages && currentSession.messages.length <= 1 ? (
+                    {/* Show initial welcome message immediately, use typewriter for subsequent messages */}
+                    {isFirstMessage ? (
                       <div className="whitespace-pre-line">{aiResponse}</div>
                     ) : (
                       <TypewriterText 

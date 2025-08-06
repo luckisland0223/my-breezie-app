@@ -116,7 +116,7 @@ export function DailyWellnessTip() {
           <div className={`p-2 rounded-lg ${currentTip.bgColor}`}>
             <IconComponent className={`w-5 h-5 ${currentTip.color}`} />
           </div>
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-sm font-medium">
             {currentTip.category}
           </Badge>
         </div>
