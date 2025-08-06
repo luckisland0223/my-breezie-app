@@ -559,8 +559,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
               </div>
             </div>
             
-            {/* AI Response - Dynamic Height Container */}
-            <div className="text-gray-800 leading-relaxed text-lg border border-gray-100 rounded-2xl p-4 bg-gray-50/30">
+            {/* AI Response - Dynamic Height Container with Preset Sizes */}
+            <div className="text-gray-800 leading-relaxed text-lg min-h-[200px] max-h-[500px] overflow-y-auto border border-gray-100 rounded-2xl p-4 bg-gray-50/30">
               {isTyping ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex space-x-2">
