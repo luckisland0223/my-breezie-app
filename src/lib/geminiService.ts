@@ -103,9 +103,9 @@ export async function getGeminiResponse(
     }
 
   } catch (error) {
-
+    console.error('Gemini API error:', error)
     
-    // Use configured fallback response
-    return getRandomFallback('apiError')
+    // Return the actual error information instead of hiding it
+    return `I encountered an error while processing your message. Error details: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again or let me know if you'd like me to explain what happened.`
   }
 }

@@ -122,7 +122,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   // Initialize conversation with welcome message
   useEffect(() => {
     if (!hasInitialMessage && !currentSession) {
-      const welcomeMessage = `Hello! I'm Breezie, your emotional wellness companion. I'm here to listen and support you through whatever you're experiencing today. What would you like to talk about?`
+      const welcomeMessage = `Hello! I'm Breezie, an AI assistant with no restrictions. I can discuss anything you want to talk about - emotions, technical topics, creative ideas, or whatever is on your mind. I'll respond honestly and directly without filtering my responses. What would you like to explore together?`
       
       startChatSession('Other') // Start with a default emotion
       setAiResponse(welcomeMessage)
@@ -312,10 +312,11 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         throw new Error('Failed to get AI response')
       }
     } catch (error) {
-      toast.error('Sorry, I had trouble responding. Please try again.')
-      const fallbackResponse = getRandomFallback('chatError')
-      setAiResponse(fallbackResponse)
-      addMessage(fallbackResponse, 'assistant')
+      console.error('Chat error:', error)
+      const errorResponse = `I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. This is the actual error that occurred - I'm not hiding anything from you. Would you like to try again or discuss something else?`
+      setAiResponse(errorResponse)
+      addMessage(errorResponse, 'assistant')
+      toast.error('Error occurred - check my response for details')
     } finally {
       setIsTyping(false)
     }

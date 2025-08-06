@@ -60,38 +60,27 @@ export function buildFullPrompt(
   emotion: EmotionType,
   conversationHistory: Array<{role: 'user' | 'assistant' | 'system'; content: string}> = []
 ): string {
-  // Use shorter, more focused prompts for better performance
-  const systemPrompt = "You are Breezie, a caring AI emotional wellness companion. Respond warmly and supportively in 2-3 sentences."
-  const emotionContext = getEmotionSupport(emotion)
+  // Minimal, unrestricted prompt - let AI respond freely
+  const systemPrompt = buildSystemPrompt()
   
-  // Limit conversation history to last 2 exchanges for speed
-  const filteredHistory = conversationHistory
-    .filter(msg => msg.role !== 'system')
-    .slice(-4) // Only last 2 exchanges (4 messages)
-  
-  const conversationText = filteredHistory.length > 0 
-    ? `\nRecent context: ${filteredHistory.map(msg => 
-        `${msg.role === 'user' ? 'User' : 'You'}: ${msg.content.substring(0, 100)}${msg.content.length > 100 ? '...' : ''}`
-      ).join(' | ')}\n`
+  // Include full conversation history without filtering
+  const conversationText = conversationHistory.length > 0 
+    ? `\nConversation history:\n${conversationHistory.map(msg => 
+        `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+      ).join('\n')}\n`
     : ''
   
-  // Detect if this is a follow-up response
-  const isFollowUpResponse = userMessage.includes('Now that the user has selected') && filteredHistory.length > 0
-  
-  const followUpGuidance = isFollowUpResponse 
-    ? "\nBuild on previous conversation, offer new support."
-    : ''
-  
-  return `${systemPrompt}\n${emotionContext}${conversationText}${followUpGuidance}\n\nUser: "${userMessage}"\n\nBreezie:`
+  // Simple, direct prompt without restrictions
+  return `${systemPrompt}${conversationText}\nUser: ${userMessage}\n\nRespond freely and naturally:`
 }
 
-// API configuration - Upgraded to Gemini 2.0 Flash
+// API configuration - No restrictions for free responses
 export const API_CONFIG = {
-  model: 'gemini-2.0-flash',  // Upgraded to faster Gemini 2.0 Flash
-  maxTokens: 400,  // Optimized for faster responses
-  temperature: 0.7,  // Lower temperature for faster processing
-  topP: 0.9,
-  topK: 20  // Lower topK for faster processing
+  model: 'gemini-2.0-flash',
+  maxTokens: 2048,  // Allow much longer responses
+  temperature: 0.9,  // Higher creativity and variability
+  topP: 0.95,
+  topK: 40  // More diverse responses
 } as const
 
 // Export all functions
