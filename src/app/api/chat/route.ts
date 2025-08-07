@@ -31,6 +31,11 @@ export async function POST(request: NextRequest) {
     // Comprehensive input validation
     const validation = validateChatRequest(body)
     if (!validation.isValid) {
+      const origin = request.headers.get('origin')
+      const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+        ? origin 
+        : (origin || 'http://localhost:3000')
+
       const errorResponse = NextResponse.json(
         { 
           error: 'Invalid request data',
@@ -38,6 +43,11 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       )
+      
+      // Add CORS headers
+      errorResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin)
+      errorResponse.headers.set('Access-Control-Allow-Credentials', 'true')
+      
       return addSecurityHeaders(errorResponse)
     }
 
@@ -45,13 +55,23 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY
     
     if (!apiKey) {
+      const origin = request.headers.get('origin')
+      const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+        ? origin 
+        : (origin || 'http://localhost:3000')
+
       const errorResponse = NextResponse.json(
         { 
           error: 'Service configuration error',
-          message: 'Service configuration error, please contact administrator' 
+          message: 'GEMINI_API_KEY is not configured. Please set the environment variable.' 
         },
         { status: 500 }
       )
+      
+      // Add CORS headers
+      errorResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin)
+      errorResponse.headers.set('Access-Control-Allow-Credentials', 'true')
+      
       return addSecurityHeaders(errorResponse)
     }
 
@@ -67,16 +87,30 @@ export async function POST(request: NextRequest) {
       responseInstructions
     )
     
+    const origin = request.headers.get('origin')
+    const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+      ? origin 
+      : (origin || 'http://localhost:3000')
+
     const successResponse = NextResponse.json({ 
       response,
       timestamp: new Date().toISOString()
     })
+    
+    // Add CORS headers
+    successResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin)
+    successResponse.headers.set('Access-Control-Allow-Credentials', 'true')
     
     return addSecurityHeaders(successResponse)
   } catch (error) {
 
     
     // Return generic error response
+    const origin = request.headers.get('origin')
+    const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+      ? origin 
+      : (origin || 'http://localhost:3000')
+
     const errorResponse = NextResponse.json(
       { 
         error: 'Failed to generate response',
@@ -84,6 +118,11 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
+    
+    // Add CORS headers
+    errorResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin)
+    errorResponse.headers.set('Access-Control-Allow-Credentials', 'true')
+    
     return addSecurityHeaders(errorResponse)
   }
 }
@@ -95,10 +134,15 @@ export async function OPTIONS(request: NextRequest) {
     return addSecurityHeaders(corsResponse)
   }
 
+  const origin = request.headers.get('origin')
+  const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+    ? origin 
+    : (origin || 'http://localhost:3000')
+
   const response = new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': request.headers.get('origin') || 'http://localhost:3001',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Max-Age': '86400', // 24 hours

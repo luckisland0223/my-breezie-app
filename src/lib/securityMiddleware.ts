@@ -10,6 +10,10 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003',
+  'http://localhost:3004',
+  'http://localhost:3005',
   'https://breezie.app', // Replace with your actual domain
   'https://www.breezie.app'
 ]
@@ -81,7 +85,12 @@ export function sanitizeInput(data: any): any {
 export function corsMiddleware(request: NextRequest): NextResponse | null {
   const origin = request.headers.get('origin')
   
-  // Check if origin is allowed
+  // Allow all localhost origins during development
+  if (origin && origin.startsWith('http://localhost:')) {
+    return null // Allow localhost requests
+  }
+  
+  // Check if origin is allowed for production
   if (origin && !ALLOWED_ORIGINS.includes(origin)) {
     return NextResponse.json(
       { 
