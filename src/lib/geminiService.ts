@@ -75,10 +75,11 @@ export async function getGeminiResponse(
     
     let response: Response
     try {
-      response = await fetch(`${GEMINI_CONFIG.baseURL}?key=${apiKey}`, {
+      response = await fetch(`${GEMINI_CONFIG.baseURL}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify(requestBody),
         signal: controller.signal
