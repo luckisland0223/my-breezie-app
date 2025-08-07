@@ -600,9 +600,9 @@ What would you like to talk about?`
       // Get AI response with engagement-aware instructions
       let responseInstructions = ""
       if (engagementLevel === 'high') {
-        responseInstructions = "The user is highly emotionally engaged with long or multiple messages. Provide a comprehensive response (3-4 paragraphs) with varied language and fresh perspectives. Avoid repetitive phrases like 'my heart aches' or 'whirlwind of emotions'. Be authentic, caring, and specific to their unique situation. Use different emotional validation approaches and offer personalized support. Include 3-5 relevant emojis throughout your response to add extra warmth and emotional connection."
+        responseInstructions = "The user is highly emotionally engaged with long or multiple messages. Provide a comprehensive response (3-4 paragraphs) that directly addresses their SPECIFIC situation. Reference the exact details they shared - don't be generic. Offer concrete advice for their particular circumstances. Avoid repetitive phrases like 'my heart aches' or 'whirlwind of emotions'. Include 3-5 relevant emojis throughout your response to add extra warmth and emotional connection."
       } else if (engagementLevel === 'medium') {
-        responseInstructions = "The user is moderately emotionally engaged. Provide a thoughtful response (2-3 paragraphs) with natural, varied language that shows understanding and offers appropriate support. Avoid generic phrases and be specific to their situation. Include 2-3 relevant emojis to add warmth and emotional connection."
+        responseInstructions = "The user is moderately emotionally engaged. Provide a thoughtful response (2-3 paragraphs) that addresses their SPECIFIC situation. Reference the actual details they mentioned. Offer targeted advice for their particular problem, not generic support. Include 2-3 relevant emojis to add warmth and emotional connection."
       }
       
       const response = await fetch('/api/chat', {
