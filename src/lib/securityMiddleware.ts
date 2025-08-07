@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import DOMPurify from 'dompurify'
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000 // 15 minutes
@@ -54,20 +53,23 @@ export function rateLimit(request: NextRequest): NextResponse | null {
 
 // Input sanitization middleware
 export function sanitizeInput(data: any): any {
+  // Server-side safe: only trim strings; recursively process arrays/objects
   if (typeof data === 'string') {
-    return DOMPurify.sanitize(data.trim())
+    return data.trim()
   }
-  
-  if (typeof data === 'object' && data !== null) {
-    const sanitized: any = Array.isArray(data) ? [] : {}
-    
+
+  if (Array.isArray(data)) {
+    return data.map((item) => sanitizeInput(item))
+  }
+
+  if (data && typeof data === 'object') {
+    const result: Record<string, any> = {}
     for (const [key, value] of Object.entries(data)) {
-      sanitized[key] = sanitizeInput(value)
+      result[key] = sanitizeInput(value)
     }
-    
-    return sanitized
+    return result
   }
-  
+
   return data
 }
 
