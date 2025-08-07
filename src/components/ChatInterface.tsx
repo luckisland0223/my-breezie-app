@@ -15,6 +15,7 @@ import { getRandomResponse } from '@/config/emotionResponses'
 import { emotionConfig } from '@/config/emotionConfig'
 import { getRandomFallback } from '@/config/prompts'
 import { isNegativeEmotion, getRandomSuggestions, getEnhancedSuggestions, assessEmotionalState, getComfortResponse, type EmotionSuggestion, type EmotionalAssessment } from '@/config/emotionSuggestions'
+import DOMPurify from 'dompurify'
 
 interface ChatInterfaceProps {
   onBack: () => void
@@ -716,7 +717,11 @@ What would you like to talk about?`
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isTyping) return
 
-    const userMessage = inputValue.trim()
+    // Sanitize user input to prevent XSS attacks
+    const sanitizedMessage = DOMPurify.sanitize(inputValue.trim())
+    if (!sanitizedMessage) return // Reject empty or invalid input
+    
+    const userMessage = sanitizedMessage
     setInputValue('')
     setLastUserMessage(userMessage)
     setIsTyping(true)
