@@ -73,6 +73,8 @@ What would you like to talk about?`)
   const [showReadyForSuggestions, setShowReadyForSuggestions] = useState(false)
   const [pendingEmotionForSuggestions, setPendingEmotionForSuggestions] = useState<EmotionType | null>(null)
   const [pendingUserMessage, setPendingUserMessage] = useState<string>('')
+  const [showDelayedSuggestionButtons, setShowDelayedSuggestionButtons] = useState(false)
+  const [conversationUnderstanding, setConversationUnderstanding] = useState(0) // Track how well Breezie understands the user
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const currentSession = useEmotionStore((state) => state.currentSession)
@@ -152,7 +154,7 @@ What would you like to talk about?`
     // Typewriter animation completed
   }
 
-  // Handle suggestion system with emotional assessment
+  // Handle delayed suggestion system - wait until Breezie understands the user's situation
   const generateSuggestions = async (emotion: EmotionType, userMessage?: string) => {
     if (isNegativeEmotion(emotion) && userMessage) {
       // Assess user's emotional state and readiness
@@ -173,48 +175,33 @@ What would you like to talk about?`
         setPendingEmotionForSuggestions(emotion)
         setPendingUserMessage(userMessage)
         
-        // Add a gentle follow-up after comfort and show "ready for suggestions" button
+        // Add a gentle follow-up after comfort
         setTimeout(() => {
-          const followUpMessage = "Take all the time you need. When you're ready, I'm here to help you think through next steps."
+          const followUpMessage = "Take all the time you need. I'm here to listen and understand."
           setAiResponse(prev => prev + "\n\n" + followUpMessage)
           addMessage(followUpMessage, 'assistant')
-          setShowReadyForSuggestions(true)
         }, 2000)
         
-      } else if (assessment.suggestionsAppropriate) {
-        // User is emotionally stable and ready for action - provide suggestions
-        const suggestions = getRandomSuggestions(emotion, 4, userMessage)
-        setCurrentSuggestions(suggestions)
-        setSuggestionMode(true)
-        
-        const suggestionMessage = "I can see you're ready to take action. Here are some suggestions that might help:"
-        setAiResponse(prev => prev + "\n\n" + suggestionMessage)
-        addMessage(suggestionMessage, 'assistant')
-        setShowSuggestions(true)
-        
       } else {
-        // Mixed or uncertain state - provide gentle validation and ask for clarification
-        const validationMessage = getComfortResponse(emotion)
-        const clarificationMessage = "I want to make sure I support you in the best way. Are you looking for someone to listen and understand, or would you like some ideas on what you might do next?"
+        // User is emotionally stable - but wait to understand their situation better
+        // Store pending suggestion info
+        setPendingEmotionForSuggestions(emotion)
+        setPendingUserMessage(userMessage)
         
-        setAiResponse(prev => prev + "\n\n" + validationMessage + "\n\n" + clarificationMessage)
-        addMessage(validationMessage, 'assistant')
-        addMessage(clarificationMessage, 'assistant')
-        
+        // Don't show suggestions immediately - let conversation develop
         setShowSuggestions(false)
         setCurrentSuggestions([])
         setSuggestionMode(false)
       }
     } else if (isNegativeEmotion(emotion)) {
       // Fallback for when we don't have user message context
-      const suggestions = getRandomSuggestions(emotion, 4)
-      setCurrentSuggestions(suggestions)
-      setSuggestionMode(true)
+      // Store for later when we have more context
+      setPendingEmotionForSuggestions(emotion)
+      setPendingUserMessage(userMessage || '')
       
-      const suggestionMessage = "Here are some suggestions that might help you feel better:"
-      setAiResponse(prev => prev + "\n\n" + suggestionMessage)
-      addMessage(suggestionMessage, 'assistant')
-      setShowSuggestions(true)
+      setShowSuggestions(false)
+      setCurrentSuggestions([])
+      setSuggestionMode(false)
     } else {
       // Positive emotions - no suggestions needed
       setShowSuggestions(false)
@@ -227,23 +214,60 @@ What would you like to talk about?`
     setSelectedSuggestion(suggestion)
   }
 
-  const handleReadyForSuggestions = () => {
+  // Check if Breezie has enough understanding to offer suggestions
+  const checkConversationUnderstanding = (userMessage: string) => {
+    const messages = currentSession?.messages || []
+    const userMessages = messages.filter(msg => msg.role === 'user')
+    
+    // Increase understanding score based on message content
+    let understandingScore = conversationUnderstanding
+    
+    // Check for specific details that show user is opening up
+    const hasSpecificDetails = /(my|I have|I'm dealing with|about|because|when|where|who)/.test(userMessage.toLowerCase())
+    const hasEmotionalContext = /(feel|feeling|felt|because|since|after|when)/.test(userMessage.toLowerCase())
+    const hasPersonalInfo = /(my girlfriend|my boyfriend|my job|my family|my friend|my situation)/.test(userMessage.toLowerCase())
+    
+    if (hasSpecificDetails) understandingScore += 1
+    if (hasEmotionalContext) understandingScore += 1
+    if (hasPersonalInfo) understandingScore += 2
+    
+    // Also increase score for each exchange
+    understandingScore += 1
+    
+    setConversationUnderstanding(understandingScore)
+    
+    // Show suggestion buttons when we have enough understanding (score >= 3) and pending suggestions
+    if (understandingScore >= 3 && pendingEmotionForSuggestions && !showDelayedSuggestionButtons) {
+      setShowDelayedSuggestionButtons(true)
+    }
+  }
+
+  const handleViewSuggestions = () => {
     if (pendingEmotionForSuggestions && pendingUserMessage) {
-      // Now provide the suggestions since user is ready
+      // Now provide the suggestions since Breezie understands the situation
       const suggestions = getRandomSuggestions(pendingEmotionForSuggestions, 4, pendingUserMessage)
       setCurrentSuggestions(suggestions)
       setSuggestionMode(true)
       
-      const suggestionMessage = "I'm glad you're ready to explore some options. Here are some suggestions that might help:"
+      const suggestionMessage = "Based on what you've shared, here are some suggestions that might help:"
       setAiResponse(prev => prev + "\n\n" + suggestionMessage)
       addMessage(suggestionMessage, 'assistant')
       setShowSuggestions(true)
       
       // Clean up pending state
-      setShowReadyForSuggestions(false)
+      setShowDelayedSuggestionButtons(false)
       setPendingEmotionForSuggestions(null)
       setPendingUserMessage('')
     }
+  }
+
+  const handleMaybeLater = () => {
+    // Hide the suggestion buttons but keep the pending state for later
+    setShowDelayedSuggestionButtons(false)
+    
+    const acknowledgmentMessage = "No problem at all! I'm here to listen whenever you need to talk."
+    setAiResponse(prev => prev + "\n\n" + acknowledgmentMessage)
+    addMessage(acknowledgmentMessage, 'assistant')
   }
 
   const handleConfirmSuggestion = async () => {
@@ -680,16 +704,19 @@ What would you like to talk about?`
     setAiResponse('')
     setIsFirstMessage(false) // Disable first message state after user's first input
 
-    // Add user message to chat
-    addMessage(userMessage, 'user')
-    setConversationText(prev => prev + ' ' + userMessage)
+            // Add user message to chat
+        addMessage(userMessage, 'user')
+        setConversationText(prev => prev + ' ' + userMessage)
 
-    // Check if this is the first user message to show emotion selection
-    const messages = currentSession?.messages || []
-    const userMessages = messages.filter(msg => msg.role === 'user')
-    
-    // Detect emotional engagement level
-    const engagementLevel = detectEmotionalEngagement(userMessage, userMessages)
+        // Check conversation understanding for delayed suggestions
+        checkConversationUnderstanding(userMessage)
+
+        // Check if this is the first user message to show emotion selection
+        const messages = currentSession?.messages || []
+        const userMessages = messages.filter(msg => msg.role === 'user')
+        
+        // Detect emotional engagement level
+        const engagementLevel = detectEmotionalEngagement(userMessage, userMessages)
     
     try {
       // Get AI response with engagement-aware instructions
@@ -1049,15 +1076,22 @@ What would you like to talk about?`
           </div>
         )}
 
-        {/* Ready for Suggestions Button */}
-        {showReadyForSuggestions && (
-          <div className="flex justify-center mb-6">
+        {/* Delayed Suggestion Buttons */}
+        {showDelayedSuggestionButtons && (
+          <div className="flex justify-center gap-4 mb-6">
             <Button
-              onClick={handleReadyForSuggestions}
+              onClick={handleViewSuggestions}
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
             >
               <Sparkles className="w-4 h-4" />
-              I'm ready for suggestions
+              View Suggestions
+            </Button>
+            <Button
+              onClick={handleMaybeLater}
+              variant="outline"
+              className="border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+            >
+              Maybe Later
             </Button>
           </div>
         )}
