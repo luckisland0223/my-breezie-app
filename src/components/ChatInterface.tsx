@@ -1052,7 +1052,7 @@ What would you like to talk about?`
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={lastUserMessage || "Share your thoughts and feelings here..."}
+                  placeholder="Share what's on your mind... I'm here to listen 💙"
                   className="w-full h-40 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
                   disabled={isTyping}
                   autoFocus
@@ -1062,39 +1062,42 @@ What would you like to talk about?`
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     Online
                   </div>
-                  <Button 
-                    onClick={handleSendMessage} 
-                    disabled={!inputValue.trim() || isTyping}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    Send
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {/* Delayed Suggestion Buttons - Next to Send */}
+                    {showDelayedSuggestionButtons && (
+                      <>
+                        <Button
+                          onClick={handleViewSuggestions}
+                          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 text-sm"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          View Suggestions
+                        </Button>
+                        <Button
+                          onClick={handleMaybeLater}
+                          variant="outline"
+                          className="border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 px-3 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 text-sm"
+                        >
+                          Maybe Later
+                        </Button>
+                      </>
+                    )}
+                    <Button 
+                      onClick={handleSendMessage} 
+                      disabled={!inputValue.trim() || isTyping}
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Send
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Delayed Suggestion Buttons */}
-        {showDelayedSuggestionButtons && (
-          <div className="flex justify-center gap-4 mb-6">
-            <Button
-              onClick={handleViewSuggestions}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              View Suggestions
-            </Button>
-            <Button
-              onClick={handleMaybeLater}
-              variant="outline"
-              className="border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
-            >
-              Maybe Later
-            </Button>
-          </div>
-        )}
+
 
         {/* Suggestion Selection Interface - Moved outside chat box */}
         {showSuggestions && currentSuggestions.length > 0 && (
