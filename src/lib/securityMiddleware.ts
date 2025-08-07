@@ -85,9 +85,14 @@ export function sanitizeInput(data: any): any {
 export function corsMiddleware(request: NextRequest): NextResponse | null {
   const origin = request.headers.get('origin')
   
-  // Allow all localhost origins during development
-  if (origin && origin.startsWith('http://localhost:')) {
+  // Allow all localhost origins during development (more permissive)
+  if (origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
     return null // Allow localhost requests
+  }
+  
+  // Allow requests without origin header (same-origin requests)
+  if (!origin) {
+    return null
   }
   
   // Check if origin is allowed for production

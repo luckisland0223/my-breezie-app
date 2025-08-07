@@ -18,10 +18,11 @@ export async function POST(request: NextRequest) {
       return addSecurityHeaders(rateLimitResponse)
     }
 
-    const corsResponse = corsMiddleware(request)
-    if (corsResponse) {
-      return addSecurityHeaders(corsResponse)
-    }
+    // Temporarily disable CORS for development
+    // const corsResponse = corsMiddleware(request)
+    // if (corsResponse) {
+    //   return addSecurityHeaders(corsResponse)
+    // }
 
     // Parse and sanitize request body
     const rawBody = await request.json()
@@ -56,9 +57,9 @@ export async function POST(request: NextRequest) {
     
     if (!apiKey) {
       const origin = request.headers.get('origin')
-      const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+      const allowedOrigin = origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
         ? origin 
-        : (origin || 'http://localhost:3000')
+        : (origin || '*')
 
       const errorResponse = NextResponse.json(
         { 
@@ -88,9 +89,9 @@ export async function POST(request: NextRequest) {
     )
     
     const origin = request.headers.get('origin')
-    const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+    const allowedOrigin = origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
       ? origin 
-      : (origin || 'http://localhost:3000')
+      : (origin || '*')
 
     const successResponse = NextResponse.json({ 
       response,
@@ -107,9 +108,9 @@ export async function POST(request: NextRequest) {
     
     // Return generic error response
     const origin = request.headers.get('origin')
-    const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+    const allowedOrigin = origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
       ? origin 
-      : (origin || 'http://localhost:3000')
+      : (origin || '*')
 
     const errorResponse = NextResponse.json(
       { 
@@ -129,15 +130,16 @@ export async function POST(request: NextRequest) {
 
 // Handle OPTIONS requests (CORS preflight)
 export async function OPTIONS(request: NextRequest) {
-  const corsResponse = corsMiddleware(request)
-  if (corsResponse) {
-    return addSecurityHeaders(corsResponse)
-  }
+  // Temporarily disable CORS for development
+  // const corsResponse = corsMiddleware(request)
+  // if (corsResponse) {
+  //   return addSecurityHeaders(corsResponse)
+  // }
 
   const origin = request.headers.get('origin')
-  const allowedOrigin = origin && origin.startsWith('http://localhost:') 
+  const allowedOrigin = origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
     ? origin 
-    : (origin || 'http://localhost:3000')
+    : (origin || '*')
 
   const response = new NextResponse(null, {
     status: 200,
