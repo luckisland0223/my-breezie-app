@@ -85,10 +85,10 @@ export function buildFullPrompt(
   return `${systemPrompt}\n${emotionContext}${conversationText}${followUpGuidance}\n\nUser: "${userMessage}"\n\nBreezie:`
 }
 
-// API configuration - Upgraded to Gemini 2.0 Flash
+// API configuration - Upgraded to Gemini 2.5 Flash (2025)
 export const API_CONFIG = {
-  model: 'gemini-2.0-flash',  // Upgraded to faster Gemini 2.0 Flash
-  maxTokens: 400,  // Optimized for faster responses
+  model: 'gemini-2.5-flash',  // Current recommended fast model
+  maxTokens: 400,  // Keep concise replies for UX
   temperature: 0.7,  // Lower temperature for faster processing
   topP: 0.9,
   topK: 20  // Lower topK for faster processing

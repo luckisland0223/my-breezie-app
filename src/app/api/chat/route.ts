@@ -8,6 +8,7 @@ import {
   validateChatRequest, 
   addSecurityHeaders 
 } from '@/lib/securityMiddleware'
+import { getRandomFallback } from '@/config/prompts'
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,41 +48,25 @@ export async function POST(request: NextRequest) {
       return addSecurityHeaders(errorResponse)
     }
 
-    // Get API key from environment variables
-    const apiKey = process.env.GEMINI_API_KEY
-    
-    if (!apiKey) {
-      const origin = request.headers.get('origin')
-      const allowedOrigin = origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
-        ? origin 
-        : (origin || '*')
-
-      const errorResponse = NextResponse.json(
-        { 
-          error: 'Service configuration error',
-          message: 'GEMINI_API_KEY is not configured. Please set the environment variable.' 
-        },
-        { status: 500 }
-      )
-      
-      // Add CORS headers
-      errorResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin)
-      errorResponse.headers.set('Access-Control-Allow-Credentials', 'true')
-      
-      return addSecurityHeaders(errorResponse)
-    }
+    // Read Vercel environment variables (server-only)
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 
     // Log configuration info (for debugging, no sensitive information)
 
-    // Call Gemini API with engagement-aware parameters
-    const response = await getGeminiResponse(
-      userMessage,
-      emotion as EmotionType,
-      conversationHistory || [],
-      apiKey,
-      engagementLevel,
-      responseInstructions
-    )
+    // Decide response strategy: Gemini with server key; otherwise fallback
+    let response: string
+    if (geminiKey) {
+      response = await getGeminiResponse(
+        userMessage,
+        emotion as EmotionType,
+        conversationHistory || [],
+        geminiKey,
+        engagementLevel,
+        responseInstructions
+      )
+    } else {
+      response = getRandomFallback('apiError')
+    }
     
     const successResponse = NextResponse.json({ 
       response,
