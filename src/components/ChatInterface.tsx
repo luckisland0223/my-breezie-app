@@ -14,7 +14,7 @@ import { calculateBehavioralImpactScore } from '@/lib/behavioralImpactScore'
 import { getRandomResponse } from '@/config/emotionResponses'
 import { emotionConfig } from '@/config/emotionConfig'
 import { getRandomFallback } from '@/config/prompts'
-import { isNegativeEmotion, getRandomSuggestions, assessEmotionalState, getComfortResponse, type EmotionSuggestion, type EmotionalAssessment } from '@/config/emotionSuggestions'
+import { isNegativeEmotion, getRandomSuggestions, getEnhancedSuggestions, assessEmotionalState, getComfortResponse, type EmotionSuggestion, type EmotionalAssessment } from '@/config/emotionSuggestions'
 
 interface ChatInterfaceProps {
   onBack: () => void
@@ -244,8 +244,21 @@ What would you like to talk about?`
 
   const handleViewSuggestions = () => {
     if (pendingEmotionForSuggestions && pendingUserMessage) {
-      // Now provide the suggestions since Breezie understands the situation
-      const suggestions = getRandomSuggestions(pendingEmotionForSuggestions, 4, pendingUserMessage)
+      // Calculate current behavioral impact score for enhanced suggestions
+      const currentBehavioralScore = calculateBehavioralImpactScore(pendingEmotionForSuggestions, 5, pendingUserMessage)
+      
+      // Get user's emotion history for trend analysis
+      const userHistory = useEmotionStore.getState().records || []
+      
+      // Use enhanced suggestions with behavioral impact analysis
+      const suggestions = getEnhancedSuggestions(
+        pendingEmotionForSuggestions, 
+        4, 
+        pendingUserMessage,
+        currentBehavioralScore,
+        userHistory
+      )
+      
       setCurrentSuggestions(suggestions)
       setSuggestionMode(true)
       
@@ -324,8 +337,14 @@ What would you like to talk about?`
 
   const handleMoreSuggestions = () => {
     if (selectedEmotion) {
-      // Get new suggestions, excluding used ones
-      const allSuggestions = getRandomSuggestions(selectedEmotion, 8)
+      // Calculate current behavioral impact score for enhanced suggestions
+      const currentBehavioralScore = calculateBehavioralImpactScore(selectedEmotion, 5, conversationText)
+      
+      // Get user's emotion history for trend analysis
+      const userHistory = useEmotionStore.getState().records || []
+      
+      // Get new suggestions, excluding used ones, with behavioral impact analysis
+      const allSuggestions = getEnhancedSuggestions(selectedEmotion, 8, undefined, currentBehavioralScore, userHistory)
       const unusedSuggestions = allSuggestions.filter(s => !usedSuggestions.includes(s.id))
       const newSuggestions = unusedSuggestions.slice(0, 4)
       
@@ -334,7 +353,7 @@ What would you like to talk about?`
       } else {
         // If no more unused suggestions, reset and get fresh ones
         setUsedSuggestions([])
-        const freshSuggestions = getRandomSuggestions(selectedEmotion, 4)
+        const freshSuggestions = getEnhancedSuggestions(selectedEmotion, 4, undefined, currentBehavioralScore, userHistory)
         setCurrentSuggestions(freshSuggestions)
       }
       setSelectedSuggestion(null)

@@ -459,3 +459,96 @@ export function getRandomSuggestions(emotion: EmotionType, count: number = 4, us
   const shuffled = [...allSuggestions].sort(() => 0.5 - Math.random())
   return shuffled.slice(0, count)
 }
+
+// Enhanced suggestion generation with behavioral impact analysis
+export function getEnhancedSuggestions(
+  emotion: EmotionType, 
+  count: number = 4, 
+  userMessage?: string,
+  behavioralScore?: any,
+  userHistory?: any[]
+): EmotionSuggestion[] {
+  
+  // Get base suggestions
+  let suggestions = getRandomSuggestions(emotion, count, userMessage)
+  
+  // Only apply behavioral impact adjustments if we have sufficient data
+  if (behavioralScore && userHistory && userHistory.length >= 3) {
+    suggestions = adjustSuggestionsByBehavioralImpact(suggestions, behavioralScore, userHistory)
+  }
+  
+  return suggestions
+}
+
+// Adjust suggestions based on behavioral impact analysis
+function adjustSuggestionsByBehavioralImpact(
+  suggestions: EmotionSuggestion[], 
+  behavioralScore: any, 
+  userHistory: any[]
+): EmotionSuggestion[] {
+  
+  // Calculate trend from recent history (last 5 records)
+  const recentHistory = userHistory.slice(-5)
+  const averageScore = recentHistory.reduce((sum, record) => sum + (record.behavioralImpactScore || 5), 0) / recentHistory.length
+  
+  // Determine if user is trending toward higher or lower behavioral impact
+  const isHighImpactTrend = averageScore > 6.5
+  const isLowImpactTrend = averageScore < 4.5
+  
+  // Adjust suggestion priority based on behavioral patterns
+  let adjustedSuggestions = [...suggestions]
+  
+  if (behavioralScore.risk_level === 'high' || isHighImpactTrend) {
+    // Prioritize immediate and physical interventions for high-risk situations
+    adjustedSuggestions.sort((a, b) => {
+      const aPriority = getPriorityScore(a, 'high_risk')
+      const bPriority = getPriorityScore(b, 'high_risk')
+      return bPriority - aPriority
+    })
+  } else if (behavioralScore.risk_level === 'medium') {
+    // Balance immediate and long-term strategies
+    adjustedSuggestions.sort((a, b) => {
+      const aPriority = getPriorityScore(a, 'medium_risk')
+      const bPriority = getPriorityScore(b, 'medium_risk')
+      return bPriority - aPriority
+    })
+  } else if (behavioralScore.risk_level === 'low' && isLowImpactTrend) {
+    // Focus on mindset and social support for stable users
+    adjustedSuggestions.sort((a, b) => {
+      const aPriority = getPriorityScore(a, 'low_risk')
+      const bPriority = getPriorityScore(b, 'low_risk')
+      return bPriority - aPriority
+    })
+  }
+  
+  return adjustedSuggestions
+}
+
+// Calculate priority score for different risk levels
+function getPriorityScore(suggestion: EmotionSuggestion, riskLevel: string): number {
+  const categoryScores = {
+    'high_risk': {
+      'immediate': 10,
+      'physical': 8,
+      'activity': 6,
+      'social': 5,
+      'mindset': 4
+    },
+    'medium_risk': {
+      'immediate': 8,
+      'physical': 7,
+      'activity': 8,
+      'social': 7,
+      'mindset': 6
+    },
+    'low_risk': {
+      'immediate': 4,
+      'physical': 5,
+      'activity': 6,
+      'social': 8,
+      'mindset': 9
+    }
+  }
+  
+  return categoryScores[riskLevel as keyof typeof categoryScores]?.[suggestion.category] || 5
+}
