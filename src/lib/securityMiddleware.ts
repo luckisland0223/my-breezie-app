@@ -6,17 +6,7 @@ const RATE_LIMIT_WINDOW = 15 * 60 * 1000 // 15 minutes
 const RATE_LIMIT_MAX_REQUESTS = 100 // 100 requests per window
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 
-// CORS configuration
-const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:3002',
-  'http://localhost:3003',
-  'http://localhost:3004',
-  'http://localhost:3005',
-  'https://breezie.app', // Replace with your actual domain
-  'https://www.breezie.app'
-]
+// CORS configuration removed for demo simplicity
 
 // Rate limiting middleware
 export function rateLimit(request: NextRequest): NextResponse | null {
@@ -82,30 +72,8 @@ export function sanitizeInput(data: any): any {
 }
 
 // CORS middleware
-export function corsMiddleware(request: NextRequest): NextResponse | null {
-  const origin = request.headers.get('origin')
-  
-  // Allow all localhost origins during development (more permissive)
-  if (origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
-    return null // Allow localhost requests
-  }
-  
-  // Allow requests without origin header (same-origin requests)
-  if (!origin) {
-    return null
-  }
-  
-  // Check if origin is allowed for production
-  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
-    return NextResponse.json(
-      { 
-        error: 'CORS policy violation',
-        message: 'Request from unauthorized origin'
-      },
-      { status: 403 }
-    )
-  }
-  
+export function corsMiddleware(_request: NextRequest): NextResponse | null {
+  // CORS validation disabled in this demo build
   return null
 }
 

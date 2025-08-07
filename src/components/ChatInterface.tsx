@@ -308,7 +308,6 @@ What would you like to talk about?`
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           userMessage: `The user selected this suggestion: "${selectedSuggestion.text}". Provide supportive follow-up guidance, encouragement, or ask how they plan to implement it. Be specific and helpful about this particular suggestion.`,
           emotion: selectedEmotion,
@@ -380,7 +379,6 @@ What would you like to talk about?`
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           userMessage: "The user rejected the suggestions. Ask them more personal questions to understand what kind of support they need. Be empathetic and help them explore their feelings more deeply.",
           emotion: selectedEmotion,
@@ -756,7 +754,6 @@ What would you like to talk about?`
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           userMessage,
           emotion: selectedEmotion || 'Other',
@@ -858,7 +855,6 @@ What would you like to talk about?`
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           userMessage: `Now that the user has selected "${emotion}" as their main emotion, provide a follow-up response that goes deeper into this feeling. Don't repeat what you already said, but offer new support, ask different questions, or explore this emotion from a fresh angle. Build on the conversation naturally.`,
           emotion: emotion,

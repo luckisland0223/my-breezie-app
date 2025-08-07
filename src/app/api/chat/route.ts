@@ -5,7 +5,6 @@ import type { ChatMessage } from '@/lib/geminiService'
 import { 
   rateLimit, 
   sanitizeInput, 
-  corsMiddleware, 
   validateChatRequest, 
   addSecurityHeaders 
 } from '@/lib/securityMiddleware'
@@ -18,11 +17,7 @@ export async function POST(request: NextRequest) {
       return addSecurityHeaders(rateLimitResponse)
     }
 
-    // Temporarily disable CORS for development
-    // const corsResponse = corsMiddleware(request)
-    // if (corsResponse) {
-    //   return addSecurityHeaders(corsResponse)
-    // }
+    // CORS disabled for demo
 
     // Parse and sanitize request body
     const rawBody = await request.json()
@@ -88,30 +83,16 @@ export async function POST(request: NextRequest) {
       responseInstructions
     )
     
-    const origin = request.headers.get('origin')
-    const allowedOrigin = origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
-      ? origin 
-      : (origin || '*')
-
     const successResponse = NextResponse.json({ 
       response,
       timestamp: new Date().toISOString()
     })
-    
-    // Add CORS headers
-    successResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin)
-    successResponse.headers.set('Access-Control-Allow-Credentials', 'true')
     
     return addSecurityHeaders(successResponse)
   } catch (error) {
 
     
     // Return generic error response
-    const origin = request.headers.get('origin')
-    const allowedOrigin = origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
-      ? origin 
-      : (origin || '*')
-
     const errorResponse = NextResponse.json(
       { 
         error: 'Failed to generate response',
@@ -120,36 +101,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
     
-    // Add CORS headers
-    errorResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin)
-    errorResponse.headers.set('Access-Control-Allow-Credentials', 'true')
-    
     return addSecurityHeaders(errorResponse)
   }
 }
 
-// Handle OPTIONS requests (CORS preflight)
-export async function OPTIONS(request: NextRequest) {
-  // Temporarily disable CORS for development
-  // const corsResponse = corsMiddleware(request)
-  // if (corsResponse) {
-  //   return addSecurityHeaders(corsResponse)
-  // }
-
-  const origin = request.headers.get('origin')
-  const allowedOrigin = origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
-    ? origin 
-    : (origin || '*')
-
-  const response = new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': allowedOrigin,
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Max-Age': '86400', // 24 hours
-    },
-  })
-  
-  return addSecurityHeaders(response)
-}
+// OPTIONS removed: CORS disabled
