@@ -364,6 +364,101 @@ What would you like to talk about?`
     }
   }
 
+  // Detect if user directly states their emotion (e.g., "I'm feeling sad", "I'm angry")
+  const detectDirectEmotionStatement = (text: string): EmotionType | null => {
+    const lowerText = text.toLowerCase()
+    
+    // Direct emotion statement patterns
+    const emotionPatterns: Record<string, EmotionType[]> = {
+      // Sadness patterns
+      'sad': ['Sadness'],
+      'depressed': ['Sadness'],
+      'down': ['Sadness'],
+      'upset': ['Sadness'],
+      'heartbroken': ['Sadness'],
+      'miserable': ['Sadness'],
+      
+      // Anger patterns
+      'angry': ['Anger'],
+      'mad': ['Anger'],
+      'furious': ['Anger'],
+      'pissed': ['Anger'],
+      'irritated': ['Anger'],
+      'annoyed': ['Anger'],
+      
+      // Anxiety patterns
+      'anxious': ['Anxiety'],
+      'worried': ['Anxiety'],
+      'nervous': ['Anxiety'],
+      'stressed': ['Anxiety'],
+      'overwhelmed': ['Anxiety'],
+      'panicked': ['Anxiety'],
+      
+      // Fear patterns
+      'scared': ['Fear'],
+      'afraid': ['Fear'],
+      'terrified': ['Fear'],
+      'frightened': ['Fear'],
+      
+      // Joy patterns
+      'happy': ['Joy'],
+      'joyful': ['Joy'],
+      'excited': ['Excitement'],
+      'thrilled': ['Excitement'],
+      'elated': ['Joy'],
+      'cheerful': ['Joy'],
+      
+      // Love patterns
+      'in love': ['Love'],
+      'loving': ['Love'],
+      
+      // Other emotions
+      'confused': ['Confusion'],
+      'frustrated': ['Frustration'],
+      'lonely': ['Loneliness'],
+      'proud': ['Pride'],
+      'ashamed': ['Shame'],
+      'guilty': ['Guilt'],
+      'grateful': ['Gratitude'],
+      'hopeful': ['Hope'],
+      'content': ['Contentment'],
+      'bored': ['Boredom'],
+      'jealous': ['Envy'],
+      'envious': ['Envy'],
+      'disgusted': ['Disgust']
+    }
+    
+    // Look for direct statements like "I'm feeling X", "I feel X", "I'm X"
+    const directStatementPatterns = [
+      /i'?m feeling (very |really |so |extremely |quite |pretty )?(.*?)(?:\s|$|\.|\,|\!|\?)/,
+      /i feel (very |really |so |extremely |quite |pretty )?(.*?)(?:\s|$|\.|\,|\!|\?)/,
+      /i'?m (very |really |so |extremely |quite |pretty )?(.*?)(?:\s|$|\.|\,|\!|\?)/,
+      /feeling (very |really |so |extremely |quite |pretty )?(.*?)(?:\s|$|\.|\,|\!|\?)/,
+      /i am (very |really |so |extremely |quite |pretty )?(.*?)(?:\s|$|\.|\,|\!|\?)/,
+      /currently (very |really |so |extremely |quite |pretty )?(.*?)(?:\s|$|\.|\,|\!|\?)/,
+      /right now i'?m (very |really |so |extremely |quite |pretty )?(.*?)(?:\s|$|\.|\,|\!|\?)/
+    ]
+    
+    for (const pattern of directStatementPatterns) {
+      const match = lowerText.match(pattern)
+      if (match) {
+        const emotionWord = match[2]?.trim()
+        if (emotionWord && emotionPatterns[emotionWord]) {
+          return emotionPatterns[emotionWord][0] || null
+        }
+        
+        // Check for partial matches
+        for (const [keyword, emotions] of Object.entries(emotionPatterns)) {
+          if (emotionWord?.includes(keyword) || keyword.includes(emotionWord || '')) {
+            return emotions[0] || null
+          }
+        }
+      }
+    }
+    
+    return null
+  }
+
   // Extract potential emotions from user text with improved sentiment analysis
   const extractEmotionsFromText = (text: string): EmotionType[] => {
     const lowerText = text.toLowerCase()
@@ -630,8 +725,25 @@ What would you like to talk about?`
         addMessage(aiMessage, 'assistant')
         setConversationText(prev => prev + ' ' + aiMessage)
 
-        // Show inline emotion selection after first exchange (user message + AI response)
-        if (userMessages.length === 0) {
+        // Check for direct emotion statement in any message
+        const directEmotion = detectDirectEmotionStatement(userMessage)
+        
+        if (directEmotion && userMessages.length === 0) {
+          // User directly stated their emotion in first message - set it automatically and skip selection
+          setTimeout(() => {
+            handleInlineEmotionSelect(directEmotion)
+          }, 1000) // Small delay to let AI response complete
+        } else if (directEmotion && userMessages.length > 0) {
+          // User stated emotion in follow-up message - update their emotion
+          setTimeout(() => {
+            setSelectedEmotion(directEmotion)
+            // Provide a quick acknowledgment
+            const acknowledgment = `I can see you're feeling ${directEmotion.toLowerCase()} 💙`
+            setAiResponse(prev => prev + "\n\n" + acknowledgment)
+            addMessage(acknowledgment, 'assistant')
+          }, 1500)
+        } else if (userMessages.length === 0) {
+          // Show inline emotion selection after first exchange (user message + AI response)
           setTimeout(() => {
             // Extract emotions from user message and AI response
             const extractedEmotions = extractEmotionsFromText(userMessage + ' ' + aiMessage)
