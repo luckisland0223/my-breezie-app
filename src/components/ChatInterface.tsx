@@ -172,6 +172,29 @@ What would you like to talk about?`
     return storyIndicators.some(indicator => lowerMessage.includes(indicator))
   }
 
+  const isAskingAboutFeelings = (aiResponse: string): boolean => {
+    const feelingQuestions = [
+      'how are you feeling',
+      'what are you feeling',
+      'how do you feel',
+      'what do you feel',
+      'what feelings',
+      'what emotions',
+      'how does that make you feel',
+      'what kinds of feelings',
+      'what kinds of emotions',
+      'feelings are coming up',
+      'emotions are coming up',
+      'feeling right now',
+      'current mood',
+      'your mood',
+      'emotionally'
+    ]
+    
+    const lowerResponse = aiResponse.toLowerCase()
+    return feelingQuestions.some(question => lowerResponse.includes(question))
+  }
+
   // New conversation flow handler
   const handleConversationFlow = async (userMessage: string) => {
     const analysis = analyzeUserInput(userMessage)
@@ -194,11 +217,14 @@ What would you like to talk about?`
     // Case 2: User describes emotions without direct statement
     if (userMessages.length === 0 && !analysis.hasDirectEmotion) {
       if (analysis.hasStoryContext) {
-        // Has story but no emotion - show inline emotion buttons after response
+        // Has story but no emotion - get response and check if it asks about feelings
         const response = await getNormalResponse(userMessage)
-        setTimeout(() => {
-          setShowInlineEmotionButtons(true)
-        }, 1500) // Show emotion buttons after AI responds
+        // Check if AI is asking about feelings/emotions to show buttons
+        if (isAskingAboutFeelings(response)) {
+          setTimeout(() => {
+            setShowInlineEmotionButtons(true)
+          }, 1500) // Show emotion buttons after AI responds
+        }
         return response
       }
       // Continue with normal conversation
@@ -633,6 +659,13 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
       setAiResponse(aiMessage)
       addMessage(aiMessage, 'assistant')
       setConversationText(prev => prev + ' ' + aiMessage)
+      
+      // Check if AI is asking about feelings to show emotion buttons
+      if (isAskingAboutFeelings(aiMessage)) {
+        setTimeout(() => {
+          setShowInlineEmotionButtons(true)
+        }, 1500) // Show emotion buttons after AI responds
+      }
     } catch (error) {
       toast.error('Sorry, I had trouble responding. Please try again.')
       const fallbackResponse = getRandomFallback('chatError')
@@ -870,7 +903,7 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
                   {/* Inline Emotion Selection Buttons */}
                   {showInlineEmotionButtons && !isTyping && (
                     <div className="mt-4 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                      <p className="text-sm text-gray-700 mb-3 font-medium">How are you feeling about this?</p>
+                      <p className="text-sm text-gray-700 mb-3 font-medium">Choose what you're feeling:</p>
                       <div className="flex flex-wrap gap-2">
                         {['Joy', 'Sadness', 'Anger', 'Fear', 'Anxiety', 'Excitement', 'Frustration', 'Calm'].map((emotion) => {
                           const config = emotionConfig[emotion as EmotionType]
