@@ -244,42 +244,43 @@ What would you like to talk about?`
   }
 
   const handleViewSuggestions = () => {
-    if (pendingEmotionForSuggestions && pendingUserMessage) {
-      // Calculate current behavioral impact score for enhanced suggestions
-      const currentBehavioralScore = calculateBehavioralImpactScore(pendingEmotionForSuggestions, 5, pendingUserMessage)
-      
-      // Get user's emotion history for trend analysis
-      const userHistory = useEmotionStore.getState().records || []
-      
-      // Use enhanced suggestions with behavioral impact analysis
-      const suggestions = getEnhancedSuggestions(
-        pendingEmotionForSuggestions, 
-        4, 
-        pendingUserMessage,
-        currentBehavioralScore,
-        userHistory
-      )
-      
-      setCurrentSuggestions(suggestions)
-      setSuggestionMode(true)
-      
-      const suggestionMessage = "Based on what you've shared, here are some suggestions that might help:"
-      setAiResponse(prev => prev + "\n\n" + suggestionMessage)
-      addMessage(suggestionMessage, 'assistant')
-      setShowSuggestions(true)
-      
-      // Clean up pending state
-      setShowDelayedSuggestionButtons(false)
-      setPendingEmotionForSuggestions(null)
-      setPendingUserMessage('')
-    }
+    const emotionForSuggestions = pendingEmotionForSuggestions || selectRepresentativeEmotion()
+    const contextMessage = pendingUserMessage || lastUserMessage || ''
+
+    // Calculate current behavioral impact score for enhanced suggestions
+    const currentBehavioralScore = calculateBehavioralImpactScore(emotionForSuggestions, 5, contextMessage)
+    
+    // Get user's emotion history for trend analysis
+    const userHistory = useEmotionStore.getState().records || []
+    
+    // Use enhanced suggestions with behavioral impact analysis
+    const suggestions = getEnhancedSuggestions(
+      emotionForSuggestions, 
+      4, 
+      contextMessage,
+      currentBehavioralScore,
+      userHistory
+    )
+    
+    setCurrentSuggestions(suggestions)
+    setSuggestionMode(true)
+    
+    const suggestionMessage = "Based on what you just shared, here are some suggestions that might help:"
+    setAiResponse(prev => prev + "\n\n" + suggestionMessage)
+    addMessage(suggestionMessage, 'assistant')
+    setShowSuggestions(true)
+    
+    // Clean up/hide buttons
+    setShowDelayedSuggestionButtons(false)
+    setPendingEmotionForSuggestions(null)
+    setPendingUserMessage('')
   }
 
   const handleMaybeLater = () => {
     // Hide the suggestion buttons but keep the pending state for later
     setShowDelayedSuggestionButtons(false)
     
-    const acknowledgmentMessage = "No problem at all! I'm here to listen whenever you need to talk."
+    const acknowledgmentMessage = "No worries — you can continue sharing more details, and I will listen patiently."
     setAiResponse(prev => prev + "\n\n" + acknowledgmentMessage)
     addMessage(acknowledgmentMessage, 'assistant')
   }
@@ -798,6 +799,9 @@ What would you like to talk about?`
             setSuggestedEmotions(extractedEmotions)
             setShowInlineEmotions(true)
           }, 3000) // Show after AI response is complete and user has read it
+        } else {
+          // After Breezie responds, allow user to choose actions
+          setShowDelayedSuggestionButtons(true)
         }
       } else {
         throw new Error('Failed to get AI response')

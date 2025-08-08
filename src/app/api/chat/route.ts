@@ -74,14 +74,22 @@ export async function POST(request: NextRequest) {
     })
     
     return addSecurityHeaders(successResponse)
-  } catch (error) {
-
+  } catch (error: any) {
+    // Log detailed error for debugging
+    console.error('Chat API error:', {
+      message: error?.message || 'Unknown error',
+      code: error?.code,
+      stack: error?.stack,
+      timestamp: new Date().toISOString()
+    })
     
-    // Return generic error response
+    // Return error response with debug info in development
+    const isDev = process.env.NODE_ENV === 'development'
     const errorResponse = NextResponse.json(
       { 
         error: 'Failed to generate response',
-        message: 'Sorry, I cannot respond right now. Please try again later.'
+        message: 'Sorry, I cannot respond right now. Please try again later.',
+        ...(isDev && { debug: error?.message || 'Unknown error' })
       },
       { status: 500 }
     )
