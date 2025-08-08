@@ -19,10 +19,36 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
+    // Account lock check
+    if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
+      const waitSeconds = Math.ceil((new Date(user.lockedUntil).getTime() - Date.now()) / 1000)
+      return NextResponse.json({ error: `Account locked. Try again in ${waitSeconds}s` }, { status: 429 })
+    }
+
     const ok = await verifyPassword(password, user.passwordHash)
     if (!ok) {
+      const base = user.failedLoginCount ?? 0
+      const newCount = base + 1
+      const firstPhase = base < 5
+      const threshold = firstPhase ? 5 : 3
+      let lockedUntil: Date | null = null
+      // lock 5 minutes when crossing threshold
+      if ((firstPhase && newCount >= 5) || (!firstPhase && (newCount - 5) % 3 === 0)) {
+        lockedUntil = new Date(Date.now() + 5 * 60 * 1000)
+      }
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { failedLoginCount: newCount, lockedUntil }
+      })
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
+
+    if (!user.emailVerified) {
+      return NextResponse.json({ error: 'Email not verified' }, { status: 403 })
+    }
+
+    // reset counters on success
+    await prisma.user.update({ where: { id: user.id }, data: { failedLoginCount: 0, lockedUntil: null } })
 
     const publicUser = {
       id: user.id,

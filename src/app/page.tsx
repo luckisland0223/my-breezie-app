@@ -77,12 +77,14 @@ export default function HomePage() {
                   Analytics
                 </Button>
               </Link>
-              <Link href="/settings">
-                <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  Settings
-                </Button>
-              </Link>
+              {!user && (
+                <Link href="/settings">
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    Settings
+                  </Button>
+                </Link>
+              )}
               {user ? (
                 <UserMenu />
               ) : (

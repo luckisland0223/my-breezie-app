@@ -20,6 +20,11 @@ model User {
   avatarUrl             String?   @map("avatar_url")
   subscriptionTier      String    @default("free") @map("subscription_tier") // free, pro, enterprise
   subscriptionExpiresAt DateTime? @map("subscription_expires_at")
+  emailVerified         Boolean   @default(false) @map("email_verified")
+  emailVerificationCode String?   @map("email_verification_code")
+  emailVerificationExpiresAt DateTime? @map("email_verification_expires_at")
+  failedLoginCount      Int       @default(0) @map("failed_login_count")
+  lockedUntil           DateTime? @map("locked_until")
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
 

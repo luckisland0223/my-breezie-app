@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "next build",
-    "vercel-build": "prisma generate && next build",
+		"vercel-build": "prisma generate && next build",
 		"check": "biome check .",
 		"check:unsafe": "biome check --write --unsafe .",
 		"check:write": "biome check --write .",
@@ -18,22 +18,21 @@
 		"db:migrate": "prisma migrate dev",
 		"db:studio": "prisma studio",
 		"db:init": "node scripts/init-db.js",
-    "db:reset": "prisma migrate reset --force"
+		"db:reset": "prisma migrate reset --force"
 	},
-  "packageManager": "npm@10.7.0",
-  "prisma": {
-    "schema": "prisma/schema.prisma"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "pnpm": {
-    "patchedDependencies": {}
-  },
-  "overrides": {},
-  "resolutions": {},
-  "private": true,
-  "postinstall": "prisma generate",
+	"packageManager": "npm@10.7.0",
+	"prisma": {
+		"schema": "prisma/schema.prisma"
+	},
+	"engines": {
+		"node": ">=18"
+	},
+	"pnpm": {
+		"patchedDependencies": {}
+	},
+	"overrides": {},
+	"resolutions": {},
+	"postinstall": "prisma generate",
 	"dependencies": {
 		"@prisma/client": "^6.13.0",
 		"@radix-ui/react-accordion": "^1.2.11",
@@ -51,6 +50,7 @@
 		"@radix-ui/react-switch": "^1.2.5",
 		"@radix-ui/react-tabs": "^1.1.12",
 		"@radix-ui/react-tooltip": "^1.2.7",
+		"@react-email/components": "^0.5.0",
 		"@t3-oss/env-nextjs": "^0.12.0",
 		"@types/bcryptjs": "^2.4.6",
 		"@types/jsonwebtoken": "^9.0.10",
@@ -69,6 +69,7 @@
 		"react-dom": "^19.0.0",
 		"recharts": "^2.15.4",
 		"requests": "^0.3.0",
+		"resend": "^6.0.1",
 		"sonner": "^2.0.3",
 		"tailwind-merge": "^3.3.0",
 		"zod": "^3.24.2",
@@ -88,6 +89,5 @@
 	},
 	"ct3aMetadata": {
 		"initVersion": "7.39.3"
-	},
-	"packageManager": "npm@10.7.0"
+	}
 }
