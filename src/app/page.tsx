@@ -70,15 +70,7 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-4 ml-auto">
-              {/* Right-aligned auth area */}
-              {user ? (
-                <UserMenu />
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => router.push('/login')}>Sign in</Button>
-                  <Button size="sm" onClick={() => router.push('/register')}>Register</Button>
-                </div>
-              )}
+              {/* Right-aligned area: Analytics, Settings, then Auth */}
               <Link href="/analytics">
                 <Button variant="ghost" size="sm" className="flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
@@ -91,6 +83,14 @@ export default function HomePage() {
                   Settings
                 </Button>
               </Link>
+              {user ? (
+                <UserMenu />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => router.push('/login')}>Sign in</Button>
+                  <Button size="sm" onClick={() => router.push('/register')}>Register</Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
