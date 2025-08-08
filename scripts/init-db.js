@@ -35,7 +35,8 @@ async function main() {
     console.error('❌ Database initialization failed:', error)
     console.error('💡 Make sure your DATABASE_URL is correctly set in .env file')
     
-    if (error.code === 'P1001') {
+    const code = typeof error === 'object' && error && 'code' in error ? /** @type {any} */(error).code : undefined
+    if (code === 'P1001') {
       console.error('🔍 Connection error - check your Supabase connection string')
       console.error('   Make sure you are using the correct Supabase URL, not localhost')
     }
