@@ -14,6 +14,7 @@ import { ClientOnly } from '@/components/ClientOnly'
 
 import { useEmotionStore } from '@/store/emotion'
 import { useAuthStore } from '@/store/auth'
+import { UserMenu } from '@/components/UserMenu'
 
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database } from 'lucide-react'
 import { toast } from 'sonner'
@@ -68,13 +69,10 @@ export default function HomePage() {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              {/* Auth area inline */}
+            <div className="flex items-center space-x-4 ml-auto">
+              {/* Right-aligned auth area */}
               {user ? (
-                <div className="flex items-center gap-3">
-                  <Badge variant="secondary">{user.username}</Badge>
-                  <Button variant="outline" size="sm" onClick={() => logout()}>Sign out</Button>
-                </div>
+                <UserMenu />
               ) : (
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={() => router.push('/login')}>Sign in</Button>
