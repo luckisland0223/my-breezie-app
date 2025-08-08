@@ -877,6 +877,15 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
                     Online
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => setShowEmotionSelection(true)}
+                      variant="outline"
+                      className="border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                      disabled={isTyping}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Choose Emotion
+                    </Button>
                     <Button 
                       onClick={handleSendMessage} 
                       disabled={!inputValue.trim() || isTyping}
@@ -896,8 +905,8 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
 
         {/* Removed suggestion interface - simplified flow */}
 
-        {/* Emotion Selection Interface - Moved outside chat box */}
-        {showInlineEmotions && suggestedEmotions.length > 0 && (
+        {/* Emotion Selection Interface - Show when triggered or when emotions are suggested */}
+        {(showInlineEmotions && suggestedEmotions.length > 0) && (
           <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
             <div className="p-6">
               <div className="text-center mb-6">
