@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore, processPendingSave } from '@/store/auth'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 
 export default function RegisterPage() {

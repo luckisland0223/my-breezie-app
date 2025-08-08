@@ -4,16 +4,17 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query'] : [],
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
-  })
+const dbUrl = process.env.DATABASE_URL
+const prismaOptions: ConstructorParameters<typeof PrismaClient>[0] = {
+  log: process.env.NODE_ENV === 'development' ? ['query'] : [],
+}
+
+// Only override datasource if DATABASE_URL is defined; otherwise let Prisma use schema defaults
+if (dbUrl) {
+  ;(prismaOptions as any).datasources = { db: { url: dbUrl } }
+}
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient(prismaOptions)
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
