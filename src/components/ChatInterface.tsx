@@ -66,6 +66,8 @@ What would you like to talk about?`)
   const [isFirstMessage, setIsFirstMessage] = useState(true)
   const [showMoreEmotions, setShowMoreEmotions] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [showInlineEmotionButtons, setShowInlineEmotionButtons] = useState(false)
+  const [selectedInlineEmotion, setSelectedInlineEmotion] = useState<EmotionType | null>(null)
   // Simplified state management - removed all suggestion-related states
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -192,12 +194,12 @@ What would you like to talk about?`
     // Case 2: User describes emotions without direct statement
     if (userMessages.length === 0 && !analysis.hasDirectEmotion) {
       if (analysis.hasStoryContext) {
-        // Has story but no emotion - show emotion selection
+        // Has story but no emotion - show inline emotion buttons after response
+        const response = await getNormalResponse(userMessage)
         setTimeout(() => {
-          const extractedEmotions = extractEmotionsFromText(userMessage)
-          setSuggestedEmotions(extractedEmotions)
-          setShowInlineEmotions(true)
-        }, 1000)
+          setShowInlineEmotionButtons(true)
+        }, 1500) // Show emotion buttons after AI responds
+        return response
       }
       // Continue with normal conversation
       return await getNormalResponse(userMessage)
@@ -266,7 +268,34 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
   }
 }
 
-  // Removed all suggestion-related functions - simplified flow
+  // Handle inline emotion selection
+  const handleInlineEmotionClick = (emotion: EmotionType) => {
+    setSelectedInlineEmotion(emotion)
+    setSelectedEmotion(emotion)
+    setShowInlineEmotionButtons(false)
+    
+    // Add emotion context to next user message
+    const emotionMessage = `I'm feeling ${emotion.toLowerCase()}`
+    addMessage(emotionMessage, 'user')
+    
+    // Continue conversation with emotion context
+    handleEmotionAcknowledgment(emotion)
+  }
+
+  const handleEmotionAcknowledgment = async (emotion: EmotionType) => {
+    setIsTyping(true)
+    try {
+      const response = await getNormalResponse(`I'm feeling ${emotion.toLowerCase()}`)
+      setAiResponse(response)
+      addMessage(response, 'assistant')
+    } catch (error) {
+      const fallback = `I understand you're feeling ${emotion.toLowerCase()}. Tell me more about what's going on.`
+      setAiResponse(fallback)
+      addMessage(fallback, 'assistant')
+    } finally {
+      setIsTyping(false)
+    }
+  }
 
   // Detect if user directly states their emotion (e.g., "I'm feeling sad", "I'm angry")
   const detectDirectEmotionStatement = (text: string): EmotionType | null => {
@@ -588,13 +617,19 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
     setAiResponse('')
     setIsFirstMessage(false)
 
-    // Add user message to chat
-    addMessage(userMessage, 'user')
+    // Add user message to chat (include emotion if selected)
+    let messageToSend = userMessage
+    if (selectedInlineEmotion) {
+      messageToSend = `[Feeling: ${selectedInlineEmotion}] ${userMessage}`
+      setSelectedInlineEmotion(null) // Clear after using
+    }
+    
+    addMessage(userMessage, 'user') // Show clean message to user
     setConversationText(prev => prev + ' ' + userMessage)
 
     try {
-      // Use new simplified conversation flow
-      const aiMessage = await handleConversationFlow(userMessage)
+      // Use new simplified conversation flow with emotion context
+      const aiMessage = await handleConversationFlow(messageToSend)
       setAiResponse(aiMessage)
       addMessage(aiMessage, 'assistant')
       setConversationText(prev => prev + ' ' + aiMessage)
@@ -832,8 +867,27 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
                     )}
                   </div>
                   
-
-                  
+                  {/* Inline Emotion Selection Buttons */}
+                  {showInlineEmotionButtons && !isTyping && (
+                    <div className="mt-4 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                      <p className="text-sm text-gray-700 mb-3 font-medium">How are you feeling about this?</p>
+                      <div className="flex flex-wrap gap-2">
+                        {['Joy', 'Sadness', 'Anger', 'Fear', 'Anxiety', 'Excitement', 'Frustration', 'Calm'].map((emotion) => {
+                          const config = emotionConfig[emotion as EmotionType]
+                          return (
+                            <button
+                              key={emotion}
+                              onClick={() => handleInlineEmotionClick(emotion as EmotionType)}
+                              className="flex items-center gap-1 px-3 py-1.5 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-all duration-200 hover:shadow-sm"
+                            >
+                              <span className="text-sm">{config.emoji}</span>
+                              <span className="font-medium text-gray-700">{emotion}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                 </div>
               ) : (
@@ -847,9 +901,8 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
           </div>
         </div>
 
-        {/* User Input Area - Hidden when emotions are showing */}
-        {!showInlineEmotions && (
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
+        {/* User Input Area */}
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
             <div className="p-6">
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mr-3">
@@ -877,15 +930,6 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
                     Online
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      onClick={() => setShowEmotionSelection(true)}
-                      variant="outline"
-                      className="border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
-                      disabled={isTyping}
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      Choose Emotion
-                    </Button>
                     <Button 
                       onClick={handleSendMessage} 
                       disabled={!inputValue.trim() || isTyping}
@@ -899,92 +943,12 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
               </div>
             </div>
           </div>
-        )}
 
 
 
         {/* Removed suggestion interface - simplified flow */}
 
-        {/* Emotion Selection Interface - Show when triggered or when emotions are suggested */}
-        {(showInlineEmotions && suggestedEmotions.length > 0) && (
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
-            <div className="p-6">
-              <div className="text-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">How are you feeling?</h3>
-                <p className="text-gray-600">Based on what you've shared, I can sense these emotions. Which one feels most true to you right now?</p>
-                <p className="text-sm text-gray-500 mt-1">Choose one to help me understand you better</p>
-              </div>
-              
-              <div className="flex flex-wrap justify-center gap-3 mb-6">
-                {suggestedEmotions.map((emotion) => {
-                  const config = emotionConfig[emotion]
-                  return (
-                    <button
-                      key={emotion}
-                      onClick={() => handleInlineEmotionSelect(emotion)}
-                      className="flex flex-col items-center p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 min-w-[90px]"
-                      disabled={isTyping}
-                    >
-                      <span className="text-3xl mb-2">{config.emoji}</span>
-                      <span className="text-sm font-medium text-gray-700">{emotion}</span>
-                    </button>
-                  )
-                })}
-              </div>
-
-              {/* More Emotions Dropdown */}
-              <div className="border-t border-gray-200 pt-4">
-                <button
-                  onClick={() => setShowMoreEmotions(!showMoreEmotions)}
-                  className="w-full flex items-center justify-center gap-2 p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
-                  disabled={isTyping}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="text-sm font-medium">
-                    {showMoreEmotions ? 'Show less emotions' : 'Don\'t see your emotion? Show more options'}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showMoreEmotions ? 'rotate-180' : ''}`} />
-                </button>
-
-                {showMoreEmotions && (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-xl">
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                      {Object.entries(emotionConfig)
-                        .filter(([emotion]) => !suggestedEmotions.includes(emotion as EmotionType))
-                        .map(([emotion, config]) => (
-                          <button
-                            key={emotion}
-                            onClick={() => handleInlineEmotionSelect(emotion as EmotionType)}
-                            className="flex flex-col items-center p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-white transition-all duration-200"
-                            disabled={isTyping}
-                          >
-                            <span className="text-2xl mb-1">{config.emoji}</span>
-                            <span className="text-xs font-medium text-gray-700 text-center">{emotion}</span>
-                          </button>
-                        ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-center mt-4">
-                <button
-                  onClick={() => {
-                    setShowInlineEmotions(false)
-                    setShowMoreEmotions(false)
-                  }}
-                  className="text-sm text-gray-500 hover:text-gray-700 underline"
-                  disabled={isTyping}
-                >
-                  Maybe later
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Removed old emotion selection interface - using inline buttons in chat now */}
 
         {/* Conversation History Modal */}
         {currentSession?.messages && currentSession.messages.length > 1 && (
@@ -1042,13 +1006,7 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
         )}
       </div>
 
-      {/* Emotion Selection Dialog */}
-      {showEmotionSelection && (
-        <EmotionSelectionDialog
-          onEmotionSelect={handleEmotionSelect}
-          onSkip={handleSkipEmotion}
-        />
-      )}
+      {/* Removed popup emotion selection dialog - using inline buttons instead */}
     </div>
   )
 }
