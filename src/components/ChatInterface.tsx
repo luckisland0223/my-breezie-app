@@ -14,7 +14,7 @@ import { calculateBehavioralImpactScore } from '@/lib/behavioralImpactScore'
 import { getRandomResponse } from '@/config/emotionResponses'
 import { emotionConfig } from '@/config/emotionConfig'
 import { getRandomFallback } from '@/config/prompts'
-import { isNegativeEmotion, getRandomSuggestions, getEnhancedSuggestions, assessEmotionalState, getComfortResponse, type EmotionSuggestion, type EmotionalAssessment } from '@/config/emotionSuggestions'
+// Removed suggestion imports - simplified flow
 import DOMPurify from 'dompurify'
 
 interface ChatInterfaceProps {
@@ -64,18 +64,9 @@ What would you like to talk about?`)
   const [representativeEmotion, setRepresentativeEmotion] = useState<EmotionType | null>(null)
 
   const [isFirstMessage, setIsFirstMessage] = useState(true)
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [currentSuggestions, setCurrentSuggestions] = useState<EmotionSuggestion[]>([])
-  const [usedSuggestions, setUsedSuggestions] = useState<string[]>([])
-  const [selectedSuggestion, setSelectedSuggestion] = useState<EmotionSuggestion | null>(null)
-  const [suggestionMode, setSuggestionMode] = useState(false)
   const [showMoreEmotions, setShowMoreEmotions] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
-  const [showReadyForSuggestions, setShowReadyForSuggestions] = useState(false)
-  const [pendingEmotionForSuggestions, setPendingEmotionForSuggestions] = useState<EmotionType | null>(null)
-  const [pendingUserMessage, setPendingUserMessage] = useState<string>('')
-  const [showDelayedSuggestionButtons, setShowDelayedSuggestionButtons] = useState(false)
-  const [conversationUnderstanding, setConversationUnderstanding] = useState(0) // Track how well Breezie understands the user
+  // Simplified state management - removed all suggestion-related states
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const currentSession = useEmotionStore((state) => state.currentSession)
@@ -155,257 +146,127 @@ What would you like to talk about?`
     // Typewriter animation completed
   }
 
-  // Handle delayed suggestion system - wait until Breezie understands the user's situation
-  const generateSuggestions = async (emotion: EmotionType, userMessage?: string) => {
-    if (isNegativeEmotion(emotion) && userMessage) {
-      // Assess user's emotional state and readiness
-      const assessment = assessEmotionalState(userMessage, emotion)
-      
-      if (assessment.needsComfort) {
-        // User needs comfort first - provide emotional support
-        const comfortMessage = getComfortResponse(emotion)
-        setAiResponse(prev => prev + "\n\n" + comfortMessage)
-        addMessage(comfortMessage, 'assistant')
-        
-        // Don't show suggestions yet - user needs comfort first
-        setShowSuggestions(false)
-        setCurrentSuggestions([])
-        setSuggestionMode(false)
-        
-        // Store pending suggestion info for when user is ready
-        setPendingEmotionForSuggestions(emotion)
-        setPendingUserMessage(userMessage)
-        
-        // Add a gentle follow-up after comfort
-        setTimeout(() => {
-          const followUpMessage = "Take all the time you need. I'm here to listen and understand."
-          setAiResponse(prev => prev + "\n\n" + followUpMessage)
-          addMessage(followUpMessage, 'assistant')
-        }, 2000)
-        
-      } else {
-        // User is emotionally stable - but wait to understand their situation better
-        // Store pending suggestion info
-        setPendingEmotionForSuggestions(emotion)
-        setPendingUserMessage(userMessage)
-        
-        // Don't show suggestions immediately - let conversation develop
-        setShowSuggestions(false)
-        setCurrentSuggestions([])
-        setSuggestionMode(false)
-      }
-    } else if (isNegativeEmotion(emotion)) {
-      // Fallback for when we don't have user message context
-      // Store for later when we have more context
-      setPendingEmotionForSuggestions(emotion)
-      setPendingUserMessage(userMessage || '')
-      
-      setShowSuggestions(false)
-      setCurrentSuggestions([])
-      setSuggestionMode(false)
-    } else {
-      // Positive emotions - no suggestions needed
-      setShowSuggestions(false)
-      setCurrentSuggestions([])
-      setSuggestionMode(false)
+  // New simplified conversation flow logic
+  const analyzeUserInput = (userMessage: string) => {
+    const hasDirectEmotion = detectDirectEmotionStatement(userMessage)
+    const hasStoryContext = detectStoryContext(userMessage)
+    
+    return {
+      hasDirectEmotion,
+      hasStoryContext,
+      detectedEmotion: hasDirectEmotion
     }
   }
 
-  const handleSuggestionSelect = (suggestion: EmotionSuggestion) => {
-    setSelectedSuggestion(suggestion)
+  const detectStoryContext = (message: string): boolean => {
+    const storyIndicators = [
+      'happened', 'today', 'yesterday', 'this morning', 'last night', 'at work', 'at home',
+      'my boss', 'my friend', 'my partner', 'my family', 'someone', 'situation', 'problem',
+      'issue', 'when I', 'so I', 'then I', 'because', 'since', 'after', 'before',
+      'meeting', 'conversation', 'argument', 'fight', 'discussion', 'event', 'experience'
+    ]
+    
+    const lowerMessage = message.toLowerCase()
+    return storyIndicators.some(indicator => lowerMessage.includes(indicator))
   }
 
-  // Check if Breezie has enough understanding to offer suggestions
-  const checkConversationUnderstanding = (userMessage: string) => {
+  // New conversation flow handler
+  const handleConversationFlow = async (userMessage: string) => {
+    const analysis = analyzeUserInput(userMessage)
     const messages = currentSession?.messages || []
     const userMessages = messages.filter(msg => msg.role === 'user')
     
-    // Increase understanding score based on message content
-    let understandingScore = conversationUnderstanding
-    
-    // Check for specific details that show user is opening up
-    const hasSpecificDetails = /(my|I have|I'm dealing with|about|because|when|where|who)/.test(userMessage.toLowerCase())
-    const hasEmotionalContext = /(feel|feeling|felt|because|since|after|when)/.test(userMessage.toLowerCase())
-    const hasPersonalInfo = /(my girlfriend|my boyfriend|my job|my family|my friend|my situation)/.test(userMessage.toLowerCase())
-    
-    if (hasSpecificDetails) understandingScore += 1
-    if (hasEmotionalContext) understandingScore += 1
-    if (hasPersonalInfo) understandingScore += 2
-    
-    // Also increase score for each exchange
-    understandingScore += 1
-    
-    setConversationUnderstanding(understandingScore)
-    
-    // Show suggestion buttons when we have enough understanding (score >= 3) and pending suggestions
-    if (understandingScore >= 3 && pendingEmotionForSuggestions && !showDelayedSuggestionButtons) {
-      setShowDelayedSuggestionButtons(true)
+    // Case 1: User directly states emotion - skip emotion selection
+    if (analysis.hasDirectEmotion && analysis.detectedEmotion) {
+      setSelectedEmotion(analysis.detectedEmotion)
+      
+      if (analysis.hasStoryContext) {
+        // Has both emotion and story - start conversation about the story
+        return await getStoryBasedResponse(userMessage, analysis.detectedEmotion)
+      } else {
+        // Only emotion mentioned - ask what happened
+        return "I can sense you're feeling " + analysis.detectedEmotion.toLowerCase() + ". What happened? I'm here to listen."
+      }
     }
-  }
+    
+    // Case 2: User describes emotions without direct statement
+    if (userMessages.length === 0 && !analysis.hasDirectEmotion) {
+      if (analysis.hasStoryContext) {
+        // Has story but no emotion - show emotion selection
+        setTimeout(() => {
+          const extractedEmotions = extractEmotionsFromText(userMessage)
+          setSuggestedEmotions(extractedEmotions)
+          setShowInlineEmotions(true)
+        }, 1000)
+      }
+      // Continue with normal conversation
+      return await getNormalResponse(userMessage)
+    }
+    
+      // Case 3: Ongoing conversation
+  return await getNormalResponse(userMessage)
+}
 
-  const handleViewSuggestions = () => {
-    const emotionForSuggestions = pendingEmotionForSuggestions || selectRepresentativeEmotion()
-    const contextMessage = pendingUserMessage || lastUserMessage || ''
-
-    // Calculate current behavioral impact score for enhanced suggestions
-    const currentBehavioralScore = calculateBehavioralImpactScore(emotionForSuggestions, 5, contextMessage)
-    
-    // Get user's emotion history for trend analysis
-    const userHistory = useEmotionStore.getState().records || []
-    
-    // Use enhanced suggestions with behavioral impact analysis
-    const suggestions = getEnhancedSuggestions(
-      emotionForSuggestions, 
-      4, 
-      contextMessage,
-      currentBehavioralScore,
-      userHistory
-    )
-    
-    setCurrentSuggestions(suggestions)
-    setSuggestionMode(true)
-    
-    const suggestionMessage = "Based on what you just shared, here are some suggestions that might help:"
-    setAiResponse(prev => prev + "\n\n" + suggestionMessage)
-    addMessage(suggestionMessage, 'assistant')
-    setShowSuggestions(true)
-    
-    // Clean up/hide buttons
-    setShowDelayedSuggestionButtons(false)
-    setPendingEmotionForSuggestions(null)
-    setPendingUserMessage('')
-  }
-
-  const handleMaybeLater = () => {
-    // Hide the suggestion buttons but keep the pending state for later
-    setShowDelayedSuggestionButtons(false)
-    
-    const acknowledgmentMessage = "No worries — you can continue sharing more details, and I will listen patiently."
-    setAiResponse(prev => prev + "\n\n" + acknowledgmentMessage)
-    addMessage(acknowledgmentMessage, 'assistant')
-  }
-
-  const handleConfirmSuggestion = async () => {
-    if (!selectedSuggestion) return
-    
-    // Add suggestion to used list
-    setUsedSuggestions(prev => [...prev, selectedSuggestion.id])
-    
-    // Add user's selection as a message
-    const selectionMessage = `I'd like to try: "${selectedSuggestion.text}"`
-    addMessage(selectionMessage, 'user')
-    
-    // Reset suggestion mode
-    setShowSuggestions(false)
-    setSuggestionMode(false)
-    setSelectedSuggestion(null)
-    setIsTyping(true)
-    
-    try {
-      // Get Breezie's follow-up response based on the selected suggestion
-      const messages = currentSession?.messages || []
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userMessage: `The user selected this suggestion: "${selectedSuggestion.text}". Provide supportive follow-up guidance, encouragement, or ask how they plan to implement it. Be specific and helpful about this particular suggestion.`,
-          emotion: selectedEmotion,
-          conversationHistory: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        })
+const getStoryBasedResponse = async (userMessage: string, emotion: EmotionType): Promise<string> => {
+  try {
+    const messages = currentSession?.messages || []
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userMessage,
+        emotion,
+        responseInstructions: "The user has shared both their emotion and story context. Engage with their specific situation and provide empathetic, thoughtful responses about their experience.",
+        conversationHistory: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
       })
+    })
 
-      if (response.ok) {
-        const data = await response.json()
-        const followUpResponse = data.response
-        setAiResponse(followUpResponse)
-        addMessage(followUpResponse, 'assistant')
-      } else {
-        throw new Error('Failed to get follow-up response')
-      }
-    } catch (error) {
-      const fallbackResponse = "That's a great choice! How do you feel about trying this approach?"
-      setAiResponse(fallbackResponse)
-      addMessage(fallbackResponse, 'assistant')
-    } finally {
-      setIsTyping(false)
+    if (response.ok) {
+      const data = await response.json()
+      return data.response
+    } else {
+      throw new Error('Failed to get response')
     }
+  } catch (error) {
+    return getRandomFallback('chatError')
   }
+}
 
-  const handleMoreSuggestions = () => {
-    if (selectedEmotion) {
-      // Calculate current behavioral impact score for enhanced suggestions
-      const currentBehavioralScore = calculateBehavioralImpactScore(selectedEmotion, 5, conversationText)
-      
-      // Get user's emotion history for trend analysis
-      const userHistory = useEmotionStore.getState().records || []
-      
-      // Get new suggestions, excluding used ones, with behavioral impact analysis
-      const allSuggestions = getEnhancedSuggestions(selectedEmotion, 8, undefined, currentBehavioralScore, userHistory)
-      const unusedSuggestions = allSuggestions.filter(s => !usedSuggestions.includes(s.id))
-      const newSuggestions = unusedSuggestions.slice(0, 4)
-      
-      if (newSuggestions.length > 0) {
-        setCurrentSuggestions(newSuggestions)
-      } else {
-        // If no more unused suggestions, reset and get fresh ones
-        setUsedSuggestions([])
-        const freshSuggestions = getEnhancedSuggestions(selectedEmotion, 4, undefined, currentBehavioralScore, userHistory)
-        setCurrentSuggestions(freshSuggestions)
-      }
-      setSelectedSuggestion(null)
-    }
-  }
-
-  const handleRejectSuggestions = async () => {
-    setShowSuggestions(false)
-    setSuggestionMode(false)
-    setCurrentSuggestions([])
-    setSelectedSuggestion(null)
-    
-    // Add user's rejection message
-    const rejectMessage = "None of these suggestions feel right for me right now."
-    addMessage(rejectMessage, 'user')
-    setIsTyping(true)
-    
-    try {
-      // Get personalized response from Breezie
-      const messages = currentSession?.messages || []
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userMessage: "The user rejected the suggestions. Ask them more personal questions to understand what kind of support they need. Be empathetic and help them explore their feelings more deeply.",
-          emotion: selectedEmotion,
-          conversationHistory: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        })
+const getNormalResponse = async (userMessage: string): Promise<string> => {
+  try {
+    const messages = currentSession?.messages || []
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userMessage,
+        emotion: selectedEmotion || 'Other',
+        conversationHistory: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
       })
+    })
 
-      if (response.ok) {
-        const data = await response.json()
-        const personalizedResponse = data.response
-        setAiResponse(personalizedResponse)
-        addMessage(personalizedResponse, 'assistant')
-      } else {
-        throw new Error('Failed to get personalized response')
-      }
-    } catch (error) {
-      const fallbackResponse = "I understand those suggestions don't feel right for you. Can you tell me more about what you think might help you feel better right now?"
-      setAiResponse(fallbackResponse)
-      addMessage(fallbackResponse, 'assistant')
-    } finally {
-      setIsTyping(false)
+    if (response.ok) {
+      const data = await response.json()
+      return data.response
+    } else {
+      throw new Error('Failed to get response')
     }
+  } catch (error) {
+    return getRandomFallback('chatError')
   }
+}
+
+  // Removed all suggestion-related functions - simplified flow
 
   // Detect if user directly states their emotion (e.g., "I'm feeling sad", "I'm angry")
   const detectDirectEmotionStatement = (text: string): EmotionType | null => {
@@ -725,87 +586,18 @@ What would you like to talk about?`
     setLastUserMessage(userMessage)
     setIsTyping(true)
     setAiResponse('')
-    setIsFirstMessage(false) // Disable first message state after user's first input
+    setIsFirstMessage(false)
 
-            // Add user message to chat
-        addMessage(userMessage, 'user')
-        setConversationText(prev => prev + ' ' + userMessage)
+    // Add user message to chat
+    addMessage(userMessage, 'user')
+    setConversationText(prev => prev + ' ' + userMessage)
 
-        // Check conversation understanding for delayed suggestions
-        checkConversationUnderstanding(userMessage)
-
-        // Check if this is the first user message to show emotion selection
-        const messages = currentSession?.messages || []
-        const userMessages = messages.filter(msg => msg.role === 'user')
-        
-        // Detect emotional engagement level
-        const engagementLevel = detectEmotionalEngagement(userMessage, userMessages)
-    
     try {
-      // Get AI response with engagement-aware instructions
-      let responseInstructions = ""
-      if (engagementLevel === 'high') {
-        responseInstructions = "The user is highly emotionally engaged with long or multiple messages. Provide a comprehensive response (3-4 paragraphs) that directly addresses their SPECIFIC situation. Reference the exact details they shared - don't be generic. Offer concrete advice for their particular circumstances. Avoid repetitive phrases like 'my heart aches' or 'whirlwind of emotions'. Include 3-5 relevant emojis throughout your response to add extra warmth and emotional connection."
-      } else if (engagementLevel === 'medium') {
-        responseInstructions = "The user is moderately emotionally engaged. Provide a thoughtful response (2-3 paragraphs) that addresses their SPECIFIC situation. Reference the actual details they mentioned. Offer targeted advice for their particular problem, not generic support. Include 2-3 relevant emojis to add warmth and emotional connection."
-      }
-      
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userMessage,
-          emotion: selectedEmotion || 'Other',
-          engagementLevel,
-          responseInstructions,
-          conversationHistory: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const aiMessage = data.response
-        setAiResponse(aiMessage)
-        addMessage(aiMessage, 'assistant')
-        setConversationText(prev => prev + ' ' + aiMessage)
-
-        // Check for direct emotion statement in any message
-        const directEmotion = detectDirectEmotionStatement(userMessage)
-        
-        if (directEmotion && userMessages.length === 0) {
-          // User directly stated their emotion in first message - set it automatically and skip selection
-          setTimeout(() => {
-            handleInlineEmotionSelect(directEmotion)
-          }, 1000) // Small delay to let AI response complete
-        } else if (directEmotion && userMessages.length > 0) {
-          // User stated emotion in follow-up message - update their emotion
-          setTimeout(() => {
-            setSelectedEmotion(directEmotion)
-            // Provide a quick acknowledgment
-            const acknowledgment = `I can see you're feeling ${directEmotion.toLowerCase()} 💙`
-            setAiResponse(prev => prev + "\n\n" + acknowledgment)
-            addMessage(acknowledgment, 'assistant')
-          }, 1500)
-        } else if (userMessages.length === 0) {
-          // Show inline emotion selection after first exchange (user message + AI response)
-          setTimeout(() => {
-            // Extract emotions from user message and AI response
-            const extractedEmotions = extractEmotionsFromText(userMessage + ' ' + aiMessage)
-            setSuggestedEmotions(extractedEmotions)
-            setShowInlineEmotions(true)
-          }, 3000) // Show after AI response is complete and user has read it
-        } else {
-          // After Breezie responds, allow user to choose actions
-          setShowDelayedSuggestionButtons(true)
-        }
-      } else {
-        throw new Error('Failed to get AI response')
-      }
+      // Use new simplified conversation flow
+      const aiMessage = await handleConversationFlow(userMessage)
+      setAiResponse(aiMessage)
+      addMessage(aiMessage, 'assistant')
+      setConversationText(prev => prev + ' ' + aiMessage)
     } catch (error) {
       toast.error('Sorry, I had trouble responding. Please try again.')
       const fallbackResponse = getRandomFallback('chatError')
@@ -887,9 +679,7 @@ What would you like to talk about?`
       addMessage(fallbackResponse, 'assistant')
     } finally {
       setIsTyping(false)
-      
-      // Generate suggestions for negative emotions
-      generateSuggestions(emotion, conversationText)
+      // Removed suggestion generation - simplified flow
     }
     
     // Emotion recorded silently in handleInlineEmotionSelect
@@ -1057,8 +847,8 @@ What would you like to talk about?`
           </div>
         </div>
 
-        {/* User Input Area - Hidden when suggestions or emotions are showing */}
-        {!showSuggestions && !showInlineEmotions && (
+        {/* User Input Area - Hidden when emotions are showing */}
+        {!showInlineEmotions && (
           <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
             <div className="p-6">
               <div className="flex items-center mb-4">
@@ -1087,25 +877,6 @@ What would you like to talk about?`
                     Online
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Delayed Suggestion Buttons - Next to Send */}
-                    {showDelayedSuggestionButtons && (
-                      <>
-                        <Button
-                          onClick={handleViewSuggestions}
-                          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 text-sm"
-                        >
-                          <Sparkles className="w-3 h-3" />
-                          View Suggestions
-                        </Button>
-                        <Button
-                          onClick={handleMaybeLater}
-                          variant="outline"
-                          className="border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 px-3 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 text-sm"
-                        >
-                          Maybe Later
-                        </Button>
-                      </>
-                    )}
                     <Button 
                       onClick={handleSendMessage} 
                       disabled={!inputValue.trim() || isTyping}
@@ -1123,64 +894,7 @@ What would you like to talk about?`
 
 
 
-        {/* Suggestion Selection Interface - Moved outside chat box */}
-        {showSuggestions && currentSuggestions.length > 0 && (
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
-            <div className="p-6">
-              <div className="text-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">💡 Breezie's Suggestions</h3>
-                <p className="text-gray-600">Select the one that feels most helpful to you right now</p>
-              </div>
-              
-              <div className="space-y-3 mb-6">
-                {currentSuggestions.map((suggestion) => (
-                  <button
-                    key={suggestion.id}
-                    onClick={() => handleSuggestionSelect(suggestion)}
-                    className={`w-full text-left p-4 rounded-xl transition-all duration-200 border-2 ${
-                      selectedSuggestion?.id === suggestion.id
-                        ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-400 shadow-md'
-                        : 'bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 border-gray-200 hover:border-blue-300'
-                    }`}
-                    disabled={isTyping}
-                  >
-                    <div className="font-medium text-gray-800">{suggestion.text}</div>
-                    <div className="text-xs text-gray-500 mt-1 capitalize">{suggestion.category} support</div>
-                  </button>
-                ))}
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex gap-4">
-                  <button
-                    onClick={handleMoreSuggestions}
-                    className="text-sm text-blue-600 hover:text-blue-800 underline font-medium"
-                    disabled={isTyping}
-                  >
-                    More suggestions
-                  </button>
-                  <button
-                    onClick={handleRejectSuggestions}
-                    className="text-sm text-gray-500 hover:text-gray-700 underline"
-                    disabled={isTyping}
-                  >
-                    None of these help
-                  </button>
-                </div>
-                <Button
-                  onClick={handleConfirmSuggestion}
-                  disabled={!selectedSuggestion || isTyping}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Confirm Selection
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Removed suggestion interface - simplified flow */}
 
         {/* Emotion Selection Interface - Moved outside chat box */}
         {showInlineEmotions && suggestedEmotions.length > 0 && (
