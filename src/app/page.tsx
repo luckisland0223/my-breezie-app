@@ -13,6 +13,7 @@ import { DailyWellnessTip } from '@/components/DailyWellnessTip'
 import { ClientOnly } from '@/components/ClientOnly'
 
 import { useEmotionStore } from '@/store/emotion'
+import { useAuthStore } from '@/store/auth'
 
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database } from 'lucide-react'
 import { toast } from 'sonner'
@@ -22,6 +23,8 @@ import Link from 'next/link'
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('journey')
   const [showChat, setShowChat] = useState(false)
+  const { user, logout } = useAuthStore()
+  const router = useRouter()
 
   const handleStartConversation = () => {
     setShowChat(true)
@@ -66,6 +69,18 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Auth area inline */}
+              {user ? (
+                <div className="flex items-center gap-3">
+                  <Badge variant="secondary">{user.username}</Badge>
+                  <Button variant="outline" size="sm" onClick={() => logout()}>Sign out</Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => router.push('/login')}>Sign in</Button>
+                  <Button size="sm" onClick={() => router.push('/register')}>Register</Button>
+                </div>
+              )}
               <Link href="/analytics">
                 <Button variant="ghost" size="sm" className="flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
@@ -120,7 +135,14 @@ function MainContent({ activeTab, setActiveTab, handleStartConversation }: {
   setActiveTab: (tab: string) => void,
   handleStartConversation: () => void 
 }) {
-  const { records } = useEmotionStore()
+  const { records, loadFromServer } = useEmotionStore()
+  const { token } = useAuthStore()
+
+  useEffect(() => {
+    if (token) {
+      loadFromServer()
+    }
+  }, [token, loadFromServer])
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

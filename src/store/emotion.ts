@@ -168,6 +168,8 @@ interface EmotionState {
   getRecentEmotions: (days: number) => EmotionRecord[]
   clearAllRecords: () => void
   deleteRecord: (recordId: string) => void
+  replaceAllRecords: (records: EmotionRecord[]) => void
+  loadFromServer: () => Promise<void>
   
   // Chat actions
   startChatSession: (emotion: EmotionType) => void
@@ -220,31 +222,63 @@ export const useEmotionStore = create<EmotionState>()(
       currentSession: null,
 
       // Add emotion record
-      addEmotionRecord: (emotion: EmotionType, intensity: number, note: string, recordType: RecordType = 'chat', emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis, userId?: string, conversationSummary?: string) => {
-        const newRecord: EmotionRecord = {
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          user_id: userId || 'local',
-          emotion,
-          behavioralImpact: intensity,
-          note,
-          timestamp: new Date(),
-          recordType,
-          emotionEvaluation,
-          polarityAnalysis,
-          conversationSummary,
-        }
-
-        set((state) => {
-          const newRecords = [...state.records, newRecord]
-          const newStats = recalculateStats(newRecords)
-          
-
-          
-          return {
-            records: newRecords,
-            stats: newStats,
+      addEmotionRecord: async (emotion: EmotionType, intensity: number, note: string, recordType: RecordType = 'chat', emotionEvaluation?: EmotionEvaluation, polarityAnalysis?: EmotionPolarityAnalysis, userId?: string, conversationSummary?: string) => {
+        try {
+          const payload = {
+            emotion,
+            behavioralImpact: intensity,
+            note,
+            recordType,
+            conversationSummary,
+            // Flatten optional analytics
+            actualEmotion: emotionEvaluation?.actualEmotion,
+            actualIntensity: emotionEvaluation?.actualIntensity,
+            emotionChanged: emotionEvaluation?.emotionChanged,
+            confidenceLevel: emotionEvaluation?.confidenceLevel,
+            analysis: emotionEvaluation?.analysis,
+            polarity: polarityAnalysis?.polarity,
+            polarityStrength: polarityAnalysis?.strength,
+            polarityConfidence: polarityAnalysis?.confidence,
           }
-        })
+
+          // attach auth header if available
+          const headers: HeadersInit = { 'Content-Type': 'application/json' }
+          const { useAuthStore } = await import('./auth')
+          const token = useAuthStore.getState().token
+          if (!token) {
+            // Not authenticated: do not persist locally; rely on pending-save flow in UI
+            return
+          }
+          (headers as any).Authorization = `Bearer ${token}`
+
+          const res = await fetch('/api/emotions', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload),
+          })
+          const created = await res.json()
+          if (!res.ok) throw new Error(created.error || 'Create failed')
+
+          set((state) => {
+            const newRecord: EmotionRecord = {
+              id: created.id,
+              user_id: created.userId,
+              emotion: created.emotion,
+              behavioralImpact: created.behavioralImpact,
+              note: created.note,
+              timestamp: new Date(created.createdAt),
+              recordType: created.recordType,
+              emotionEvaluation,
+              polarityAnalysis,
+              conversationSummary: created.conversationSummary,
+            }
+            const newRecords = [...state.records, newRecord]
+            const newStats = recalculateStats(newRecords)
+            return { records: newRecords, stats: newStats }
+          })
+        } catch (e) {
+          console.error('Failed to create record via API:', e)
+        }
       },
 
       // Get records by emotion
@@ -295,6 +329,43 @@ export const useEmotionStore = create<EmotionState>()(
             stats: newStats,
           }
         })
+      },
+
+      // Replace all records (used when loading from API)
+      replaceAllRecords: (incoming: EmotionRecord[]) => {
+        const normalized = incoming.map(r => ({
+          ...r,
+          timestamp: new Date(r.timestamp),
+        }))
+        const newStats = recalculateStats(normalized)
+        set({ records: normalized, stats: newStats })
+      },
+
+      // Load records from server and replace local records
+      loadFromServer: async () => {
+        try {
+          // dynamic import to avoid SSR token issues
+          const { useAuthStore } = await import('./auth')
+          const token = useAuthStore.getState().token
+          if (!token) return
+          const res = await fetch('/api/emotions?page=1&limit=200', {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.error || 'Failed to load')
+          const items = (data.items || []).map((it: any) => ({
+            id: it.id,
+            user_id: it.userId,
+            emotion: it.emotion,
+            behavioralImpact: it.behavioralImpact,
+            note: it.note,
+            timestamp: it.createdAt,
+            recordType: it.recordType,
+          })) as EmotionRecord[]
+          get().replaceAllRecords(items)
+        } catch (e) {
+          console.error('Failed to load records from server:', e)
+        }
       },
 
       // Start chat session

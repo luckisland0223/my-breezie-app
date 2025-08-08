@@ -101,7 +101,7 @@ What would you like to talk about?`)
     return `Discussed: ${uniqueTopics.join(', ')}. Started with: "${firstMessage}"`
   }
 
-  // Helper function to save conversation emotion record locally
+  // Helper function to save conversation emotion record
   const saveConversationEmotionRecord = (
     emotion: EmotionType, 
     behavioralImpactScore: number, 
@@ -113,7 +113,8 @@ What would you like to talk about?`)
       // Generate conversation summary for chat records
       const conversationSummary = currentSession?.messages ? generateConversationSummary(currentSession.messages) : undefined
       
-      // Save to local store with conversation summary
+      // If not logged in, stash payload and redirect to auth when user presses Complete & Save elsewhere
+      // Otherwise, store will call API and persist remotely
       addEmotionRecord(emotion, behavioralImpactScore, conversationText, 'chat', emotionEvaluation, polarityAnalysis, undefined, conversationSummary)
       return true
     } catch (error: any) {
@@ -818,6 +819,28 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
       // Save emotion record (either selected emotion or representative emotion)
       const emotionToSave = selectedEmotion && selectedEmotion !== 'Other' ? selectedEmotion : repEmotion
       const behavioralScore = calculateBehavioralImpactScore(emotionToSave, 5, conversationText)
+
+      // If not logged in, stash payload and redirect to login
+      try {
+        const { useAuthStore } = await import('@/store/auth')
+        const token = useAuthStore.getState().token
+        if (!token) {
+          const payload = {
+            emotion: emotionToSave,
+            behavioralImpact: behavioralScore.overall_score,
+            note: conversationText,
+            recordType: 'chat',
+            conversationSummary: currentSession?.messages ? generateConversationSummary(currentSession.messages) : undefined,
+          }
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('pending-emotion', JSON.stringify(payload))
+            // redirect to login
+            window.location.href = '/login'
+            return
+          }
+        }
+      } catch {}
+
       const saved = await saveConversationEmotionRecord(emotionToSave, behavioralScore.overall_score, conversationText)
       
       // Emotion record saved silently - no disruptive notifications
