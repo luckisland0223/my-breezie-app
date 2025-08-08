@@ -15,7 +15,7 @@ import { getRandomResponse } from '@/config/emotionResponses'
 import { emotionConfig } from '@/config/emotionConfig'
 import { getRandomFallback } from '@/config/prompts'
 // Removed suggestion imports - simplified flow
-import DOMPurify from 'dompurify'
+
 
 interface ChatInterfaceProps {
   onBack: () => void
@@ -637,7 +637,7 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
     if (!inputValue.trim() || isTyping) return
 
     // Sanitize user input to prevent XSS attacks
-    const sanitizedMessage = DOMPurify.sanitize(inputValue.trim())
+    const sanitizedMessage = inputValue.trim()
     if (!sanitizedMessage) return // Reject empty or invalid input
     
     const userMessage = sanitizedMessage
