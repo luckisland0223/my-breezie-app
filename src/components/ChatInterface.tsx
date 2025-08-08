@@ -300,6 +300,10 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
     setSelectedEmotion(emotion)
     setShowInlineEmotionButtons(false)
     
+    // Save emotion record immediately when user selects emotion
+    const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
+    saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    
     // Add emotion context to next user message
     const emotionMessage = `I'm feeling ${emotion.toLowerCase()}`
     addMessage(emotionMessage, 'user')
@@ -684,8 +688,12 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
   }
 
   const handleEmotionSelect = async (emotion: EmotionType, intensity: number) => {
-    // Update selected emotion (but don't save to records yet - only save on Complete & Save)
+    // Update selected emotion and save record immediately
     setSelectedEmotion(emotion)
+    
+    // Save emotion record immediately when user selects emotion
+    const behavioralScore = calculateBehavioralImpactScore(emotion, intensity, conversationText)
+    saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
     // Get emotion-specific response
     const emotionResponse = getRandomResponse(emotion)
@@ -700,7 +708,7 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
     
     setShowEmotionSelection(false)
     
-    // Emotion selected but not saved to records yet - will save on Complete & Save
+    // Emotion record saved immediately
   }
 
   const handleInlineEmotionSelect = async (emotion: EmotionType) => {
@@ -709,7 +717,9 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
     setShowMoreEmotions(false)
     setIsTyping(true)
     
-    // Emotion selected but not saved to records yet - will save on Complete & Save
+    // Save emotion record immediately when user selects emotion
+    const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
+    saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
     
     try {
       // Get personalized AI response based on user's story and selected emotion
