@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +15,7 @@ export function AuthDialog({ open, mode = 'login', onOpenChange }: { open: boole
       <DialogContent className="sm:max-w-lg p-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6">
           <DialogTitle className="text-xl">Welcome to Breezie</DialogTitle>
+          <DialogDescription>Sign in to continue, or create a new account in seconds.</DialogDescription>
         </DialogHeader>
         <div className="px-6 pb-6">
           {tab === 'login' ? (
