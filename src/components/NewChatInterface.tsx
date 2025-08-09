@@ -142,7 +142,7 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
   // Generate suggestions based on emotion and conversation
   const generateSuggestions = async (emotion: EmotionType, conversationContext: string): Promise<Suggestion[]> => {
     // This would typically call an API, but for now we'll generate based on emotion
-    const baseSuggestions: Record<EmotionType, Suggestion[]> = {
+    const baseSuggestions: Partial<Record<EmotionType, Suggestion[]>> = {
       'Anxiety': [
         {
           id: '1',
@@ -197,18 +197,93 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
           category: 'immediate'
         }
       ],
-      // Add more emotions as needed
+      'Fear': [
+        {
+          id: '10',
+          title: 'Safety Check',
+          description: 'Remind yourself that you are safe in this moment',
+          category: 'immediate'
+        },
+        {
+          id: '11',
+          title: 'Face Your Fears Gradually',
+          description: 'Take small steps toward what scares you when you feel ready',
+          category: 'longterm'
+        }
+      ],
+      'Joy': [
+        {
+          id: '12',
+          title: 'Savor the Moment',
+          description: 'Take time to fully experience and appreciate this positive feeling',
+          category: 'immediate'
+        },
+        {
+          id: '13',
+          title: 'Share Your Joy',
+          description: 'Tell someone about what\'s making you happy',
+          category: 'immediate'
+        }
+      ],
+      'Love': [
+        {
+          id: '14',
+          title: 'Express Gratitude',
+          description: 'Let the people you love know how much they mean to you',
+          category: 'immediate'
+        },
+        {
+          id: '15',
+          title: 'Acts of Kindness',
+          description: 'Show love through small, thoughtful gestures',
+          category: 'daily'
+        }
+      ],
+      'Hope': [
+        {
+          id: '16',
+          title: 'Vision Board',
+          description: 'Create a visual representation of your hopes and dreams',
+          category: 'longterm'
+        },
+        {
+          id: '17',
+          title: 'Small Steps',
+          description: 'Take one small action toward what you\'re hoping for',
+          category: 'immediate'
+        }
+      ],
+      'Excitement': [
+        {
+          id: '18',
+          title: 'Channel Your Energy',
+          description: 'Use this excitement to take action on something important to you',
+          category: 'immediate'
+        },
+        {
+          id: '19',
+          title: 'Plan Ahead',
+          description: 'Make plans to sustain this positive energy',
+          category: 'daily'
+        }
+      ],
       'Other': [
         {
           id: '9',
           title: 'Check In With Yourself',
           description: 'Take a moment to acknowledge how you\'re feeling right now',
           category: 'immediate'
+        },
+        {
+          id: '20',
+          title: 'Mindful Awareness',
+          description: 'Practice being present with whatever emotions arise',
+          category: 'daily'
         }
       ]
     }
 
-    return baseSuggestions[emotion] || baseSuggestions['Other']
+    return baseSuggestions[emotion] || baseSuggestions['Other'] || []
   }
 
   // Handle sending messages
