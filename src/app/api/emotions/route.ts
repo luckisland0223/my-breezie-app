@@ -4,25 +4,30 @@ import { prisma } from '@/lib/prisma'
 
 // GET: list user emotion records (basic pagination)
 export async function GET(request: NextRequest) {
-  const user = getUserFromRequest(request)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const user = getUserFromRequest(request)
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { searchParams } = new URL(request.url)
-  const page = Number(searchParams.get('page') || '1')
-  const limit = Math.min(50, Number(searchParams.get('limit') || '20'))
-  const skip = (page - 1) * limit
+    const { searchParams } = new URL(request.url)
+    const page = Number(searchParams.get('page') || '1')
+    const limit = Math.min(50, Number(searchParams.get('limit') || '20'))
+    const skip = (page - 1) * limit
 
-  const [items, total] = await Promise.all([
-    prisma.emotionRecord.findMany({
-      where: { userId: user.userId },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip,
-    }),
-    prisma.emotionRecord.count({ where: { userId: user.userId } })
-  ])
+    const [items, total] = await Promise.all([
+      prisma.emotionRecord.findMany({
+        where: { userId: user.userId },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+      prisma.emotionRecord.count({ where: { userId: user.userId } })
+    ])
 
-  return NextResponse.json({ items, page, limit, total })
+    return NextResponse.json({ items, page, limit, total })
+  } catch (error: any) {
+    console.error('Emotions GET error:', error?.message || error)
+    return NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV === 'development' ? (error?.message || 'unknown') : undefined }, { status: 500 })
+  }
 }
 
 // POST: create emotion record
