@@ -18,6 +18,7 @@ export interface AuthState {
   register: (payload: { email: string; username: string; password: string }) => Promise<boolean>
   login: (payload: { email: string; password: string }) => Promise<void>
   logout: () => void
+  updateProfile: (updates: Partial<Pick<User, 'username'>>) => void
   isFullyAuthenticated: () => boolean
 }
 
@@ -70,6 +71,13 @@ export const useAuthStore = create<AuthState>()(persist((set, get) => ({
 
   logout() {
     set({ user: null, token: null })
+  },
+
+  updateProfile(updates) {
+    set((state) => ({
+      ...state,
+      user: state.user ? { ...state.user, ...updates } : null
+    }))
   },
 
   isFullyAuthenticated() {

@@ -5,7 +5,13 @@ const RATE_LIMIT_WINDOW = 15 * 60 * 1000 // 15 minutes
 const RATE_LIMIT_MAX_REQUESTS = 100 // 100 requests per window
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 
-// CORS configuration removed for demo simplicity
+// CORS configuration - production ready
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://breezie.vercel.app',
+  'https://www.breezie.com'
+]
 
 // Rate limiting middleware
 export function rateLimit(request: NextRequest): NextResponse | null {
@@ -74,8 +80,18 @@ export function sanitizeInput(data: any): any {
 }
 
 // CORS middleware
-export function corsMiddleware(_request: NextRequest): NextResponse | null {
-  // CORS validation disabled in this demo build
+export function corsMiddleware(request: NextRequest): NextResponse | null {
+  const origin = request.headers.get('origin')
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  
+  // Allow all origins in development, restrict in production
+  if (!isDevelopment && origin && !ALLOWED_ORIGINS.includes(origin)) {
+    return NextResponse.json(
+      { error: 'CORS policy violation' },
+      { status: 403 }
+    )
+  }
+  
   return null
 }
 
@@ -134,13 +150,47 @@ export function validateChatRequest(body: any): { isValid: boolean; errors: stri
   }
 }
 
-// Security headers middleware
+// Security headers middleware - Enhanced
 export function addSecurityHeaders(response: NextResponse): NextResponse {
+  // Basic security headers
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://generativelanguage.googleapis.com;")
+  
+  // Enhanced Content Security Policy
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "img-src 'self' data: https: blob:",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "connect-src 'self' https://generativelanguage.googleapis.com https://vercel.live wss://ws.pusher.com",
+    "frame-src 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'"
+  ].join('; ')
+  
+  response.headers.set('Content-Security-Policy', csp)
+  
+  // Additional security headers
+  response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  
+  // CORS headers
+  const origin = response.headers.get('origin')
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  
+  if (isDevelopment) {
+    response.headers.set('Access-Control-Allow-Origin', '*')
+  } else if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin)
+  }
+  
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+  response.headers.set('Access-Control-Max-Age', '86400')
   
   return response
 }
