@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
       username: user.username,
       avatarUrl: user.avatarUrl,
       subscriptionTier: user.subscriptionTier,
+      emailVerified: user.emailVerified,
     }
     const token = generateToken({ userId: user.id, email: user.email, username: user.username })
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { RequireVerifiedEmail } from '@/components/AuthGuard'
 import { useAuthStore } from '@/store/auth'
 
 export default function ProfilePage() {
@@ -25,7 +26,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6">
+    <RequireVerifiedEmail>
+      <div className="max-w-xl mx-auto p-6">
       <Card>
         <CardHeader>
           <CardTitle>Account Profile</CardTitle>
@@ -39,5 +41,6 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
     </div>
+    </RequireVerifiedEmail>
   )
 }

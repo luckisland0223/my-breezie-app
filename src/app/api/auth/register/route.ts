@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         emailVerificationCode: code,
         emailVerificationExpiresAt: expiresAt
       },
-      select: { id: true, email: true, username: true, avatarUrl: true, subscriptionTier: true }
+      select: { id: true, email: true, username: true, avatarUrl: true, subscriptionTier: true, emailVerified: true }
     })
 
     // Send email via Resend

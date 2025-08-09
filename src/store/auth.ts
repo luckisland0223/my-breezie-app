@@ -7,6 +7,7 @@ interface User {
   username: string
   avatarUrl?: string | null
   subscriptionTier: string
+  emailVerified: boolean
 }
 
 interface AuthState {
@@ -17,6 +18,7 @@ interface AuthState {
   register: (payload: { email: string; username: string; password: string }) => Promise<boolean>
   login: (payload: { email: string; password: string }) => Promise<void>
   logout: () => void
+  isFullyAuthenticated: () => boolean
 }
 
 export const useAuthStore = create<AuthState>()(persist((set) => ({
@@ -68,6 +70,11 @@ export const useAuthStore = create<AuthState>()(persist((set) => ({
 
   logout() {
     set({ user: null, token: null })
+  },
+
+  isFullyAuthenticated() {
+    const state = useAuthStore.getState()
+    return !!(state.user && state.token && state.user.emailVerified)
   },
 }), { name: 'auth-storage' }))
 

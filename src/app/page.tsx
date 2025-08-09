@@ -11,13 +11,14 @@ import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
 import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
 import { DailyWellnessTip } from '@/components/DailyWellnessTip'
 import { ClientOnly } from '@/components/ClientOnly'
+import { RequireVerifiedEmail } from '@/components/AuthGuard'
 
 import { useEmotionStore } from '@/store/emotion'
 import { useAuthStore } from '@/store/auth'
 import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
 
-import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database } from 'lucide-react'
+import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database, Mail } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -48,7 +49,9 @@ export default function HomePage() {
           </div>
         </div>
       }>
-        <ChatInterface onBack={() => setShowChat(false)} />
+        <RequireVerifiedEmail>
+          <ChatInterface onBack={() => setShowChat(false)} />
+        </RequireVerifiedEmail>
       </ClientOnly>
     )
   }
@@ -138,13 +141,34 @@ function MainContent({ activeTab, setActiveTab, handleStartConversation }: {
   handleStartConversation: () => void 
 }) {
   const { records, loadFromServer } = useEmotionStore()
-  const { token } = useAuthStore()
+  const { user, token, isFullyAuthenticated } = useAuthStore()
 
   useEffect(() => {
-    if (token) {
+    if (token && user?.emailVerified) {
       loadFromServer()
     }
-  }, [token, loadFromServer])
+  }, [token, user?.emailVerified, loadFromServer])
+
+  // Show different content based on authentication status
+  if (user && !user.emailVerified) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+        <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-8 h-8 text-yellow-600" />
+        </div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Email Verification Required</h2>
+        <p className="text-gray-600 mb-6">
+          Please verify your email address to access all Breezie features.
+        </p>
+        <Button 
+          onClick={() => window.location.href = '/verify-email'}
+          className="bg-blue-500 hover:bg-blue-600"
+        >
+          Verify Email
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

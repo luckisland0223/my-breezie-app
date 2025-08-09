@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { RequireVerifiedEmail } from '@/components/AuthGuard'
 import { ArrowLeft, Bell, Palette, Heart } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -25,7 +26,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <RequireVerifiedEmail>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="mb-6">
           <Button
@@ -140,5 +142,6 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+    </RequireVerifiedEmail>
   )
 }
