@@ -9,10 +9,7 @@ import type { EmotionType } from '@/store/emotion'
 import { Send, ArrowLeft, MessageCircle, User, Sparkles, History, ChevronDown, ChevronUp, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
-import { EmotionSelectionDialog } from './EmotionSelectionDialog'
-import { calculateBehavioralImpactScore } from '@/lib/behavioralImpactScore'
-import { getRandomResponse } from '@/config/emotionResponses'
-import { emotionConfig } from '@/config/emotionConfig'
+import { calculateBehavioralImpactScore, type BehavioralImpactScore } from '@/lib/behavioralImpactScore'
 import { getRandomFallback } from '@/config/prompts'
 // Removed suggestion imports - simplified flow
 
@@ -49,21 +46,17 @@ function TypewriterText({ text, onComplete }: { text: string; onComplete?: () =>
 export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [aiResponse, setAiResponse] = useState(`Hello! I'm Breezie, your emotional wellness companion.
-I'm here to listen and support you through whatever you're experiencing today.
-Whether you're feeling happy, stressed, confused, or anything in between, this is a safe space to share.
-What would you like to talk about?`)
+  const [aiResponse, setAiResponse] = useState('')
   const [lastUserMessage, setLastUserMessage] = useState('')
-  const [showEmotionSelection, setShowEmotionSelection] = useState(false)
   const [showInlineEmotions, setShowInlineEmotions] = useState(false)
-  const [suggestedEmotions, setSuggestedEmotions] = useState<EmotionType[]>([])
-  const [hasInitialMessage, setHasInitialMessage] = useState(true)
   const [conversationText, setConversationText] = useState('')
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType>('Other')
   const [conversationEnded, setConversationEnded] = useState(false)
   const [representativeEmotion, setRepresentativeEmotion] = useState<EmotionType | null>(null)
+  const [scoreDetails, setScoreDetails] = useState<BehavioralImpactScore | null>(null)
+  const [showScoreDialog, setShowScoreDialog] = useState(false)
 
-  const [isFirstMessage, setIsFirstMessage] = useState(true)
+  const [isFirstMessage, setIsFirstMessage] = useState(false)
   const [showMoreEmotions, setShowMoreEmotions] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showInlineEmotionButtons, setShowInlineEmotionButtons] = useState(false)
@@ -132,18 +125,12 @@ What would you like to talk about?`)
     scrollToBottom()
   }, [currentSession?.messages, isTyping, aiResponse])
 
-  // Initialize conversation with welcome message
+  // Initialize empty session without preset
   useEffect(() => {
     if (!currentSession) {
-      const welcomeMessage = `Hello! I'm Breezie, your emotional wellness companion.
-I'm here to listen and support you through whatever you're experiencing today.
-Whether you're feeling happy, stressed, confused, or anything in between, this is a safe space to share.
-What would you like to talk about?`
-      
-      startChatSession('Other') // Start with a default emotion
-      addMessage(welcomeMessage, 'assistant')
+      startChatSession('Other')
     }
-  }, [currentSession, startChatSession, addMessage])
+  }, [currentSession, startChatSession])
 
   const handleTypewriterComplete = () => {
     // Typewriter animation completed
@@ -302,14 +289,9 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
     setShowInlineEmotionButtons(false)
     
     // Save emotion record immediately when user selects emotion
-    const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
-    saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
-    
-    // Add emotion context to next user message
+    saveConversationEmotionRecord(emotion, 5, conversationText)
     const emotionMessage = `I'm feeling ${emotion.toLowerCase()}`
     addMessage(emotionMessage, 'user')
-    
-    // Continue conversation with emotion context
     handleEmotionAcknowledgment(emotion)
   }
 
@@ -693,21 +675,18 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
     setSelectedEmotion(emotion)
     
     // Save emotion record immediately when user selects emotion
-    const behavioralScore = calculateBehavioralImpactScore(emotion, intensity, conversationText)
-    saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    saveConversationEmotionRecord(emotion, intensity, conversationText)
     
-    // Get emotion-specific response
-    const emotionResponse = getRandomResponse(emotion)
-    setAiResponse(emotionResponse)
-    addMessage(emotionResponse, 'assistant')
+    // Simplified: ask model normally with context
+    const response = await getNormalResponse(`I'm feeling ${emotion.toLowerCase()}`)
+    setAiResponse(response)
+    addMessage(response, 'assistant')
     
     // Update session emotion
     if (currentSession) {
       // Note: You might want to add a method to update session emotion
       // For now, we'll just continue with the conversation
     }
-    
-    setShowEmotionSelection(false)
     
     // Emotion record saved immediately
   }
@@ -719,8 +698,7 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
     setIsTyping(true)
     
     // Save emotion record immediately when user selects emotion
-    const behavioralScore = calculateBehavioralImpactScore(emotion, 5, conversationText)
-    saveConversationEmotionRecord(emotion, behavioralScore.overall_score, conversationText)
+    saveConversationEmotionRecord(emotion, 5, conversationText)
     
     try {
       // Get personalized AI response based on user's story and selected emotion
@@ -758,18 +736,15 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
       addMessage(fallbackResponse, 'assistant')
     } finally {
       setIsTyping(false)
-      // Removed suggestion generation - simplified flow
     }
     
     // Emotion recorded silently in handleInlineEmotionSelect
   }
 
   const handleSkipEmotion = () => {
-    setShowEmotionSelection(false)
     const skipResponse = "No worries at all! What else is going on with you?"
     setAiResponse(skipResponse)
     addMessage(skipResponse, 'assistant')
-    toast.success("Emotion selection skipped")
   }
 
   // Select representative emotion for the conversation
@@ -818,7 +793,19 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
       
       // Save emotion record (either selected emotion or representative emotion)
       const emotionToSave = selectedEmotion && selectedEmotion !== 'Other' ? selectedEmotion : repEmotion
-      const behavioralScore = calculateBehavioralImpactScore(emotionToSave, 5, conversationText)
+      // Estimate intensity (simple heuristic) and compute detailed score
+      const estimateIntensity = (text: string): number => {
+        const lower = text.toLowerCase()
+        let score = 5
+        const strong = ['very', 'really', 'so', 'extremely', 'can\'t', 'overwhelmed', 'furious', 'terrified']
+        const mild = ['a bit', 'somewhat', 'kind of']
+        score += (lower.match(/!/g)?.length || 0) * 0.5
+        score += strong.reduce((acc, w) => acc + (lower.includes(w) ? 1 : 0), 0)
+        score -= mild.reduce((acc, w) => acc + (lower.includes(w) ? 0.5 : 0), 0)
+        return Math.max(1, Math.min(10, Math.round(score)))
+      }
+      const intensity = estimateIntensity(conversationText)
+      const behavioralScore = calculateBehavioralImpactScore(emotionToSave, intensity, conversationText)
 
       // If not logged in, stash payload and redirect to login
       try {
@@ -842,6 +829,9 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
       } catch {}
 
       const saved = await saveConversationEmotionRecord(emotionToSave, behavioralScore.overall_score, conversationText)
+      // Show detailed score dialog
+      setScoreDetails(behavioralScore)
+      setShowScoreDialog(true)
       
       // Emotion record saved silently - no disruptive notifications
       
@@ -933,27 +923,7 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
                     )}
                   </div>
                   
-                  {/* Inline Emotion Selection Buttons */}
-                  {showInlineEmotionButtons && !isTyping && (
-                    <div className="mt-4 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                      <p className="text-sm text-gray-700 mb-3 font-medium">Choose what you're feeling:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {['Joy', 'Sadness', 'Anger', 'Fear', 'Anxiety', 'Excitement', 'Frustration', 'Calm'].map((emotion) => {
-                          const config = emotionConfig[emotion as EmotionType]
-                          return (
-                            <button
-                              key={emotion}
-                              onClick={() => handleInlineEmotionClick(emotion as EmotionType)}
-                              className="flex items-center gap-1 px-3 py-1.5 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-all duration-200 hover:shadow-sm"
-                            >
-                              <span className="text-sm">{config.emoji}</span>
-                              <span className="font-medium text-gray-700">{emotion}</span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
+                  {/* Simplified chat: no inline emotion buttons */}
 
                 </div>
               ) : (
@@ -1073,6 +1043,55 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
       </div>
 
       {/* Removed popup emotion selection dialog - using inline buttons instead */}
+      {/* Score Details Dialog */}
+      <Dialog open={showScoreDialog} onOpenChange={setShowScoreDialog}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Behavioral Impact Breakdown</DialogTitle>
+          </DialogHeader>
+          {scoreDetails && (
+            <div className="space-y-4 text-sm">
+              <div className="rounded-lg border p-4">
+                <div className="text-gray-700">Overall Score</div>
+                <div className="text-2xl font-bold">{scoreDetails.overall_score}/10 <span className="text-base font-medium text-gray-500">({scoreDetails.risk_level})</span></div>
+                <div className="text-gray-600 mt-1">Action tendency: {scoreDetails.action_tendency}</div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-lg border p-4">
+                  <div className="font-medium mb-1">Emotional Intensity</div>
+                  <div>Intensity: {scoreDetails.intensity.intensity}/10</div>
+                  <div>Level: {scoreDetails.intensity.level}</div>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <div className="font-medium mb-1">Emotional Focus</div>
+                  <div>Type: {scoreDetails.focus.type}</div>
+                  <div>Score: {scoreDetails.focus.score}/10</div>
+                  <div className="text-gray-600 mt-1">{scoreDetails.focus.description}</div>
+                </div>
+              </div>
+              <div className="rounded-lg border p-4">
+                <div className="font-medium mb-2">Cognitive Appraisal</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>Controllability: {scoreDetails.appraisal.controllability}/10</div>
+                  <div>Threat vs Challenge: {scoreDetails.appraisal.threat_vs_challenge}/10</div>
+                  <div>Coping Potential: {scoreDetails.appraisal.coping_potential}/10</div>
+                  <div>Goal Relevance: {scoreDetails.appraisal.goal_relevance}/10</div>
+                </div>
+              </div>
+              {scoreDetails.recommendations.length > 0 && (
+                <div className="rounded-lg border p-4">
+                  <div className="font-medium mb-2">Recommendations</div>
+                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                    {scoreDetails.recommendations.map((r, i) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

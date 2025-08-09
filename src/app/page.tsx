@@ -14,6 +14,7 @@ import { ClientOnly } from '@/components/ClientOnly'
 
 import { useEmotionStore } from '@/store/emotion'
 import { useAuthStore } from '@/store/auth'
+import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
 
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database } from 'lucide-react'
@@ -25,6 +26,7 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState('journey')
   const [showChat, setShowChat] = useState(false)
   const { user, logout } = useAuthStore()
+  const [authOpen, setAuthOpen] = useState(false)
   const router = useRouter()
 
   const handleStartConversation = () => {
@@ -89,14 +91,14 @@ export default function HomePage() {
                 <UserMenu />
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => router.push('/login')}>Sign in</Button>
-                  <Button size="sm" onClick={() => router.push('/register')}>Register</Button>
+                  <Button size="sm" onClick={() => setAuthOpen(true)}>Sign in</Button>
                 </div>
               )}
             </div>
           </div>
         </div>
       </header>
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
 
       {/* Main App Interface */}
       <ClientOnly fallback={

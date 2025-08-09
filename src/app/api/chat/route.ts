@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getGeminiResponse } from '@/lib/geminiService'
-import type { EmotionType } from '@/store/emotion'
-import type { ChatMessage } from '@/lib/geminiService'
-import { 
-  rateLimit, 
-  sanitizeInput, 
-  validateChatRequest, 
-  addSecurityHeaders 
-} from '@/lib/securityMiddleware'
-import { getRandomFallback } from '@/config/prompts'
+import { rateLimit, addSecurityHeaders } from '@/lib/securityMiddleware'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,32 +12,10 @@ export async function POST(request: NextRequest) {
 
     // CORS disabled for demo
 
-    // Parse and sanitize request body
-    const rawBody = await request.json()
-    const body = sanitizeInput(rawBody)
-    const { userMessage, emotion, conversationHistory, engagementLevel, responseInstructions } = body
-
-    // Comprehensive input validation
-    const validation = validateChatRequest(body)
-    if (!validation.isValid) {
-      const origin = request.headers.get('origin')
-      const allowedOrigin = origin && origin.startsWith('http://localhost:') 
-        ? origin 
-        : (origin || 'http://localhost:3000')
-
-      const errorResponse = NextResponse.json(
-        { 
-          error: 'Invalid request data',
-          details: validation.errors
-        },
-        { status: 400 }
-      )
-      
-      // Add CORS headers
-      errorResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin)
-      errorResponse.headers.set('Access-Control-Allow-Credentials', 'true')
-      
-      return addSecurityHeaders(errorResponse)
+    // Parse body (no heavy sanitization/validation: simplified)
+    const { userMessage = '' } = await request.json()
+    if (!userMessage || typeof userMessage !== 'string') {
+      return addSecurityHeaders(NextResponse.json({ error: 'userMessage is required' }, { status: 400 }))
     }
 
     // Read Vercel environment variables (server-only)
@@ -54,19 +24,9 @@ export async function POST(request: NextRequest) {
     // Log configuration info (for debugging, no sensitive information)
 
     // Decide response strategy: Gemini with server key; otherwise fallback
-    let response: string
-    if (geminiKey) {
-      response = await getGeminiResponse(
-        userMessage,
-        emotion as EmotionType,
-        conversationHistory || [],
-        geminiKey,
-        engagementLevel,
-        responseInstructions
-      )
-    } else {
-      response = getRandomFallback('apiError')
-    }
+    const response = geminiKey
+      ? await getGeminiResponse(userMessage, undefined as any, [], geminiKey)
+      : 'Sorry, the assistant is unavailable right now.'
     
     const successResponse = NextResponse.json({ 
       response,
