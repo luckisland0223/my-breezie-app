@@ -82,6 +82,38 @@ export default function HomePage() {
                   Analytics
                 </Button>
               </Link>
+              
+              {/* Test Email Button - Development Only */}
+              {process.env.NODE_ENV === 'development' && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={async () => {
+                    const email = prompt('Enter email to test:')
+                    if (email) {
+                      try {
+                        const res = await fetch('/api/test-verification-email', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ email })
+                        })
+                        const data = await res.json()
+                        if (data.success) {
+                          toast.success(`Test email sent to ${email}! Code: ${data.code}`)
+                        } else {
+                          toast.error(`Failed to send email: ${data.error}`)
+                        }
+                      } catch (error) {
+                        toast.error('Network error')
+                      }
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  Test Email
+                </Button>
+              )}
               {!user && (
                 <Link href="/settings">
                   <Button variant="ghost" size="sm" className="flex items-center gap-2">

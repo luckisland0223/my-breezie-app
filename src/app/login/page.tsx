@@ -15,15 +15,50 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showVerificationOption, setShowVerificationOption] = useState(false)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    await login({ email, password })
-    if (useAuthStore.getState().user) {
-      // Try to process any pending save after login
-      await processPendingSave()
-      router.push('/')
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      
+      if (response.status === 403) {
+        // Email not verified
+        setShowVerificationOption(true)
+        return
+      }
+      
+      if (response.ok) {
+        const data = await response.json()
+        useAuthStore.setState({ user: data.user, token: data.token, error: null })
+        await processPendingSave()
+        router.push('/')
+      } else {
+        const data = await response.json()
+        useAuthStore.setState({ error: data.error || 'Login failed' })
+      }
+    } catch (error) {
+      useAuthStore.setState({ error: 'Network error, please try again' })
     }
+  }
+
+  function handleGoToVerification() {
+    // Store email in auth store for verification page
+    useAuthStore.setState({ 
+      user: { 
+        id: 'temp', 
+        email, 
+        username: 'temp', 
+        avatarUrl: null, 
+        subscriptionTier: 'free',
+        emailVerified: false 
+      } 
+    })
+    router.push('/verify-email')
   }
 
   return (
@@ -55,12 +90,42 @@ export default function LoginPage() {
               </div>
             </div>
             {error ? <div className="text-red-500 text-sm">{error}</div> : null}
-            <Button disabled={loading} type="submit" className="w-full">
-              {loading ? 'Signing in...' : 'Sign in'}
-            </Button>
-            <div className="text-center text-sm text-muted-foreground">
-              No account yet? <button type="button" className="underline" onClick={() => router.push('/register')}>Create one</button>
-            </div>
+            
+            {showVerificationOption ? (
+              <div className="space-y-3">
+                <div className="text-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800 mb-2">
+                    <strong>Email verification required</strong>
+                  </p>
+                  <p className="text-xs text-yellow-700 mb-3">
+                    Please verify your email address to complete login
+                  </p>
+                  <Button 
+                    onClick={handleGoToVerification}
+                    className="w-full bg-yellow-600 hover:bg-yellow-700"
+                  >
+                    Verify Email
+                  </Button>
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowVerificationOption(false)}
+                  className="w-full"
+                >
+                  Back to Login
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button disabled={loading} type="submit" className="w-full">
+                  {loading ? 'Signing in...' : 'Sign in'}
+                </Button>
+                <div className="text-center text-sm text-muted-foreground">
+                  No account yet? <button type="button" className="underline" onClick={() => router.push('/register')}>Create one</button>
+                </div>
+              </>
+            )}
           </form>
         </CardContent>
       </Card>

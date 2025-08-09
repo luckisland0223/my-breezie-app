@@ -182,16 +182,33 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     }
   }
 
-  // New simplified conversation flow logic
+  // Enhanced conversation flow logic with comfort detection
   const analyzeUserInput = (userMessage: string) => {
     const hasDirectEmotion = detectDirectEmotionStatement(userMessage)
     const hasStoryContext = detectStoryContext(userMessage)
+    const needsComfortOnly = detectComfortRequest(userMessage)
     
     return {
       hasDirectEmotion,
       hasStoryContext,
-      detectedEmotion: hasDirectEmotion
+      detectedEmotion: hasDirectEmotion,
+      needsComfortOnly
     }
+  }
+
+  // Detect when user specifically asks for comfort/emotional support only
+  const detectComfortRequest = (message: string): boolean => {
+    const lowerMessage = message.toLowerCase()
+    const comfortRequestIndicators = [
+      'comfort me', 'just comfort', 'need comfort', 'want comfort',
+      'just listen', 'don\'t give advice', 'no advice', 'don\'t suggest',
+      'just be here', 'just understand', 'hold space',
+      'don\'t try to fix', 'don\'t solve', 'just support',
+      'need someone to listen', 'need emotional support',
+      'feel heard', 'validate me', 'acknowledge my pain'
+    ]
+    
+    return comfortRequestIndicators.some(indicator => lowerMessage.includes(indicator))
   }
 
   const detectStoryContext = (message: string): boolean => {
@@ -229,26 +246,64 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     return feelingQuestions.some(question => lowerResponse.includes(question))
   }
 
-  // New conversation flow handler
+  // Comfort-only response for when user explicitly asks for comfort
+  const getComfortOnlyResponse = async (userMessage: string): Promise<string> => {
+    try {
+      const messages = currentSession?.messages || []
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          userMessage,
+          emotion: selectedEmotion || 'Other',
+          engagementLevel: 'high', // Always high engagement for comfort requests
+          responseInstructions: "CRITICAL: User has explicitly asked for comfort/emotional support only. DO NOT give any advice, suggestions, or solutions. Focus ENTIRELY on deep emotional validation, empathy, and comfort. Use varied, profound language to avoid repetition. Make them feel truly heard and supported.",
+          conversationHistory: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }))
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        return data.response
+      } else {
+        throw new Error('Failed to get comfort response')
+      }
+    } catch (error) {
+      return getRandomFallback('chatError')
+    }
+  }
+
+  // Enhanced conversation flow handler with comfort detection
   const handleConversationFlow = async (userMessage: string) => {
     const analysis = analyzeUserInput(userMessage)
     const messages = currentSession?.messages || []
     const userMessages = messages.filter(msg => msg.role === 'user')
     
-    // Case 1: User directly states emotion - skip emotion selection
+    // Case 1: User specifically asks for comfort only
+    if (analysis.needsComfortOnly) {
+      return await getComfortOnlyResponse(userMessage)
+    }
+    
+    // Case 2: User directly states emotion - skip emotion selection
     if (analysis.hasDirectEmotion && analysis.detectedEmotion) {
       setSelectedEmotion(analysis.detectedEmotion)
       
       if (analysis.hasStoryContext) {
         // Has both emotion and story - start conversation about the story
-        return await getStoryBasedResponse(userMessage, analysis.detectedEmotion)
+        return await getStoryBasedResponse(userMessage, analysis.detectedEmotion, analysis.needsComfortOnly)
       } else {
         // Only emotion mentioned - ask what happened
         return "I can sense you're feeling " + analysis.detectedEmotion.toLowerCase() + ". What happened? I'm here to listen."
       }
     }
     
-    // Case 2: User describes emotions without direct statement
+    // Case 3: User describes emotions without direct statement
     if (userMessages.length === 0 && !analysis.hasDirectEmotion) {
       if (analysis.hasStoryContext) {
         // Has story but no emotion - get response and check if it asks about feelings
@@ -265,13 +320,17 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       return await getNormalResponse(userMessage)
     }
     
-      // Case 3: Ongoing conversation
+      // Case 4: Ongoing conversation
   return await getNormalResponse(userMessage)
 }
 
-const getStoryBasedResponse = async (userMessage: string, emotion: EmotionType): Promise<string> => {
+const getStoryBasedResponse = async (userMessage: string, emotion: EmotionType, needsComfortOnly?: boolean): Promise<string> => {
   try {
     const messages = currentSession?.messages || []
+    const instructions = needsComfortOnly 
+      ? "User shared their story but needs comfort only - no advice. Focus on deep emotional validation and support."
+      : "The user has shared both their emotion and story context. Prioritize emotional validation first, then engage thoughtfully with their situation."
+    
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
@@ -281,7 +340,8 @@ const getStoryBasedResponse = async (userMessage: string, emotion: EmotionType):
       body: JSON.stringify({
         userMessage,
         emotion,
-        responseInstructions: "The user has shared both their emotion and story context. Engage with their specific situation and provide empathetic, thoughtful responses about their experience.",
+        engagementLevel: detectEmotionalEngagement(userMessage, messages.filter(m => m.role === 'user')),
+        responseInstructions: instructions,
         conversationHistory: messages.map(msg => ({
           role: msg.role,
           content: msg.content

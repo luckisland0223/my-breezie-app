@@ -383,21 +383,27 @@ export function getEmotionSupport(emotion: EmotionType): string {
   const comfort = getComfortTechniques(emotion)
   const practical = getPracticalSuggestions(emotion)
   
-  // Enhanced emotion support with more caring guidance
+  // Enhanced emotion support with deeper, varied guidance
   let supportText = `Emotional Support Guidance:
 • Emotional Context: ${context.description}
 • Support Approach: ${context.guidance}
 • Focus Areas: ${context.focusAreas.join(', ')}`
   
   if (comfort.length > 0) {
-    supportText += `\n• Comfort Techniques: Use warm language like "${comfort[0]}"`
+    supportText += `\n• Deep Comfort Approach: Use profound, varied language. Example: "${comfort[0]}" but express it uniquely each time`
   }
   
   if (practical.length > 0) {
-    supportText += `\n• Practical Suggestions: Provide specific help like "${practical[0]}"`
+    supportText += `\n• Practical Suggestions: ONLY offer these AFTER emotional comfort is established. Example: "${practical[0]}" but wait for the right moment`
   }
   
-  supportText += `\n• Important: Actively ask about the user's specific situation, show genuine care and understanding, don't just give generic responses. Use 4-6 sentences to reply so users feel warmth and care.`
+  supportText += `\n• CRITICAL RULES:
+  - COMFORT FIRST: Focus entirely on emotional validation before any advice
+  - LANGUAGE VARIETY: Never repeat the same comfort phrases - use fresh, meaningful expressions
+  - DEPTH OVER BREADTH: Make each response profound rather than covering many topics
+  - AVOID: "I understand", "I can see", "That sounds", "I hear you" - use more unique expressions
+  - WHEN USER ASKS FOR COMFORT: Give ZERO advice, focus purely on deep emotional support
+  - Make every response feel personally crafted, not templated`
   
   return supportText
 }
