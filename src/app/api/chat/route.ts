@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     const {
       userMessage = '',
       emotion = 'Other',
+      mood,
       conversationHistory = [],
       engagementLevel,
       responseInstructions,
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Build request body compatible with Gemini streamGenerateContent
-      const fullPrompt = buildFullPrompt(userMessage, emotion as any, conversationHistory)
+      const fullPrompt = buildFullPrompt(userMessage, emotion as any, conversationHistory, mood)
       
       // Dynamic token allocation for streaming responses
       const dynamicTokens = getTokensForEngagement(
@@ -164,6 +165,7 @@ export async function POST(request: NextRequest) {
           geminiKey,
           engagementLevel,
           responseInstructions,
+          mood
         )
       } catch (e) {
         response = 'I had trouble responding just now, but I am here to listen.'

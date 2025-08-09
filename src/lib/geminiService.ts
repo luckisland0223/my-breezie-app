@@ -43,11 +43,12 @@ export async function getGeminiResponse(
   conversationHistory: ChatMessage[] = [],
   apiKey: string,
   engagementLevel?: 'high' | 'medium' | 'normal',
-  responseInstructions?: string
+  responseInstructions?: string,
+  mood?: 'positive' | 'negative' | null
 ): Promise<string> {
   try {
     // Use new prompt construction system with engagement awareness
-    let fullPrompt = buildFullPrompt(userMessage, emotion, conversationHistory)
+    let fullPrompt = buildFullPrompt(userMessage, emotion, conversationHistory, mood)
     
     // Add engagement-specific instructions if provided
     if (responseInstructions && engagementLevel) {

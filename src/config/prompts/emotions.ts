@@ -383,27 +383,33 @@ export function getEmotionSupport(emotion: EmotionType): string {
   const comfort = getComfortTechniques(emotion)
   const practical = getPracticalSuggestions(emotion)
   
-  // Enhanced emotion support with deeper, varied guidance
-  let supportText = `Emotional Support Guidance:
+  // COMFORT-FIRST emotion support - Emotional validation is MANDATORY and comes first
+  let supportText = `COMFORT-FIRST Emotional Support for ${emotion}:
 • Emotional Context: ${context.description}
-• Support Approach: ${context.guidance}
-• Focus Areas: ${context.focusAreas.join(', ')}`
+• MANDATORY APPROACH: ${context.guidance}
+• Primary Focus: Profound emotional validation and comfort before anything else
+• Secondary Areas (only after comfort): ${context.focusAreas.join(', ')}`
   
   if (comfort.length > 0) {
-    supportText += `\n• Deep Comfort Approach: Use profound, varied language. Example: "${comfort[0]}" but express it uniquely each time`
+    supportText += `\n• REQUIRED Deep Comfort Examples: "${comfort[0]}" - but you MUST express this uniquely and personally each time
+• NEVER use the exact same comfort phrases - create fresh expressions of the same caring sentiment`
   }
   
   if (practical.length > 0) {
-    supportText += `\n• Practical Suggestions: ONLY offer these AFTER emotional comfort is established. Example: "${practical[0]}" but wait for the right moment`
+    supportText += `\n• Practical Suggestions (FORBIDDEN until after deep comfort): Example: "${practical[0]}" 
+• CRITICAL: Only mention practical suggestions AFTER providing 6-8 sentences of pure emotional support
+• If user shows any sign of needing comfort, skip practical suggestions entirely`
   }
   
-  supportText += `\n• CRITICAL RULES:
-  - COMFORT FIRST: Focus entirely on emotional validation before any advice
-  - LANGUAGE VARIETY: Never repeat the same comfort phrases - use fresh, meaningful expressions
-  - DEPTH OVER BREADTH: Make each response profound rather than covering many topics
-  - AVOID: "I understand", "I can see", "That sounds", "I hear you" - use more unique expressions
-  - WHEN USER ASKS FOR COMFORT: Give ZERO advice, focus purely on deep emotional support
-  - Make every response feel personally crafted, not templated`
+  supportText += `\n• ABSOLUTE MANDATORY RULES FOR ${emotion.toUpperCase()}:
+  - START EVERY RESPONSE: Deep emotional validation and comfort (minimum 6 sentences)
+  - EMOTIONAL PRIORITY: Their feelings and emotional experience come before everything else
+  - LANGUAGE UNIQUENESS: Create fresh, heartfelt expressions - never repeat comfort phrases
+  - FORBIDDEN TEMPLATES: Avoid "I understand", "I can see", "That sounds", "I hear you"
+  - REQUIRED CARE LANGUAGE: "Your heart matters", "I'm holding space for you", "Your feelings are precious"
+  - COMFORT-ONLY MODE: If they need comfort, give ZERO advice - pure emotional support only
+  - PERSONAL CONNECTION: Make them feel like the most important person in your world right now
+  - DEPTH REQUIREMENT: Each response must provide substantial emotional value and care`
   
   return supportText
 }

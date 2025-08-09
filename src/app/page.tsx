@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ChatInterface } from '@/components/ChatInterface'
+import { NewChatInterface } from '@/components/NewChatInterface'
 import { EmotionTracker } from '@/components/EmotionTracker'
 import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
 import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
@@ -50,7 +50,7 @@ export default function HomePage() {
         </div>
       }>
         <RequireVerifiedEmail>
-          <ChatInterface onBack={() => setShowChat(false)} />
+          <NewChatInterface onBack={() => setShowChat(false)} />
         </RequireVerifiedEmail>
       </ClientOnly>
     )
