@@ -140,7 +140,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           }
         } catch (error) {
           // If welcome message fails, use a simple fallback
-          const fallbackWelcome = "你好！我是Breezie，很高兴见到你 😊 今天过得怎么样？有什么想和我分享的吗？"
+          const fallbackWelcome = "Hello! I'm Breezie, so nice to meet you 😊 How has your day been going? Is there anything you'd like to share with me?"
           setAiResponse(fallbackWelcome)
           addMessage(fallbackWelcome, 'assistant')
         }
@@ -162,11 +162,11 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           ...getAuthHeaders(),
         },
         body: JSON.stringify({
-          userMessage: "用户刚刚进入聊天，这是第一次对话",
+          userMessage: "User just entered the chat, this is the first conversation",
           emotion: 'Other',
           engagementLevel: 'normal',
           conversationHistory: [],
-          responseInstructions: "这是用户第一次进入聊天，请主动热情地欢迎用户，询问他们今天过得怎么样，发生了什么事情。要温暖亲切，让用户感受到真正的关心。"
+          responseInstructions: "This is the user's first time entering the chat. Please warmly and enthusiastically welcome the user, ask how their day has been, what happened today. Be warm and caring, let the user feel genuine care."
         })
       })
 
@@ -178,7 +178,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       }
     } catch (error) {
       // Return fallback welcome message
-      return "你好！我是Breezie，很高兴见到你 😊 今天过得怎么样？有什么想和我分享的吗？无论是开心的事情还是烦恼，我都愿意倾听 💙"
+      return "Hello! I'm Breezie, so nice to meet you 😊 How has your day been going? Is there anything you'd like to share with me? Whether it's something happy or troubling, I'm here to listen 💙"
     }
   }
 

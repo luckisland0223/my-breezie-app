@@ -41,7 +41,8 @@ export const useAuthStore = create<AuthState>()(persist((set) => ({
         }
         throw new Error(errorMessage)
       }
-      set({ user: data.user, token: data.token, loading: false })
+      // Don't set token during registration - user needs to verify email first
+      set({ user: data.user, token: null, loading: false })
       return true
     } catch (e: any) {
       set({ error: e.message, loading: false })

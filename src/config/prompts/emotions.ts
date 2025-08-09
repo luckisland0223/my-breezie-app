@@ -383,21 +383,21 @@ export function getEmotionSupport(emotion: EmotionType): string {
   const comfort = getComfortTechniques(emotion)
   const practical = getPracticalSuggestions(emotion)
   
-  // Enhanced emotion support with more caring guidance in Chinese
-  let supportText = `情绪支持指导：
-• 情绪背景：${context.description}
-• 支持方式：${context.guidance}
-• 关注重点：${context.focusAreas.join('、')}`
+  // Enhanced emotion support with more caring guidance
+  let supportText = `Emotional Support Guidance:
+• Emotional Context: ${context.description}
+• Support Approach: ${context.guidance}
+• Focus Areas: ${context.focusAreas.join(', ')}`
   
   if (comfort.length > 0) {
-    supportText += `\n• 安慰技巧：使用温暖的语言，比如"${comfort[0]}"`
+    supportText += `\n• Comfort Techniques: Use warm language like "${comfort[0]}"`
   }
   
   if (practical.length > 0) {
-    supportText += `\n• 实用建议：提供具体帮助，比如"${practical[0]}"`
+    supportText += `\n• Practical Suggestions: Provide specific help like "${practical[0]}"`
   }
   
-  supportText += `\n• 重要：要主动询问用户的具体情况，表现出真正的关心和理解，不要只是泛泛而谈。用4-6句话回复，让用户感受到温暖和关爱。`
+  supportText += `\n• Important: Actively ask about the user's specific situation, show genuine care and understanding, don't just give generic responses. Use 4-6 sentences to reply so users feel warmth and care.`
   
   return supportText
 }
