@@ -5,9 +5,18 @@ export const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 export async function sendVerificationCodeEmail(to: string, code: string) {
   if (!resend) throw new Error('RESEND_API_KEY is not configured')
+  
   const fromAddress = process.env.RESEND_FROM || 'Breezie <info@breezie.io>'
   const recipient = process.env.RESEND_TO_OVERRIDE || to
   const subject = `Breezie Verification Code: ${code}`
+  
+  // Enhanced logging
+  console.log('📧 Sending verification email:')
+  console.log('  From:', fromAddress)
+  console.log('  To:', recipient)
+  console.log('  Original recipient:', to)
+  console.log('  Override active:', !!process.env.RESEND_TO_OVERRIDE)
+  console.log('  Subject:', subject)
   const html = `
   <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background:#f7f7f8; padding:24px;">
     <div style="max-width:560px; margin:0 auto; background:#ffffff; border:1px solid #eee; border-radius:12px; overflow:hidden;">
@@ -27,7 +36,14 @@ export async function sendVerificationCodeEmail(to: string, code: string) {
   </div>`
   const text = `Your Breezie verification code is ${code}. It expires in 15 minutes.`
 
-  return resend.emails.send({ from: fromAddress, to: recipient, subject, html, text })
+  try {
+    const result = await resend.emails.send({ from: fromAddress, to: recipient, subject, html, text })
+    console.log('✅ Email sent successfully:', result.data?.id)
+    return result
+  } catch (error) {
+    console.error('❌ Email sending failed:', error)
+    throw error
+  }
 }
 
 // Simple helper to send a hello email (requested snippet)

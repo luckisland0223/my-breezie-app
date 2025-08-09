@@ -1126,48 +1126,53 @@ const getStreamedResponse = async (userMessage: string): Promise<string> => {
           </div>
         </div>
 
-        {/* User Input Area */}
+        {/* User Input Area - Editable Message Box */}
         <div className="bg-white rounded-3xl border border-gray-200 shadow-lg">
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mr-3">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <span className="text-gray-800 font-semibold">Your Thoughts</span>
-                  <div className="text-xs text-gray-400">Press Enter to send, Shift + Enter for new line</div>
-                </div>
+          <div className="p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mr-3">
+                <User className="w-5 h-5 text-white" />
               </div>
-              
-              <div className="relative">
-                <textarea
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Share what's on your mind... I'm here to listen 💙"
-                  className="w-full h-40 p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
-                  disabled={isTyping}
-                  autoFocus
-                />
-                <div className="flex justify-between items-center mt-4">
+              <div className="flex-1 flex items-center justify-between">
+                <div>
+                  <span className="text-gray-800 font-semibold">You</span>
+                  <div className="text-xs text-gray-400">Share your thoughts</div>
+                </div>
+                <div className="flex items-center gap-2">
                   <div className="text-xs text-gray-400 flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     Online
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      onClick={handleSendMessage} 
-                      disabled={!inputValue.trim() || isTyping}
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Send className="w-4 h-4 mr-2" />
-                      Send
-                    </Button>
-                  </div>
+                  <Button 
+                    onClick={handleSendMessage} 
+                    disabled={!inputValue.trim() || isTyping}
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    size="sm"
+                  >
+                    <Send className="w-4 h-4 mr-1" />
+                    Send
+                  </Button>
                 </div>
               </div>
             </div>
+            
+            <div className="relative">
+              <textarea
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Your message will appear here..."
+                className="w-full min-h-[120px] max-h-[300px] p-4 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200 bg-gray-50/30"
+                disabled={isTyping}
+                autoFocus
+              />
+            </div>
+            
+            <div className="mt-3 text-xs text-gray-400">
+              Press Enter to send, Shift + Enter for new line
+            </div>
           </div>
+        </div>
 
 
 

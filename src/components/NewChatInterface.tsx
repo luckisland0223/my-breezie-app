@@ -802,11 +802,31 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
               </div>
             </div>
             
-            <div className="min-h-[120px] max-h-[300px] overflow-y-auto">
-              {currentUserMessage ? (
-                <p className="text-gray-800 leading-relaxed">{currentUserMessage}</p>
+            <div className="min-h-[120px] max-h-[300px] overflow-y-auto relative">
+              {!chatStarted ? (
+                <p className="text-gray-400 italic">Please select your mood to start the conversation 💙</p>
               ) : (
-                <p className="text-gray-400 italic">Your message will appear here...</p>
+                <>
+                  <textarea
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Your message will appear here..."
+                    className="w-full h-full p-0 border-none resize-none focus:outline-none text-gray-800 leading-relaxed bg-transparent"
+                    disabled={isTyping}
+                    autoFocus={chatStarted}
+                  />
+                  <div className="absolute top-2 right-2">
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!inputValue.trim() || isTyping}
+                      size="sm"
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -845,36 +865,15 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
           </div>
         </div>
 
-        {/* Input Area */}
-        <div className="p-4 border-t border-gray-200 bg-white">
-          {!chatStarted ? (
-            <div className="text-center py-4">
-              <p className="text-gray-500 text-sm">
-                Please select your mood to start the conversation 💙
-              </p>
+        {/* Status Bar */}
+        <div className="p-3 border-t border-gray-200 bg-gray-50">
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span>Online</span>
             </div>
-          ) : (
-            <div className="flex items-end space-x-3">
-              <div className="flex-1">
-                <Textarea
-                  ref={textareaRef}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Share what's on your mind..."
-                  className="min-h-[60px] max-h-[120px] resize-none border-gray-200 focus:border-blue-300 focus:ring-blue-200"
-                  disabled={isTyping}
-                />
-              </div>
-              <Button
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isTyping}
-                className="h-[60px] px-6 bg-blue-500 hover:bg-blue-600"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
+            <span>Press Enter to send, Shift + Enter for new line</span>
+          </div>
         </div>
       </div>
 
