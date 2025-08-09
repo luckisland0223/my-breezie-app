@@ -245,10 +245,33 @@ export const useEmotionStore = create<EmotionState>()(
           const headers: HeadersInit = { 'Content-Type': 'application/json' }
           const { useAuthStore } = await import('./auth')
           const token = useAuthStore.getState().token
+          
           if (!token) {
-            // Not authenticated: do not persist locally; rely on pending-save flow in UI
+            // Not authenticated: save locally for anonymous users
+            const localRecord: EmotionRecord = {
+              id: crypto.randomUUID(),
+              user_id: undefined,
+              emotion,
+              behavioralImpact: intensity,
+              note,
+              timestamp: new Date(),
+              recordType,
+              conversationSummary,
+              emotionEvaluation,
+              polarityAnalysis,
+            }
+            
+            set((state) => {
+              const newRecords = [...state.records, localRecord]
+              return {
+                ...state,
+                records: newRecords,
+                stats: recalculateStats(newRecords)
+              }
+            })
             return
           }
+          
           (headers as any).Authorization = `Bearer ${token}`
 
           const res = await fetch('/api/emotions', {

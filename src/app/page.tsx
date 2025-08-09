@@ -18,7 +18,7 @@ import { useAuthStore } from '@/store/auth'
 import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
 
-import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database, Mail } from 'lucide-react'
+import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database, Mail, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -49,9 +49,7 @@ export default function HomePage() {
           </div>
         </div>
       }>
-        <RequireVerifiedEmail>
-          <NewChatInterface onBack={() => setShowChat(false)} />
-        </RequireVerifiedEmail>
+        <NewChatInterface onBack={() => setShowChat(false)} />
       </ClientOnly>
     )
   }
@@ -181,30 +179,45 @@ function MainContent({ activeTab, setActiveTab, handleStartConversation }: {
     }
   }, [token, user?.emailVerified, loadFromServer])
 
-  // Show different content based on authentication status
-  if (user && !user.emailVerified) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-        <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Mail className="w-8 h-8 text-yellow-600" />
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Email Verification Required</h2>
-        <p className="text-gray-600 mb-6">
-          Please verify your email address to access all Breezie features.
-        </p>
-        <Button 
-          onClick={() => window.location.href = '/verify-email'}
-          className="bg-blue-500 hover:bg-blue-600"
-        >
-          Verify Email
-        </Button>
-      </div>
-    )
-  }
+  // Show email verification reminder for registered but unverified users
+  const showVerificationReminder = user && !user.emailVerified
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      {/* Email Verification Reminder Banner */}
+      {showVerificationReminder && (
+        <div data-verification-banner className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Mail className="w-5 h-5 text-yellow-600" />
+            <div>
+              <p className="text-sm font-medium text-yellow-800">Email verification pending</p>
+              <p className="text-xs text-yellow-700">Verify your email to save your conversations and access all features</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              size="sm" 
+              onClick={() => window.location.href = '/verify-email'}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white"
+            >
+              Verify Now
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => {
+                // Hide the banner temporarily (could store in localStorage)
+                const banner = document.querySelector('[data-verification-banner]')
+                if (banner) banner.remove()
+              }}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 lg:w-80 mx-auto">
               <TabsTrigger value="journey" className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
