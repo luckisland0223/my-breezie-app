@@ -7,7 +7,6 @@ export interface User {
   username: string
   avatarUrl?: string | null
   subscriptionTier: string
-  emailVerified: boolean
 }
 
 export interface AuthState {
@@ -44,8 +43,7 @@ export const useAuthStore = create<AuthState>()(persist((set, get) => ({
         }
         throw new Error(errorMessage)
       }
-      // Don't set token during registration - user needs to verify email first
-      set({ user: data.user, token: null, loading: false })
+      set({ user: data.user, token: data.token, loading: false })
       return true
     } catch (e: any) {
       set({ error: e.message, loading: false })
@@ -82,7 +80,7 @@ export const useAuthStore = create<AuthState>()(persist((set, get) => ({
 
   isFullyAuthenticated() {
     const state = get()
-    return !!(state.user && state.token && state.user.emailVerified)
+    return !!(state.user && state.token)
   },
 }), { name: 'auth-storage' }))
 

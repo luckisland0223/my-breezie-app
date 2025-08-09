@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hashPassword, generateToken, isValidEmail, isValidPassword, isValidUsername } from '@/lib/auth'
-import { sendVerificationCodeEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,25 +28,20 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password)
-    // Generate email verification code (6-digit) valid for 15 minutes
-    const code = Math.floor(100000 + Math.random() * 900000).toString()
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
 
     const user = await prisma.user.create({
       data: { 
         email, 
         username, 
-        passwordHash,
-        emailVerificationCode: code,
-        emailVerificationExpiresAt: expiresAt
+        passwordHash
       },
-      select: { id: true, email: true, username: true, avatarUrl: true, subscriptionTier: true, emailVerified: true }
+      select: { id: true, email: true, username: true, avatarUrl: true, subscriptionTier: true }
     })
 
-    // Send email via Resend
-    try { await sendVerificationCodeEmail(email, code) } catch (e) { console.error('Send email failed', e) }
+    // Generate token for immediate login
+    const token = generateToken({ userId: user.id, email: user.email, username: user.username })
 
-    return NextResponse.json({ user, message: 'Verification code sent to email' })
+    return NextResponse.json({ user, token, message: 'Registration successful' })
   } catch (error) {
     console.error('Register error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

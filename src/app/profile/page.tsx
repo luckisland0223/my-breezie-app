@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
-import { RequireVerifiedEmail } from '@/components/AuthGuard'
+
 import { useAuthStore } from '@/store/auth'
 import { useEmotionStore } from '@/store/emotion'
 import { User, Mail, Calendar, Shield, BarChart3, Heart, Star } from 'lucide-react'
@@ -54,8 +54,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <RequireVerifiedEmail>
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Profile Header */}
         <Card>
           <CardContent className="pt-6">
@@ -72,10 +71,6 @@ export default function ProfilePage() {
                   {user?.email}
                 </p>
                 <div className="flex items-center gap-4 mt-3">
-                  <Badge variant={user?.emailVerified ? "default" : "secondary"} className="flex items-center gap-1">
-                    <Shield className="h-3 w-3" />
-                    {user?.emailVerified ? 'Verified' : 'Unverified'}
-                  </Badge>
                   <Badge variant="outline" className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     Joined {joinDate}
@@ -182,6 +177,5 @@ export default function ProfilePage() {
           </Card>
         </div>
       </div>
-    </RequireVerifiedEmail>
   )
 }

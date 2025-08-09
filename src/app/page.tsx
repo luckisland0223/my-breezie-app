@@ -11,7 +11,7 @@ import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
 import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
 import { DailyWellnessTip } from '@/components/DailyWellnessTip'
 import { ClientOnly } from '@/components/ClientOnly'
-import { RequireVerifiedEmail } from '@/components/AuthGuard'
+
 
 import { useEmotionStore } from '@/store/emotion'
 import { useAuthStore } from '@/store/auth'
@@ -174,49 +174,13 @@ function MainContent({ activeTab, setActiveTab, handleStartConversation }: {
   const { user, token, isFullyAuthenticated } = useAuthStore()
 
   useEffect(() => {
-    if (token && user?.emailVerified) {
+    if (token && user) {
       loadFromServer()
     }
-  }, [token, user?.emailVerified, loadFromServer])
-
-  // Show email verification reminder for registered but unverified users
-  const showVerificationReminder = user && !user.emailVerified
+  }, [token, user, loadFromServer])
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Email Verification Reminder Banner */}
-      {showVerificationReminder && (
-        <div data-verification-banner className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-yellow-600" />
-            <div>
-              <p className="text-sm font-medium text-yellow-800">Email verification pending</p>
-              <p className="text-xs text-yellow-700">Verify your email to save your conversations and access all features</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button 
-              size="sm" 
-              onClick={() => window.location.href = '/verify-email'}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white"
-            >
-              Verify Now
-            </Button>
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => {
-                // Hide the banner temporarily (could store in localStorage)
-                const banner = document.querySelector('[data-verification-banner]')
-                if (banner) banner.remove()
-              }}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-      
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 lg:w-80 mx-auto">
               <TabsTrigger value="journey" className="flex items-center gap-2">

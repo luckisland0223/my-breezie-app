@@ -44,13 +44,6 @@ export function UserMenu() {
                 {user?.email}
               </div>
               <div className="flex items-center gap-2">
-                <Badge 
-                  variant={user?.emailVerified ? "default" : "secondary"} 
-                  className="text-xs h-5 px-2 flex items-center gap-1"
-                >
-                  <Shield className="h-2 w-2" />
-                  {user?.emailVerified ? 'Verified' : 'Unverified'}
-                </Badge>
                 <Badge variant="outline" className="text-xs h-5 px-2 flex items-center gap-1">
                   <Star className="h-2 w-2" />
                   {user?.subscriptionTier || 'Free'}

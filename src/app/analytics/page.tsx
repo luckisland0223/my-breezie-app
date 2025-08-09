@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { RequireVerifiedEmail } from '@/components/AuthGuard'
+
 
 import { EmotionCalendar } from '@/components/EmotionCalendar'
 import { EmotionChart } from '@/components/EmotionChart'
@@ -27,8 +27,7 @@ export default function AnalyticsPage() {
 
 
   return (
-    <RequireVerifiedEmail>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -227,6 +226,5 @@ export default function AnalyticsPage() {
         </div>
       </main>
     </div>
-    </RequireVerifiedEmail>
   )
 }

@@ -43,9 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    if (!user.emailVerified) {
-      return NextResponse.json({ error: 'Email not verified' }, { status: 403 })
-    }
+
 
     // reset counters on success
     await prisma.user.update({ where: { id: user.id }, data: { failedLoginCount: 0, lockedUntil: null } })
@@ -56,7 +54,6 @@ export async function POST(request: NextRequest) {
       username: user.username,
       avatarUrl: user.avatarUrl,
       subscriptionTier: user.subscriptionTier,
-      emailVerified: user.emailVerified,
     }
     const token = generateToken({ userId: user.id, email: user.email, username: user.username })
 

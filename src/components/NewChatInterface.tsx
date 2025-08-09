@@ -802,7 +802,7 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
               </div>
             </div>
             
-            <div className="min-h-[120px] max-h-[300px] overflow-y-auto relative">
+            <div className="min-h-[120px] max-h-[300px] relative border border-gray-200 rounded-lg p-3">
               {!chatStarted ? (
                 <p className="text-gray-400 italic">Please select your mood to start the conversation 💙</p>
               ) : (
@@ -812,16 +812,16 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Your message will appear here..."
-                    className="w-full h-full p-0 border-none resize-none focus:outline-none text-gray-800 leading-relaxed bg-transparent"
+                    className="w-full h-full pr-12 border-none resize-none focus:outline-none text-gray-800 leading-relaxed bg-transparent"
                     disabled={isTyping}
                     autoFocus={chatStarted}
                   />
-                  <div className="absolute top-2 right-2">
+                  <div className="absolute bottom-2 right-2">
                     <Button
                       onClick={handleSendMessage}
                       disabled={!inputValue.trim() || isTyping}
                       size="sm"
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                      className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
                     >
                       <Send className="w-4 h-4" />
                     </Button>
