@@ -84,10 +84,14 @@ Core Principles:
       ).join(' | ')}\n`
     : ''
   
-  // Detect conversation stage and add appropriate guidance
+  // Detect conversation stage and engagement level for appropriate guidance
   const isFirstMessage = filteredHistory.length === 0
   const isFollowUpResponse = userMessage.includes('Now that the user has selected') && filteredHistory.length > 0
   const isShortUserMessage = userMessage.length < 20
+  const isLongUserMessage = userMessage.length > 150
+  const isVeryLongUserMessage = userMessage.length > 300
+  const wordCount = userMessage.split(/\s+/).length
+  const sentenceCount = userMessage.split(/[.!?]+/).filter(s => s.trim().length > 0).length
   
   let specialGuidance = ''
   
@@ -97,6 +101,22 @@ Core Principles:
 2. Actively ask how their day is going, what happened today
 3. Make the user feel you genuinely care about their life
 4. Use a warm, friendly tone like an old friend`
+  } else if (isVeryLongUserMessage || wordCount > 50 || sentenceCount > 5) {
+    specialGuidance = `\nSpecial guidance: User shared a lot of content (${wordCount} words, ${sentenceCount} sentences), you should:
+1. Provide a substantial, thoughtful response (7-10 sentences) to match their investment
+2. Address multiple points they raised, show you read everything carefully
+3. Offer deeper emotional support and validation for their sharing
+4. Ask follow-up questions about specific details they mentioned
+5. Provide practical advice and emotional insights
+6. Make them feel heard and valued for opening up so much
+7. Show genuine appreciation for their trust in sharing`
+  } else if (isLongUserMessage || wordCount > 25) {
+    specialGuidance = `\nSpecial guidance: User shared meaningful content (${wordCount} words), you should:
+1. Give a thoughtful response (5-7 sentences) that shows you value their sharing
+2. Address the main points they raised specifically
+3. Provide emotional support and practical suggestions
+4. Ask caring follow-up questions about their situation
+5. Show appreciation for them opening up to you`
   } else if (isShortUserMessage) {
     specialGuidance = `\nSpecial guidance: User gave a short reply, you should:
 1. Actively try to understand the user's situation better
@@ -110,14 +130,27 @@ Core Principles:
   return `${baseSystemPrompt}\n${emotionContext}${conversationText}${specialGuidance}\n\nUser said: "${userMessage}"\n\nPlease respond as Breezie with warmth:`
 }
 
-// API configuration - Enhanced for warmer, longer responses
+// API configuration - Enhanced for warmer, longer responses with dynamic token allocation
 export const API_CONFIG = {
   model: 'gemini-1.5-flash',
-  maxTokens: 800,  // Increased for longer, more caring responses
+  maxTokens: 1200,  // Increased significantly for substantial responses to long messages
   temperature: 0.8,  // Higher temperature for more natural, warm responses
   topP: 0.9,
   topK: 40  // Higher topK for more diverse, engaging responses
 } as const
+
+// Dynamic token allocation based on user engagement
+export function getTokensForEngagement(engagementLevel: 'high' | 'medium' | 'normal', userMessageLength: number): number {
+  const baseTokens = API_CONFIG.maxTokens
+  
+  if (engagementLevel === 'high' || userMessageLength > 300) {
+    return Math.min(1200, baseTokens * 1.5) // Up to 1200 tokens for high engagement
+  } else if (engagementLevel === 'medium' || userMessageLength > 150) {
+    return Math.min(900, baseTokens * 1.2) // Up to 900 tokens for medium engagement
+  }
+  
+  return Math.min(600, baseTokens * 0.75) // Standard 600 tokens for normal engagement
+}
 
 // Export all functions
 export {

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-interface User {
+export interface User {
   id: string
   email: string
   username: string
@@ -10,7 +10,7 @@ interface User {
   emailVerified: boolean
 }
 
-interface AuthState {
+export interface AuthState {
   user: User | null
   token: string | null
   loading: boolean
@@ -21,7 +21,7 @@ interface AuthState {
   isFullyAuthenticated: () => boolean
 }
 
-export const useAuthStore = create<AuthState>()(persist((set) => ({
+export const useAuthStore = create<AuthState>()(persist((set, get) => ({
   user: null,
   token: null,
   loading: false,
@@ -73,7 +73,7 @@ export const useAuthStore = create<AuthState>()(persist((set) => ({
   },
 
   isFullyAuthenticated() {
-    const state = useAuthStore.getState()
+    const state = get()
     return !!(state.user && state.token && state.user.emailVerified)
   },
 }), { name: 'auth-storage' }))

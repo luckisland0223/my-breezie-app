@@ -688,10 +688,12 @@ const getStreamedResponse = async (userMessage: string): Promise<string> => {
     return uniqueEmotions.slice(0, 5)
   }
 
-  // Detect emotional engagement level
+  // Detect emotional engagement level with enhanced long message detection
   const detectEmotionalEngagement = (userMessage: string, userMessages: any[]): 'high' | 'medium' | 'normal' => {
     const messageLength = userMessage.length
     const recentMessages = userMessages.slice(-3) // Look at last 3 messages
+    const wordCount = userMessage.split(/\s+/).length
+    const sentenceCount = userMessage.split(/[.!?]+/).filter(s => s.trim().length > 0).length
     
     // High engagement indicators
     const highEngagementIndicators = [
@@ -702,7 +704,9 @@ const getStreamedResponse = async (userMessage: string): Promise<string> => {
       // Emotional outpouring markers
       'just', 'i mean', 'you know', 'like', 'honestly', 'seriously',
       // Urgency markers
-      'need to', 'have to', 'can\'t', 'don\'t know what to do'
+      'need to', 'have to', 'can\'t', 'don\'t know what to do',
+      // Story telling markers
+      'today', 'yesterday', 'happened', 'then', 'after that', 'because', 'since'
     ]
     
     const emotionalWords = [
@@ -715,20 +719,25 @@ const getStreamedResponse = async (userMessage: string): Promise<string> => {
     const highEngagementCount = highEngagementIndicators.filter(indicator => lowerMessage.includes(indicator)).length
     const emotionalWordCount = emotionalWords.filter(word => lowerMessage.includes(word)).length
     
-    // High engagement criteria
-    const isLongMessage = messageLength > 200
+    // Enhanced criteria for long messages
+    const isVeryLongMessage = messageLength > 300 || wordCount > 50
+    const isLongMessage = messageLength > 150 || wordCount > 25
     const hasMultipleRecentMessages = recentMessages.length >= 2
     const hasHighEngagementMarkers = highEngagementCount >= 3
     const hasEmotionalContent = emotionalWordCount >= 2
-    const hasMultipleSentences = userMessage.split(/[.!?]+/).length > 3
+    const hasMultipleSentences = sentenceCount > 3
+    const hasDetailedContent = sentenceCount > 5 || wordCount > 40
     
-    if ((isLongMessage && hasEmotionalContent) || 
+    // Very high engagement for users sharing a lot
+    if (isVeryLongMessage || hasDetailedContent || 
+        (isLongMessage && hasEmotionalContent) || 
         (hasMultipleRecentMessages && hasHighEngagementMarkers) ||
         (hasMultipleSentences && emotionalWordCount >= 3)) {
       return 'high'
     }
     
-    if (hasEmotionalContent || hasHighEngagementMarkers || messageLength > 100) {
+    // Medium engagement for moderate sharing
+    if (hasEmotionalContent || hasHighEngagementMarkers || isLongMessage || wordCount > 15) {
       return 'medium'
     }
     

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuthStore } from '@/store/auth'
+import { useAuthStore, type AuthState } from '@/store/auth'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -43,7 +43,7 @@ export default function VerifyEmailPage() {
       
       if (res.ok && data.success) {
         // Update the user state to reflect email verification
-        useAuthStore.setState(state => ({
+        useAuthStore.setState((state: AuthState) => ({
           ...state,
           user: state.user ? { ...state.user, emailVerified: true } : null
         }))

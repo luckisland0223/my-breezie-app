@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getGeminiResponse } from '@/lib/geminiService'
 import { rateLimit, addSecurityHeaders } from '@/lib/securityMiddleware'
-import { buildFullPrompt, API_CONFIG } from '@/config/prompts'
+import { buildFullPrompt, API_CONFIG, getTokensForEngagement } from '@/config/prompts'
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,6 +42,13 @@ export async function POST(request: NextRequest) {
 
       // Build request body compatible with Gemini streamGenerateContent
       const fullPrompt = buildFullPrompt(userMessage, emotion as any, conversationHistory)
+      
+      // Dynamic token allocation for streaming responses
+      const dynamicTokens = getTokensForEngagement(
+        engagementLevel || 'normal',
+        userMessage.length
+      )
+      
       const requestBody = {
         contents: [
           {
@@ -51,7 +58,7 @@ export async function POST(request: NextRequest) {
         ],
         generationConfig: {
           temperature: API_CONFIG.temperature,
-          maxOutputTokens: API_CONFIG.maxTokens,
+          maxOutputTokens: dynamicTokens,
           topP: API_CONFIG.topP,
           topK: API_CONFIG.topK,
         },

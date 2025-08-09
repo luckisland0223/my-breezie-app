@@ -3,6 +3,7 @@ import {
   buildFullPrompt, 
   getRandomFallback, 
   API_CONFIG,
+  getTokensForEngagement,
   validatePromptConfig,
   PROMPT_INFO 
 } from '@/config/prompts'
@@ -59,11 +60,17 @@ export async function getGeminiResponse(
       parts: [{ text: fullPrompt }]
     }]
 
+    // Dynamic token allocation based on engagement level
+    const dynamicTokens = getTokensForEngagement(
+      engagementLevel || 'normal', 
+      userMessage.length
+    )
+
     const requestBody = {
       contents: messages,
       generationConfig: {
         temperature: GEMINI_CONFIG.temperature,
-        maxOutputTokens: GEMINI_CONFIG.maxTokens,
+        maxOutputTokens: dynamicTokens,
         topP: API_CONFIG.topP,
         topK: API_CONFIG.topK
       }
