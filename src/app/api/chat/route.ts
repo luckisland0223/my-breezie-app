@@ -24,9 +24,17 @@ export async function POST(request: NextRequest) {
     // Log configuration info (for debugging, no sensitive information)
 
     // Decide response strategy: Gemini with server key; otherwise fallback
-    const response = geminiKey
-      ? await getGeminiResponse(userMessage, undefined as any, [], geminiKey)
-      : 'Sorry, the assistant is unavailable right now.'
+    let response: string
+    if (!geminiKey) {
+      response = 'Sorry, the assistant is unavailable right now.'
+    } else {
+      try {
+        // Use a safe default emotion to satisfy prompt builder
+        response = await getGeminiResponse(userMessage, 'Other' as any, [], geminiKey)
+      } catch (e) {
+        response = 'I had trouble responding just now, but I am here to listen.'
+      }
+    }
     
     const successResponse = NextResponse.json({ 
       response,
