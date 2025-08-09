@@ -5,6 +5,7 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useEmotionStore } from '@/store/emotion'
+import { useSettingsStore } from '@/store/settings'
 
 import { 
   Settings, 
@@ -17,7 +18,9 @@ import {
   Eye,
   EyeOff,
   Palette,
-  Shield
+  Shield,
+  Lock,
+  Globe
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -26,11 +29,20 @@ interface SettingsPanelProps {
 }
 
 export function SettingsPanel({ onClose }: SettingsPanelProps) {
-  const [notifications, setNotifications] = useState(true)
-  const [autoSave, setAutoSave] = useState(true)
-  const [privacyMode, setPrivacyMode] = useState(false)
+  // Use secure settings store
+  const {
+    theme,
+    language,
+    notificationsEnabled,
+    dataEncryption,
+    setTheme,
+    setLanguage,
+    setNotifications,
+    setDataEncryption,
+    reset: resetSettings
+  } = useSettingsStore()
 
-  const [theme, setTheme] = useState('auto')
+  const [privacyMode, setPrivacyMode] = useState(false)
 
   const clearAllRecords = useEmotionStore((state) => state.clearAllRecords)
 
@@ -116,18 +128,18 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                 </Label>
                 <Switch
                   id="notifications"
-                  checked={notifications}
+                  checked={notificationsEnabled}
                   onCheckedChange={setNotifications}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="autoSave" className="text-sm">
-                  Auto-save Conversations
+                <Label htmlFor="dataEncryption" className="text-sm">
+                  Encrypt Local Data
                 </Label>
                 <Switch
-                  id="autoSave"
-                  checked={autoSave}
-                  onCheckedChange={setAutoSave}
+                  id="dataEncryption"
+                  checked={dataEncryption}
+                  onCheckedChange={setDataEncryption}
                 />
               </div>
             </div>
@@ -167,9 +179,23 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="auto">Follow System</SelectItem>
+                    <SelectItem value="system">Follow System</SelectItem>
                     <SelectItem value="light">Light Mode</SelectItem>
                     <SelectItem value="dark">Dark Mode</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-sm">Language</Label>
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Auto Detect</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="zh">中文</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

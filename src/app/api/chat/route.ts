@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getGeminiResponse } from '@/lib/geminiService'
-import { rateLimit, addSecurityHeaders } from '@/lib/securityMiddleware'
+import { rateLimit, addSecurityHeaders, corsMiddleware, validateChatRequest, sanitizeInput } from '@/lib/securityMiddleware'
 import { buildFullPrompt, API_CONFIG, getTokensForEngagement } from '@/config/prompts'
+
+// Handle OPTIONS requests for CORS
+export async function OPTIONS(request: NextRequest) {
+  const response = new NextResponse(null, { status: 200 })
+  return addSecurityHeaders(response)
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,9 +17,34 @@ export async function POST(request: NextRequest) {
       return addSecurityHeaders(rateLimitResponse)
     }
 
-    // CORS disabled for demo
+    // Apply CORS middleware
+    const corsResponse = corsMiddleware(request)
+    if (corsResponse) {
+      return addSecurityHeaders(corsResponse)
+    }
 
-    // Parse body (no heavy sanitization/validation: simplified)
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return addSecurityHeaders(NextResponse.json({ 
+        error: 'Invalid JSON in request body' 
+      }, { status: 400 }))
+    }
+
+    // Sanitize input data
+    const sanitizedBody = sanitizeInput(body)
+    
+    // Comprehensive validation
+    const validation = validateChatRequest(sanitizedBody)
+    if (!validation.isValid) {
+      return addSecurityHeaders(NextResponse.json({ 
+        error: 'Validation failed',
+        details: validation.errors 
+      }, { status: 400 }))
+    }
+
     const {
       userMessage = '',
       emotion = 'Other',
@@ -22,10 +53,7 @@ export async function POST(request: NextRequest) {
       engagementLevel,
       responseInstructions,
       stream = false,
-    } = await request.json()
-    if (!userMessage || typeof userMessage !== 'string') {
-      return addSecurityHeaders(NextResponse.json({ error: 'userMessage is required' }, { status: 400 }))
-    }
+    } = sanitizedBody
 
     // Read Vercel environment variables (server-only)
     const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY

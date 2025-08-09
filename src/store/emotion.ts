@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { secureStorage } from '@/lib/securityUtils'
 
 export type EmotionType = 'Anger' | 'Disgust' | 'Fear' | 'Joy' | 'Sadness' | 'Surprise' | 'Anxiety' | 'Love' | 'Pride' | 'Shame' | 'Envy' | 'Guilt' | 'Hope' | 'Excitement' | 'Boredom' | 'Confusion' | 'Gratitude' | 'Loneliness' | 'Frustration' | 'Contentment' | 'Other'
 export type PolarityType = 'positive' | 'negative' | 'neutral'
@@ -450,14 +451,14 @@ export const useEmotionStore = create<EmotionState>()(
         records: state.records,
         stats: state.stats,
       }),
-      // Custom storage, properly handle Date objects and support SSR
-      storage: {
+      // Secure encrypted storage with Date object handling
+      storage: createJSONStorage(() => ({
         getItem: (name) => {
           // SSR safety check
           if (typeof window === 'undefined') return null
           
           try {
-            const value = localStorage.getItem(name)
+            const value = secureStorage.getItem(name)
             if (!value) return null
             
             const parsed = JSON.parse(value)
@@ -479,9 +480,9 @@ export const useEmotionStore = create<EmotionState>()(
               })
             }
             
-            return parsed
+            return JSON.stringify(parsed)
           } catch (error) {
-            console.error('Failed to parse localStorage data:', error)
+            console.error('Failed to parse secure storage data:', error)
             return null
           }
         },
@@ -490,21 +491,23 @@ export const useEmotionStore = create<EmotionState>()(
           if (typeof window === 'undefined') return
           
           try {
+            const parsed = JSON.parse(value)
+            
             // Convert Date objects to strings for storage
             const toStore = {
-              ...value,
+              ...parsed,
               state: {
-                ...value.state,
-                records: value.state.records?.map((record: any) => ({
+                ...parsed.state,
+                records: parsed.state.records?.map((record: any) => ({
                   ...record,
-                  timestamp: record.timestamp.toISOString()
+                  timestamp: record.timestamp instanceof Date ? record.timestamp.toISOString() : record.timestamp
                 })) || [],
-                stats: value.state.stats ? Object.keys(value.state.stats).reduce((acc: any, emotion) => {
-                  const stat = value.state.stats[emotion]
+                stats: parsed.state.stats ? Object.keys(parsed.state.stats).reduce((acc: any, emotion) => {
+                  const stat = parsed.state.stats[emotion]
                   if (stat) {
                     acc[emotion] = {
                       ...stat,
-                      lastRecorded: stat.lastRecorded ? stat.lastRecorded.toISOString() : undefined
+                      lastRecorded: stat.lastRecorded instanceof Date ? stat.lastRecorded.toISOString() : stat.lastRecorded
                     }
                   }
                   return acc
@@ -512,9 +515,9 @@ export const useEmotionStore = create<EmotionState>()(
               }
             }
             
-            localStorage.setItem(name, JSON.stringify(toStore))
+            secureStorage.setItem(name, JSON.stringify(toStore))
           } catch (error) {
-            console.error('Failed to save to localStorage:', error)
+            console.error('Failed to save to secure storage:', error)
           }
         },
         removeItem: (name) => {
@@ -522,12 +525,12 @@ export const useEmotionStore = create<EmotionState>()(
           if (typeof window === 'undefined') return
           
           try {
-            localStorage.removeItem(name)
+            secureStorage.removeItem(name)
           } catch (error) {
-            console.error('Failed to remove data from localStorage:', error)
+            console.error('Failed to remove data from secure storage:', error)
           }
         },
-      },
+      })),
       // Post-data recovery processing
       onRehydrateStorage: () => (state) => {
         if (state && state.records && state.records.length > 0) {
