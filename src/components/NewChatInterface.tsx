@@ -62,10 +62,13 @@ const EMOTIONS: { id: EmotionType; label: string; color: string; emoji: string }
 ]
 
 export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
-  // Chat state
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  // Chat state - Fixed frame approach
+  const [currentUserMessage, setCurrentUserMessage] = useState('')
+  const [currentBreezieMessage, setCurrentBreezieMessage] = useState('')
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
+  const [showHistory, setShowHistory] = useState(false)
   
   // Right panel state
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>('mood_selection')
@@ -85,30 +88,17 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
   const addMessage = useEmotionStore((state) => state.addMessage)
   const endChatSession = useEmotionStore((state) => state.endChatSession)
 
-  // Auto-scroll to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages, isTyping])
+  // No auto-scroll needed for fixed frames
 
   // Initialize session and welcome message based on mood selection
   useEffect(() => {
     if (!currentSession && chatStarted && selectedMood) {
       startChatSession('Other')
-      // Add mood-specific welcome message
+      // Add mood-specific welcome message to fixed frame
       setTimeout(() => {
         const welcomeContent = getWelcomeMessageByMood(selectedMood)
-        const welcomeMessage: ChatMessage = {
-          id: Date.now().toString(),
-          content: welcomeContent,
-          role: 'assistant',
-          timestamp: new Date()
-        }
-        setMessages([welcomeMessage])
-        addMessage(welcomeMessage.content, 'assistant')
+        setCurrentBreezieMessage(welcomeContent)
+        addMessage(welcomeContent, 'assistant')
         setRightPanelMode('welcome')
       }, 500)
     }
@@ -286,19 +276,22 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
     return baseSuggestions[emotion] || baseSuggestions['Other'] || []
   }
 
-  // Handle sending messages
+  // Handle sending messages - Fixed frame approach
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isTyping) return
 
+    const userMessageContent = inputValue.trim()
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: inputValue.trim(),
+      content: userMessageContent,
       role: 'user',
       timestamp: new Date()
     }
 
-    setMessages(prev => [...prev, userMessage])
-    addMessage(userMessage.content, 'user')
+    // Add to history and show in fixed frame
+    setChatHistory(prev => [...prev, userMessage])
+    setCurrentUserMessage(userMessageContent)
+    addMessage(userMessageContent, 'user')
     setInputValue('')
     setIsTyping(true)
 
@@ -311,10 +304,10 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
           ...getAuthHeaders(),
         },
         body: JSON.stringify({
-          userMessage: userMessage.content,
+          userMessage: userMessageContent,
           emotion: selectedEmotion || 'Other',
           mood: selectedMood,
-          conversationHistory: messages.map(msg => ({
+          conversationHistory: chatHistory.map(msg => ({
             role: msg.role,
             content: msg.content
           }))
@@ -330,8 +323,10 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
           timestamp: new Date()
         }
 
-        setMessages(prev => [...prev, assistantMessage])
-        addMessage(assistantMessage.content, 'assistant')
+        // Add to history and show in fixed frame
+        setChatHistory(prev => [...prev, assistantMessage])
+        setCurrentBreezieMessage(data.response)
+        addMessage(data.response, 'assistant')
 
         // Check if we should show emotion selection
         if (shouldShowEmotions(data.response) && !selectedEmotion) {
@@ -340,9 +335,9 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
         }
         
         // If emotion is selected and we have enough context, show suggestions
-        if (selectedEmotion && messages.length > 2) {
+        if (selectedEmotion && chatHistory.length > 2) {
           const newSuggestions = await generateSuggestions(selectedEmotion, 
-            messages.map(m => m.content).join(' ')
+            chatHistory.map(m => m.content).join(' ')
           )
           setSuggestions(newSuggestions)
           setRightPanelMode('suggestions')
@@ -353,13 +348,15 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
       }
     } catch (error) {
       toast.error('Sorry, I had trouble responding. Please try again.')
+      const fallbackContent = getRandomFallback('chatError')
       const fallbackMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: getRandomFallback('chatError'),
+        content: fallbackContent,
         role: 'assistant',
         timestamp: new Date()
       }
-      setMessages(prev => [...prev, fallbackMessage])
+      setChatHistory(prev => [...prev, fallbackMessage])
+      setCurrentBreezieMessage(fallbackContent)
     } finally {
       setIsTyping(false)
     }
@@ -372,7 +369,7 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
     
     // Generate suggestions based on selected emotion
     const newSuggestions = await generateSuggestions(emotion, 
-      messages.map(m => m.content).join(' ')
+      chatHistory.map(m => m.content).join(' ')
     )
     setSuggestions(newSuggestions)
     setRightPanelMode('suggestions')
@@ -402,6 +399,41 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSendMessage()
+    }
+  }
+
+  // Clear current messages for new conversation
+  const handleNewConversation = () => {
+    setCurrentUserMessage('')
+    setCurrentBreezieMessage('')
+    setInputValue('')
+  }
+
+  // Toggle history view
+  const toggleHistory = () => {
+    setShowHistory(!showHistory)
+  }
+
+  // Save and complete conversation
+  const handleSaveAndComplete = () => {
+    if (currentSession) {
+      // Save the current conversation to emotion records
+      if (currentUserMessage && currentBreezieMessage) {
+        // Create a final emotion record for this chat session
+        const finalNote = `Chat completed. Last exchange: User: "${currentUserMessage}" | Breezie: "${currentBreezieMessage.substring(0, 100)}..."`
+        
+        // Add final emotion record
+        addMessage(finalNote, 'assistant')
+      }
+      
+      // End the current session
+      endChatSession()
+      
+      // Show success message
+      toast.success('Conversation saved successfully!')
+      
+      // Go back to main interface
+      onBack()
     }
   }
 
@@ -456,6 +488,85 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
         )
 
       case 'welcome':
+        if (showHistory) {
+          return (
+            <div className="p-4 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Chat History</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowHistory(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto space-y-3">
+                {chatHistory.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No conversation history yet</p>
+                  </div>
+                ) : (
+                  chatHistory.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`p-3 rounded-lg border ${
+                        message.role === 'user'
+                          ? 'bg-green-50 border-green-200'
+                          : 'bg-blue-50 border-blue-200'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                          message.role === 'user'
+                            ? 'bg-gray-200'
+                            : 'bg-gradient-to-br from-blue-400 to-purple-500'
+                        }`}>
+                          {message.role === 'user' ? (
+                            <User className="w-3 h-3 text-gray-600" />
+                          ) : (
+                            <Bot className="w-3 h-3 text-white" />
+                          )}
+                        </div>
+                        <span className="text-xs font-medium text-gray-700">
+                          {message.role === 'user' ? 'You' : 'Breezie'}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {message.timestamp.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-800 leading-relaxed">
+                        {message.content}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+              
+              {chatHistory.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      setChatHistory([])
+                      toast.success('Chat history cleared')
+                    }}
+                  >
+                    Clear History
+                  </Button>
+                </div>
+              )}
+            </div>
+          )
+        }
+        
         return (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
             <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center mb-6">
@@ -465,19 +576,31 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
             <p className="text-gray-600 mb-6">
               I'm here to provide emotional support and guidance. Share what's on your mind, and I'll help you process your feelings.
             </p>
-            <div className="space-y-3 w-full max-w-sm">
-              <div className="flex items-center space-x-3 text-sm text-gray-500">
-                <MessageCircle className="w-4 h-4" />
-                <span>Safe space for sharing</span>
+            <div className="space-y-4 w-full max-w-sm">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3 text-sm text-gray-500">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Safe space for sharing</span>
+                </div>
+                <div className="flex items-center space-x-3 text-sm text-gray-500">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Personalized support</span>
+                </div>
+                <div className="flex items-center space-x-3 text-sm text-gray-500">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Practical suggestions</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-gray-500">
-                <Sparkles className="w-4 h-4" />
-                <span>Personalized support</span>
-              </div>
-              <div className="flex items-center space-x-3 text-sm text-gray-500">
-                <CheckCircle className="w-4 h-4" />
-                <span>Practical suggestions</span>
-              </div>
+              
+              {currentSession && (currentUserMessage || currentBreezieMessage || chatHistory.length > 0) && (
+                <Button
+                  className="w-full bg-green-500 hover:bg-green-600 text-white mt-6"
+                  onClick={handleSaveAndComplete}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Save & Complete Session
+                </Button>
+              )}
             </div>
           </div>
         )
@@ -570,13 +693,24 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
               ))}
             </div>
 
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={() => setRightPanelMode('emotions')}
-            >
-              Update My Emotion
-            </Button>
+            <div className="mt-4 space-y-2">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setRightPanelMode('emotions')}
+              >
+                Update My Emotion
+              </Button>
+              
+              <Button
+                className="w-full bg-green-500 hover:bg-green-600 text-white"
+                onClick={handleSaveAndComplete}
+                disabled={!currentSession || (!currentUserMessage && !currentBreezieMessage)}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Save & Complete Session
+              </Button>
+            </div>
           </div>
         )
 
@@ -624,68 +758,91 @@ export function NewChatInterface({ onBack }: NewChatInterfaceProps) {
           </div>
         </div>
 
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`flex items-start space-x-3 max-w-[80%] ${
-                message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-              }`}>
-                {/* Avatar */}
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  message.role === 'user' 
-                    ? 'bg-gray-200' 
-                    : 'bg-gradient-to-br from-blue-400 to-purple-500'
-                }`}>
-                  {message.role === 'user' ? (
-                    <User className="w-4 h-4 text-gray-600" />
-                  ) : (
-                    <Bot className="w-4 h-4 text-white" />
-                  )}
-                </div>
-                
-                {/* Message Bubble */}
-                <div className={`rounded-2xl px-4 py-3 ${
-                  message.role === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  <p className="text-sm leading-relaxed">{message.content}</p>
-                  <p className={`text-xs mt-1 ${
-                    message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
-                  }`}>
-                    {message.timestamp.toLocaleTimeString([], { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
-                  </p>
-                </div>
+        {/* Fixed Message Frames */}
+        <div className="flex-1 p-4 space-y-4">
+          {/* Breezie's Fixed Frame */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800">Breezie</h3>
+                <p className="text-xs text-gray-500">Your emotional companion</p>
               </div>
             </div>
-          ))}
-          
-          {/* Typing indicator */}
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="flex items-start space-x-3 max-w-[80%]">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-white" />
-                </div>
-                <div className="bg-gray-100 rounded-2xl px-4 py-3">
+            
+            <div className="min-h-[120px] max-h-[300px] overflow-y-auto">
+              {isTyping ? (
+                <div className="flex items-center space-x-2 text-gray-500">
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
+                  <span className="text-sm">Thinking...</span>
                 </div>
+              ) : currentBreezieMessage ? (
+                <p className="text-gray-800 leading-relaxed">{currentBreezieMessage}</p>
+              ) : (
+                <p className="text-gray-400 italic">Waiting for your message...</p>
+              )}
+            </div>
+          </div>
+
+          {/* User's Fixed Frame */}
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-4">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800">You</h3>
+                <p className="text-xs text-gray-500">Share your thoughts</p>
               </div>
             </div>
-          )}
-          
-          <div ref={messagesEndRef} />
+            
+            <div className="min-h-[120px] max-h-[300px] overflow-y-auto">
+              {currentUserMessage ? (
+                <p className="text-gray-800 leading-relaxed">{currentUserMessage}</p>
+              ) : (
+                <p className="text-gray-400 italic">Your message will appear here...</p>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-center space-x-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNewConversation}
+              className="flex items-center space-x-2"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>New Topic</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleHistory}
+              className="flex items-center space-x-2"
+            >
+              <span className="text-lg">📚</span>
+              <span>History ({chatHistory.length})</span>
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={handleSaveAndComplete}
+              className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white"
+              disabled={!currentSession || (!currentUserMessage && !currentBreezieMessage)}
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>Save & Complete</span>
+            </Button>
+          </div>
         </div>
 
         {/* Input Area */}
