@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getGeminiResponse } from '@/lib/geminiService'
 import { rateLimit, addSecurityHeaders } from '@/lib/securityMiddleware'
+import { buildFullPrompt, API_CONFIG } from '@/config/prompts'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,14 @@ export async function POST(request: NextRequest) {
     // CORS disabled for demo
 
     // Parse body (no heavy sanitization/validation: simplified)
-    const { userMessage = '' } = await request.json()
+    const {
+      userMessage = '',
+      emotion = 'Other',
+      conversationHistory = [],
+      engagementLevel,
+      responseInstructions,
+      stream = false,
+    } = await request.json()
     if (!userMessage || typeof userMessage !== 'string') {
       return addSecurityHeaders(NextResponse.json({ error: 'userMessage is required' }, { status: 400 }))
     }
@@ -23,24 +31,143 @@ export async function POST(request: NextRequest) {
 
     // Log configuration info (for debugging, no sensitive information)
 
-    // Decide response strategy: Gemini with server key; otherwise fallback
+    // Streaming support via SSE when requested
+    const url = new URL(request.url)
+    const wantsStream = stream === true || url.searchParams.get('stream') === '1'
+
+    if (wantsStream) {
+      if (!geminiKey) {
+        return addSecurityHeaders(NextResponse.json({ error: 'Assistant unavailable' }, { status: 503 }))
+      }
+
+      // Build request body compatible with Gemini streamGenerateContent
+      const fullPrompt = buildFullPrompt(userMessage, emotion as any, conversationHistory)
+      const requestBody = {
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: fullPrompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: API_CONFIG.temperature,
+          maxOutputTokens: API_CONFIG.maxTokens,
+          topP: API_CONFIG.topP,
+          topK: API_CONFIG.topK,
+        },
+      }
+
+      const sseStream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          const encoder = new TextEncoder()
+          try {
+            const sseEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${API_CONFIG.model}:streamGenerateContent?alt=sse`
+            const upstream = await fetch(sseEndpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-goog-api-key': geminiKey!,
+              },
+              body: JSON.stringify(requestBody),
+            })
+
+            if (!upstream.ok || !upstream.body) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ error: 'Upstream error' })}\n\n`),
+              )
+              controller.close()
+              return
+            }
+
+            const reader = upstream.body.getReader()
+            const textDecoder = new TextDecoder()
+            let buffer = ''
+
+            while (true) {
+              const { value, done } = await reader.read()
+              if (done) break
+              buffer += textDecoder.decode(value, { stream: true })
+
+              const lines = buffer.split(/\r?\n/)
+              buffer = lines.pop() || ''
+
+              for (const line of lines) {
+                if (!line) continue
+                if (line.startsWith('data: ')) {
+                  const dataStr = line.slice(6).trim()
+                  if (dataStr === '[DONE]') continue
+                  try {
+                    const json = JSON.parse(dataStr)
+                    // Try common locations for streamed text
+                    let chunkText = ''
+                    const cand = json?.candidates?.[0]
+                    const parts = cand?.content?.parts
+                    if (Array.isArray(parts) && parts[0]?.text) {
+                      chunkText = parts[0].text as string
+                    } else if (json?.text) {
+                      chunkText = json.text as string
+                    }
+                    if (chunkText) {
+                      controller.enqueue(
+                        encoder.encode(`data: ${JSON.stringify({ text: chunkText })}\n\n`),
+                      )
+                    }
+                  } catch {
+                    // Ignore malformed lines
+                  }
+                }
+              }
+            }
+
+            controller.enqueue(encoder.encode('data: {"done":true}\n\n'))
+            controller.close()
+          } catch (err: any) {
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({ error: err?.message || 'stream error' })}\n\n`,
+              ),
+            )
+            controller.close()
+          }
+        },
+      })
+
+      const response = new Response(sseStream, {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache, no-transform',
+          Connection: 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+      })
+
+      return addSecurityHeaders(response as any)
+    }
+
+    // Non-streaming JSON response
     let response: string
     if (!geminiKey) {
       response = 'Sorry, the assistant is unavailable right now.'
     } else {
       try {
-        // Use a safe default emotion to satisfy prompt builder
-        response = await getGeminiResponse(userMessage, 'Other' as any, [], geminiKey)
+        response = await getGeminiResponse(
+          userMessage,
+          emotion as any,
+          conversationHistory,
+          geminiKey,
+          engagementLevel,
+          responseInstructions,
+        )
       } catch (e) {
         response = 'I had trouble responding just now, but I am here to listen.'
       }
     }
-    
-    const successResponse = NextResponse.json({ 
+
+    const successResponse = NextResponse.json({
       response,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
-    
+
     return addSecurityHeaders(successResponse)
   } catch (error: any) {
     // Log detailed error for debugging

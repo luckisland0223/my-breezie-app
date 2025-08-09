@@ -14,7 +14,7 @@ interface AuthState {
   token: string | null
   loading: boolean
   error?: string | null
-  register: (payload: { email: string; username: string; password: string }) => Promise<void>
+  register: (payload: { email: string; username: string; password: string }) => Promise<boolean>
   login: (payload: { email: string; password: string }) => Promise<void>
   logout: () => void
 }
@@ -34,10 +34,18 @@ export const useAuthStore = create<AuthState>()(persist((set) => ({
         body: JSON.stringify(payload),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || '注册失败')
+      if (!res.ok) {
+        let errorMessage = data.error || 'Registration failed'
+        if (res.status === 409) {
+          errorMessage = 'Email or username already exists'
+        }
+        throw new Error(errorMessage)
+      }
       set({ user: data.user, token: data.token, loading: false })
+      return true
     } catch (e: any) {
       set({ error: e.message, loading: false })
+      return false
     }
   },
 
@@ -50,7 +58,7 @@ export const useAuthStore = create<AuthState>()(persist((set) => ({
         body: JSON.stringify(payload),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || '登录失败')
+      if (!res.ok) throw new Error(data.error || 'Login failed')
       set({ user: data.user, token: data.token, loading: false })
     } catch (e: any) {
       set({ error: e.message, loading: false })

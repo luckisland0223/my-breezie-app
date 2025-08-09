@@ -20,23 +20,46 @@ export default function RegisterPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    await register({ email, username, password })
-    setStep('verify')
+    const success = await register({ email, username, password })
+    if (success) {
+      setStep('verify')
+    }
   }
+
+  const [verifyError, setVerifyError] = useState('')
+  const [verifyLoading, setVerifyLoading] = useState(false)
 
   async function onVerify(e: React.FormEvent) {
     e.preventDefault()
-    const res = await fetch('/api/auth/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code })
-    })
-    const data = await res.json()
-    if (res.ok && data.success) {
-      // auto login after verify
-      await useAuthStore.getState().login({ email, password })
-      await processPendingSave()
-      router.push('/')
+    setVerifyLoading(true)
+    setVerifyError('')
+    
+    try {
+      const res = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code })
+      })
+      const data = await res.json()
+      
+      if (res.ok && data.success) {
+        // auto login after verify
+        await useAuthStore.getState().login({ email, password })
+        await processPendingSave()
+        router.push('/')
+      } else {
+        let errorMessage = data.error || 'Verification failed'
+        if (res.status === 400 && data.error?.includes('expired')) {
+          errorMessage = 'Verification code expired, please resend'
+        } else if (res.status === 400 && data.error?.includes('Invalid')) {
+          errorMessage = 'Invalid verification code, please check and retry'
+        }
+        setVerifyError(errorMessage)
+      }
+    } catch (error) {
+      setVerifyError('Network error, please try again later')
+    } finally {
+      setVerifyLoading(false)
     }
   }
 
@@ -91,11 +114,36 @@ export default function RegisterPage() {
               <Input id="code" placeholder="6-digit code" value={code} onChange={(e) => setCode(e.target.value)} required />
               <div className="text-xs text-muted-foreground">We sent a 6-digit code to your email. It expires in 15 minutes.</div>
             </div>
+            {verifyError && <div className="text-red-500 text-sm">{verifyError}</div>}
             <div className="flex gap-2">
-              <Button type="submit" className="w-full">Verify & Continue</Button>
+              <Button type="submit" disabled={verifyLoading} className="w-full">
+                {verifyLoading ? 'Verifying...' : 'Verify & Continue'}
+              </Button>
               <Button type="button" variant="outline" onClick={async () => {
-                await fetch('/api/auth/verify/resend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
+                try {
+                  const res = await fetch('/api/auth/verify/resend', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ email }) 
+                  })
+                  if (res.ok) {
+                    setVerifyError('')
+                    // Show success message briefly
+                    setVerifyError('New verification code sent')
+                    setTimeout(() => setVerifyError(''), 3000)
+                  } else {
+                    const data = await res.json()
+                    setVerifyError(data.error || 'Resend failed')
+                  }
+                } catch {
+                  setVerifyError('Network error, please try again')
+                }
               }}><RefreshCw className="w-4 h-4 mr-2" />Resend</Button>
+            </div>
+            <div className="text-center">
+              <button type="button" className="text-sm text-muted-foreground underline" onClick={() => setStep('register')}>
+                Back to register
+              </button>
             </div>
           </form>
           )}

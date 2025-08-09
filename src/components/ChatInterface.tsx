@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { calculateBehavioralImpactScore, type BehavioralImpactScore } from '@/lib/behavioralImpactScore'
 import { getRandomFallback } from '@/config/prompts'
+import { getAuthHeaders } from '@/store/auth'
 // Removed suggestion imports - simplified flow
 
 
@@ -125,15 +126,60 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     scrollToBottom()
   }, [currentSession?.messages, isTyping, aiResponse])
 
-  // Initialize empty session without preset
+  // Initialize session with welcoming message
   useEffect(() => {
     if (!currentSession) {
       startChatSession('Other')
+      // Add a welcoming message from Breezie after a short delay
+      setTimeout(async () => {
+        try {
+          const welcomeMessage = await handleWelcomeMessage()
+          if (welcomeMessage) {
+            setAiResponse(welcomeMessage)
+            addMessage(welcomeMessage, 'assistant')
+          }
+        } catch (error) {
+          // If welcome message fails, use a simple fallback
+          const fallbackWelcome = "你好！我是Breezie，很高兴见到你 😊 今天过得怎么样？有什么想和我分享的吗？"
+          setAiResponse(fallbackWelcome)
+          addMessage(fallbackWelcome, 'assistant')
+        }
+      }, 500)
     }
   }, [currentSession, startChatSession])
 
   const handleTypewriterComplete = () => {
     // Typewriter animation completed
+  }
+
+  // Generate welcoming message from Breezie
+  const handleWelcomeMessage = async (): Promise<string> => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          userMessage: "用户刚刚进入聊天，这是第一次对话",
+          emotion: 'Other',
+          engagementLevel: 'normal',
+          conversationHistory: [],
+          responseInstructions: "这是用户第一次进入聊天，请主动热情地欢迎用户，询问他们今天过得怎么样，发生了什么事情。要温暖亲切，让用户感受到真正的关心。"
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        return data.response
+      } else {
+        throw new Error('Failed to get welcome message')
+      }
+    } catch (error) {
+      // Return fallback welcome message
+      return "你好！我是Breezie，很高兴见到你 😊 今天过得怎么样？有什么想和我分享的吗？无论是开心的事情还是烦恼，我都愿意倾听 💙"
+    }
   }
 
   // New simplified conversation flow logic
@@ -230,6 +276,7 @@ const getStoryBasedResponse = async (userMessage: string, emotion: EmotionType):
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({
         userMessage,
@@ -255,15 +302,21 @@ const getStoryBasedResponse = async (userMessage: string, emotion: EmotionType):
 
 const getNormalResponse = async (userMessage: string): Promise<string> => {
   try {
+    // Prefer streaming; fallback to JSON
+    const streamed = await getStreamedResponse(userMessage)
+    if (streamed && streamed !== getRandomFallback('chatError')) return streamed
+
     const messages = currentSession?.messages || []
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({
         userMessage,
         emotion: selectedEmotion || 'Other',
+        engagementLevel: detectEmotionalEngagement(userMessage, messages.filter(m => m.role === 'user')),
         conversationHistory: messages.map(msg => ({
           role: msg.role,
           content: msg.content
@@ -278,6 +331,72 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
       throw new Error('Failed to get response')
     }
   } catch (error) {
+    return getRandomFallback('chatError')
+  }
+}
+
+// Streamed response helper (SSE over fetch)
+const getStreamedResponse = async (userMessage: string): Promise<string> => {
+  const messages = currentSession?.messages || []
+  try {
+    const res = await fetch('/api/chat?stream=1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({
+        userMessage,
+        emotion: selectedEmotion || 'Other',
+        engagementLevel: detectEmotionalEngagement(userMessage, messages.filter(m => m.role === 'user')),
+        conversationHistory: messages.map(msg => ({ role: msg.role, content: msg.content })),
+        stream: true,
+      }),
+    })
+
+    if (!res.ok || !res.body) {
+      throw new Error('Streaming failed')
+    }
+
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let done = false
+    let buffer = ''
+    let accumulated = ''
+
+    while (!done) {
+      const { value, done: readerDone } = await reader.read()
+      done = readerDone
+      if (value) {
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split(/\r?\n/)
+        buffer = lines.pop() || ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const payload = line.slice(6).trim()
+          if (!payload) continue
+          try {
+            const json = JSON.parse(payload)
+            if (json?.text) {
+              accumulated += json.text
+              setAiResponse(prev => (prev ? prev + json.text : json.text))
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
+    }
+
+    if (!accumulated) {
+      // fallback to JSON response body if stream yielded nothing
+      try {
+        const data = await res.clone().json()
+        if (data?.response) return data.response as string
+      } catch {}
+    }
+    return accumulated || getRandomFallback('chatError')
+  } catch (e) {
     return getRandomFallback('chatError')
   }
 }
@@ -707,6 +826,7 @@ const getNormalResponse = async (userMessage: string): Promise<string> => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({
           userMessage: `Now that the user has selected "${emotion}" as their main emotion, provide a follow-up response that goes deeper into this feeling. Don't repeat what you already said, but offer new support, ask different questions, or explore this emotion from a fresh angle. Build on the conversation naturally.`,
