@@ -5,15 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-
-import { ArrowLeft, Bell, Palette, Heart } from 'lucide-react'
+import { ArrowLeft, Bell, Palette, Heart, Settings, Sparkles, Shield, Moon, Sun } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
-export default function SettingsPage() {
+export default function PremiumSettingsPage() {
   const router = useRouter()
   const [notifications, setNotifications] = useState(true)
   const [autoSave, setAutoSave] = useState(true)
+  const [darkMode, setDarkMode] = useState(false)
+  const [advancedMode, setAdvancedMode] = useState(false)
 
   const handleNotificationChange = (checked: boolean) => {
     setNotifications(checked)
@@ -25,116 +27,242 @@ export default function SettingsPage() {
     toast.success(checked ? 'Auto-save enabled' : 'Auto-save disabled')
   }
 
+  const handleDarkModeChange = (checked: boolean) => {
+    setDarkMode(checked)
+    toast.success(checked ? 'Dark mode enabled' : 'Light mode enabled')
+  }
+
+  const handleAdvancedModeChange = (checked: boolean) => {
+    setAdvancedMode(checked)
+    toast.success(checked ? 'Advanced features enabled' : 'Simple mode enabled')
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="mb-6">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="mb-4 hover:bg-blue-50"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Settings
-            </h1>
+    <div className="min-h-screen gradient-surface">
+      {/* Premium Header */}
+      <header className="glass sticky top-0 z-50 border-b-0">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                <Heart className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Breezie
+                </h1>
+                <p className="text-xs text-gray-500">Feeling first, healing follows</p>
+              </div>
+            </Link>
+            
+            <Button variant="ghost" onClick={() => router.push('/')} className="glass-subtle hover:shadow-md transition-all duration-200">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
           </div>
-          <p className="text-gray-600">Personalize your Breezie experience</p>
+        </div>
+      </header>
+
+      {/* Premium Settings Content */}
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Page Header */}
+        <div className="text-center mb-12">
+          <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-glow">
+            <Settings className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Settings</h2>
+          <p className="text-lg text-gray-600">
+            Personalize your Breezie experience for optimal emotional wellness
+          </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Notification Settings */}
-          <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Bell className="w-5 h-5 text-blue-500" />
-                Notification Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="notifications" className="text-sm font-medium">
-                    Daily Emotion Reminders
-                  </Label>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Remind you to record your daily emotional state
-                  </p>
+          <Card className="glass shadow-xl border-0 hover:shadow-2xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Bell className="w-5 h-5 text-white" />
                 </div>
-                <Switch
-                  id="notifications"
-                  checked={notifications}
-                  onCheckedChange={handleNotificationChange}
-                />
+                Notifications
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Manage your notification preferences and reminders
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="glass-subtle rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <Label htmlFor="notifications" className="text-sm font-medium text-gray-700">
+                      Daily Emotion Reminders
+                    </Label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Gentle reminders to check in with your emotions
+                    </p>
+                  </div>
+                  <Switch
+                    id="notifications"
+                    checked={notifications}
+                    onCheckedChange={handleNotificationChange}
+                  />
+                </div>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="autoSave" className="text-sm font-medium">
-                    Auto-save Conversations
-                  </Label>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Automatically save your conversation records with Breezie
-                  </p>
+              <div className="glass-subtle rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <Label htmlFor="autoSave" className="text-sm font-medium text-gray-700">
+                      Auto-save Conversations
+                    </Label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Automatically save your conversations with Breezie
+                    </p>
+                  </div>
+                  <Switch
+                    id="autoSave"
+                    checked={autoSave}
+                    onCheckedChange={handleAutoSaveChange}
+                  />
                 </div>
-                <Switch
-                  id="autoSave"
-                  checked={autoSave}
-                  onCheckedChange={handleAutoSaveChange}
-                />
               </div>
             </CardContent>
           </Card>
 
           {/* Appearance Settings */}
-          <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Palette className="w-5 h-5 text-purple-500" />
-                Appearance Settings
+          <Card className="glass shadow-xl border-0 hover:shadow-2xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Palette className="w-5 h-5 text-white" />
+                </div>
+                Appearance
               </CardTitle>
+              <p className="text-sm text-gray-600">
+                Customize the look and feel of your Breezie experience
+              </p>
             </CardHeader>
-            <CardContent>
-              <div className="text-sm text-gray-600">
-                <p>Breezie automatically adapts to your system theme settings</p>
-                <p className="text-xs text-gray-500 mt-1">Supports light and dark modes</p>
+            <CardContent className="space-y-6">
+              <div className="glass-subtle rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <Label htmlFor="darkMode" className="text-sm font-medium text-gray-700">
+                      Dark Mode
+                    </Label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Switch to a darker theme for comfortable night use
+                    </p>
+                  </div>
+                  <Switch
+                    id="darkMode"
+                    checked={darkMode}
+                    onCheckedChange={handleDarkModeChange}
+                  />
+                </div>
+              </div>
+              
+              <div className="glass-subtle rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <Label htmlFor="advancedMode" className="text-sm font-medium text-gray-700">
+                      Advanced Features
+                    </Label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enable advanced analytics and detailed insights
+                    </p>
+                  </div>
+                  <Switch
+                    id="advancedMode"
+                    checked={advancedMode}
+                    onCheckedChange={handleAdvancedModeChange}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* About Breezie */}
-          <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-lg">About Breezie</CardTitle>
+          {/* Privacy & Security */}
+          <Card className="glass shadow-xl border-0 hover:shadow-2xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-white" />
+                </div>
+                Privacy & Security
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Your data protection and privacy controls
+              </p>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="w-6 h-6 text-white" />
+            <CardContent className="space-y-4">
+              <div className="glass-subtle rounded-xl p-4 space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">End-to-end encryption</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">Local data storage</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">No third-party sharing</span>
+                </div>
+              </div>
+              
+              <Button variant="outline" className="w-full glass-subtle hover:shadow-md transition-all duration-200">
+                <Shield className="w-4 h-4 mr-2" />
+                View Privacy Policy
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* About Breezie */}
+          <Card className="glass shadow-xl border-0 hover:shadow-2xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-white" />
+                </div>
+                About Breezie
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-xl">
+                  <Heart className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Breezie</h3>
-                  <p className="text-sm text-gray-600">Emotional Health Assistant v1.0.0</p>
+                  <h3 className="text-lg font-bold text-gray-900">Breezie v2.0</h3>
+                  <p className="text-sm text-gray-600">Your AI Emotional Wellness Companion</p>
+                  <p className="text-xs text-gray-500 mt-1">Feeling first, healing follows</p>
                 </div>
               </div>
               
-              <div className="text-sm text-gray-600 space-y-2">
-                <p>🌟 Help you understand and manage emotions through intelligent conversations</p>
-                <p>📊 Track emotional changes and discover inner patterns</p>
-                <p>💝 Accompany you on your emotional health journey</p>
-              </div>
-              
-              <div className="pt-3 border-t border-gray-100">
-                <p className="text-xs text-gray-500">
-                  Your privacy and data security are our top priority
-                </p>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="glass-subtle rounded-xl p-4 flex items-center space-x-3">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">AI-Powered Support</p>
+                    <p className="text-xs text-gray-500">Intelligent emotional guidance</p>
+                  </div>
+                </div>
+                
+                <div className="glass-subtle rounded-xl p-4 flex items-center space-x-3">
+                  <Heart className="w-5 h-5 text-pink-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Personalized Care</p>
+                    <p className="text-xs text-gray-500">Tailored to your unique journey</p>
+                  </div>
+                </div>
+                
+                <div className="glass-subtle rounded-xl p-4 flex items-center space-x-3">
+                  <Shield className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Privacy Protected</p>
+                    <p className="text-xs text-gray-500">Your data stays secure and private</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
