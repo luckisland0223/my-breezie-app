@@ -18,7 +18,7 @@ import { useAuthStore } from '@/store/auth'
 import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
 
-import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database, Mail, X, Brain, CheckCircle } from 'lucide-react'
+import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database, Mail, X, Brain, CheckCircle, Shield } from 'lucide-react'
 import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -76,6 +76,13 @@ export default function HomePage() {
                 <Button variant="ghost" className="glass-subtle hover:shadow-md transition-all duration-200 flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
                   Analytics
+                </Button>
+              </Link>
+              
+              <Link href="/security">
+                <Button variant="ghost" className="glass-subtle hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Security
                 </Button>
               </Link>
               

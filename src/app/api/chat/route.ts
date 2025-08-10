@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getGeminiResponse } from '@/lib/geminiService'
 import { rateLimit, addSecurityHeaders, corsMiddleware, validateChatRequest, sanitizeInput } from '@/lib/securityMiddleware'
+import { enhancedRateLimit, burstProtection, progressiveRateLimit } from '@/lib/enhancedRateLimit'
+import { getUserFromRequest } from '@/lib/auth'
 import { buildFullPrompt, API_CONFIG, getTokensForEngagement } from '@/config/prompts'
 
 // Handle OPTIONS requests for CORS
@@ -11,16 +13,34 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Apply security middleware
-    const rateLimitResponse = rateLimit(request)
-    if (rateLimitResponse) {
-      return addSecurityHeaders(rateLimitResponse)
-    }
-
-    // Apply CORS middleware
+    // Apply CORS middleware first
     const corsResponse = corsMiddleware(request)
     if (corsResponse) {
       return addSecurityHeaders(corsResponse)
+    }
+    
+    // Get user information for enhanced rate limiting
+    const user = await getUserFromRequest(request)
+    const isPremium = user?.subscriptionTier === 'pro' || user?.subscriptionTier === 'enterprise'
+    
+    // Apply enhanced rate limiting
+    const burstResponse = burstProtection(request, user?.userId)
+    if (burstResponse) return addSecurityHeaders(burstResponse)
+    
+    const progressiveResponse = progressiveRateLimit(request, user?.userId)
+    if (progressiveResponse) return addSecurityHeaders(progressiveResponse)
+    
+    const enhancedRateLimitResponse = enhancedRateLimit(request, {
+      userId: user?.userId,
+      isPremium,
+      endpoint: '/api/chat'
+    })
+    if (enhancedRateLimitResponse) return addSecurityHeaders(enhancedRateLimitResponse)
+    
+    // Fallback to basic rate limiting
+    const rateLimitResponse = rateLimit(request)
+    if (rateLimitResponse) {
+      return addSecurityHeaders(rateLimitResponse)
     }
 
     // Parse and validate request body

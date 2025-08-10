@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { enhancedRateLimit } from '@/lib/enhancedRateLimit'
+import { addSecurityHeaders, sanitizeInput } from '@/lib/securityMiddleware'
 
 // GET: list user emotion records (basic pagination)
 export async function GET(request: NextRequest) {

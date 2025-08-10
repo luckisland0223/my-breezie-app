@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { hashPassword, generateToken, isValidEmail, isValidPassword, isValidUsername } from '@/lib/auth'
+import { hashPassword, generateToken, isValidEmail, isValidPassword, isValidUsername, type TokenPair } from '@/lib/auth'
+import { enhancedRateLimit } from '@/lib/enhancedRateLimit'
+import { addSecurityHeaders } from '@/lib/securityMiddleware'
 
 export async function POST(request: NextRequest) {
   try {

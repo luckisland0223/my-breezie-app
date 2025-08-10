@@ -1,14 +1,17 @@
-import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { NextRequest } from 'next/server'
+import { 
+  generateTokenPair, 
+  verifyAccessToken, 
+  verifyRefreshToken, 
+  revokeToken,
+  isTokenRevoked,
+  type JWTPayload,
+  type TokenPair
+} from './jwtManager'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key'
-
-export interface JWTPayload {
-  userId: string
-  email: string
-  username: string
-}
+// Re-export types for backward compatibility
+export type { JWTPayload, TokenPair }
 
 // Hash password
 export async function hashPassword(password: string): Promise<string> {
@@ -21,20 +24,42 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword)
 }
 
-// Generate JWT token
-export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: '7d', // Token expires in 7 days
+// Generate JWT token pair (access + refresh)
+export function generateToken(payload: JWTPayload): TokenPair {
+  return generateTokenPair(payload)
+}
+
+// Verify JWT token (backward compatibility)
+export function verifyToken(token: string): JWTPayload | null {
+  // Check if token is revoked first
+  if (isTokenRevoked(token)) {
+    console.warn('Attempted to use revoked token')
+    return null
+  }
+  
+  return verifyAccessToken(token)
+}
+
+// Refresh token functionality
+export function refreshUserToken(refreshToken: string): TokenPair | null {
+  const payload = verifyRefreshToken(refreshToken)
+  if (!payload) {
+    return null
+  }
+  
+  // Generate new token pair
+  return generateTokenPair({
+    userId: payload.userId,
+    email: payload.email,
+    username: payload.username
   })
 }
 
-// Verify JWT token
-export function verifyToken(token: string): JWTPayload | null {
-  try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload
-  } catch (error) {
-    console.error('Token verification failed:', error)
-    return null
+// Revoke user tokens (for logout)
+export function revokeUserTokens(accessToken: string, refreshToken?: string): void {
+  revokeToken(accessToken)
+  if (refreshToken) {
+    revokeToken(refreshToken)
   }
 }
 

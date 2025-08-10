@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createSecureStorage, migrateToEncryptedStorage } from '@/lib/encryptedStorage'
 
 export interface User {
   id: string
@@ -12,18 +13,22 @@ export interface User {
 export interface AuthState {
   user: User | null
   token: string | null
+  refreshToken: string | null
   loading: boolean
   error?: string | null
   register: (payload: { email: string; username: string; password: string }) => Promise<boolean>
   login: (payload: { email: string; password: string }) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
+  refreshAuth: () => Promise<boolean>
   updateProfile: (updates: Partial<Pick<User, 'username'>>) => void
   isFullyAuthenticated: () => boolean
+  isPremiumUser: () => boolean
 }
 
 export const useAuthStore = create<AuthState>()(persist((set, get) => ({
   user: null,
   token: null,
+  refreshToken: null,
   loading: false,
   error: null,
 
@@ -43,7 +48,24 @@ export const useAuthStore = create<AuthState>()(persist((set, get) => ({
         }
         throw new Error(errorMessage)
       }
-      set({ user: data.user, token: data.token, loading: false })
+      
+      // Set user and tokens
+      set({ 
+        user: data.user, 
+        token: data.accessToken, 
+        refreshToken: data.refreshToken,
+        loading: false 
+      })
+      
+      // Migrate to encrypted storage if user and token available
+      if (data.user && data.accessToken) {
+        try {
+          migrateToEncryptedStorage(data.user.id, data.accessToken)
+        } catch (error) {
+          console.warn('Failed to migrate to encrypted storage:', error)
+        }
+      }
+      
       return true
     } catch (e: any) {
       set({ error: e.message, loading: false })
@@ -61,14 +83,88 @@ export const useAuthStore = create<AuthState>()(persist((set, get) => ({
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Login failed')
-      set({ user: data.user, token: data.token, loading: false })
+      
+      // Set user and tokens
+      set({ 
+        user: data.user, 
+        token: data.accessToken, 
+        refreshToken: data.refreshToken,
+        loading: false 
+      })
+      
+      // Migrate to encrypted storage
+      if (data.user && data.accessToken) {
+        try {
+          migrateToEncryptedStorage(data.user.id, data.accessToken)
+        } catch (error) {
+          console.warn('Failed to migrate to encrypted storage:', error)
+        }
+      }
     } catch (e: any) {
       set({ error: e.message, loading: false })
     }
   },
 
-  logout() {
-    set({ user: null, token: null })
+  async logout() {
+    const state = get()
+    
+    // Call logout API to revoke tokens
+    if (state.token) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          }
+        })
+      } catch (error) {
+        console.warn('Logout API call failed:', error)
+      }
+    }
+    
+    // Clear encrypted storage if user exists
+    if (state.user && state.token) {
+      try {
+        const secureStorage = createSecureStorage(state.user.id, state.token)
+        secureStorage.clear()
+      } catch (error) {
+        console.warn('Failed to clear encrypted storage:', error)
+      }
+    }
+    
+    set({ user: null, token: null, refreshToken: null })
+  },
+  
+  async refreshAuth() {
+    const state = get()
+    if (!state.refreshToken) return false
+    
+    try {
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: state.refreshToken })
+      })
+      
+      if (!res.ok) {
+        // Refresh failed, clear auth state
+        set({ user: null, token: null, refreshToken: null })
+        return false
+      }
+      
+      const data = await res.json()
+      set({ 
+        token: data.accessToken, 
+        refreshToken: data.refreshToken 
+      })
+      
+      return true
+    } catch (error) {
+      console.error('Token refresh failed:', error)
+      set({ user: null, token: null, refreshToken: null })
+      return false
+    }
   },
 
   updateProfile(updates) {
@@ -81,6 +177,11 @@ export const useAuthStore = create<AuthState>()(persist((set, get) => ({
   isFullyAuthenticated() {
     const state = get()
     return !!(state.user && state.token)
+  },
+  
+  isPremiumUser() {
+    const state = get()
+    return state.user?.subscriptionTier === 'pro' || state.user?.subscriptionTier === 'enterprise'
   },
 }), { name: 'auth-storage' }))
 

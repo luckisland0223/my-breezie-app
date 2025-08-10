@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { verifyPassword, generateToken, isValidEmail } from '@/lib/auth'
+import { verifyPassword, generateToken, isValidEmail, type TokenPair } from '@/lib/auth'
+import { enhancedRateLimit } from '@/lib/enhancedRateLimit'
+import { addSecurityHeaders } from '@/lib/securityMiddleware'
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply enhanced rate limiting for login attempts
+    const rateLimitResponse = enhancedRateLimit(request, { endpoint: '/api/auth/login' })
+    if (rateLimitResponse) return addSecurityHeaders(rateLimitResponse)
+    
     const body = await request.json()
     const { email, password } = body || {}
 
@@ -55,9 +61,30 @@ export async function POST(request: NextRequest) {
       avatarUrl: user.avatarUrl,
       subscriptionTier: user.subscriptionTier,
     }
-    const token = generateToken({ userId: user.id, email: user.email, username: user.username })
+    
+    // Generate token pair with enhanced security
+    const tokens: TokenPair = generateToken({
+      userId: user.id,
+      email: user.email,
+      username: user.username,
+      subscriptionTier: user.subscriptionTier,
+    })
 
-    return NextResponse.json({ user: publicUser, token })
+    const response = NextResponse.json({ 
+      user: publicUser, 
+      ...tokens 
+    }, { status: 200 })
+
+    // Set secure HTTP-only cookie for refresh token
+    response.cookies.set('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: '/'
+    })
+
+    return addSecurityHeaders(response)
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
