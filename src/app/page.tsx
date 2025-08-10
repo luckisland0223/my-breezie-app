@@ -128,7 +128,7 @@ export default function HomePage() {
               <CloudLogo size={40} />
             </div>
             <p className="text-lg font-semibold text-gray-800 mb-2">
-              <CloudLogoText size="md" /> v2.0
+              <CloudLogoText size="md" /> v1.0
             </p>
             <p className="text-gray-600 mb-4">Feeling first, healing follows</p>
             <div className="flex justify-center items-center space-x-6 text-sm text-gray-500">

@@ -232,7 +232,7 @@ export default function PremiumSettingsPage() {
                   <CloudLogo size={40} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Breezie v2.0</h3>
+                  <h3 className="text-lg font-bold text-gray-900">Breezie v1.0</h3>
                   <p className="text-sm text-gray-600">Your AI Emotional Wellness Companion</p>
                   <p className="text-xs text-gray-500 mt-1">Feeling first, healing follows</p>
                 </div>
