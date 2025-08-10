@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { ArrowLeft, Bell, Palette, Heart, Settings, Sparkles, Shield, Moon, Sun } from 'lucide-react'
+import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -44,13 +45,11 @@ export default function PremiumSettingsPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-                <Heart className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                <CloudLogo size={24} />
               </div>
               <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Breezie
-                </h1>
+                <CloudLogoText size="md" />
                 <p className="text-xs text-gray-500">Feeling first, healing follows</p>
               </div>
             </Link>
@@ -67,8 +66,8 @@ export default function PremiumSettingsPage() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Page Header */}
         <div className="text-center mb-12">
-          <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-glow">
-            <Settings className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-glow">
+            <CloudLogo size={40} />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Settings</h2>
           <p className="text-lg text-gray-600">
@@ -221,16 +220,16 @@ export default function PremiumSettingsPage() {
           <Card className="glass shadow-xl border-0 hover:shadow-2xl transition-all duration-300">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-xl">
-                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-                  <Heart className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                  <CloudLogo size={24} />
                 </div>
                 About Breezie
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-xl">
-                  <Heart className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl">
+                  <CloudLogo size={40} />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">Breezie v2.0</h3>

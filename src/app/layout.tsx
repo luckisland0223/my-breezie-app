@@ -7,7 +7,10 @@ import { Analytics } from "@vercel/analytics/react";
 export const metadata: Metadata = {
 	  title: "Breezie - Emotional Wellness Assistant",
   description: "Intelligent emotion management and supportive conversation app",
-	icons: [{ rel: "icon", url: "/favicon.ico" }],
+	icons: [
+		{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
+		{ rel: "icon", url: "/favicon.ico" }
+	],
 };
 
 const geist = Geist({

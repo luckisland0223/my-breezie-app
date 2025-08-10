@@ -19,6 +19,7 @@ import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
 
 import { MessageCircle, BarChart3, Calendar, Settings, Sparkles, ArrowRight, Heart, TrendingUp, Target, Database, Mail, X, Brain, CheckCircle } from 'lucide-react'
+import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -61,13 +62,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 gradient-primary rounded-2xl flex items-center justify-center shadow-xl animate-glow">
-                <Heart className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl animate-glow">
+                <CloudLogo size={32} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Breezie
-                </h1>
+                <CloudLogoText size="lg" />
                 <p className="text-sm text-gray-600 font-medium">Feeling first, healing follows</p>
               </div>
             </div>
@@ -94,7 +93,7 @@ export default function HomePage() {
               ) : (
                 <Button 
                   onClick={() => setAuthOpen(true)}
-                  className="gradient-primary text-white hover:shadow-lg transition-all duration-200 hover:scale-105"
+                  className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white hover:shadow-lg transition-all duration-200 hover:scale-105"
                 >
                   Sign In
                 </Button>
@@ -109,8 +108,8 @@ export default function HomePage() {
       <ClientOnly fallback={
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 flex items-center justify-center min-h-[70vh]">
           <div className="text-center">
-            <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 animate-float shadow-2xl">
-              <Heart className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 animate-float shadow-2xl">
+              <CloudLogo size={50} />
             </div>
             <h2 className="text-xl font-semibold text-gray-800 mb-2">Loading your journey...</h2>
             <p className="text-gray-600">Preparing your personalized experience</p>
@@ -125,11 +124,11 @@ export default function HomePage() {
       <footer className="glass border-t-0 mt-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
           <div className="text-center">
-            <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-6 h-6 text-white" />
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <CloudLogo size={40} />
             </div>
             <p className="text-lg font-semibold text-gray-800 mb-2">
-              Breezie v2.0
+              <CloudLogoText size="md" /> v2.0
             </p>
             <p className="text-gray-600 mb-4">Feeling first, healing follows</p>
             <div className="flex justify-center items-center space-x-6 text-sm text-gray-500">
@@ -185,11 +184,11 @@ function PremiumMainContent({ activeTab, setActiveTab, handleStartConversation }
             <TabsContent value="journey" className="space-y-8">
               {/* Hero Section */}
               <div className="text-center py-12">
-                <div className="w-24 h-24 gradient-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl animate-float">
-                  <Sparkles className="w-12 h-12 text-white" />
+                <div className="w-32 h-32 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl animate-float">
+                  <CloudLogo size={80} />
                 </div>
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-purple-800 to-blue-800 bg-clip-text text-transparent mb-4">
-                  Welcome to Breezie
+                <h2 className="text-4xl font-bold mb-4">
+                  <CloudLogoText size="xl" />
                 </h2>
                 <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
                   Your personal AI companion for emotional wellness. Ready to explore your feelings and find your path to inner peace?
@@ -197,7 +196,7 @@ function PremiumMainContent({ activeTab, setActiveTab, handleStartConversation }
                 
                 <Button 
                   size="lg" 
-                  className="gradient-primary text-white px-12 py-6 rounded-2xl font-semibold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 text-lg animate-glow"
+                  className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white px-12 py-6 rounded-2xl font-semibold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 text-lg animate-glow"
                   onClick={handleStartConversation}
                 >
                   <MessageCircle className="w-6 h-6 mr-3" />
@@ -291,8 +290,8 @@ function PremiumMainContent({ activeTab, setActiveTab, handleStartConversation }
             <TabsContent value="overview" className="space-y-8">
               {/* Premium Overview Header */}
               <div className="text-center py-8">
-                <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-                  <BarChart3 className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                  <CloudLogo size={40} />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-3">Emotional Overview</h2>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">

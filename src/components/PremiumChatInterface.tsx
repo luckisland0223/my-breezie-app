@@ -29,6 +29,7 @@ import {
   RotateCcw,
   Save
 } from 'lucide-react'
+import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
 
 type MoodType = 'positive' | 'negative'
 type ChatMessage = {
@@ -292,7 +293,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
         <div className="p-6 h-full flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
                 <History className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-800">Conversation History</h3>
@@ -318,7 +319,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                 }`}>
                   <div className="flex items-center space-x-3 mb-3">
                     <Avatar className="w-8 h-8">
-                      <AvatarFallback className={message.role === 'user' ? 'bg-blue-100 text-blue-600' : 'gradient-primary text-white'}>
+                      <AvatarFallback className={message.role === 'user' ? 'bg-blue-100 text-blue-600' : 'bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white'}>
                         {message.role === 'user' ? (user?.email?.[0]?.toUpperCase() || 'U') : 'B'}
                       </AvatarFallback>
                     </Avatar>
@@ -366,8 +367,8 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
         return (
           <div className="p-6 h-full flex flex-col justify-center">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 animate-float">
-                <Brain className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 animate-float shadow-xl">
+                <CloudLogo size={40} />
               </div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">How are you feeling today?</h3>
               <p className="text-gray-600 text-sm">
@@ -421,7 +422,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
         return (
           <div className="p-6 h-full flex flex-col">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
                 <Heart className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-800">Select Your Emotion</h3>
@@ -436,7 +437,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                     variant={selectedEmotion === emotion ? "default" : "outline"}
                     className={`h-auto p-3 text-left justify-start transition-all duration-200 ${
                       selectedEmotion === emotion 
-                        ? 'gradient-primary text-white shadow-lg' 
+                        ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white shadow-lg' 
                         : 'glass-subtle hover:shadow-md hover:scale-105'
                     }`}
                   >
@@ -463,7 +464,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
         return (
           <div className="p-6 h-full flex flex-col">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-800">Personalized Suggestions</h3>
@@ -533,7 +534,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               </Button>
               
               <Button
-                className="w-full gradient-primary text-white hover:shadow-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white hover:shadow-lg transition-all duration-200"
                 onClick={handleSaveAndComplete}
                 disabled={!currentSession || (!currentUserMessage && !currentBreezieMessage)}
               >
@@ -549,10 +550,12 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
         return (
           <div className="p-6 h-full flex flex-col justify-center">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 animate-glow">
-                <Sparkles className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 animate-glow shadow-xl">
+                <CloudLogo size={40} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Welcome to Breezie</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Welcome to <CloudLogoText size="md" />
+              </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
                 I'm here to provide emotional support and guidance. Share what's on your mind, and I'll help you process your feelings with care and understanding.
               </p>
@@ -592,7 +595,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
             
             {currentSession && (currentUserMessage || currentBreezieMessage || chatHistory.length > 0) && (
               <Button
-                className="w-full gradient-primary text-white hover:shadow-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white hover:shadow-lg transition-all duration-200"
                 onClick={handleSaveAndComplete}
               >
                 <Save className="w-4 h-4 mr-2" />
@@ -622,11 +625,13 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               </Button>
               
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                  <CloudLogo size={24} />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-gray-800">Breezie Chat</h1>
+                  <h1 className="text-lg font-bold">
+                    <CloudLogoText size="md" /> Chat
+                  </h1>
                   <p className="text-xs text-gray-500">Feeling first, healing follows</p>
                 </div>
               </div>
@@ -674,7 +679,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
             <div className="glass rounded-2xl p-6 shadow-lg border-l-4 border-purple-400">
               <div className="flex items-center space-x-3 mb-4">
                 <Avatar className="w-10 h-10">
-                  <AvatarFallback className="gradient-primary text-white text-lg font-bold">
+                  <AvatarFallback className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white text-lg font-bold">
                     B
                   </AvatarFallback>
                 </Avatar>
@@ -760,7 +765,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isTyping}
                         size="sm"
-                        className="gradient-primary text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                        className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                       >
                         <Send className="w-4 h-4" />
                       </Button>
@@ -795,7 +800,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               <Button
                 size="sm"
                 onClick={handleSaveAndComplete}
-                className="gradient-primary text-white hover:shadow-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2"
+                className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white hover:shadow-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2"
                 disabled={!currentSession || (!currentUserMessage && !currentBreezieMessage)}
               >
                 <Save className="w-4 h-4" />

@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/store/auth'
 import { useEmotionStore } from '@/store/emotion'
 import { User, Mail, Calendar, Shield, BarChart3, Heart, Star, ArrowLeft, Sparkles, TrendingUp, Target, Edit } from 'lucide-react'
+import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -60,13 +61,11 @@ export default function PremiumProfilePage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-                <Heart className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                <CloudLogo size={24} />
               </div>
               <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Breezie
-                </h1>
+                <CloudLogoText size="md" />
                 <p className="text-xs text-gray-500">Feeling first, healing follows</p>
               </div>
             </Link>
@@ -83,8 +82,8 @@ export default function PremiumProfilePage() {
       <div className="max-w-6xl mx-auto px-6 py-12">
         {/* Premium Profile Header */}
         <div className="text-center mb-12">
-          <div className="w-24 h-24 gradient-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl animate-float">
-            <User className="w-12 h-12 text-white" />
+          <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl animate-float">
+            <CloudLogo size={60} />
           </div>
           <h2 className="text-4xl font-bold text-gray-900 mb-2">Your Profile</h2>
           <p className="text-xl text-gray-600">
@@ -98,11 +97,11 @@ export default function PremiumProfilePage() {
             <div className="flex flex-col lg:flex-row items-center lg:items-start space-y-6 lg:space-y-0 lg:space-x-8">
               <div className="relative">
                 <Avatar className="h-32 w-32 shadow-xl">
-                  <AvatarFallback className="text-4xl font-bold gradient-primary text-white">
+                  <AvatarFallback className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-2 -right-2 w-10 h-10 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-full flex items-center justify-center shadow-lg">
                   <Edit className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -200,7 +199,7 @@ export default function PremiumProfilePage() {
                 <Button 
                   type="submit" 
                   disabled={saving} 
-                  className="w-full h-12 gradient-primary text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  className="w-full h-12 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
                   {saving ? (
                     <div className="flex items-center space-x-2">
@@ -267,7 +266,7 @@ export default function PremiumProfilePage() {
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div 
-                              className="gradient-primary h-2 rounded-full transition-all duration-500"
+                              className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 h-2 rounded-full transition-all duration-500"
                               style={{ width: `${(data.count / totalRecords) * 100}%` }}
                             />
                           </div>
@@ -388,7 +387,7 @@ export default function PremiumProfilePage() {
                 <Button 
                   type="submit" 
                   disabled={saving} 
-                  className="w-full h-12 gradient-primary text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  className="w-full h-12 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
                   {saving ? (
                     <div className="flex items-center space-x-2">
