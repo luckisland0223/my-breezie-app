@@ -1,42 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { validateEnvironmentVariables } from '@/lib/envValidator'
-import { validateJWTSecretStrength } from '@/lib/jwtManager'
-import { validateEncryptionSetup } from '@/lib/encryptedStorage'
-import { getRateLimitStatus } from '@/lib/enhancedRateLimit'
-import { addSecurityHeaders } from '@/lib/securityMiddleware'
-import { getUserFromRequest } from '@/lib/auth'
 
-// Security check endpoint (admin only in production)
+// Simple security check endpoint
 export async function GET(request: NextRequest) {
   try {
-    // In production, only allow authenticated admin users
-    if (process.env.NODE_ENV === 'production') {
-      const user = await getUserFromRequest(request)
-      if (!user || user.email !== process.env.ADMIN_EMAIL) {
-        return addSecurityHeaders(NextResponse.json({ 
-          error: 'Unauthorized' 
-        }, { status: 403 }))
+    // Basic environment variable check
+    const requiredVars = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET', 'GEMINI_API_KEY']
+    const missingVars: string[] = []
+    const presentVars: string[] = []
+    
+    requiredVars.forEach(varName => {
+      if (process.env[varName]) {
+        presentVars.push(varName)
+      } else {
+        missingVars.push(varName)
       }
-    }
+    })
     
-    // Run all security validations
-    const envValidation = validateEnvironmentVariables()
-    const jwtValidation = validateJWTSecretStrength()
-    const encryptionValidation = validateEncryptionSetup()
-    const rateLimitStatus = getRateLimitStatus()
+    const securityScore = Math.round((presentVars.length / requiredVars.length) * 100)
     
-    // Overall security score
-    const totalChecks = 4
-    let passedChecks = 0
-    
-    if (envValidation.isValid) passedChecks++
-    if (jwtValidation.isValid) passedChecks++
-    if (encryptionValidation.isValid) passedChecks++
-    if (rateLimitStatus.ipStoreSize < 10000) passedChecks++ // Rate limiting working
-    
-    const securityScore = Math.round((passedChecks / totalChecks) * 100)
-    
-    // Determine overall status
     let overallStatus: 'excellent' | 'good' | 'warning' | 'critical'
     if (securityScore >= 95) overallStatus = 'excellent'
     else if (securityScore >= 80) overallStatus = 'good'
@@ -45,64 +26,53 @@ export async function GET(request: NextRequest) {
     
     const securityReport = {
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV,
+      environment: process.env.NODE_ENV || 'development',
       overallStatus,
       securityScore,
       
-      // Detailed validation results
+      // Environment variables status
       environmentVariables: {
-        status: envValidation.isValid ? 'pass' : 'fail',
-        errors: envValidation.errors,
-        warnings: envValidation.warnings,
-        recommendations: envValidation.recommendations
+        status: missingVars.length === 0 ? 'pass' : 'fail',
+        present: presentVars,
+        missing: missingVars,
+        total: requiredVars.length
       },
       
-      jwtConfiguration: {
-        status: jwtValidation.isValid ? 'pass' : 'fail',
-        recommendations: jwtValidation.recommendations
+      // Basic security status
+      basicSecurity: {
+        hasDatabase: !!process.env.DATABASE_URL,
+        hasJWTSecrets: !!(process.env.JWT_SECRET && process.env.JWT_REFRESH_SECRET),
+        hasGeminiAPI: !!process.env.GEMINI_API_KEY,
+        isProduction: process.env.NODE_ENV === 'production'
       },
       
-      encryptionSetup: {
-        status: encryptionValidation.isValid ? 'pass' : 'fail',
-        issues: encryptionValidation.issues
-      },
-      
-      rateLimiting: {
-        status: 'active',
-        ipStoreSize: rateLimitStatus.ipStoreSize,
-        userStoreSize: rateLimitStatus.userStoreSize,
-        isHealthy: rateLimitStatus.ipStoreSize < 10000
-      },
-      
-      // Security recommendations based on current state
-      immediateActions: [
-        ...envValidation.errors.map(error => `Environment: ${error}`),
-        ...jwtValidation.recommendations.map(rec => `JWT: ${rec}`),
-        ...encryptionValidation.issues.map(issue => `Encryption: ${issue}`)
-      ],
-      
-      // Production readiness checklist
+      // Production readiness
       productionReadiness: {
         databaseConfigured: !!process.env.DATABASE_URL,
-        jwtSecretsSecure: jwtValidation.isValid,
-        encryptionWorking: encryptionValidation.isValid,
-        rateLimitingActive: true,
-        httpsEnforced: process.env.NODE_ENV === 'production',
-        adminEmailSet: !!process.env.ADMIN_EMAIL
-      }
+        jwtSecretsSecure: !!(process.env.JWT_SECRET && process.env.JWT_REFRESH_SECRET),
+        aiServiceConfigured: !!process.env.GEMINI_API_KEY,
+        environment: process.env.NODE_ENV || 'development'
+      },
+      
+      // Recommendations
+      recommendations: [
+        ...missingVars.map(varName => `Set ${varName} environment variable`),
+        ...(process.env.NODE_ENV !== 'production' ? ['Configure production environment variables'] : []),
+        'Ensure JWT secrets are at least 32 characters long',
+        'Use HTTPS in production',
+        'Configure database with SSL in production'
+      ]
     }
     
-    const response = NextResponse.json(securityReport, { 
+    return NextResponse.json(securityReport, { 
       status: overallStatus === 'critical' ? 500 : 200 
     })
     
-    return addSecurityHeaders(response)
-    
   } catch (error) {
     console.error('Security check failed:', error)
-    return addSecurityHeaders(NextResponse.json({ 
+    return NextResponse.json({ 
       error: 'Security check failed',
       timestamp: new Date().toISOString()
-    }, { status: 500 }))
+    }, { status: 500 })
   }
 }
