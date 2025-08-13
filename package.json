@@ -5,77 +5,31 @@
 	"type": "module",
 	"scripts": {
 		"build": "next build",
-		"vercel-build": "prisma generate && next build",
+		"vercel-build": "next build",
 		"check": "biome check .",
 		"check:unsafe": "biome check --write --unsafe .",
 		"check:write": "biome check --write .",
 		"dev": "next dev --turbo",
 		"preview": "next build && next start",
 		"start": "next start",
-		"typecheck": "tsc --noEmit",
-		"db:generate": "prisma generate",
-		"db:push": "prisma db push",
-		"db:migrate": "prisma migrate dev",
-		"db:studio": "prisma studio",
-		"db:init": "node scripts/init-db.js",
-		"db:reset": "prisma migrate reset --force",
-		"security:check": "tsx scripts/production-check.ts",
-		"security:generate": "tsx scripts/production-check.ts --generate-secrets"
+		"typecheck": "tsc --noEmit"
 	},
 	"packageManager": "npm@10.7.0",
-	"prisma": {
-		"schema": "prisma/schema.prisma"
-	},
 	"engines": {
 		"node": ">=18"
 	},
-	"pnpm": {
-		"patchedDependencies": {}
-	},
-	"overrides": {},
-	"resolutions": {},
-	"postinstall": "prisma generate",
 	"dependencies": {
-		"@prisma/client": "^6.13.0",
-		"@radix-ui/react-accordion": "^1.2.11",
-		"@radix-ui/react-avatar": "^1.1.10",
-		"@radix-ui/react-checkbox": "^1.3.2",
-		"@radix-ui/react-dialog": "^1.1.14",
-		"@radix-ui/react-dropdown-menu": "^2.1.15",
 		"@radix-ui/react-label": "^2.1.7",
-		"@radix-ui/react-popover": "^1.1.14",
-		"@radix-ui/react-progress": "^1.1.7",
-		"@radix-ui/react-radio-group": "^1.3.7",
-		"@radix-ui/react-select": "^2.2.5",
-		"@radix-ui/react-separator": "^1.1.7",
 		"@radix-ui/react-slot": "^1.2.3",
-		"@radix-ui/react-switch": "^1.2.5",
-		"@radix-ui/react-tabs": "^1.1.12",
-		"@radix-ui/react-tooltip": "^1.2.7",
-		"@react-email/components": "^0.5.0",
-		"@t3-oss/env-nextjs": "^0.12.0",
-		"@types/bcryptjs": "^2.4.6",
-		"@types/crypto-js": "^4.2.2",
-		"@types/jsonwebtoken": "^9.0.10",
 		"@vercel/analytics": "^1.5.0",
-		"bcryptjs": "^3.0.2",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
-		"crypto-js": "^4.2.0",
-		"date-fns": "^4.1.0",
-		"dotenv": "^17.2.1",
-		"express-rate-limit": "^8.0.1",
-		"jsonwebtoken": "^9.0.2",
 		"lucide-react": "^0.511.0",
 		"next": "^15.2.3",
 		"react": "^19.0.0",
-		"react-day-picker": "^9.7.0",
 		"react-dom": "^19.0.0",
-		"recharts": "^2.15.4",
-		"requests": "^0.3.0",
 		"sonner": "^2.0.3",
 		"tailwind-merge": "^3.3.0",
-		"zod": "^3.24.2",
 		"zustand": "^5.0.5"
 	},
 	"devDependencies": {
@@ -85,13 +39,7 @@
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
 		"postcss": "^8.5.3",
-		"prisma": "^6.13.0",
 		"tailwindcss": "^4.0.15",
-		"tsx": "^4.20.4",
-		"tw-animate-css": "^1.3.0",
 		"typescript": "^5.8.2"
-	},
-	"ct3aMetadata": {
-		"initVersion": "7.39.3"
 	}
 }
