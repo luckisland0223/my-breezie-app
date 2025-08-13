@@ -42,7 +42,7 @@ function TypewriterText({ text, onComplete }: { text: string; onComplete?: () =>
   return <span>{displayedText}</span>
 }
 
-// Chat Bubble Component
+// Chat Bubble Component - Modern chat app style
 function ChatBubble({ 
   message, 
   isUser, 
@@ -55,34 +55,57 @@ function ChatBubble({
   showAvatar?: boolean
 }) {
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`flex items-end gap-3 max-w-[80%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-        {showAvatar && (
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-            isUser 
-              ? 'bg-gradient-to-br from-blue-500 to-purple-600' 
-              : 'bg-gradient-to-br from-green-500 to-teal-600'
-          }`}>
-            {isUser ? (
-              <User className="w-4 h-4 text-white" />
-            ) : (
-              <MessageCircle className="w-4 h-4 text-white" />
-            )}
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3 px-4`}>
+      <div className={`flex items-end gap-2 max-w-[75%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Avatar - only show for AI messages */}
+        {!isUser && showAvatar && (
+          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-green-500 to-teal-600 shadow-sm">
+            <MessageCircle className="w-4 h-4 text-white" />
           </div>
         )}
         
-        <div className={`px-4 py-3 rounded-2xl ${
+        {/* Message Bubble */}
+        <div className={`relative px-4 py-2.5 rounded-2xl max-w-full ${
           isUser 
-            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white' 
-            : 'bg-white border border-gray-200 text-gray-800 shadow-sm'
+            ? 'bg-blue-500 text-white rounded-br-md' 
+            : 'bg-gray-100 text-gray-800 rounded-bl-md border border-gray-200'
         }`}>
-          <div className="text-sm leading-relaxed whitespace-pre-line">{message}</div>
-          <div className={`text-xs mt-2 ${
-            isUser ? 'text-blue-100' : 'text-gray-400'
+          {/* Message Content */}
+          <div className="text-sm leading-relaxed whitespace-pre-line break-words">
+            {message}
+          </div>
+          
+          {/* Timestamp */}
+          <div className={`text-xs mt-1.5 ${
+            isUser ? 'text-blue-100' : 'text-gray-500'
           }`}>
             {format(timestamp, 'HH:mm')}
           </div>
+          
+          {/* Bubble Tail */}
+          <div className={`absolute bottom-0 ${
+            isUser 
+              ? 'right-0 transform translate-x-full' 
+              : 'left-0 transform -translate-x-full'
+          }`}>
+            <div className={`w-3 h-3 ${
+              isUser 
+                ? 'bg-blue-500' 
+                : 'bg-gray-100 border-l border-b border-gray-200'
+            }`} style={{
+              clipPath: isUser 
+                ? 'polygon(0 0, 100% 0, 0 100%)' 
+                : 'polygon(100% 0, 0 0, 100% 100%)'
+            }} />
+          </div>
         </div>
+        
+        {/* User Avatar - only show for user messages */}
+        {isUser && showAvatar && (
+          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-blue-500 to-purple-600 shadow-sm">
+            <User className="w-4 h-4 text-white" />
+          </div>
+        )}
       </div>
     </div>
   )
@@ -630,7 +653,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
               {currentSession?.messages && currentSession.messages.filter(msg => msg.role === 'user').length > 0 ? (
                 <Button 
                   onClick={handleCompleteSession}
-                  className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700"
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:from-blue-600 hover:via-blue-700 hover:to-blue-800"
                   size="sm"
                 >
                   Complete & Save
@@ -659,17 +682,32 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
             </div>
             
             {/* Messages Container */}
-            <div className="min-h-[400px] max-h-[600px] overflow-y-auto space-y-4">
+            <div className="min-h-[400px] max-h-[600px] overflow-y-auto">
               {currentSession?.messages && currentSession.messages.length > 0 ? (
-                currentSession.messages.map((message, index) => (
-                  <ChatBubble
-                    key={index}
-                    message={message.content}
-                    isUser={message.role === 'user'}
-                    timestamp={message.timestamp}
-                    showAvatar={index === 0 || message.role !== currentSession.messages[index - 1]?.role}
-                  />
-                ))
+                <div className="py-4">
+                  {currentSession.messages.map((message, index) => {
+                    const prevMessage = index > 0 ? currentSession.messages[index - 1] : null;
+                    const nextMessage = index < currentSession.messages.length - 1 ? currentSession.messages[index + 1] : null;
+                    
+                    // Show avatar for first message, or when role changes
+                    const showAvatar = index === 0 || message.role !== prevMessage?.role;
+                    
+                    // Add spacing between different users
+                    const addSpacing = nextMessage && message.role !== nextMessage.role;
+                    
+                    return (
+                      <div key={index}>
+                        <ChatBubble
+                          message={message.content}
+                          isUser={message.role === 'user'}
+                          timestamp={message.timestamp}
+                          showAvatar={showAvatar}
+                        />
+                        {addSpacing && <div className="h-4" />}
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
                 <div className="text-center text-gray-400 py-12">
                   <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -680,12 +718,12 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
               
               {/* Typing indicator */}
               {isTyping && (
-                <div className="flex justify-start mb-4">
-                  <div className="flex items-end gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
+                <div className="flex justify-start mb-3 px-4">
+                  <div className="flex items-end gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
                       <MessageCircle className="w-4 h-4 text-white" />
                     </div>
-                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="bg-gray-100 border border-gray-200 rounded-2xl rounded-bl-md px-4 py-2.5 relative">
                       <div className="flex items-center space-x-2">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
@@ -693,6 +731,13 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
                         <span className="text-sm text-gray-500">Breezie is typing...</span>
+                      </div>
+                      
+                      {/* Bubble Tail */}
+                      <div className="absolute bottom-0 left-0 transform -translate-x-full">
+                        <div className="w-3 h-3 bg-gray-100 border-l border-b border-gray-200" style={{
+                          clipPath: 'polygon(100% 0, 0 0, 100% 100%)'
+                        }} />
                       </div>
                     </div>
                   </div>
@@ -727,7 +772,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type your message here..."
-                className="w-full min-h-[120px] max-h-[300px] p-4 pr-16 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200 bg-gray-50/30"
+                className="w-full min-h-[60px] max-h-[200px] p-4 pr-16 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200 bg-white shadow-sm"
                 disabled={isTyping}
                 autoFocus
               />
@@ -735,7 +780,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                 <Button 
                   onClick={handleSendMessage} 
                   disabled={!inputValue.trim() || isTyping}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full w-10 h-10 p-0 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm border-0"
                   size="sm"
                 >
                   <Send className="w-4 h-4" />
@@ -772,16 +817,29 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                   </DialogTitle>
                 </DialogHeader>
                 <div className="overflow-y-auto max-h-[60vh] pr-2">
-                  <div className="space-y-4">
-                    {currentSession.messages.slice(1).map((message, index) => (
-                      <ChatBubble
-                        key={index}
-                        message={message.content}
-                        isUser={message.role === 'user'}
-                        timestamp={message.timestamp}
-                        showAvatar={true}
-                      />
-                    ))}
+                  <div className="py-4">
+                    {currentSession.messages.slice(1).map((message, index) => {
+                      const prevMessage = index > 0 ? currentSession.messages.slice(1)[index - 1] : null;
+                      const nextMessage = index < currentSession.messages.slice(1).length - 1 ? currentSession.messages.slice(1)[index + 1] : null;
+                      
+                      // Show avatar for first message, or when role changes
+                      const showAvatar = index === 0 || message.role !== prevMessage?.role;
+                      
+                      // Add spacing between different users
+                      const addSpacing = nextMessage && message.role !== nextMessage.role;
+                      
+                      return (
+                        <div key={index}>
+                          <ChatBubble
+                            message={message.content}
+                            isUser={message.role === 'user'}
+                            timestamp={message.timestamp}
+                            showAvatar={showAvatar}
+                          />
+                          {addSpacing && <div className="h-4" />}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </DialogContent>

@@ -534,7 +534,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               </Button>
               
               <Button
-                className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white hover:shadow-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:shadow-lg transition-all duration-200 border-0"
                 onClick={handleSaveAndComplete}
                 disabled={!currentSession || (!currentUserMessage && !currentBreezieMessage)}
               >
@@ -595,7 +595,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
             
             {currentSession && (currentUserMessage || currentBreezieMessage || chatHistory.length > 0) && (
               <Button
-                className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white hover:shadow-lg transition-all duration-200"
+                className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:shadow-lg transition-all duration-200 border-0"
                 onClick={handleSaveAndComplete}
               >
                 <Save className="w-4 h-4 mr-2" />
@@ -765,7 +765,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isTyping}
                         size="sm"
-                        className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                        className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-0"
                       >
                         <Send className="w-4 h-4" />
                       </Button>
@@ -800,7 +800,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               <Button
                 size="sm"
                 onClick={handleSaveAndComplete}
-                className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white hover:shadow-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2"
+                className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:shadow-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2 border-0"
                 disabled={!currentSession || (!currentUserMessage && !currentBreezieMessage)}
               >
                 <Save className="w-4 h-4" />

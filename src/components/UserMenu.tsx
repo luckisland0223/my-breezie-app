@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Settings, LogOut, User as UserIcon, Mail, Shield, Star } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, Mail, Shield, Star, BarChart3, MessageCircle } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 
 export function UserMenu() {
@@ -52,12 +52,15 @@ export function UserMenu() {
             </div>
           </TooltipContent>
         </Tooltip>
-        <DropdownMenuContent align="end" className="w-44">
-          <DropdownMenuItem onClick={() => router.push('/profile')}>
-            <UserIcon className="h-4 w-4 mr-2" /> Profile
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem onClick={() => router.push('/app')}>
+            <UserIcon className="h-4 w-4 mr-2" /> Dashboard
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/settings')}>
-            <Settings className="h-4 w-4 mr-2" /> Settings
+          <DropdownMenuItem onClick={() => router.push('/app/chat')}>
+            <MessageCircle className="h-4 w-4 mr-2" /> Chat
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/app/analytics')}>
+            <BarChart3 className="h-4 w-4 mr-2" /> Analytics
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -65,6 +68,7 @@ export function UserMenu() {
               logout()
               router.push('/')
             }}
+            className="text-red-600 focus:text-red-600 focus:bg-red-50"
           >
             <LogOut className="h-4 w-4 mr-2" /> Sign out
           </DropdownMenuItem>

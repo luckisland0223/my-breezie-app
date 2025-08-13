@@ -7,11 +7,9 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: [
           '/',
-          '/chat',
-          '/analytics',
-          '/profile',
-          '/settings',
-          '/security',
+          '/app',
+          '/app/chat',
+          '/app/analytics',
         ],
         disallow: [
           '/api/',
