@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getGeminiResponse } from '@/lib/geminiService'
-import { rateLimit, addSecurityHeaders, corsMiddleware, validateChatRequest, sanitizeInput } from '@/lib/securityMiddleware'
+import { rateLimit, addSecurityHeaders, validateChatRequest, sanitizeInput } from '@/lib/securityMiddleware'
 import { enhancedRateLimit, burstProtection, progressiveRateLimit } from '@/lib/enhancedRateLimit'
 import { getUserFromRequest } from '@/lib/auth'
 import { buildFullPrompt, API_CONFIG, getTokensForEngagement } from '@/config/prompts'
@@ -13,11 +13,6 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Apply CORS middleware first
-    const corsResponse = corsMiddleware(request)
-    if (corsResponse) {
-      return addSecurityHeaders(corsResponse, request)
-    }
     
     // Get user information for enhanced rate limiting
     const user = await getUserFromRequest(request)

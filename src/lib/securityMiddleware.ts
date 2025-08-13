@@ -10,7 +10,6 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://breezie.vercel.app',
-  'https://www.breezie.com',
   'https://breezie.io',
   'https://www.breezie.io'
 ]
@@ -81,21 +80,7 @@ export function sanitizeInput(data: any): any {
   return data
 }
 
-// CORS middleware
-export function corsMiddleware(request: NextRequest): NextResponse | null {
-  const origin = request.headers.get('origin')
-  const isDevelopment = process.env.NODE_ENV === 'development'
-  
-  // Allow all origins in development, restrict in production
-  if (!isDevelopment && origin && !ALLOWED_ORIGINS.includes(origin)) {
-    return NextResponse.json(
-      { error: 'CORS policy violation' },
-      { status: 403 }
-    )
-  }
-  
-  return null
-}
+
 
 // Comprehensive input validation
 export function validateChatRequest(body: any): { isValid: boolean; errors: string[] } {
@@ -180,9 +165,15 @@ export function addSecurityHeaders(response: NextResponse, request: NextRequest)
   response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   
-  // CORS headers
+  // CORS headers - Unified CORS policy
   const origin = request.headers.get('origin')
   const isDevelopment = process.env.NODE_ENV === 'development'
+  
+  // In production, only allow requests from permitted origins
+  if (!isDevelopment && origin && !ALLOWED_ORIGINS.includes(origin)) {
+    // This should not happen in normal flow, but as a safety measure
+    console.warn(`CORS policy violation: ${origin} not in allowed origins`)
+  }
   
   if (isDevelopment) {
     response.headers.set('Access-Control-Allow-Origin', '*')
