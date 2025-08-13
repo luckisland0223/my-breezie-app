@@ -23,11 +23,13 @@ const colors = {
   bold: '\x1b[1m'
 }
 
-function log(message, color = 'reset') {
+type ColorKey = keyof typeof colors;
+
+function log(message: string, color: ColorKey = 'reset') {
   console.log(`${colors[color]}${message}${colors.reset}`)
 }
 
-function logSection(title) {
+function logSection(title: string) {
   console.log(`\n${colors.bold}${colors.blue}=== ${title} ===${colors.reset}`)
 }
 
@@ -230,12 +232,12 @@ async function main() {
 }
 
 // Handle errors
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', (error: Error) => {
   log(`❌ Uncaught Exception: ${error.message}`, 'red')
   process.exit(1)
 })
 
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', (reason: any) => {
   log(`❌ Unhandled Rejection: ${reason}`, 'red')
   process.exit(1)
 })
