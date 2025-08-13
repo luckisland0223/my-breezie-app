@@ -187,15 +187,8 @@ export const useAuthStore = create<AuthState>()(persist((set, get) => ({
 
 // Helper to build auth header when available
 export function getAuthHeaders(): HeadersInit {
-  try {
-    // dynamic import of state to avoid SSR issues
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { useAuthStore: store } = require('./auth') as typeof import('./auth')
-    const token = store.getState().token
-    return token ? { Authorization: `Bearer ${token}` } : {}
-  } catch {
-    return {}
-  }
+  const token = useAuthStore.getState().token
+  return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
 // Save pending emotion record after successful auth
