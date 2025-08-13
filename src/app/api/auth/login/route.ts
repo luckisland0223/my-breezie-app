@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.findUnique({ where: { email } })
 
-    if (!user || !await verifyPassword(password, user.password)) {
+    if (!user || !await verifyPassword(password, user.passwordHash)) {
       const response = NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
       return addSecurityHeaders(response, request)
     }
