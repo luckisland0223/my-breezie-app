@@ -40,12 +40,35 @@ export async function POST(request: NextRequest) {
       select: { id: true, email: true, username: true, avatarUrl: true, subscriptionTier: true }
     })
 
-    // Generate token for immediate login
-    const token = generateToken({ userId: user.id, email: user.email, username: user.username })
+    // Generate token pair for immediate login
+    const tokens: TokenPair = generateToken({
+      userId: user.id,
+      email: user.email,
+      username: user.username,
+      subscriptionTier: user.subscriptionTier,
+    })
 
-    return NextResponse.json({ user, token, message: 'Registration successful' })
+    const response = NextResponse.json({ 
+      user, 
+      accessToken: tokens.accessToken, 
+      message: 'Registration successful' 
+    }, { status: 201 })
+
+    // Set secure HTTP-only cookie for refresh token
+    response.cookies.set('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: '/'
+    })
+
+    return addSecurityHeaders(response)
   } catch (error) {
     console.error('Register error:', error)
+    if (error instanceof Error && error.message.includes('Unique constraint failed')) {
+      return NextResponse.json({ error: 'Email or username already exists' }, { status: 409 })
+    }
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
