@@ -1,30 +1,30 @@
-import React, { useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { useEmotionStore } from '@/store/emotion'
-import type { EmotionType, EmotionRecord, PolarityType } from '@/store/emotion'
 import { EmotionCalendar } from '@/components/EmotionCalendar'
 import { EmotionChart } from '@/components/EmotionChart'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { emotionConfig, getEmotionDisplay, getEmotionEmoji } from '@/config/emotionConfig'
-import { toast } from 'sonner'
+import { useEmotionStore } from '@/store/emotion'
+import type { EmotionRecord, EmotionType, PolarityType } from '@/store/emotion'
+import { eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, isToday, startOfDay, startOfMonth, startOfWeek, subDays } from 'date-fns'
 import { 
+  BarChart3,
   Calendar, 
-  TrendingUp, 
-  TrendingDown,
-  Minus,
-  MessageCircle,
-  Heart,
-  Eye,
   ChevronLeft,
   ChevronRight,
-  BarChart3,
+  Clock,
+  Eye,
+  Heart,
+  MessageCircle,
+  Minus,
   Trash2,
-  Clock
+  TrendingDown,
+  TrendingUp 
 } from 'lucide-react'
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, subDays, startOfDay, startOfWeek, endOfWeek, isSameMonth } from 'date-fns'
+import React, { useState, useMemo } from 'react'
+import { toast } from 'sonner'
 
 // Emotion display helper
 const getEmotionDisplayInfo = (emotion: EmotionType) => {
@@ -144,37 +144,37 @@ export function EmotionTracker() {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Emotional Overview</h2>
+        <h2 className="mb-2 font-bold text-2xl text-gray-900">Emotional Overview</h2>
         <p className="text-gray-600">Track your emotional journey and behavioral patterns</p>
       </div>
 
       <Tabs defaultValue="calendar" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="calendar" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
+            <Calendar className="h-4 w-4" />
             Calendar
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
+            <BarChart3 className="h-4 w-4" />
             Analytics
           </TabsTrigger>
           <TabsTrigger value="recent" className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
+            <Clock className="h-4 w-4" />
             Recent
           </TabsTrigger>
           <TabsTrigger value="insights" className="flex items-center gap-2">
-            <Eye className="w-4 h-4" />
+            <Eye className="h-4 w-4" />
             Insights
           </TabsTrigger>
         </TabsList>
 
         {/* Calendar Tab - TOP PRIORITY */}
         <TabsContent value="calendar" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
+                  <Calendar className="h-5 w-5" />
                   Emotion Calendar
                 </CardTitle>
               </CardHeader>
@@ -189,14 +189,14 @@ export function EmotionTracker() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">{records.length}</div>
-                  <div className="text-sm text-gray-600">Total Records</div>
+                  <div className="font-bold text-3xl text-blue-600">{records.length}</div>
+                  <div className="text-gray-600 text-sm">Total Records</div>
                 </div>
                 
                 {records.length > 0 && (
                   <>
                     <div className="text-center">
-                      <div className="text-2xl font-semibold text-green-600">
+                      <div className="font-semibold text-2xl text-green-600">
                         {(() => {
                           // Sort all records by time (newest first)
                           const sortedRecords = records
@@ -218,14 +218,14 @@ export function EmotionTracker() {
                           return avgImpact.toFixed(1)
                         })()}
                       </div>
-                      <div className="text-sm text-gray-600">Avg Behavioral Impact Score (Recent 3)</div>
+                      <div className="text-gray-600 text-sm">Avg Behavioral Impact Score (Recent 3)</div>
                     </div>
                     
                     <div className="text-center">
-                      <div className="text-2xl mb-1">
+                      <div className="mb-1 text-2xl">
                         📊 Analytics Available
                       </div>
-                      <div className="text-sm text-gray-600">View detailed insights in Analytics tab</div>
+                      <div className="text-gray-600 text-sm">View detailed insights in Analytics tab</div>
                     </div>
                   </>
                 )}
@@ -236,12 +236,12 @@ export function EmotionTracker() {
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Emotion Distribution Chart */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
+                  <BarChart3 className="h-5 w-5" />
                   Emotion Distribution
                 </CardTitle>
               </CardHeader>
@@ -257,13 +257,13 @@ export function EmotionTracker() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">{records.length}</div>
-                  <div className="text-sm text-gray-600">Total Records</div>
+                  <div className="font-bold text-3xl text-blue-600">{records.length}</div>
+                  <div className="text-gray-600 text-sm">Total Records</div>
                 </div>
                 
                 {records.length > 0 && (
                   <div className="text-center">
-                    <div className="text-2xl font-semibold text-green-600">
+                    <div className="font-semibold text-2xl text-green-600">
                       {(() => {
                         // Sort all records by time (newest first)
                         const sortedRecords = records
@@ -285,7 +285,7 @@ export function EmotionTracker() {
                         return avgImpact.toFixed(1)
                       })()}
                     </div>
-                    <div className="text-sm text-gray-600">Avg Behavioral Impact Score (Recent 3)</div>
+                    <div className="text-gray-600 text-sm">Avg Behavioral Impact Score (Recent 3)</div>
                   </div>
                 )}
               </CardContent>
@@ -297,9 +297,9 @@ export function EmotionTracker() {
         <TabsContent value="recent" className="space-y-6">
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
+                  <Clock className="h-5 w-5" />
                   Today's Emotions
                 </CardTitle>
                 <Badge variant="secondary">{todayRecords.length} records</Badge>
@@ -307,33 +307,35 @@ export function EmotionTracker() {
             </CardHeader>
             <CardContent>
               {todayRecords.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Heart className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <div className="py-8 text-center text-gray-500">
+                  <Heart className="mx-auto mb-4 h-12 w-12 opacity-50" />
                   <p>No emotions recorded today yet.</p>
-                  <p className="text-sm mt-2">Start a conversation to begin tracking!</p>
+                  <p className="mt-2 text-sm">Start a conversation to begin tracking!</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {todayRecords.map((record) => {
                     const emotionInfo = getEmotionDisplayInfo(record.emotion)
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={record.id}
-                        className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                        className="w-full cursor-pointer rounded-lg border border-gray-200 p-4 text-left transition-shadow hover:shadow-md"
                         onClick={() => setSelectedRecord(record)}
+                        aria-label={`View details for ${record.emotion} emotion record`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <span className="text-2xl">{emotionInfo.emoji}</span>
                             <div>
                               <div className="font-medium text-gray-900">{record.emotion}</div>
-                              <div className="text-sm text-gray-600">
+                              <div className="text-gray-600 text-sm">
                                 Behavioral Impact: {record.behavioralImpact}/10
                               </div>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-gray-600 text-sm">
                               {format(new Date(record.timestamp), 'HH:mm')}
                             </div>
                             <Badge 
@@ -348,11 +350,11 @@ export function EmotionTracker() {
                           </div>
                         </div>
                         {record.note && (
-                          <div className="mt-2 text-sm text-gray-600 italic">
+                          <div className="mt-2 text-gray-600 text-sm italic">
                             "{record.note}"
                           </div>
                         )}
-                      </div>
+                      </button>
                     )
                   })}
                 </div>
@@ -363,16 +365,16 @@ export function EmotionTracker() {
 
         {/* Insights Tab */}
         <TabsContent value="insights" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <TrendingUp className="h-5 w-5 text-green-500" />
                   Positive Patterns
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-gray-600">
+                <div className="text-gray-600 text-sm">
                   <p>Track your emotional patterns to gain insights into your wellbeing and discover trends in your emotional journey.</p>
                 </div>
               </CardContent>
@@ -381,12 +383,12 @@ export function EmotionTracker() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-red-500" />
+                  <Heart className="h-5 w-5 text-red-500" />
                   Wellness Tips
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-gray-600">
+                <div className="text-gray-600 text-sm">
                   <p>Regular emotional check-ins can help you understand your patterns better. Consider setting aside time each day for self-reflection.</p>
                 </div>
               </CardContent>
@@ -414,7 +416,7 @@ export function EmotionTracker() {
               <div>
                 <h4 className="font-semibold text-gray-900">Behavioral Impact Score</h4>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <div className="h-2 flex-1 rounded-full bg-gray-200">
                     <div 
                       className="h-2 rounded-full bg-gradient-to-r from-green-400 to-red-500" 
                       style={{ width: `${selectedRecord.behavioralImpact * 10}%` }}
@@ -445,7 +447,7 @@ export function EmotionTracker() {
                   onClick={() => setIsDeleteConfirmOpen(true)}
                   className="flex items-center gap-2"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                   Delete Record
                 </Button>
               </div>
@@ -464,7 +466,7 @@ export function EmotionTracker() {
             <p className="text-gray-600">
               Are you sure you want to delete this emotion record? This action cannot be undone.
             </p>
-            <div className="flex gap-2 justify-end">
+            <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsDeleteConfirmOpen(false)}>
                 Cancel
               </Button>

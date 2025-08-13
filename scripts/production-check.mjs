@@ -5,10 +5,10 @@
  * Run this script before deploying to production
  */
 
-import crypto from 'crypto'
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import crypto from 'node:crypto'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -146,7 +146,7 @@ function checkFilePermissions() {
     if (fs.existsSync(filePath)) {
       try {
         const stats = fs.statSync(filePath)
-        const mode = (stats.mode & parseInt('777', 8)).toString(8)
+        const mode = (stats.mode & 0o777).toString(8)
         
         if (mode === '600' || mode === '644') {
           log(`✅ ${file}: Secure permissions (${mode})`, 'green')

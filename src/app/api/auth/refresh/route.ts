@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { refreshUserToken } from '@/lib/auth'
 import { enhancedRateLimit } from '@/lib/enhancedRateLimit'
 import { addSecurityHeaders } from '@/lib/securityMiddleware'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {

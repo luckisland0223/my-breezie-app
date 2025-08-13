@@ -1,6 +1,6 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
 import { secureStorage } from '@/lib/securityUtils'
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 export type EmotionType = 'Anger' | 'Disgust' | 'Fear' | 'Joy' | 'Sadness' | 'Surprise' | 'Anxiety' | 'Love' | 'Pride' | 'Shame' | 'Envy' | 'Guilt' | 'Hope' | 'Excitement' | 'Boredom' | 'Confusion' | 'Gratitude' | 'Loneliness' | 'Frustration' | 'Contentment' | 'Other'
 export type PolarityType = 'positive' | 'negative' | 'neutral'

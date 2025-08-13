@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { emotionConfig, getEmotionEmoji, primaryEmotions } from '@/config/emotionConfig'
 import { useEmotionStore } from '@/store/emotion'
-import { primaryEmotions, getEmotionEmoji, emotionConfig } from '@/config/emotionConfig'
 import type { EmotionType } from '@/store/emotion'
 import { Heart, Plus, Zap } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 export function QuickEmotionCheck() {
@@ -94,17 +94,17 @@ export function QuickEmotionCheck() {
   }
 
   return (
-    <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+    <Card className="border-white/20 bg-white/70 shadow-lg backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Zap className="w-5 h-5 text-yellow-500" />
+          <Zap className="h-5 w-5 text-yellow-500" />
           Quick Emotion Check
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Emotion Selection */}
         <div>
-          <p className="text-sm text-gray-600 mb-3">Select current emotion:</p>
+          <p className="mb-3 text-gray-600 text-sm">Select current emotion:</p>
           <div className="grid grid-cols-3 gap-2">
             {primaryEmotions.map((emotion) => {
               const config = emotionConfig[emotion]
@@ -112,16 +112,17 @@ export function QuickEmotionCheck() {
               
               return (
                 <button
+                  type="button"
                   key={emotion}
                   onClick={() => setSelectedEmotion(emotion)}
-                  className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${
+                  className={`rounded-lg border-2 p-3 text-center transition-all duration-200 ${
                     isSelected
                       ? `border-${config.color}-500 bg-${config.color}-50 shadow-md`
                       : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
                   }`}
                 >
-                  <div className="text-2xl mb-1">{getEmotionEmoji(emotion)}</div>
-                  <div className={`text-xs font-medium ${
+                  <div className="mb-1 text-2xl">{getEmotionEmoji(emotion)}</div>
+                  <div className={`font-medium text-xs ${
                     isSelected ? `text-${config.color}-700` : 'text-gray-600'
                   }`}>
 {emotion}
@@ -136,7 +137,7 @@ export function QuickEmotionCheck() {
         {selectedEmotion && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">Intensity Level:</p>
+              <p className="text-gray-600 text-sm">Intensity Level:</p>
               <Badge variant="secondary" className="flex items-center gap-1">
                 {intensity}/10 - {getIntensityLabel(intensity)}
               </Badge>
@@ -144,36 +145,48 @@ export function QuickEmotionCheck() {
             
             <div 
               ref={sliderRef}
-              className="relative h-8 bg-gray-200 rounded-full cursor-pointer select-none"
+              className="relative h-8 cursor-pointer select-none rounded-full bg-gray-200"
               onMouseDown={handleMouseDown}
               onClick={handleSliderClick}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleSliderClick(e as any)
+                }
+              }}
+              tabIndex={0}
+              role="slider"
+              aria-label="Emotion intensity slider"
+              aria-valuemin={1}
+              aria-valuemax={10}
+              aria-valuenow={intensity}
             >
               {/* Background track with gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-green-300 via-yellow-300 to-red-300 rounded-full opacity-50"></div>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-300 via-yellow-300 to-red-300 opacity-50" />
               
               {/* Active track */}
               <div 
                 className={`absolute top-0 left-0 h-full ${getIntensityColor(intensity)} rounded-full transition-all duration-200`}
                 style={{ width: `${(intensity / 10) * 100}%` }}
-              ></div>
+              />
               
               {/* Slider thumb */}
               <div 
-                className={`absolute top-1/2 w-6 h-6 ${getIntensityColor(intensity)} border-2 border-white rounded-full shadow-lg transform -translate-y-1/2 cursor-grab active:cursor-grabbing transition-all duration-200 ${
+                className={`absolute top-1/2 h-6 w-6 ${getIntensityColor(intensity)} -translate-y-1/2 transform cursor-grab rounded-full border-2 border-white shadow-lg transition-all duration-200 active:cursor-grabbing ${
                   isDragging ? 'scale-110' : 'hover:scale-105'
                 }`}
                 style={{ left: `calc(${(intensity / 10) * 100}% - 12px)` }}
-              ></div>
+              />
               
               {/* Scale markers */}
-              <div className="absolute inset-0 flex justify-between items-center px-2 pointer-events-none">
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                  <div key={num} className="w-0.5 h-2 bg-gray-400 opacity-50"></div>
+                  <div key={num} className="h-2 w-0.5 bg-gray-400 opacity-50" />
                 ))}
               </div>
             </div>
             
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-gray-500 text-xs">
               <span>1 - Mild</span>
               <span>5 - Moderate</span>
               <span>10 - Intense</span>
@@ -185,14 +198,14 @@ export function QuickEmotionCheck() {
         <Button 
           onClick={handleQuickRecord}
           disabled={!selectedEmotion}
-          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           Record Emotion
         </Button>
 
         {/* Quick Tips */}
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-center text-gray-500 text-xs">
           💡 Quickly record your current emotional state to help track mood changes
         </div>
       </CardContent>

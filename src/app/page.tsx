@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useAuthStore } from '@/store/auth'
 import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
-import { MessageCircle, BarChart3, Heart, ArrowRight, Sparkles, Brain, CheckCircle, Shield, Star, Users, Zap, Target } from 'lucide-react'
 import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
-import { toast } from 'sonner'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useAuthStore } from '@/store/auth'
+import { ArrowRight, BarChart3, Brain, CheckCircle, Heart, MessageCircle, Shield, Sparkles, Star, Target, Users, Zap } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export default function LandingPage() {
   const { user } = useAuthStore()
@@ -26,16 +26,16 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Header */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-white/20 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+      <header className="sticky top-0 z-50 border-white/20 border-b bg-white/90 shadow-sm backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex h-20 items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl animate-glow">
+              <div className="flex h-12 w-12 animate-glow items-center justify-center rounded-2xl bg-white shadow-xl">
                 <CloudLogo size={32} />
               </div>
               <div>
                 <CloudLogoText size="lg" />
-                <p className="text-sm text-gray-600 font-medium">Feeling first, healing follows</p>
+                <p className="font-medium text-gray-600 text-sm">Feeling first, healing follows</p>
               </div>
             </div>
             
@@ -43,13 +43,13 @@ export default function LandingPage() {
               <Button 
                 variant="ghost" 
                 onClick={() => setAuthOpen(true)}
-                className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
+                className="text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900"
               >
                 Sign In
               </Button>
               <Button 
                 onClick={() => setAuthOpen(true)}
-                className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:shadow-lg transition-all duration-200 hover:scale-105 border-0"
+                className="border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white transition-all duration-200 hover:scale-105 hover:shadow-lg"
               >
                 Get Started
               </Button>
@@ -61,53 +61,53 @@ export default function LandingPage() {
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
 
       {/* Hero Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="w-32 h-32 bg-white rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl animate-float">
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-7xl text-center">
+          <div className="mx-auto mb-8 flex h-32 w-32 animate-float items-center justify-center rounded-3xl bg-white shadow-2xl">
             <CloudLogo size={80} />
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="mb-6 font-bold text-5xl md:text-6xl">
             Your AI Companion for
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Emotional Wellness</span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="mx-auto mb-8 max-w-3xl text-gray-600 text-xl leading-relaxed">
             Breezie is your personal AI therapist, designed to provide emotional support, 
             help you understand your feelings, and guide you toward mental well-being.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
             <Button 
               size="lg" 
               onClick={() => setAuthOpen(true)}
-              className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 text-lg border-0"
+              className="transform rounded-2xl border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-8 py-4 font-semibold text-lg text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl"
             >
               Start Your Journey
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             
             <Button 
               variant="outline" 
               size="lg"
-              className="px-8 py-4 rounded-2xl font-semibold border-2 border-gray-300 hover:border-gray-400 transition-all duration-300 text-lg"
+              className="rounded-2xl border-2 border-gray-300 px-8 py-4 font-semibold text-lg transition-all duration-300 hover:border-gray-400"
             >
               Learn More
             </Button>
           </div>
 
           {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center items-center gap-8 text-gray-500">
+          <div className="flex flex-wrap items-center justify-center gap-8 text-gray-500">
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5" />
+              <Shield className="h-5 w-5" />
               <span>Privacy First</span>
             </div>
             <div className="flex items-center gap-2">
-              <Brain className="w-5 h-5" />
+              <Brain className="h-5 w-5" />
               <span>AI-Powered</span>
             </div>
             <div className="flex items-center gap-2">
-              <Heart className="w-5 h-5" />
+              <Heart className="h-5 w-5" />
               <span>24/7 Support</span>
             </div>
           </div>
@@ -115,25 +115,25 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-6 bg-white/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+      <section className="bg-white/50 px-6 py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 font-bold text-4xl text-gray-900">
               Why Choose Breezie?
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-gray-600 text-xl">
               Experience the future of emotional support with our advanced AI technology
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* Feature 1 */}
-            <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+            <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <MessageCircle className="w-8 h-8 text-white" />
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg">
+                  <MessageCircle className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">AI-Powered Conversations</h3>
+                <h3 className="mb-3 font-bold text-gray-900 text-xl">AI-Powered Conversations</h3>
                 <p className="text-gray-600">
                   Engage in meaningful conversations with our advanced AI that understands 
                   emotions and provides personalized support.
@@ -142,12 +142,12 @@ export default function LandingPage() {
             </Card>
 
             {/* Feature 2 */}
-            <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+            <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <BarChart3 className="w-8 h-8 text-white" />
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
+                  <BarChart3 className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Emotional Analytics</h3>
+                <h3 className="mb-3 font-bold text-gray-900 text-xl">Emotional Analytics</h3>
                 <p className="text-gray-600">
                   Track your emotional journey with detailed analytics and insights 
                   to better understand your mental health patterns.
@@ -156,12 +156,12 @@ export default function LandingPage() {
             </Card>
 
             {/* Feature 3 */}
-            <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+            <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Heart className="w-8 h-8 text-white" />
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg">
+                  <Heart className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">24/7 Emotional Support</h3>
+                <h3 className="mb-3 font-bold text-gray-900 text-xl">24/7 Emotional Support</h3>
                 <p className="text-gray-600">
                   Get emotional support whenever you need it, day or night. 
                   Breezie is always here to listen and help.
@@ -173,43 +173,43 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 font-bold text-4xl text-gray-900">
               How Breezie Works
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-gray-600 text-xl">
               Simple steps to start your emotional wellness journey
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <span className="text-2xl font-bold text-white">1</span>
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg">
+                <span className="font-bold text-2xl text-white">1</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Sign Up</h3>
+              <h3 className="mb-3 font-bold text-gray-900 text-xl">Sign Up</h3>
               <p className="text-gray-600">
                 Create your account in seconds and start your emotional wellness journey
               </p>
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <span className="text-2xl font-bold text-white">2</span>
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
+                <span className="font-bold text-2xl text-white">2</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Start Chatting</h3>
+              <h3 className="mb-3 font-bold text-gray-900 text-xl">Start Chatting</h3>
               <p className="text-gray-600">
                 Begin conversations with Breezie about your feelings and experiences
               </p>
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <span className="text-2xl font-bold text-white">3</span>
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg">
+                <span className="font-bold text-2xl text-white">3</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Track Progress</h3>
+              <h3 className="mb-3 font-bold text-gray-900 text-xl">Track Progress</h3>
               <p className="text-gray-600">
                 Monitor your emotional growth with detailed analytics and insights
               </p>
@@ -219,31 +219,31 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-20">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mb-6 font-bold text-4xl text-white">
             Ready to Start Your Emotional Wellness Journey?
           </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+          <p className="mx-auto mb-8 max-w-2xl text-blue-100 text-xl">
             Join thousands of users who have already discovered the power of AI-powered emotional support
           </p>
           <Button 
             size="lg" 
             onClick={() => setAuthOpen(true)}
-            className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 text-lg border-0"
+            className="transform rounded-2xl border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-8 py-4 font-semibold text-lg text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl"
           >
             Get Started Free
-            <ArrowRight className="w-5 h-5 ml-2" />
+            <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="bg-gray-900 py-16 text-white">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
             <div>
-              <div className="flex items-center space-x-3 mb-4">
+              <div className="mb-4 flex items-center space-x-3">
                 <CloudLogo size={32} />
                 <CloudLogoText size="lg" />
               </div>
@@ -253,7 +253,7 @@ export default function LandingPage() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
+              <h4 className="mb-4 font-semibold">Product</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>Features</li>
                 <li>Pricing</li>
@@ -262,7 +262,7 @@ export default function LandingPage() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
+              <h4 className="mb-4 font-semibold">Company</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>About</li>
                 <li>Blog</li>
@@ -271,7 +271,7 @@ export default function LandingPage() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="mb-4 font-semibold">Support</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>Help Center</li>
                 <li>Contact</li>
@@ -280,7 +280,7 @@ export default function LandingPage() {
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+          <div className="mt-12 border-gray-800 border-t pt-8 text-center text-gray-400">
             <p>&copy; 2025 Breezie. All rights reserved.</p>
           </div>
         </div>

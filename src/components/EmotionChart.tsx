@@ -1,6 +1,6 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
-import type { EmotionRecord } from '@/store/emotion'
 import { emotionConfig, getEmotionEmoji } from '@/config/emotionConfig'
+import type { EmotionRecord } from '@/store/emotion'
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 
 interface EmotionChartProps {
   records: EmotionRecord[]
@@ -9,7 +9,7 @@ interface EmotionChartProps {
 export function EmotionChart({ records }: EmotionChartProps) {
   if (records.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex h-64 items-center justify-center text-gray-500">
         No emotion records yet. Start your first conversation to generate the chart!
       </div>
     )
@@ -53,8 +53,8 @@ export function EmotionChart({ records }: EmotionChartProps) {
     if (active && payload && payload.length && payload[0]) {
       const data = payload[0].payload
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-semibold text-gray-800 flex items-center gap-2">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+          <p className="flex items-center gap-2 font-semibold text-gray-800">
             <span className="text-lg">{data.emoji}</span>
             {data.name}
           </p>
@@ -86,15 +86,15 @@ export function EmotionChart({ records }: EmotionChartProps) {
     if (!payload || !Array.isArray(payload)) return null
     
     return (
-      <div className="flex flex-wrap gap-2 justify-center mt-4">
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
         {payload.map((entry, index) => (
-          <div key={index} className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-full">
+          <div key={index} className="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-1">
             <span className="text-sm">{entry.payload.emoji}</span>
             <div 
-              className="w-3 h-3 rounded-full" 
+              className="h-3 w-3 rounded-full" 
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-sm font-medium text-gray-700">
+            <span className="font-medium text-gray-700 text-sm">
               {entry.value} ({entry.payload.percentage}%)
             </span>
           </div>
@@ -107,13 +107,13 @@ export function EmotionChart({ records }: EmotionChartProps) {
     <div className="space-y-4">
       {/* Chart Statistics */}
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Emotion Distribution</h3>
+        <h3 className="mb-2 font-semibold text-gray-900 text-lg">Emotion Distribution</h3>
         <p className="text-gray-600">
           Most frequent: <span className="font-medium text-lg">
             {mostFrequentEmotion.emoji} {mostFrequentEmotion.name}
           </span> ({mostFrequentEmotion.percentage}%)
         </p>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="mt-1 text-gray-500 text-sm">
           Based on {records.length} emotion record{records.length !== 1 ? 's' : ''}
         </p>
       </div>

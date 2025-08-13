@@ -1,7 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 // Encryption utilities for secure local storage
 const ENCRYPTION_KEY = 'breezie-secure-key-2024'

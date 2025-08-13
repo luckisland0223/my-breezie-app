@@ -22,7 +22,7 @@ async function main() {
     const chatSessionCount = await prisma.chatSession.count()
     const chatMessageCount = await prisma.chatMessage.count()
     
-    console.log(`📊 Database statistics:`)
+    console.log("📊 Database statistics:")
     console.log(`   Users: ${userCount}`)
     console.log(`   Emotion Records: ${emotionRecordCount}`)
     console.log(`   Chat Sessions: ${chatSessionCount}`)

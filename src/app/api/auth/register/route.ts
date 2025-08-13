@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { Prisma } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
-import { hashPassword, generateToken, isValidEmail, isValidPassword, isValidUsername, type TokenPair } from '@/lib/auth'
+import { type TokenPair, generateToken, hashPassword, isValidEmail, isValidPassword, isValidUsername } from '@/lib/auth'
 import { enhancedRateLimit } from '@/lib/enhancedRateLimit'
+import { prisma } from '@/lib/prisma'
 import { addSecurityHeaders } from '@/lib/securityMiddleware'
+import { Prisma } from '@prisma/client'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {

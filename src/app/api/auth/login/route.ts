@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { generateToken, verifyPassword } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { verifyPassword, generateToken } from '@/lib/auth'
 import { addSecurityHeaders } from '@/lib/securityMiddleware'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {

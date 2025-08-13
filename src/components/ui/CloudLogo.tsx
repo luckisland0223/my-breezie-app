@@ -14,7 +14,10 @@ export function CloudLogo({ size = 24, className = '' }: CloudLogoProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      role="img"
+      aria-label="Breezie Cloud Logo"
     >
+      <title>Breezie Cloud Logo</title>
       <defs>
         <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#8B5CF6" />
@@ -55,7 +58,7 @@ export function CloudLogoText({ size = 'lg', className = '' }: { size?: 'sm' | '
   }
   
   return (
-    <span className={`font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent ${sizeClasses[size]} ${className}`}>
+    <span className={`bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text font-bold text-transparent ${sizeClasses[size]} ${className}`}>
       Breezie
     </span>
   )

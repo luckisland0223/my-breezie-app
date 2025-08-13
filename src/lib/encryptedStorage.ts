@@ -88,7 +88,7 @@ export class SecureStorage {
   private userSecret: string
   private keyPrefix: string
   
-  constructor(userSecret: string, keyPrefix: string = 'breezie_') {
+  constructor(userSecret: string, keyPrefix = 'breezie_') {
     this.userSecret = userSecret
     this.keyPrefix = keyPrefix
   }

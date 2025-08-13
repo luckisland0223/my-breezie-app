@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { revokeUserTokens, extractTokenFromHeader } from '@/lib/auth'
+import { extractTokenFromHeader, revokeUserTokens } from '@/lib/auth'
 import { addSecurityHeaders } from '@/lib/securityMiddleware'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {

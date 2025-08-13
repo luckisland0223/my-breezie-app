@@ -1,12 +1,12 @@
 'use client'
 
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { emotionConfig, getEmotionEmoji } from '@/config/emotionConfig'
 import { useEmotionStore } from '@/store/emotion'
-import { getEmotionEmoji, emotionConfig } from '@/config/emotionConfig'
-import { TrendingUp, TrendingDown, Calendar } from 'lucide-react'
-import { format, subDays, isToday, isYesterday } from 'date-fns'
+import { format, isToday, isYesterday, subDays } from 'date-fns'
+import { Calendar, TrendingDown, TrendingUp } from 'lucide-react'
+import React from 'react'
 
 export function RecentEmotionTrend() {
   const { records } = useEmotionStore()
@@ -19,18 +19,18 @@ export function RecentEmotionTrend() {
 
   if (recentRecords.length === 0) {
     return (
-      <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
+      <Card className="border-white/20 bg-white/60 shadow-lg backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <TrendingUp className="w-5 h-5 text-blue-500" />
+            <TrendingUp className="h-5 w-5 text-blue-500" />
             Recent Emotions
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-gray-500">
-            <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <div className="py-8 text-center text-gray-500">
+            <Calendar className="mx-auto mb-4 h-12 w-12 opacity-50" />
             <p>No recent emotions recorded.</p>
-            <p className="text-sm mt-2">Start tracking to see your trends!</p>
+            <p className="mt-2 text-sm">Start tracking to see your trends!</p>
           </div>
         </CardContent>
       </Card>
@@ -48,9 +48,9 @@ export function RecentEmotionTrend() {
     : 0
 
   const getTrendIcon = () => {
-    if (avgImpact >= 6) return <TrendingUp className="w-4 h-4 text-red-500" />
-    if (avgImpact <= 4) return <TrendingDown className="w-4 h-4 text-green-500" />
-    return <div className="w-4 h-4 bg-yellow-500 rounded-full" />
+    if (avgImpact >= 6) return <TrendingUp className="h-4 w-4 text-red-500" />
+    if (avgImpact <= 4) return <TrendingDown className="h-4 w-4 text-green-500" />
+    return <div className="h-4 w-4 rounded-full bg-yellow-500" />
   }
 
   const formatRelativeDate = (date: Date) => {
@@ -60,11 +60,11 @@ export function RecentEmotionTrend() {
   }
 
   return (
-    <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg">
+    <Card className="border-white/20 bg-white/60 shadow-lg backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-lg">
-            <TrendingUp className="w-5 h-5 text-blue-500" />
+            <TrendingUp className="h-5 w-5 text-blue-500" />
             Recent Emotions
           </div>
           <div className="flex items-center gap-2">
@@ -79,7 +79,7 @@ export function RecentEmotionTrend() {
         {/* Today's emotions */}
         {todayRecords.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">Today</h4>
+            <h4 className="mb-2 font-semibold text-gray-700 text-sm">Today</h4>
             <div className="flex flex-wrap gap-2">
               {todayRecords.slice(0, 4).map((record, index) => {
                 const config = emotionConfig[record.emotion]
@@ -113,7 +113,7 @@ export function RecentEmotionTrend() {
         {/* Yesterday's emotions */}
         {yesterdayRecords.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">Yesterday</h4>
+            <h4 className="mb-2 font-semibold text-gray-700 text-sm">Yesterday</h4>
             <div className="flex flex-wrap gap-2">
               {yesterdayRecords.slice(0, 3).map((record, index) => {
                 const config = emotionConfig[record.emotion]
@@ -142,8 +142,8 @@ export function RecentEmotionTrend() {
         )}
 
         {/* Week summary */}
-        <div className="pt-2 border-t border-gray-200">
-          <div className="flex justify-between items-center text-sm text-gray-600">
+        <div className="border-gray-200 border-t pt-2">
+          <div className="flex items-center justify-between text-gray-600 text-sm">
             <span>Past 7 days</span>
             <span className="font-medium">{recentRecords.length} records</span>
           </div>

@@ -3,11 +3,11 @@
  * Unified export of all prompt configurations, providing version management and validation
  */
 
-import { SYSTEM_PROMPT, buildSystemPrompt } from './system'
-import { CONVERSATION_EXAMPLES, getExamplePrompt } from './examples'
-import { EMOTION_CONTEXTS, getEmotionContext, getEmotionGuidance, getEmotionFocusAreas, getEmotionSupport, getComfortTechniques, getPracticalSuggestions } from './emotions'
-import { FALLBACK_RESPONSES, getRandomFallback, getAllFallbackTypes } from './fallbacks'
 import type { EmotionType } from '@/store/emotion'
+import { EMOTION_CONTEXTS, getComfortTechniques, getEmotionContext, getEmotionFocusAreas, getEmotionGuidance, getEmotionSupport, getPracticalSuggestions } from './emotions'
+import { CONVERSATION_EXAMPLES, getExamplePrompt } from './examples'
+import { FALLBACK_RESPONSES, getAllFallbackTypes, getRandomFallback } from './fallbacks'
+import { SYSTEM_PROMPT, buildSystemPrompt } from './system'
 
 // Configuration version management
 export const PROMPT_CONFIG_VERSION = "2.0.0"

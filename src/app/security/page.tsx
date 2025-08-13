@@ -1,27 +1,27 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SecurityStatus } from '@/components/SecurityStatus'
 import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useAuthStore } from '@/store/auth'
 import { 
-  Shield, 
+  AlertTriangle,
+  ArrowLeft, 
+  CheckCircle, 
+  Copy,
+  Download,
   Key, 
   Lock, 
   Server, 
-  ArrowLeft, 
-  CheckCircle, 
-  AlertTriangle,
-  Copy,
-  Download
+  Shield 
 } from 'lucide-react'
-import { useAuthStore } from '@/store/auth'
-import { toast } from 'sonner'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export default function SecurityPage() {
   const router = useRouter()
@@ -54,23 +54,23 @@ REDIS_URL="your-redis-url"`
   }
   
   return (
-    <div className="min-h-screen gradient-surface">
+    <div className="gradient-surface min-h-screen">
       {/* Premium Header */}
       <header className="glass sticky top-0 z-50 border-b-0">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="mx-auto max-w-7xl px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+            <Link href="/" className="flex items-center space-x-3 transition-opacity hover:opacity-80">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg">
                 <CloudLogo size={24} />
               </div>
               <div>
                 <CloudLogoText size="md" />
-                <p className="text-xs text-gray-500">Feeling first, healing follows</p>
+                <p className="text-gray-500 text-xs">Feeling first, healing follows</p>
               </div>
             </Link>
             
-            <Button variant="ghost" onClick={() => router.push('/')} className="glass-subtle hover:shadow-md transition-all duration-200">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+            <Button variant="ghost" onClick={() => router.push('/')} className="glass-subtle transition-all duration-200 hover:shadow-md">
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Home
             </Button>
           </div>
@@ -78,14 +78,14 @@ REDIS_URL="your-redis-url"`
       </header>
 
       {/* Security Dashboard Content */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="mx-auto max-w-6xl px-6 py-12">
         {/* Page Header */}
-        <div className="text-center mb-12">
-          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-glow">
-            <Shield className="w-8 h-8 text-blue-600" />
+        <div className="mb-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 animate-glow items-center justify-center rounded-2xl bg-white shadow-xl">
+            <Shield className="h-8 w-8 text-blue-600" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Security Dashboard</h2>
-          <p className="text-lg text-gray-600">
+          <h2 className="mb-2 font-bold text-3xl text-gray-900">Security Dashboard</h2>
+          <p className="text-gray-600 text-lg">
             Monitor and manage Breezie's security features and production readiness
           </p>
         </div>
@@ -105,54 +105,54 @@ REDIS_URL="your-redis-url"`
 
           {/* Security Features Tab */}
           <TabsContent value="features" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {/* JWT Management */}
-              <Card className="glass shadow-xl border-0">
+              <Card className="glass border-0 shadow-xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
-                    <Key className="w-5 h-5 text-blue-600" />
+                    <Key className="h-5 w-5 text-blue-600" />
                     JWT Management
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Dual Token System</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Automatic Refresh</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Token Revocation</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Enhanced Validation</span>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Rate Limiting */}
-              <Card className="glass shadow-xl border-0">
+              <Card className="glass border-0 shadow-xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
-                    <Server className="w-5 h-5 text-purple-600" />
+                    <Server className="h-5 w-5 text-purple-600" />
                     Rate Limiting
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Endpoint-Specific Limits</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">User-Based Limits</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Burst Protection</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -164,28 +164,28 @@ REDIS_URL="your-redis-url"`
               </Card>
 
               {/* Data Encryption */}
-              <Card className="glass shadow-xl border-0">
+              <Card className="glass border-0 shadow-xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
-                    <Lock className="w-5 h-5 text-cyan-600" />
+                    <Lock className="h-5 w-5 text-cyan-600" />
                     Data Encryption
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">AES-256 Encryption</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">PBKDF2 Key Derivation</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Data Integrity Check</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Secure Migration</span>
                   </div>
                 </CardContent>
@@ -195,57 +195,57 @@ REDIS_URL="your-redis-url"`
 
           {/* Deployment Guide Tab */}
           <TabsContent value="deployment" className="space-y-6">
-            <Card className="glass shadow-xl border-0">
+            <Card className="glass border-0 shadow-xl">
               <CardHeader>
                 <CardTitle>Production Deployment Checklist</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                      <Shield className="w-5 h-5" />
+                    <h3 className="flex items-center gap-2 font-semibold text-gray-900">
+                      <Shield className="h-5 w-5" />
                       Security Setup
                     </h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <CheckCircle className="h-4 w-4 text-green-600" />
                         <span>Generate secure JWT secrets</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <CheckCircle className="h-4 w-4 text-green-600" />
                         <span>Configure environment variables</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <CheckCircle className="h-4 w-4 text-green-600" />
                         <span>Set up Supabase database</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <CheckCircle className="h-4 w-4 text-green-600" />
                         <span>Enable HTTPS enforcement</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                      <Server className="w-5 h-5" />
+                    <h3 className="flex items-center gap-2 font-semibold text-gray-900">
+                      <Server className="h-5 w-5" />
                       Vercel Configuration
                     </h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
                         <span>Add environment variables</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
                         <span>Configure security headers</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
                         <span>Test database connection</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
                         <span>Verify API endpoints</span>
                       </div>
                     </div>
@@ -253,17 +253,17 @@ REDIS_URL="your-redis-url"`
                 </div>
                 
                 <div className="glass-subtle rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="mb-4 flex items-center justify-between">
                     <h4 className="font-medium text-gray-900">Generate Production Secrets</h4>
                     <Button onClick={generateSecrets} variant="outline" size="sm">
-                      <Key className="w-4 h-4 mr-2" />
+                      <Key className="mr-2 h-4 w-4" />
                       Generate
                     </Button>
                   </div>
                   
                   {generatedSecrets && (
                     <div className="space-y-3">
-                      <div className="bg-gray-50 rounded-lg p-3 font-mono text-xs overflow-x-auto">
+                      <div className="overflow-x-auto rounded-lg bg-gray-50 p-3 font-mono text-xs">
                         <pre>{generatedSecrets}</pre>
                       </div>
                       <div className="flex gap-2">
@@ -272,7 +272,7 @@ REDIS_URL="your-redis-url"`
                           variant="outline" 
                           size="sm"
                         >
-                          <Copy className="w-4 h-4 mr-2" />
+                          <Copy className="mr-2 h-4 w-4" />
                           Copy
                         </Button>
                         <Button 
@@ -289,7 +289,7 @@ REDIS_URL="your-redis-url"`
                           variant="outline" 
                           size="sm"
                         >
-                          <Download className="w-4 h-4 mr-2" />
+                          <Download className="mr-2 h-4 w-4" />
                           Download
                         </Button>
                       </div>
@@ -302,35 +302,35 @@ REDIS_URL="your-redis-url"`
 
           {/* Monitoring Tab */}
           <TabsContent value="monitoring" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="glass shadow-xl border-0">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Card className="glass border-0 shadow-xl">
                 <CardHeader>
                   <CardTitle>Security Metrics</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Authentication Status</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Authentication Status</span>
                     <Badge className={user ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                       {user ? 'Authenticated' : 'Not Authenticated'}
                     </Badge>
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Subscription Tier</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Subscription Tier</span>
                     <Badge className={isPremiumUser() ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}>
                       {user?.subscriptionTier || 'Free'}
                     </Badge>
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Token Status</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Token Status</span>
                     <Badge className={token ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                       {token ? 'Valid' : 'No Token'}
                     </Badge>
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Rate Limit Tier</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Rate Limit Tier</span>
                     <Badge className={isPremiumUser() ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}>
                       {isPremiumUser() ? 'Premium Limits' : 'Standard Limits'}
                     </Badge>
@@ -338,49 +338,49 @@ REDIS_URL="your-redis-url"`
                 </CardContent>
               </Card>
               
-              <Card className="glass shadow-xl border-0">
+              <Card className="glass border-0 shadow-xl">
                 <CardHeader>
                   <CardTitle>Security Features</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <Lock className="w-4 h-4 text-green-600" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
+                        <Lock className="h-4 w-4 text-green-600" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">Data Encryption</p>
-                        <p className="text-xs text-gray-600">AES-256 client-side encryption</p>
+                        <p className="text-gray-600 text-xs">AES-256 client-side encryption</p>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Key className="w-4 h-4 text-blue-600" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                        <Key className="h-4 w-4 text-blue-600" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">JWT Security</p>
-                        <p className="text-xs text-gray-600">Production-grade token management</p>
+                        <p className="text-gray-600 text-xs">Production-grade token management</p>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <Server className="w-4 h-4 text-purple-600" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+                        <Server className="h-4 w-4 text-purple-600" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">Rate Limiting</p>
-                        <p className="text-xs text-gray-600">Enhanced API protection</p>
+                        <p className="text-gray-600 text-xs">Enhanced API protection</p>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-cyan-100 rounded-lg flex items-center justify-center">
-                        <Shield className="w-4 h-4 text-cyan-600" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100">
+                        <Shield className="h-4 w-4 text-cyan-600" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">Security Headers</p>
-                        <p className="text-xs text-gray-600">CSP, HSTS, XSS protection</p>
+                        <p className="text-gray-600 text-xs">CSP, HSTS, XSS protection</p>
                       </div>
                     </div>
                   </div>

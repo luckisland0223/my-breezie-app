@@ -1,12 +1,12 @@
-import type { EmotionType } from '@/store/emotion'
 import { 
+  API_CONFIG,
+  PROMPT_INFO, 
   buildFullPrompt, 
   getRandomFallback, 
-  API_CONFIG,
   getTokensForEngagement,
-  validatePromptConfig,
-  PROMPT_INFO 
+  validatePromptConfig
 } from '@/config/prompts'
+import type { EmotionType } from '@/store/emotion'
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -40,7 +40,7 @@ if (!configValidation.isValid) {
 export async function getGeminiResponse(
   userMessage: string,
   emotion: EmotionType,
-  conversationHistory: ChatMessage[] = [],
+  conversationHistory: ChatMessage[],
   apiKey: string,
   engagementLevel?: 'high' | 'medium' | 'normal',
   responseInstructions?: string,

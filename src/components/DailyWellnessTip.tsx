@@ -1,12 +1,12 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Lightbulb, RefreshCw, Heart, Brain, Smile, Shield, Zap, Sun } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType } from '@/store/emotion'
+import { Brain, Heart, Lightbulb, RefreshCw, Shield, Smile, Sun, Zap } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 // Emotion-based wellness tips
 const emotionBasedTips: Record<EmotionType, Array<{
@@ -411,41 +411,41 @@ export function DailyWellnessTip() {
   }
 
   return (
-    <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200 shadow-lg">
+    <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50 shadow-lg">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
           <CardTitle className="flex items-center gap-2 text-blue-900">
-            <Lightbulb className="w-5 h-5" />
+            <Lightbulb className="h-5 w-5" />
               Wellness Tips
           </CardTitle>
-            <p className="text-xs text-blue-600 mt-1">Based on your recent emotions</p>
+            <p className="mt-1 text-blue-600 text-xs">Based on your recent emotions</p>
           </div>
           <Button variant="ghost" size="sm" onClick={getNewTip}>
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className={`p-2 rounded-lg ${currentTip.bgColor}`}>
-            <IconComponent className={`w-5 h-5 ${currentTip.color}`} />
+        <div className="mb-3 flex items-center gap-2">
+          <div className={`rounded-lg p-2 ${currentTip.bgColor}`}>
+            <IconComponent className={`h-5 w-5 ${currentTip.color}`} />
           </div>
-          <Badge variant="secondary" className="text-lg font-semibold px-3 py-1">
+          <Badge variant="secondary" className="px-3 py-1 font-semibold text-lg">
             {currentTip.category}
           </Badge>
         </div>
 
         <div className="space-y-3">
-          <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-            <p className="text-gray-800 font-medium text-sm leading-relaxed">
+          <div className="rounded-xl border border-white/40 bg-white/60 p-4 backdrop-blur-sm">
+            <p className="font-medium text-gray-800 text-sm leading-relaxed">
               {currentTip.tip}
             </p>
           </div>
           
-          <div className="bg-white/40 backdrop-blur-sm rounded-lg p-3 border border-white/30">
-            <p className="text-xs text-gray-600 flex items-start gap-2">
-              <Heart className="w-3 h-3 text-red-400 mt-0.5 flex-shrink-0" />
+          <div className="rounded-lg border border-white/30 bg-white/40 p-3 backdrop-blur-sm">
+            <p className="flex items-start gap-2 text-gray-600 text-xs">
+              <Heart className="mt-0.5 h-3 w-3 flex-shrink-0 text-red-400" />
               <span className="italic">{currentTip.benefit}</span>
             </p>
           </div>

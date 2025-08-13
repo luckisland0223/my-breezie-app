@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from 'react'
 
 
 import { EmotionCalendar } from '@/components/EmotionCalendar'
 import { EmotionChart } from '@/components/EmotionChart'
 import { useEmotionStore } from '@/store/emotion'
-import { ArrowLeft, Calendar, BarChart3, TrendingUp, Heart, RefreshCw } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { subDays } from 'date-fns'
+import { ArrowLeft, BarChart3, Calendar, Heart, RefreshCw, TrendingUp } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function AnalyticsPage() {
   const router = useRouter()
@@ -29,9 +29,9 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="sticky top-0 z-40 border-white/20 border-b bg-white/80 backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
@@ -39,14 +39,14 @@ export default function AnalyticsPage() {
                 onClick={() => router.back()}
                 className="flex items-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text font-bold text-transparent text-xl">
                   Analytics Dashboard
                 </h1>
-                <p className="text-xs text-gray-500">Insights into your emotional journey</p>
+                <p className="text-gray-500 text-xs">Insights into your emotional journey</p>
               </div>
             </div>
             
@@ -57,13 +57,13 @@ export default function AnalyticsPage() {
                 onClick={() => window.location.reload()}
                 className="flex items-center gap-2"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="h-4 w-4" />
                 Refresh
               </Button>
               
               <div className="flex items-center space-x-2">
-                <Heart className="w-5 h-5 text-red-500" />
-                <span className="text-sm text-gray-600">
+                <Heart className="h-5 w-5 text-red-500" />
+                <span className="text-gray-600 text-sm">
                   {records.length} records
                 </span>
               </div>
@@ -75,22 +75,22 @@ export default function AnalyticsPage() {
 
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="space-y-6">
           {/* Page Header */}
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Emotional Analytics</h2>
+            <h2 className="mb-2 font-bold text-2xl text-gray-900">Emotional Analytics</h2>
             <p className="text-gray-600">Track your emotional journey and behavioral patterns</p>
           </div>
 
           <div className="space-y-8">
             {/* Charts and Statistics Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               {/* Calendar Section - moved to left column */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
+                    <Calendar className="h-5 w-5" />
                     Emotion Calendar
                   </CardTitle>
                 </CardHeader>
@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5" />
+                    <BarChart3 className="h-5 w-5" />
                     Emotion Distribution
                   </CardTitle>
                 </CardHeader>
@@ -118,16 +118,16 @@ export default function AnalyticsPage() {
                 <CardTitle>Quick Statistics</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600">{records.length}</div>
-                    <div className="text-sm text-gray-600">Total Records</div>
+                    <div className="font-bold text-3xl text-blue-600">{records.length}</div>
+                    <div className="text-gray-600 text-sm">Total Records</div>
                   </div>
                   
                   {records.length > 0 && (
                     <>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">
+                        <div className="font-bold text-2xl text-green-600">
                           {(() => {
                             // Filter chat records and sort by time (newest first)
                             const chatRecords = records
@@ -150,18 +150,18 @@ export default function AnalyticsPage() {
                             return avgImpact.toFixed(1)
                           })()}
                         </div>
-                        <div className="text-sm text-gray-600">Average Impact Score (Recent 3)</div>
+                        <div className="text-gray-600 text-sm">Average Impact Score (Recent 3)</div>
                       </div>
                       
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-600">
+                        <div className="font-bold text-2xl text-purple-600">
                           {records.filter(r => {
                             const today = new Date()
                             const recordDate = new Date(r.timestamp)
                             return recordDate.toDateString() === today.toDateString()
                           }).length}
                         </div>
-                        <div className="text-sm text-gray-600">Today's Check-ins</div>
+                        <div className="text-gray-600 text-sm">Today's Check-ins</div>
                       </div>
                     </>
                   )}
@@ -172,16 +172,16 @@ export default function AnalyticsPage() {
 
 
             {/* Insights Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-green-500" />
+                    <TrendingUp className="h-5 w-5 text-green-500" />
                     Emotional Patterns
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-gray-600 text-sm">
                     <p>Track your emotional patterns to gain insights into your wellbeing and discover trends in your emotional journey.</p>
                     {records.length > 0 && (
                       <div className="mt-4 space-y-2">
@@ -206,12 +206,12 @@ export default function AnalyticsPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Heart className="w-5 h-5 text-red-500" />
+                    <Heart className="h-5 w-5 text-red-500" />
                     Wellness Tips
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-gray-600 text-sm">
                     <p>Regular emotional check-ins can help you understand your patterns better. Consider setting aside time each day for self-reflection.</p>
                     <div className="mt-4 space-y-2">
                       <p>💡 <strong>Tip:</strong> Try to record your emotions at consistent times each day</p>

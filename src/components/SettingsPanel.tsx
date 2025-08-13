@@ -1,26 +1,26 @@
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { useEmotionStore } from '@/store/emotion'
 import { useSettingsStore } from '@/store/settings'
+import { useState } from 'react'
 
 import { 
-  Settings, 
   Bell, 
-  Moon, 
-  Sun, 
-  Trash2, 
   Download, 
-  Upload,
   Eye,
   EyeOff,
-  Palette,
-  Shield,
+  Globe,
   Lock,
-  Globe
+  Moon, 
+  Palette,
+  Settings, 
+  Shield,
+  Sun, 
+  Trash2, 
+  Upload
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -102,11 +102,11 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
         <CardHeader className="flex flex-row items-center justify-between border-b">
           <CardTitle className="flex items-center gap-2">
-            <Settings className="w-5 h-5" />
+            <Settings className="h-5 w-5" />
             Settings
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>
@@ -114,11 +114,11 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
           </Button>
         </CardHeader>
         
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="space-y-6 p-6">
           {/* Notification Settings */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Bell className="w-5 h-5" />
+            <h3 className="flex items-center gap-2 font-semibold text-lg">
+              <Bell className="h-5 w-5" />
               Notification Settings
             </h3>
             <div className="space-y-3">
@@ -147,8 +147,8 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
           {/* Privacy Settings */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Shield className="w-5 h-5" />
+            <h3 className="flex items-center gap-2 font-semibold text-lg">
+              <Shield className="h-5 w-5" />
               Privacy Settings
             </h3>
             <div className="space-y-3">
@@ -167,8 +167,8 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
           {/* Appearance Settings */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Palette className="w-5 h-5" />
+            <h3 className="flex items-center gap-2 font-semibold text-lg">
+              <Palette className="h-5 w-5" />
               Appearance Settings
             </h3>
             <div className="space-y-3">
@@ -205,17 +205,17 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
           {/* Data Management */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Download className="w-5 h-5" />
+            <h3 className="flex items-center gap-2 font-semibold text-lg">
+              <Download className="h-5 w-5" />
               Data Management
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <Button 
                 variant="outline" 
                 onClick={handleExportData}
                 className="flex items-center gap-2"
               >
-                <Download className="w-4 h-4" />
+                <Download className="h-4 w-4" />
                 Export Data
               </Button>
               <Button 
@@ -223,24 +223,24 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                 onClick={handleImportData}
                 className="flex items-center gap-2"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="h-4 w-4" />
                 Import Data
               </Button>
             </div>
             <Button 
               variant="destructive" 
               onClick={handleClearData}
-              className="flex items-center gap-2 w-full"
+              className="flex w-full items-center gap-2"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
               Clear All Data
             </Button>
           </div>
 
           {/* About */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">About Breezie</h3>
-            <div className="text-sm text-gray-600 space-y-2">
+            <h3 className="font-semibold text-lg">About Breezie</h3>
+            <div className="space-y-2 text-gray-600 text-sm">
               <p>Version: 1.0.0</p>
               <p>Breezie is an AI assistant that helps you manage your emotions</p>
               <p>Through conversation and tracking, better understand and manage your emotions</p>

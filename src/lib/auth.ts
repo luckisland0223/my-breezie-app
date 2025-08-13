@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs'
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { 
-  generateTokenPair, 
-  verifyAccessToken, 
-  verifyRefreshToken, 
-  revokeToken,
-  isTokenRevoked,
   type JWTPayload,
-  type TokenPair
+  type TokenPair,
+  generateTokenPair, 
+  isTokenRevoked,
+  revokeToken,
+  verifyAccessToken, 
+  verifyRefreshToken 
 } from './jwtManager'
 
 // Re-export types for backward compatibility

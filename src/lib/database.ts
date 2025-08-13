@@ -1,5 +1,5 @@
+import type { EmotionRecord as EmotionRecordType, EmotionType } from '@/store/emotion'
 import { prisma } from './prisma'
-import type { EmotionType, EmotionRecord as EmotionRecordType } from '@/store/emotion'
 
 // Database utility functions for emotion records
 

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import { enhancedRateLimit } from '@/lib/enhancedRateLimit'
+import { prisma } from '@/lib/prisma'
 import { addSecurityHeaders, sanitizeInput } from '@/lib/securityMiddleware'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // GET: list user emotion records (basic pagination)
 export async function GET(request: NextRequest) {
@@ -46,11 +46,23 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json()
+    const rawBody = await request.json()
+    const body = sanitizeInput(rawBody)
     const { emotion, behavioralImpact, note, recordType, conversationSummary, actualEmotion, actualIntensity, emotionChanged, confidenceLevel, analysis, polarity, polarityStrength, polarityConfidence } = body || {}
 
     if (!emotion || typeof behavioralImpact !== 'number' || !note) {
       const response = NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return addSecurityHeaders(response, request)
+    }
+
+    // Additional validation
+    if (behavioralImpact < 1 || behavioralImpact > 10) {
+      const response = NextResponse.json({ error: 'Behavioral impact must be between 1 and 10' }, { status: 400 })
+      return addSecurityHeaders(response, request)
+    }
+
+    if (note.length > 1000) {
+      const response = NextResponse.json({ error: 'Note too long (max 1000 characters)' }, { status: 400 })
       return addSecurityHeaders(response, request)
     }
 

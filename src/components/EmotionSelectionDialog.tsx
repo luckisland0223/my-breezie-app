@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { emotionConfig, getEmotionDisplay, primaryEmotions, secondaryEmotions } from '@/config/emotionConfig'
 import type { EmotionType } from '@/store/emotion'
-import { primaryEmotions, secondaryEmotions, getEmotionDisplay, emotionConfig } from '@/config/emotionConfig'
-import { X, ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, X } from 'lucide-react'
+import { useState } from 'react'
 
 interface EmotionSelectionDialogProps {
   onEmotionSelect: (emotion: EmotionType, intensity: number) => void
@@ -30,12 +30,12 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
-        <CardHeader className="text-center border-b">
-          <div className="flex justify-between items-start">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <Card className="max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
+        <CardHeader className="border-b text-center">
+          <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+              <CardTitle className="mb-2 font-bold text-2xl text-gray-900">
                 How are you feeling right now?
               </CardTitle>
               <p className="text-gray-600">
@@ -49,7 +49,7 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
               onClick={onSkip}
               className="ml-4 text-gray-400 hover:text-gray-600"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
@@ -57,8 +57,8 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
         <CardContent className="p-6">
           {/* Primary Emotions */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Primary Emotions</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <h3 className="mb-4 font-semibold text-gray-900 text-lg">Primary Emotions</h3>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {primaryEmotions.map((emotion) => {
                 const config = emotionConfig[emotion]
                 const isSelected = selectedEmotion === emotion
@@ -66,15 +66,15 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
                   <Button
                     key={emotion}
                     variant={isSelected ? "default" : "outline"}
-                    className={`p-4 h-auto flex-col gap-2 transition-all duration-200 ${
+                    className={`h-auto flex-col gap-2 p-4 transition-all duration-200 ${
                       isSelected 
-                        ? `bg-gradient-to-br from-${config.color} to-${config.color}/80 text-white shadow-lg scale-105` 
-                        : `hover:shadow-md hover:scale-102 border-2 hover:border-${config.color}/30`
+                        ? `bg-gradient-to-br from-${config.color}to-${config.color}/80 scale-105 text-white shadow-lg` 
+                        : `border-2 hover:scale-102 hover:shadow-md hover:border-${config.color}/30`
                     }`}
                     onClick={() => handleEmotionClick(emotion)}
                   >
                     <span className="text-2xl">{config.emoji}</span>
-                    <span className="text-sm font-medium">{emotion}</span>
+                    <span className="font-medium text-sm">{emotion}</span>
                   </Button>
                 )
               })}
@@ -86,23 +86,23 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
             <Button
               variant="ghost"
               onClick={() => setShowSecondary(!showSecondary)}
-              className="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-gray-800"
+              className="flex w-full items-center justify-center gap-2 text-gray-600 hover:text-gray-800"
             >
               {showSecondary ? (
                 <>
-                  <ChevronUp className="w-4 h-4" />
+                  <ChevronUp className="h-4 w-4" />
                   Hide More Emotions
                 </>
               ) : (
                 <>
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="h-4 w-4" />
                   Show More Emotions
                 </>
               )}
             </Button>
             
             {showSecondary && (
-              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {secondaryEmotions.map((emotion) => {
                   const config = emotionConfig[emotion]
                   const isSelected = selectedEmotion === emotion
@@ -110,10 +110,10 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
                     <Button
                       key={emotion}
                       variant={isSelected ? "default" : "outline"}
-                      className={`p-3 h-auto flex-col gap-1 transition-all duration-200 text-xs ${
+                      className={`h-auto flex-col gap-1 p-3 text-xs transition-all duration-200 ${
                         isSelected 
-                          ? `bg-gradient-to-br from-${config.color} to-${config.color}/80 text-white shadow-lg scale-105` 
-                          : `hover:shadow-md hover:scale-102 border-2 hover:border-${config.color}/30`
+                          ? `bg-gradient-to-br from-${config.color}to-${config.color}/80 scale-105 text-white shadow-lg` 
+                          : `border-2 hover:scale-102 hover:shadow-md hover:border-${config.color}/30`
                       }`}
                       onClick={() => handleEmotionClick(emotion)}
                     >
@@ -128,12 +128,12 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
 
           {/* Intensity Selection */}
           {selectedEmotion && (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            <div className="mb-6 rounded-lg bg-gray-50 p-4">
+              <h3 className="mb-3 font-semibold text-gray-900 text-lg">
                 How intense is this {getEmotionDisplay(selectedEmotion)} feeling?
               </h3>
               <div className="space-y-3">
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-gray-600 text-sm">
                   <span>Very Mild</span>
                   <span>Moderate</span>
                   <span>Very Intense</span>
@@ -144,7 +144,7 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
                   max="10"
                   value={intensity}
                   onChange={(e) => setIntensity(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
                   style={{
                     background: `linear-gradient(to right, ${emotionConfig[selectedEmotion].color}20 0%, ${emotionConfig[selectedEmotion].color} ${intensity * 10}%, #e5e7eb ${intensity * 10}%, #e5e7eb 100%)`
                   }}
@@ -152,7 +152,7 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
                 <div className="text-center">
                   <Badge 
                     variant="secondary" 
-                    className="text-lg px-4 py-2"
+                    className="px-4 py-2 text-lg"
                     style={{ 
                       backgroundColor: emotionConfig[selectedEmotion].bgColor,
                       color: emotionConfig[selectedEmotion].color 
@@ -166,7 +166,7 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 justify-end">
+          <div className="flex justify-end gap-3">
             <Button 
               variant="outline" 
               onClick={onSkip}
@@ -177,7 +177,7 @@ export function EmotionSelectionDialog({ onEmotionSelect, onSkip, userName }: Em
             <Button 
               onClick={handleConfirm} 
               disabled={!selectedEmotion}
-              className="px-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 text-white hover:from-blue-600 hover:to-purple-700"
             >
               Confirm Emotion
             </Button>

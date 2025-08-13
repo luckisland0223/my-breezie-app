@@ -1,9 +1,9 @@
 import "@/styles/globals.css";
 
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "sonner";
-import { Analytics } from "@vercel/analytics/react";
 export const metadata: Metadata = {
 	  title: "Breezie - Emotional Wellness Assistant",
   description: "Intelligent emotion management and supportive conversation app",

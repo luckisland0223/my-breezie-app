@@ -352,19 +352,19 @@ export function getEmotionContext(emotion: EmotionType): string {
   const context = EMOTION_CONTEXTS.contexts[emotion]
   
   if (!context) {
-    return EMOTION_CONTEXTS.contexts['Other'].description
+    return EMOTION_CONTEXTS.contexts.Other.description
   }
   
   return `${context.description}. ${context.guidance}`
 }
 
 export function getEmotionGuidance(emotion: EmotionType): string {
-  const context = EMOTION_CONTEXTS.contexts[emotion] || EMOTION_CONTEXTS.contexts['Other']
+  const context = EMOTION_CONTEXTS.contexts[emotion] || EMOTION_CONTEXTS.contexts.Other
   return context.guidance
 }
 
 export function getEmotionFocusAreas(emotion: EmotionType): readonly string[] {
-  const context = EMOTION_CONTEXTS.contexts[emotion] || EMOTION_CONTEXTS.contexts['Other']  
+  const context = EMOTION_CONTEXTS.contexts[emotion] || EMOTION_CONTEXTS.contexts.Other  
   return context.focusAreas
 }
 
@@ -379,7 +379,7 @@ export function getPracticalSuggestions(emotion: EmotionType): readonly string[]
 }
 
 export function getEmotionSupport(emotion: EmotionType): string {
-  const context = EMOTION_CONTEXTS.contexts[emotion] || EMOTION_CONTEXTS.contexts['Other']
+  const context = EMOTION_CONTEXTS.contexts[emotion] || EMOTION_CONTEXTS.contexts.Other
   const comfort = getComfortTechniques(emotion)
   const practical = getPracticalSuggestions(emotion)
   

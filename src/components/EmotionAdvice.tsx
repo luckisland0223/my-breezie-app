@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { emotionConfig, getEmotionDisplay, getEmotionEmoji } from '@/config/emotionConfig'
 import { useEmotionStore } from '@/store/emotion'
-import type { EmotionType, EmotionRecord } from '@/store/emotion'
-import { emotionConfig, getEmotionEmoji, getEmotionDisplay } from '@/config/emotionConfig'
-import { Lightbulb, TrendingUp, Heart, RefreshCw, Sparkles } from 'lucide-react'
+import type { EmotionRecord, EmotionType } from '@/store/emotion'
+import { Heart, Lightbulb, RefreshCw, Sparkles, TrendingUp } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 
 // Comprehensive advice mapping for all emotion types
 const adviceMap: Record<EmotionType, { title: string; tips: string[] }> = {
@@ -289,7 +289,7 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
       }
     }
 
-    return adviceMap[primaryEmotion] || adviceMap['Other']
+    return adviceMap[primaryEmotion] || adviceMap.Other
   }
 
   const personalizedAdvice = getPersonalizedAdvice()
@@ -300,28 +300,28 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
   }
 
   return (
-    <Card className={`bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200 ${className}`}>
+    <Card className={`border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50 ${className}`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-blue-900">
-            <Lightbulb className="w-5 h-5" />
+            <Lightbulb className="h-5 w-5" />
             Personalized Advice
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={handleRefresh}>
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {recentPattern && (
           <div className="mb-4">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2 flex items-center gap-2">
               <Badge variant="secondary" className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
+                <TrendingUp className="h-3 w-3" />
                 Recent Pattern
               </Badge>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-gray-600 text-sm">
               You've experienced <span className="font-medium">{getEmotionDisplay(recentPattern.emotion)}</span> most 
               frequently in the past week ({recentPattern.count} out of {recentPattern.totalRecords} records).
             </p>
@@ -329,22 +329,22 @@ export function EmotionAdvice({ className = '' }: EmotionAdviceProps) {
         )}
 
         <div>
-          <h4 className="font-semibold text-gray-900 mb-3 text-lg">
+          <h4 className="mb-3 font-semibold text-gray-900 text-lg">
             {personalizedAdvice.title}
           </h4>
           <ul className="space-y-2">
             {personalizedAdvice.tips.map((tip, index) => (
-              <li key={`${refreshKey}-${index}`} className="flex items-start gap-2 text-sm text-gray-700">
-                <Sparkles className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+              <li key={`${refreshKey}-${index}`} className="flex items-start gap-2 text-gray-700 text-sm">
+                <Sparkles className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500" />
                 <span>{tip}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="mt-4 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-white/40">
-          <p className="text-xs text-gray-600 flex items-center gap-1">
-            <Heart className="w-3 h-3 text-red-400" />
+        <div className="mt-4 rounded-lg border border-white/40 bg-white/60 p-3 backdrop-blur-sm">
+          <p className="flex items-center gap-1 text-gray-600 text-xs">
+            <Heart className="h-3 w-3 text-red-400" />
             Remember: It's okay to seek professional help if you need additional support.
           </p>
         </div>

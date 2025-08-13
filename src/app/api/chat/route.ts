@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getGeminiResponse } from '@/lib/geminiService'
-import { rateLimit, addSecurityHeaders, validateChatRequest, sanitizeInput } from '@/lib/securityMiddleware'
-import { enhancedRateLimit, burstProtection, progressiveRateLimit } from '@/lib/enhancedRateLimit'
+import { API_CONFIG, buildFullPrompt, getTokensForEngagement } from '@/config/prompts'
 import { getUserFromRequest } from '@/lib/auth'
-import { buildFullPrompt, API_CONFIG, getTokensForEngagement } from '@/config/prompts'
+import { burstProtection, enhancedRateLimit, progressiveRateLimit } from '@/lib/enhancedRateLimit'
+import { getGeminiResponse } from '@/lib/geminiService'
+import { addSecurityHeaders, rateLimit, sanitizeInput, validateChatRequest } from '@/lib/securityMiddleware'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // Handle OPTIONS requests for CORS
 export async function OPTIONS(request: NextRequest) {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse and validate request body
-    let body
+    let body: any
     try {
       body = await request.json()
       console.log('Chat API - Received request body:', JSON.stringify(body, null, 2))

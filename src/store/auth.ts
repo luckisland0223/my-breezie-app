@@ -1,6 +1,6 @@
+import { createSecureStorage, migrateToEncryptedStorage } from '@/lib/encryptedStorage'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { createSecureStorage, migrateToEncryptedStorage } from '@/lib/encryptedStorage'
 
 export interface User {
   id: string

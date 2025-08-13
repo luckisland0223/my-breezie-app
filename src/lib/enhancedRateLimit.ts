@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // Enhanced rate limiting with user-based and endpoint-specific limits
 interface RateLimitEntry {
@@ -80,9 +80,9 @@ function getClientIdentifier(request: NextRequest, userId?: string): { ip: strin
 }
 
 // Get rate limit configuration for endpoint and user type
-function getRateLimitConfig(pathname: string, isPremium: boolean = false): RateLimitConfig {
+function getRateLimitConfig(pathname: string, isPremium = false): RateLimitConfig {
   const configs = isPremium ? PREMIUM_RATE_LIMITS : RATE_LIMIT_CONFIGS
-  return configs[pathname] || configs['default']!
+  return configs[pathname] || configs.default!
 }
 
 // Enhanced rate limiting middleware

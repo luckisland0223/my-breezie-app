@@ -1,35 +1,35 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { useEmotionStore } from '@/store/emotion'
 import { useAuthStore } from '@/store/auth'
+import { useEmotionStore } from '@/store/emotion'
 import type { EmotionType } from '@/store/emotion'
-import { toast } from 'sonner'
 import { 
-  Send, 
   ArrowLeft, 
-  Heart, 
-  Sparkles, 
-  MessageCircle, 
-  CheckCircle, 
-  History,
-  RefreshCw,
-  Zap,
-  Moon,
-  Sun,
   Brain,
-  Smile,
+  CheckCircle, 
   Frown,
-  X,
+  Heart, 
+  History,
+  MessageCircle, 
+  Moon,
+  RefreshCw,
   RotateCcw,
-  Save
+  Save,
+  Send, 
+  Smile,
+  Sparkles, 
+  Sun,
+  X,
+  Zap
 } from 'lucide-react'
-import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
+import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 type MoodType = 'positive' | 'negative'
 type ChatMessage = {
@@ -290,51 +290,51 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
   const renderRightPanel = () => {
     if (showHistory) {
       return (
-        <div className="p-6 h-full flex flex-col">
-          <div className="flex items-center justify-between mb-6">
+        <div className="flex h-full flex-col p-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
-                <History className="w-4 h-4 text-white" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600">
+                <History className="h-4 w-4 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">Conversation History</h3>
+              <h3 className="font-semibold text-gray-800 text-lg">Conversation History</h3>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}>
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
           
-          <div className="flex-1 overflow-y-auto space-y-4">
+          <div className="flex-1 space-y-4 overflow-y-auto">
             {chatHistory.length === 0 ? (
-              <div className="text-center text-gray-500 py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle className="w-8 h-8 opacity-50" />
+              <div className="py-12 text-center text-gray-500">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                  <MessageCircle className="h-8 w-8 opacity-50" />
                 </div>
                 <p className="text-sm">No conversation history yet</p>
-                <p className="text-xs text-gray-400 mt-1">Start chatting to build your history</p>
+                <p className="mt-1 text-gray-400 text-xs">Start chatting to build your history</p>
               </div>
             ) : (
               chatHistory.map((message) => (
                 <div key={message.id} className={`glass-subtle rounded-xl p-4 ${
-                  message.role === 'user' ? 'border-l-4 border-blue-400' : 'border-l-4 border-purple-400'
+                  message.role === 'user' ? "border-blue-400 border-l-4" : "border-purple-400 border-l-4"
                 }`}>
-                  <div className="flex items-center space-x-3 mb-3">
-                    <Avatar className="w-8 h-8">
+                  <div className="mb-3 flex items-center space-x-3">
+                    <Avatar className="h-8 w-8">
                       <AvatarFallback className={message.role === 'user' ? 'bg-blue-100 text-blue-600' : 'bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white'}>
                         {message.role === 'user' ? (user?.email?.[0]?.toUpperCase() || 'U') : 'B'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-sm text-gray-700">
+                        <span className="font-medium text-gray-700 text-sm">
                           {message.role === 'user' ? (user?.email || 'You') : 'Breezie'}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-gray-400 text-xs">
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-800 leading-relaxed">
+                  <p className="text-gray-800 text-sm leading-relaxed">
                     {message.content}
                   </p>
                 </div>
@@ -343,7 +343,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
           </div>
           
           {chatHistory.length > 0 && (
-            <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mt-6 border-gray-200 border-t pt-4">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -353,7 +353,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                   toast.success('Chat history cleared')
                 }}
               >
-                <RotateCcw className="w-4 h-4 mr-2" />
+                <RotateCcw className="mr-2 h-4 w-4" />
                 Clear History
               </Button>
             </div>
@@ -365,12 +365,12 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
     switch (rightPanelMode) {
       case 'mood_selection':
         return (
-          <div className="p-6 h-full flex flex-col justify-center">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 animate-float shadow-xl">
+          <div className="flex h-full flex-col justify-center p-6">
+            <div className="mb-8 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 animate-float items-center justify-center rounded-2xl bg-white shadow-xl">
                 <CloudLogo size={40} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">How are you feeling today?</h3>
+              <h3 className="mb-2 font-semibold text-gray-800 text-xl">How are you feeling today?</h3>
               <p className="text-gray-600 text-sm">
                 Help me understand your general mood so I can provide better support
               </p>
@@ -379,39 +379,39 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
             <div className="space-y-4">
               <Button
                 onClick={() => handleMoodSelection('positive')}
-                className="w-full h-16 glass-subtle hover:bg-green-50 border-green-200 text-left justify-start space-x-4 group transition-all duration-300"
+                className="glass-subtle group h-16 w-full justify-start space-x-4 border-green-200 text-left transition-all duration-300 hover:bg-green-50"
                 variant="outline"
               >
-                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Sun className="w-5 h-5 text-green-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 transition-transform group-hover:scale-110">
+                  <Sun className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
                   <div className="font-medium text-gray-800">Positive Emotions</div>
-                  <div className="text-sm text-gray-500">Joy, excitement, gratitude, love...</div>
+                  <div className="text-gray-500 text-sm">Joy, excitement, gratitude, love...</div>
                 </div>
               </Button>
               
               <Button
                 onClick={() => handleMoodSelection('negative')}
-                className="w-full h-16 glass-subtle hover:bg-blue-50 border-blue-200 text-left justify-start space-x-4 group transition-all duration-300"
+                className="glass-subtle group h-16 w-full justify-start space-x-4 border-blue-200 text-left transition-all duration-300 hover:bg-blue-50"
                 variant="outline"
               >
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Moon className="w-5 h-5 text-blue-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 transition-transform group-hover:scale-110">
+                  <Moon className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
                   <div className="font-medium text-gray-800">Difficult Emotions</div>
-                  <div className="text-sm text-gray-500">Sadness, anxiety, anger, stress...</div>
+                  <div className="text-gray-500 text-sm">Sadness, anxiety, anger, stress...</div>
                 </div>
               </Button>
             </div>
             
-            <div className="mt-8 p-4 glass-subtle rounded-xl">
-              <div className="flex items-center space-x-3 mb-3">
-                <Sparkles className="w-5 h-5 text-purple-500" />
+            <div className="glass-subtle mt-8 rounded-xl p-4">
+              <div className="mb-3 flex items-center space-x-3">
+                <Sparkles className="h-5 w-5 text-purple-500" />
                 <span className="font-medium text-gray-700">Why mood selection?</span>
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed">
+              <p className="text-gray-600 text-sm leading-relaxed">
                 Understanding your general emotional state helps me provide more personalized and effective support tailored to what you're experiencing.
               </p>
             </div>
@@ -420,12 +420,12 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
 
       case 'emotions':
         return (
-          <div className="p-6 h-full flex flex-col">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
-                <Heart className="w-4 h-4 text-white" />
+          <div className="flex h-full flex-col p-6">
+            <div className="mb-6 flex items-center space-x-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600">
+                <Heart className="h-4 w-4 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">Select Your Emotion</h3>
+              <h3 className="font-semibold text-gray-800 text-lg">Select Your Emotion</h3>
             </div>
             
             <div className="flex-1 overflow-y-auto">
@@ -435,25 +435,25 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                     key={emotion}
                     onClick={() => handleEmotionSelect(emotion)}
                     variant={selectedEmotion === emotion ? "default" : "outline"}
-                    className={`h-auto p-3 text-left justify-start transition-all duration-200 ${
+                    className={`h-auto justify-start p-3 text-left transition-all duration-200 ${
                       selectedEmotion === emotion 
                         ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white shadow-lg' 
-                        : 'glass-subtle hover:shadow-md hover:scale-105'
+                        : "glass-subtle hover:scale-105 hover:shadow-md"
                     }`}
                   >
-                    <span className="text-sm font-medium">{emotion}</span>
+                    <span className="font-medium text-sm">{emotion}</span>
                   </Button>
                 ))}
               </div>
             </div>
             
-            <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mt-6 border-gray-200 border-t pt-4">
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={() => setRightPanelMode('welcome')}
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Chat
               </Button>
             </div>
@@ -462,12 +462,12 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
 
       case 'suggestions':
         return (
-          <div className="p-6 h-full flex flex-col">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+          <div className="flex h-full flex-col p-6">
+            <div className="mb-6 flex items-center space-x-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600">
+                <Sparkles className="h-4 w-4 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">Personalized Suggestions</h3>
+              <h3 className="font-semibold text-gray-800 text-lg">Personalized Suggestions</h3>
             </div>
             
             {selectedEmotion && (
@@ -478,17 +478,17 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               </div>
             )}
             
-            <div className="flex-1 overflow-y-auto space-y-3">
+            <div className="flex-1 space-y-3 overflow-y-auto">
               {suggestions.map((suggestion) => (
-                <Card key={suggestion.id} className="glass-subtle hover:shadow-md transition-all duration-200">
+                <Card key={suggestion.id} className="glass-subtle transition-all duration-200 hover:shadow-md">
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="mb-2 flex items-start justify-between">
                       <h4 className="font-medium text-gray-800 text-sm">{suggestion.title}</h4>
                       <Badge variant="outline" className="text-xs">
                         {suggestion.category}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-600 leading-relaxed mb-3">
+                    <p className="mb-3 text-gray-600 text-sm leading-relaxed">
                       {suggestion.description}
                     </p>
                     <div className="flex space-x-2">
@@ -504,7 +504,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                         }}
                         className="flex-1"
                       >
-                        <CheckCircle className="w-3 h-3 mr-1" />
+                        <CheckCircle className="mr-1 h-3 w-3" />
                         {selectedSuggestions.includes(suggestion.id) ? 'Selected' : 'Select'}
                       </Button>
                       <Button
@@ -524,7 +524,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               ))}
             </div>
             
-            <div className="mt-6 space-y-3 pt-4 border-t border-gray-200">
+            <div className="mt-6 space-y-3 border-gray-200 border-t pt-4">
               <Button
                 variant="outline"
                 className="w-full"
@@ -534,26 +534,24 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               </Button>
               
               <Button
-                className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:shadow-lg transition-all duration-200 border-0"
+                className="w-full border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white transition-all duration-200 hover:shadow-lg"
                 onClick={handleSaveAndComplete}
                 disabled={!currentSession || (!currentUserMessage && !currentBreezieMessage)}
               >
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="mr-2 h-4 w-4" />
                 Save & Complete Session
               </Button>
             </div>
           </div>
         )
-
-      case 'welcome':
       default:
         return (
-          <div className="p-6 h-full flex flex-col justify-center">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 animate-glow shadow-xl">
+          <div className="flex h-full flex-col justify-center p-6">
+            <div className="mb-8 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 animate-glow items-center justify-center rounded-2xl bg-white shadow-xl">
                 <CloudLogo size={40} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <h3 className="mb-2 font-semibold text-gray-800 text-xl">
                 Welcome to <CloudLogoText size="md" />
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -561,33 +559,33 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               </p>
             </div>
             
-            <div className="space-y-4 mb-8">
+            <div className="mb-8 space-y-4">
               <div className="glass-subtle rounded-xl p-4">
-                <div className="flex items-center space-x-3 mb-3">
-                  <MessageCircle className="w-5 h-5 text-blue-500" />
+                <div className="mb-3 flex items-center space-x-3">
+                  <MessageCircle className="h-5 w-5 text-blue-500" />
                   <span className="font-medium text-gray-700">Safe Space</span>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Express yourself freely in a judgment-free environment
                 </p>
               </div>
               
               <div className="glass-subtle rounded-xl p-4">
-                <div className="flex items-center space-x-3 mb-3">
-                  <Brain className="w-5 h-5 text-purple-500" />
+                <div className="mb-3 flex items-center space-x-3">
+                  <Brain className="h-5 w-5 text-purple-500" />
                   <span className="font-medium text-gray-700">Personalized Support</span>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-gray-600 text-sm">
                   AI-powered responses tailored to your emotional needs
                 </p>
               </div>
               
               <div className="glass-subtle rounded-xl p-4">
-                <div className="flex items-center space-x-3 mb-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+                <div className="mb-3 flex items-center space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
                   <span className="font-medium text-gray-700">Practical Guidance</span>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Actionable suggestions when you're ready for them
                 </p>
               </div>
@@ -595,10 +593,10 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
             
             {currentSession && (currentUserMessage || currentBreezieMessage || chatHistory.length > 0) && (
               <Button
-                className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:shadow-lg transition-all duration-200 border-0"
+                className="w-full border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white transition-all duration-200 hover:shadow-lg"
                 onClick={handleSaveAndComplete}
               >
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="mr-2 h-4 w-4" />
                 Save & Complete Session
               </Button>
             )}
@@ -608,31 +606,31 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
   }
 
   return (
-    <div className="min-h-screen gradient-surface">
+    <div className="gradient-surface min-h-screen">
       {/* Premium Header */}
-      <header className="glass border-b-0 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
+      <header className="glass sticky top-0 z-50 border-b-0">
+        <div className="mx-auto max-w-7xl px-6 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onBack}
-                className="hover:bg-white/20 transition-colors"
+                className="transition-colors hover:bg-white/20"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
               
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg">
                   <CloudLogo size={24} />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold">
+                  <h1 className="font-bold text-lg">
                     <CloudLogoText size="md" /> Chat
                   </h1>
-                  <p className="text-xs text-gray-500">Feeling first, healing follows</p>
+                  <p className="text-gray-500 text-xs">Feeling first, healing follows</p>
                 </div>
               </div>
             </div>
@@ -642,12 +640,12 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                 <Badge className={`glass-subtle ${selectedMood === 'positive' ? 'border-green-200' : 'border-blue-200'}`}>
                   {selectedMood === 'positive' ? (
                     <>
-                      <Sun className="w-3 h-3 mr-1" />
+                      <Sun className="mr-1 h-3 w-3" />
                       Positive
                     </>
                   ) : (
                     <>
-                      <Moon className="w-3 h-3 mr-1" />
+                      <Moon className="mr-1 h-3 w-3" />
                       Difficult
                     </>
                   )}
@@ -656,13 +654,13 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
               
               {selectedEmotion && (
                 <Badge className="glass-subtle border-purple-200">
-                  <Heart className="w-3 h-3 mr-1" />
+                  <Heart className="mr-1 h-3 w-3" />
                   {selectedEmotion}
                 </Badge>
               )}
               
-              <div className="flex items-center space-x-1 text-xs text-gray-500">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <div className="flex items-center space-x-1 text-gray-500 text-xs">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
                 <span>Online</span>
               </div>
             </div>
@@ -672,14 +670,14 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Panel - Premium Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex flex-1 flex-col">
           {/* Chat Messages Area */}
-          <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+          <div className="flex-1 space-y-6 overflow-y-auto p-6">
             {/* Breezie's Premium Message Frame */}
-            <div className="glass rounded-2xl p-6 shadow-lg border-l-4 border-purple-400">
-              <div className="flex items-center space-x-3 mb-4">
-                <Avatar className="w-10 h-10">
-                  <AvatarFallback className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white text-lg font-bold">
+            <div className="glass rounded-2xl border-purple-400 border-l-4 p-6 shadow-lg">
+              <div className="mb-4 flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 font-bold text-lg text-white">
                     B
                   </AvatarFallback>
                 </Avatar>
@@ -688,33 +686,33 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                     <span className="font-semibold text-gray-800">Breezie</span>
                     <Badge variant="secondary" className="text-xs">AI Companion</Badge>
                   </div>
-                  <p className="text-xs text-gray-500">Your emotional support assistant</p>
+                  <p className="text-gray-500 text-xs">Your emotional support assistant</p>
                 </div>
                 {isTyping && (
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-purple-400" />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-purple-400" style={{animationDelay: '0.1s'}} />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-purple-400" style={{animationDelay: '0.2s'}} />
                   </div>
                 )}
               </div>
               
-              <div className="min-h-[140px] max-h-[400px] overflow-y-auto">
+              <div className="max-h-[400px] min-h-[140px] overflow-y-auto">
                 {isTyping ? (
                   <div className="flex items-center space-x-3 text-gray-500">
-                    <Zap className="w-4 h-4 animate-pulse" />
+                    <Zap className="h-4 w-4 animate-pulse" />
                     <span className="text-sm italic">Breezie is thinking deeply about your message...</span>
                   </div>
                 ) : currentBreezieMessage ? (
                   <div className="prose prose-sm max-w-none">
-                    <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                    <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">
                       {currentBreezieMessage}
                     </p>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400">
+                  <div className="flex h-full items-center justify-center text-gray-400">
                     <div className="text-center">
-                      <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <MessageCircle className="mx-auto mb-2 h-8 w-8 opacity-50" />
                       <p className="text-sm italic">Waiting for your message...</p>
                     </div>
                   </div>
@@ -723,10 +721,10 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
             </div>
 
             {/* User's Premium Message Frame */}
-            <div className="glass rounded-2xl p-6 shadow-lg border-l-4 border-blue-400">
-              <div className="flex items-center space-x-3 mb-4">
-                <Avatar className="w-10 h-10">
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-lg font-bold">
+            <div className="glass rounded-2xl border-blue-400 border-l-4 p-6 shadow-lg">
+              <div className="mb-4 flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-blue-100 font-bold text-blue-600 text-lg">
                     {user?.email?.[0]?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
@@ -737,15 +735,15 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                     </span>
                     <Badge variant="outline" className="text-xs">You</Badge>
                   </div>
-                  <p className="text-xs text-gray-500">Share your thoughts and feelings</p>
+                  <p className="text-gray-500 text-xs">Share your thoughts and feelings</p>
                 </div>
               </div>
               
-              <div className="min-h-[140px] max-h-[400px] relative">
+              <div className="relative max-h-[400px] min-h-[140px]">
                 {!chatStarted ? (
-                  <div className="flex items-center justify-center h-full text-gray-400">
+                  <div className="flex h-full items-center justify-center text-gray-400">
                     <div className="text-center">
-                      <Heart className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <Heart className="mx-auto mb-2 h-8 w-8 opacity-50" />
                       <p className="text-sm italic">Please select your mood to start the conversation 💙</p>
                     </div>
                   </div>
@@ -757,17 +755,17 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Share what's on your mind... Express yourself freely here."
-                      className="w-full h-full pr-16 border-none resize-none focus:outline-none text-gray-800 leading-relaxed bg-transparent focus:ring-0 focus:border-transparent"
+                      className="h-full w-full resize-none border-none bg-transparent pr-16 text-gray-800 leading-relaxed focus:border-transparent focus:outline-none focus:ring-0"
                       disabled={isTyping}
                     />
-                    <div className="absolute bottom-3 right-3">
+                    <div className="absolute right-3 bottom-3">
                       <Button
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isTyping}
                         size="sm"
-                        className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-0"
+                        className="border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
                       >
-                        <Send className="w-4 h-4" />
+                        <Send className="h-4 w-4" />
                       </Button>
                     </div>
                   </>
@@ -776,14 +774,14 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
             </div>
 
             {/* Premium Action Buttons */}
-            <div className="flex justify-center space-x-3 mt-6">
+            <div className="mt-6 flex justify-center space-x-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNewConversation}
-                className="glass-subtle hover:shadow-md transition-all duration-200 flex items-center space-x-2"
+                className="glass-subtle flex items-center space-x-2 transition-all duration-200 hover:shadow-md"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="h-4 w-4" />
                 <span>New Topic</span>
               </Button>
               
@@ -791,19 +789,19 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
                 variant="outline"
                 size="sm"
                 onClick={toggleHistory}
-                className="glass-subtle hover:shadow-md transition-all duration-200 flex items-center space-x-2"
+                className="glass-subtle flex items-center space-x-2 transition-all duration-200 hover:shadow-md"
               >
-                <History className="w-4 h-4" />
+                <History className="h-4 w-4" />
                 <span>History ({chatHistory.length})</span>
               </Button>
 
               <Button
                 size="sm"
                 onClick={handleSaveAndComplete}
-                className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:shadow-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2 border-0"
+                className="flex items-center space-x-2 border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white transition-all duration-200 hover:scale-105 hover:shadow-lg"
                 disabled={!currentSession || (!currentUserMessage && !currentBreezieMessage)}
               >
-                <Save className="w-4 h-4" />
+                <Save className="h-4 w-4" />
                 <span>Save & Complete</span>
               </Button>
             </div>
@@ -811,10 +809,10 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
 
           {/* Premium Status Bar */}
           <div className="glass-subtle border-t-0 px-6 py-3">
-            <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center justify-between text-gray-500 text-xs">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
                   <span>Connected & Secure</span>
                 </div>
                 {chatHistory.length > 0 && (
@@ -827,7 +825,7 @@ export function PremiumChatInterface({ onBack }: PremiumChatInterfaceProps) {
         </div>
 
         {/* Right Panel - Premium Dynamic Content */}
-        <div className="w-96 glass border-l-0 shadow-xl">
+        <div className="glass w-96 border-l-0 shadow-xl">
           {renderRightPanel()}
         </div>
       </div>

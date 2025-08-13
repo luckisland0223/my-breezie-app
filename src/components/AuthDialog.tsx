@@ -1,18 +1,18 @@
 'use client'
 
-import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Mail, Lock, Eye, EyeOff, UserPlus, LogIn, RefreshCw, User } from 'lucide-react'
-import { useAuthStore, processPendingSave } from '@/store/auth'
+import { processPendingSave, useAuthStore } from '@/store/auth'
+import { Eye, EyeOff, Lock, LogIn, Mail, RefreshCw, User, UserPlus } from 'lucide-react'
+import { useState } from 'react'
 
 export function AuthDialog({ open, mode = 'login', onOpenChange }: { open: boolean; mode?: 'login' | 'register'; onOpenChange: (open: boolean) => void }) {
   const [tab, setTab] = useState<'login' | 'register'>(mode)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 overflow-hidden">
+      <DialogContent className="overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="px-6 pt-6">
           <DialogTitle className="text-xl">Welcome to Breezie</DialogTitle>
           <DialogDescription>Sign in to continue, or create a new account in seconds.</DialogDescription>
@@ -23,7 +23,7 @@ export function AuthDialog({ open, mode = 'login', onOpenChange }: { open: boole
           ) : (
             <RegisterForm onDone={() => onOpenChange(false)} />
           )}
-          <div className="mt-4 text-center text-sm text-muted-foreground">
+          <div className="mt-4 text-center text-muted-foreground text-sm">
             {tab === 'login' ? (
               <>
                 No account?{' '}
@@ -62,22 +62,22 @@ function LoginForm({ onDone }: { onDone: () => void }) {
       <div className="space-y-2">
         <Label htmlFor="login-email">Email</Label>
         <div className="relative">
-          <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input id="login-email" className="pl-10 h-12 text-base" placeholder="you@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Mail className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-muted-foreground" />
+          <Input id="login-email" className="h-12 pl-10 text-base" placeholder="you@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="login-password">Password</Label>
         <div className="relative">
-          <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input id="login-password" className="pl-10 pr-10 h-12 text-base" placeholder="••••••••" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <button type="button" aria-label="Toggle password visibility" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          <Lock className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-muted-foreground" />
+          <Input id="login-password" className="h-12 pr-10 pl-10 text-base" placeholder="••••••••" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <button type="button" aria-label="Toggle password visibility" onClick={() => setShowPassword((v) => !v)} className="-translate-y-1/2 absolute top-1/2 right-3 text-muted-foreground">
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         </div>
       </div>
       {error ? <div className="text-red-500 text-sm">{error}</div> : null}
-      <Button disabled={loading} type="submit" className="w-full h-12 text-base">{loading ? 'Signing in...' : 'Sign in'}</Button>
+      <Button disabled={loading} type="submit" className="h-12 w-full text-base">{loading ? 'Signing in...' : 'Sign in'}</Button>
     </form>
   )
 }
@@ -112,40 +112,40 @@ function RegisterForm({ onDone }: { onDone: () => void }) {
       <div className="space-y-2">
         <Label htmlFor="reg-email">Email</Label>
         <div className="relative">
-          <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input id="reg-email" className="pl-10 h-12 text-base" placeholder="you@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Mail className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-muted-foreground" />
+          <Input id="reg-email" className="h-12 pl-10 text-base" placeholder="you@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="reg-username">Username</Label>
         <div className="relative">
-          <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input id="reg-username" className="pl-10 h-12 text-base" placeholder="letters / numbers / underscore" value={username} onChange={(e) => setUsername(e.target.value)} required />
+          <User className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-muted-foreground" />
+          <Input id="reg-username" className="h-12 pl-10 text-base" placeholder="letters / numbers / underscore" value={username} onChange={(e) => setUsername(e.target.value)} required />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="reg-password">Password</Label>
         <div className="relative">
-          <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input id="reg-password" className="pl-10 h-12 text-base" placeholder="At least 8 chars, with upper/lowercase & number" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <Lock className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-muted-foreground" />
+          <Input id="reg-password" className="h-12 pl-10 text-base" placeholder="At least 8 chars, with upper/lowercase & number" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
-        <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+        <ul className="list-disc space-y-1 pl-5 text-muted-foreground text-xs">
           <li>At least 8 characters</li>
           <li>Contains uppercase and lowercase letters</li>
           <li>Contains at least one number</li>
         </ul>
       </div>
       {error ? <div className="text-red-500 text-sm">{error}</div> : null}
-      <Button disabled={loading} type="submit" className="w-full h-12 text-base">{loading ? 'Registering...' : 'Register'}</Button>
+      <Button disabled={loading} type="submit" className="h-12 w-full text-base">{loading ? 'Registering...' : 'Register'}</Button>
     </form>
   ) : (
     <form onSubmit={onVerify} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="code">Verification code</Label>
         <Input id="code" className="h-12 text-base" placeholder="6-digit code" value={code} onChange={(e) => setCode(e.target.value)} required />
-        <div className="text-xs text-muted-foreground">We sent a 6-digit code to your email. It expires in 15 minutes.</div>
+        <div className="text-muted-foreground text-xs">We sent a 6-digit code to your email. It expires in 15 minutes.</div>
       </div>
-      <Button type="submit" className="w-full h-12 text-base">Verify & Continue</Button>
+      <Button type="submit" className="h-12 w-full text-base">Verify & Continue</Button>
     </form>
   )
 }

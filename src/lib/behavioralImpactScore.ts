@@ -270,7 +270,7 @@ export function analyzeCognitiveAppraisal(text: string, emotion: EmotionType): C
 export function calculateBehavioralImpactScore(
   emotion: EmotionType,
   intensity: number,
-  conversationText: string = ''
+  conversationText = ''
 ): BehavioralImpactScore {
   
   const baseline = emotionBaselines[emotion]

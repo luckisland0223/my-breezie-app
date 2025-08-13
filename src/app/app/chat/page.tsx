@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuthStore } from '@/store/auth'
 import { ChatInterface } from '@/components/ChatInterface'
 import { PageHeader } from '@/components/PageHeader'
 import { CloudLogo } from '@/components/ui/CloudLogo'
+import { useAuthStore } from '@/store/auth'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function ChatPage() {
   const { user, token } = useAuthStore()
@@ -22,12 +22,12 @@ export default function ChatPage() {
   // Show loading while checking auth
   if (!user || !token) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 animate-float shadow-2xl">
+          <div className="mx-auto mb-6 flex h-20 w-20 animate-float items-center justify-center rounded-2xl bg-white shadow-2xl">
             <CloudLogo size={50} />
           </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Checking authentication...</h2>
+          <h2 className="mb-2 font-semibold text-gray-800 text-xl">Checking authentication...</h2>
         </div>
       </div>
     )
@@ -43,7 +43,7 @@ export default function ChatPage() {
         showHomeLink={true}
       />
       
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="mx-auto max-w-4xl px-6 py-8">
         <ChatInterface onBack={() => router.push('/app')} />
       </div>
     </div>

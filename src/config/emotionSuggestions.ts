@@ -155,7 +155,7 @@ export function isNegativeEmotion(emotion: EmotionType): boolean {
 }
 
 export function getSuggestionsForEmotion(emotion: EmotionType): EmotionSuggestion[] {
-  return EMOTION_SUGGESTIONS[emotion] || EMOTION_SUGGESTIONS['Other']
+  return EMOTION_SUGGESTIONS[emotion] || EMOTION_SUGGESTIONS.Other
 }
 
 // Context-specific suggestions for peer pressure and social anxiety
@@ -432,7 +432,7 @@ export const COMFORT_RESPONSES: Record<EmotionType, string[]> = {
 
 // Get a comfort response for the given emotion
 export function getComfortResponse(emotion: EmotionType): string {
-  const responses = COMFORT_RESPONSES[emotion] || COMFORT_RESPONSES['Other']
+  const responses = COMFORT_RESPONSES[emotion] || COMFORT_RESPONSES.Other
   if (!responses || responses.length === 0) {
     return "I'm here with you, and your feelings are valid 💙"
   }
@@ -440,7 +440,7 @@ export function getComfortResponse(emotion: EmotionType): string {
   return responses[randomIndex] || "I'm here with you, and your feelings are valid 💙"
 }
 
-export function getRandomSuggestions(emotion: EmotionType, count: number = 4, userMessage?: string): EmotionSuggestion[] {
+export function getRandomSuggestions(emotion: EmotionType, count = 4, userMessage?: string): EmotionSuggestion[] {
   // First, check if we have contextual suggestions
   if (userMessage) {
     const context = detectContext(userMessage)
@@ -463,7 +463,7 @@ export function getRandomSuggestions(emotion: EmotionType, count: number = 4, us
 // Enhanced suggestion generation with behavioral impact analysis
 export function getEnhancedSuggestions(
   emotion: EmotionType, 
-  count: number = 4, 
+  count = 4, 
   userMessage?: string,
   behavioralScore?: any,
   userHistory?: any[]
@@ -496,7 +496,7 @@ function adjustSuggestionsByBehavioralImpact(
   const isLowImpactTrend = averageScore < 4.5
   
   // Adjust suggestion priority based on behavioral patterns
-  let adjustedSuggestions = [...suggestions]
+  const adjustedSuggestions = [...suggestions]
   
   if (behavioralScore.risk_level === 'high' || isHighImpactTrend) {
     // Prioritize immediate and physical interventions for high-risk situations

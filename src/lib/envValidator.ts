@@ -148,7 +148,7 @@ export function validateEnvironmentVariables(): EnvValidationResult {
 
 // Generate secure environment variables for initial setup
 export function generateSecureEnvVars(): Record<string, string> {
-  const crypto = require('crypto')
+  const crypto = require('node:crypto')
   
   return {
     JWT_SECRET: crypto.randomBytes(64).toString('hex'),

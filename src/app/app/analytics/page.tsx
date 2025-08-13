@@ -1,16 +1,16 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { EmotionChart } from '@/components/EmotionChart'
+import { PageHeader } from '@/components/PageHeader'
+import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
+import { CloudLogo } from '@/components/ui/CloudLogo'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/store/auth'
 import { useEmotionStore } from '@/store/emotion'
-import { PageHeader } from '@/components/PageHeader'
-import { CloudLogo } from '@/components/ui/CloudLogo'
-import { EmotionChart } from '@/components/EmotionChart'
-import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { BarChart3, TrendingUp, Target, Calendar, Heart, MessageCircle } from 'lucide-react'
+import { BarChart3, Calendar, Heart, MessageCircle, Target, TrendingUp } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function AnalyticsPage() {
   const { user, token } = useAuthStore()
@@ -34,12 +34,12 @@ export default function AnalyticsPage() {
   // Show loading while checking auth
   if (!user || !token) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 animate-float shadow-2xl">
+          <div className="mx-auto mb-6 flex h-20 w-20 animate-float items-center justify-center rounded-2xl bg-white shadow-2xl">
             <CloudLogo size={50} />
           </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Checking authentication...</h2>
+          <h2 className="mb-2 font-semibold text-gray-800 text-xl">Checking authentication...</h2>
         </div>
       </div>
     )
@@ -55,67 +55,67 @@ export default function AnalyticsPage() {
         showHomeLink={true}
       />
       
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="mx-auto max-w-7xl px-6 py-8">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <MessageCircle className="w-6 h-6 text-white" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg">
+                <MessageCircle className="h-6 w-6 text-white" />
               </div>
-              <p className="text-2xl font-bold text-gray-900 mb-1">{records.length}</p>
-              <p className="text-gray-600 font-medium">Total Records</p>
+              <p className="mb-1 font-bold text-2xl text-gray-900">{records.length}</p>
+              <p className="font-medium text-gray-600">Total Records</p>
             </CardContent>
           </Card>
 
-          <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+          <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <TrendingUp className="w-6 h-6 text-white" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
+                <TrendingUp className="h-6 w-6 text-white" />
               </div>
-              <p className="text-2xl font-bold text-gray-900 mb-1">
+              <p className="mb-1 font-bold text-2xl text-gray-900">
                 {(() => {
                   const chatRecords = records.filter(r => r.recordType === 'chat')
                   return chatRecords.length > 0 ? (chatRecords.reduce((sum, r) => sum + r.behavioralImpact, 0) / chatRecords.length).toFixed(1) : '0'
                 })()}
               </p>
-              <p className="text-gray-600 font-medium">Avg Impact</p>
+              <p className="font-medium text-gray-600">Avg Impact</p>
             </CardContent>
           </Card>
 
-          <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+          <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Calendar className="w-6 h-6 text-white" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg">
+                <Calendar className="h-6 w-6 text-white" />
               </div>
-              <p className="text-2xl font-bold text-gray-900 mb-1">
+              <p className="mb-1 font-bold text-2xl text-gray-900">
                 {new Set(records.map(r => new Date(r.timestamp).toDateString())).size}
               </p>
-              <p className="text-gray-600 font-medium">Days Tracked</p>
+              <p className="font-medium text-gray-600">Days Tracked</p>
             </CardContent>
           </Card>
 
-          <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+          <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Heart className="w-6 h-6 text-white" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-pink-400 to-pink-600 shadow-lg">
+                <Heart className="h-6 w-6 text-white" />
               </div>
-              <p className="text-2xl font-bold text-gray-900 mb-1">
+              <p className="mb-1 font-bold text-2xl text-gray-900">
                 {new Set(records.map(r => r.emotion)).size}
               </p>
-              <p className="text-gray-600 font-medium">Emotions Tracked</p>
+              <p className="font-medium text-gray-600">Emotions Tracked</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Charts and Analysis */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Emotion Chart */}
-          <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+          <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600">
+                  <BarChart3 className="h-5 w-5 text-white" />
                 </div>
                 Emotion Distribution
               </CardTitle>
@@ -126,11 +126,11 @@ export default function AnalyticsPage() {
           </Card>
 
           {/* Recent Trends */}
-          <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+          <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-400 to-green-600">
+                  <TrendingUp className="h-5 w-5 text-white" />
                 </div>
                 Recent Trends
               </CardTitle>
@@ -142,13 +142,13 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Detailed Analysis */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Emotion Patterns */}
-          <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+          <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
-                  <Target className="w-5 h-5 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-purple-600">
+                  <Target className="h-5 w-5 text-white" />
                 </div>
                 Top Emotions
               </CardTitle>
@@ -166,12 +166,12 @@ export default function AnalyticsPage() {
                       .sort(([,a], [,b]) => b - a)
                       .slice(0, 8)
                       .map(([emotion, count], index) => (
-                        <div key={emotion} className="flex justify-between items-center glass-subtle rounded-lg p-3">
+                        <div key={emotion} className="glass-subtle flex items-center justify-between rounded-lg p-3">
                           <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-purple-500 font-bold text-sm text-white">
                               {index + 1}
                             </div>
-                            <span className="text-gray-700 font-medium">{emotion}</span>
+                            <span className="font-medium text-gray-700">{emotion}</span>
                           </div>
                           <Badge variant="secondary" className="font-semibold">
                             {count} times
@@ -181,11 +181,11 @@ export default function AnalyticsPage() {
                   })()}
                 </div>
               ) : (
-                <div className="text-center text-gray-500 py-8">
-                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <MessageCircle className="w-8 h-8 opacity-50" />
+                <div className="py-8 text-center text-gray-500">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100">
+                    <MessageCircle className="h-8 w-8 opacity-50" />
                   </div>
-                  <p className="font-medium mb-1">No data yet</p>
+                  <p className="mb-1 font-medium">No data yet</p>
                   <p className="text-sm">Start tracking emotions to see your patterns!</p>
                 </div>
               )}
@@ -193,11 +193,11 @@ export default function AnalyticsPage() {
           </Card>
 
           {/* Behavioral Impact Analysis */}
-          <Card className="glass shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+          <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600">
+                  <TrendingUp className="h-5 w-5 text-white" />
                 </div>
                 Impact Analysis
               </CardTitle>
@@ -205,37 +205,37 @@ export default function AnalyticsPage() {
             <CardContent>
               {records.length > 0 ? (
                 <div className="space-y-4">
-                  <div className="text-center glass-subtle rounded-xl p-4">
-                    <div className="text-3xl font-bold text-blue-600 mb-1">
+                  <div className="glass-subtle rounded-xl p-4 text-center">
+                    <div className="mb-1 font-bold text-3xl text-blue-600">
                       {(() => {
                         const chatRecords = records.filter(r => r.recordType === 'chat')
                         return chatRecords.length > 0 ? (chatRecords.reduce((sum, r) => sum + r.behavioralImpact, 0) / chatRecords.length).toFixed(1) : '0'
                       })()}
                     </div>
-                    <div className="text-sm text-gray-600 font-medium">Average Impact Score</div>
+                    <div className="font-medium text-gray-600 text-sm">Average Impact Score</div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center glass-subtle rounded-lg p-3">
-                      <div className="text-xl font-bold text-green-600 mb-1">
+                    <div className="glass-subtle rounded-lg p-3 text-center">
+                      <div className="mb-1 font-bold text-green-600 text-xl">
                         {records.filter(r => r.behavioralImpact >= 7).length}
                       </div>
-                      <div className="text-xs text-gray-600">High Impact</div>
+                      <div className="text-gray-600 text-xs">High Impact</div>
                     </div>
-                    <div className="text-center glass-subtle rounded-lg p-3">
-                      <div className="text-xl font-bold text-orange-600 mb-1">
+                    <div className="glass-subtle rounded-lg p-3 text-center">
+                      <div className="mb-1 font-bold text-orange-600 text-xl">
                         {records.filter(r => r.behavioralImpact >= 4 && r.behavioralImpact < 7).length}
                       </div>
-                      <div className="text-xs text-gray-600">Medium Impact</div>
+                      <div className="text-gray-600 text-xs">Medium Impact</div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center text-gray-500 py-8">
-                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <TrendingUp className="w-8 h-8 opacity-50" />
+                <div className="py-8 text-center text-gray-500">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100">
+                    <TrendingUp className="h-8 w-8 opacity-50" />
                   </div>
-                  <p className="font-medium mb-1">No impact data</p>
+                  <p className="mb-1 font-medium">No impact data</p>
                   <p className="text-sm">Start chatting to see your behavioral impact!</p>
                 </div>
               )}

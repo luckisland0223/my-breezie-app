@@ -1,5 +1,5 @@
+import crypto from 'node:crypto'
 import jwt from 'jsonwebtoken'
-import crypto from 'crypto'
 
 // Production-grade JWT configuration
 function getJWTConfig() {
@@ -64,9 +64,8 @@ export function generateAccessToken(payload: JWTPayload): string {
   
   return jwt.sign(tokenPayload, config.secret, {
     algorithm: config.algorithm,
-    expiresIn: config.accessTokenExpiry,
-    issuer: config.issuer,
-    audience: config.audience
+    expiresIn: config.accessTokenExpiry
+    // Don't duplicate issuer and audience since they're already in the payload
   } as jwt.SignOptions)
 }
 
@@ -87,9 +86,8 @@ export function generateRefreshToken(payload: JWTPayload): string {
   
   return jwt.sign(tokenPayload, config.refreshSecret, {
     algorithm: config.algorithm,
-    expiresIn: config.refreshTokenExpiry,
-    issuer: config.issuer,
-    audience: config.audience
+    expiresIn: config.refreshTokenExpiry
+    // Don't duplicate issuer and audience since they're already in the payload
   } as jwt.SignOptions)
 }
 

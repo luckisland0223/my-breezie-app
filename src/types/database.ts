@@ -1,7 +1,7 @@
 // Database types that extend existing types for compatibility
 
-import type { User, EmotionRecord, ChatSession, ChatMessage } from '@prisma/client'
 import type { EmotionType } from '@/store/emotion'
+import type { ChatMessage, ChatSession, EmotionRecord, User } from '@prisma/client'
 
 // Extended types with relations
 export type UserWithRelations = User & {

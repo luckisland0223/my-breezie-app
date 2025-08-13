@@ -122,7 +122,7 @@ export function validatePassword(password: string): { isValid: boolean; errors: 
 }
 
 // Generate secure random string
-export function generateSecureToken(length: number = 32): string {
+export function generateSecureToken(length = 32): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
   
@@ -146,7 +146,7 @@ export function generateSecureToken(length: number = 32): string {
 class ClientRateLimit {
   private limits = new Map<string, { count: number; resetTime: number }>()
   
-  check(key: string, maxRequests: number = 10, windowMs: number = 60000): boolean {
+  check(key: string, maxRequests = 10, windowMs = 60000): boolean {
     const now = Date.now()
     const limit = this.limits.get(key)
     
