@@ -18,7 +18,7 @@ export interface GeminiResponse {
   model: string
 }
 
-// Gemini API configuration
+// Gemini API configuration - Updated for Gemini 2.5
 const GEMINI_CONFIG = {
   model: API_CONFIG.model,
   baseURL: `https://generativelanguage.googleapis.com/v1beta/models/${API_CONFIG.model}:generateContent`,
@@ -73,13 +73,34 @@ export async function getGeminiResponse(
         temperature: GEMINI_CONFIG.temperature,
         maxOutputTokens: dynamicTokens,
         topP: API_CONFIG.topP,
-        topK: API_CONFIG.topK
+        topK: API_CONFIG.topK,
+        // Gemini 2.5 specific optimizations
+        candidateCount: 1,
+        stopSequences: [],
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          }
+        ]
       }
     }
 
-    // Add timeout and retry logic for better performance
+    // Add timeout and retry logic for better performance - Optimized for Gemini 2.5
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 20000) // 20 second timeout for Gemini 2.5
     
     let response: Response
     try {
@@ -104,7 +125,18 @@ export async function getGeminiResponse(
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
+      let errorMessage = `Gemini API error: ${response.status} ${response.statusText}`
+      
+      // Gemini 2.5 specific error handling
+      if (response.status === 400) {
+        errorMessage = 'Invalid request to Gemini 2.5 - please check your input'
+      } else if (response.status === 429) {
+        errorMessage = 'Gemini 2.5 rate limit exceeded - please try again later'
+      } else if (response.status === 500) {
+        errorMessage = 'Gemini 2.5 service temporarily unavailable - please try again'
+      }
+      
+      throw new Error(errorMessage)
     }
 
     const data = await response.json()

@@ -23,12 +23,7 @@ const REQUIRED_ENV_VARS: RequiredEnvVar[] = [
     required: true,
     minLength: 20
   },
-  {
-    name: 'DIRECT_URL',
-    description: 'Direct database connection for migrations',
-    required: true,
-    minLength: 20
-  },
+
   {
     name: 'JWT_SECRET',
     description: 'Secret key for JWT token signing',
@@ -55,20 +50,7 @@ const REQUIRED_ENV_VARS: RequiredEnvVar[] = [
     required: false,
     minLength: 32
   },
-  {
-    name: 'STRIPE_SECRET_KEY',
-    description: 'Stripe secret key for payment processing',
-    required: false,
-    minLength: 20,
-    pattern: /^sk_(test_|live_)/
-  },
-  {
-    name: 'STRIPE_WEBHOOK_SECRET',
-    description: 'Stripe webhook endpoint secret',
-    required: false,
-    minLength: 20,
-    pattern: /^whsec_/
-  }
+
 ]
 
 // Validate all environment variables

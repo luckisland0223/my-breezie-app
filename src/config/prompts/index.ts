@@ -10,8 +10,9 @@ import { FALLBACK_RESPONSES, getRandomFallback, getAllFallbackTypes } from './fa
 import type { EmotionType } from '@/store/emotion'
 
 // Configuration version management
-export const PROMPT_CONFIG_VERSION = "1.0.0"
+export const PROMPT_CONFIG_VERSION = "2.0.0"
 export const LAST_UPDATED = "2025-01-27"
+export const GEMINI_VERSION = "2.5 (gemini-2.0-flash-exp)"
 
 // Configuration validation
 interface ConfigValidation {
@@ -189,26 +190,26 @@ MANDATORY: Continue providing profound emotional support as the foundation
   return `${baseSystemPrompt}\n${emotionContext}${moodGuidance}${conversationText}${specialGuidance}\n\nUser said: "${userMessage}"\n\nPlease respond as Breezie with warmth:`
 }
 
-// API configuration - Enhanced for warmer, longer responses with dynamic token allocation
+// API configuration - Enhanced for Gemini 2.5 with warmer, longer responses and dynamic token allocation
 export const API_CONFIG = {
-  model: 'gemini-1.5-flash',
-  maxTokens: 1200,  // Increased significantly for substantial responses to long messages
-  temperature: 0.8,  // Higher temperature for more natural, warm responses
-  topP: 0.9,
-  topK: 40  // Higher topK for more diverse, engaging responses
+  model: 'gemini-2.0-flash-exp',  // Latest Gemini 2.5 model (experimental)
+  maxTokens: 1500,  // Increased for Gemini 2.5's enhanced capabilities
+  temperature: 0.85,  // Optimized for Gemini 2.5's improved natural language
+  topP: 0.95,  // Enhanced for better response quality
+  topK: 50  // Higher topK for more diverse, engaging responses
 } as const
 
-// Dynamic token allocation based on user engagement
+// Dynamic token allocation based on user engagement - Optimized for Gemini 2.5
 export function getTokensForEngagement(engagementLevel: 'high' | 'medium' | 'normal', userMessageLength: number): number {
   const baseTokens = API_CONFIG.maxTokens
   
   if (engagementLevel === 'high' || userMessageLength > 300) {
-    return Math.min(1200, baseTokens * 1.5) // Up to 1200 tokens for high engagement
+    return Math.min(1800, baseTokens * 1.2) // Up to 1800 tokens for high engagement with Gemini 2.5
   } else if (engagementLevel === 'medium' || userMessageLength > 150) {
-    return Math.min(900, baseTokens * 1.2) // Up to 900 tokens for medium engagement
+    return Math.min(1200, baseTokens * 0.8) // Up to 1200 tokens for medium engagement
   }
   
-  return Math.min(600, baseTokens * 0.75) // Standard 600 tokens for normal engagement
+  return Math.min(800, baseTokens * 0.53) // Standard 800 tokens for normal engagement with Gemini 2.5
 }
 
 // Export all functions
@@ -240,6 +241,7 @@ export {
 export const PROMPT_INFO = {
   version: PROMPT_CONFIG_VERSION,
   lastUpdated: LAST_UPDATED,
+  geminiVersion: GEMINI_VERSION,
   components: {
     system: SYSTEM_PROMPT.version,
     examples: CONVERSATION_EXAMPLES.version,

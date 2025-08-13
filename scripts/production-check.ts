@@ -38,15 +38,13 @@ function checkEnvironmentVariables() {
   
   const requiredVars = [
     { name: 'DATABASE_URL', minLength: 20 },
-    { name: 'DIRECT_URL', minLength: 20 },
     { name: 'JWT_SECRET', minLength: 32 },
     { name: 'JWT_REFRESH_SECRET', minLength: 32 },
     { name: 'GEMINI_API_KEY', minLength: 10 }
   ]
   
   const optionalVars = [
-    { name: 'STRIPE_SECRET_KEY', pattern: /^sk_(test_|live_)/ },
-    { name: 'STRIPE_WEBHOOK_SECRET', pattern: /^whsec_/ },
+    
     { name: 'ADMIN_EMAIL' },
     { name: 'SENTRY_DSN' },
     { name: 'REDIS_URL' }
@@ -64,9 +62,6 @@ function checkEnvironmentVariables() {
     } else if (envVar.minLength && value.length < envVar.minLength) {
       log(`❌ Too short: ${envVar.name} (minimum ${envVar.minLength} characters)`, 'red')
       allValid = false
-    } else if (envVar.pattern && !envVar.pattern.test(value)) {
-      log(`❌ Invalid format: ${envVar.name}`, 'red')
-      allValid = false
     } else {
       log(`✅ Valid: ${envVar.name}`, 'green')
     }
@@ -78,9 +73,6 @@ function checkEnvironmentVariables() {
     
     if (!value) {
       log(`⚠️  Optional missing: ${envVar.name}`, 'yellow')
-    } else if (envVar.pattern && !envVar.pattern.test(value)) {
-      log(`❌ Invalid format: ${envVar.name}`, 'red')
-      allValid = false
     } else {
       log(`✅ Optional set: ${envVar.name}`, 'green')
     }

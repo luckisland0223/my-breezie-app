@@ -26,33 +26,12 @@ import Link from 'next/link'
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('journey')
-  const [showChat, setShowChat] = useState(false)
   const { user, logout } = useAuthStore()
   const [authOpen, setAuthOpen] = useState(false)
   const router = useRouter()
 
   const handleStartConversation = () => {
-    setShowChat(true)
-  }
-
-
-
-  if (showChat) {
-    return (
-      <ClientOnly fallback={
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-              <MessageCircle className="w-8 h-8 text-white" />
-            </div>
-            <p className="text-gray-600">Loading chat...</p>
-            <p className="text-xs text-gray-400 mt-2">Feeling first, healing follows</p>
-          </div>
-        </div>
-      }>
-        <PremiumChatInterface onBack={() => setShowChat(false)} />
-      </ClientOnly>
-    )
+    router.push('/chat')
   }
 
   return (
@@ -72,6 +51,13 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-3">
+              <Link href="/chat">
+                <Button variant="ghost" className="glass-subtle hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Chat
+                </Button>
+              </Link>
+              
               <Link href="/analytics">
                 <Button variant="ghost" className="glass-subtle hover:shadow-md transition-all duration-200 flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
@@ -207,12 +193,12 @@ function PremiumMainContent({ activeTab, setActiveTab, handleStartConversation }
                   onClick={handleStartConversation}
                 >
                   <MessageCircle className="w-6 h-6 mr-3" />
-                  Start Your Journey
+                  Start Chatting
                   <ArrowRight className="w-6 h-6 ml-3" />
                 </Button>
                 
                 <p className="text-sm text-gray-500 mt-4">
-                  Free, private, and always here for you
+                  Chat with AI-powered emotional support
                 </p>
               </div>
 

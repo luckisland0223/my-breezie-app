@@ -145,12 +145,7 @@ function RegisterForm({ onDone }: { onDone: () => void }) {
         <Input id="code" className="h-12 text-base" placeholder="6-digit code" value={code} onChange={(e) => setCode(e.target.value)} required />
         <div className="text-xs text-muted-foreground">We sent a 6-digit code to your email. It expires in 15 minutes.</div>
       </div>
-      <div className="flex gap-2">
-        <Button type="submit" className="w-full h-12 text-base">Verify & Continue</Button>
-        <Button type="button" variant="outline" onClick={async () => {
-          await fetch('/api/auth/verify/resend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
-        }}><RefreshCw className="w-4 h-4 mr-2" />Resend</Button>
-      </div>
+      <Button type="submit" className="w-full h-12 text-base">Verify & Continue</Button>
     </form>
   )
 }

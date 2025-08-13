@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
     let body
     try {
       body = await request.json()
+      console.log('Chat API - Received request body:', JSON.stringify(body, null, 2))
     } catch (error) {
+      console.error('Chat API - JSON parse error:', error)
       return addSecurityHeaders(NextResponse.json({ 
         error: 'Invalid JSON in request body' 
       }, { status: 400 }), request)
@@ -50,10 +52,13 @@ export async function POST(request: NextRequest) {
 
     // Sanitize input data
     const sanitizedBody = sanitizeInput(body)
+    console.log('Chat API - Sanitized body:', JSON.stringify(sanitizedBody, null, 2))
     
     // Comprehensive validation
     const validation = validateChatRequest(sanitizedBody)
+    console.log('Chat API - Validation result:', validation)
     if (!validation.isValid) {
+      console.error('Chat API - Validation failed:', validation.errors)
       return addSecurityHeaders(NextResponse.json({ 
         error: 'Validation failed',
         details: validation.errors 
