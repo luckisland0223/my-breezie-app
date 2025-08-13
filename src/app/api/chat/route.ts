@@ -8,7 +8,7 @@ import { buildFullPrompt, API_CONFIG, getTokensForEngagement } from '@/config/pr
 // Handle OPTIONS requests for CORS
 export async function OPTIONS(request: NextRequest) {
   const response = new NextResponse(null, { status: 200 })
-  return addSecurityHeaders(response)
+  return addSecurityHeaders(response, request)
 }
 
 export async function POST(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     // Apply CORS middleware first
     const corsResponse = corsMiddleware(request)
     if (corsResponse) {
-      return addSecurityHeaders(corsResponse)
+      return addSecurityHeaders(corsResponse, request)
     }
     
     // Get user information for enhanced rate limiting
@@ -25,22 +25,22 @@ export async function POST(request: NextRequest) {
     
     // Apply enhanced rate limiting
     const burstResponse = burstProtection(request, user?.userId)
-    if (burstResponse) return addSecurityHeaders(burstResponse)
+    if (burstResponse) return addSecurityHeaders(burstResponse, request)
     
     const progressiveResponse = progressiveRateLimit(request, user?.userId)
-    if (progressiveResponse) return addSecurityHeaders(progressiveResponse)
+    if (progressiveResponse) return addSecurityHeaders(progressiveResponse, request)
     
     const enhancedRateLimitResponse = enhancedRateLimit(request, {
       userId: user?.userId,
       isPremium,
       endpoint: '/api/chat'
     })
-    if (enhancedRateLimitResponse) return addSecurityHeaders(enhancedRateLimitResponse)
+    if (enhancedRateLimitResponse) return addSecurityHeaders(enhancedRateLimitResponse, request)
     
     // Fallback to basic rate limiting
     const rateLimitResponse = rateLimit(request)
     if (rateLimitResponse) {
-      return addSecurityHeaders(rateLimitResponse)
+      return addSecurityHeaders(rateLimitResponse, request)
     }
 
     // Parse and validate request body
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       return addSecurityHeaders(NextResponse.json({ 
         error: 'Invalid JSON in request body' 
-      }, { status: 400 }))
+      }, { status: 400 }), request)
     }
 
     // Sanitize input data
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       return addSecurityHeaders(NextResponse.json({ 
         error: 'Validation failed',
         details: validation.errors 
-      }, { status: 400 }))
+      }, { status: 400 }), request)
     }
 
     const {
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     if (wantsStream) {
       if (!geminiKey) {
-        return addSecurityHeaders(NextResponse.json({ error: 'Assistant unavailable' }, { status: 503 }))
+        return addSecurityHeaders(NextResponse.json({ error: 'Assistant unavailable' }, { status: 503 }), request)
       }
 
       // Build request body compatible with Gemini streamGenerateContent
@@ -197,7 +197,7 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      return addSecurityHeaders(response as any)
+      return addSecurityHeaders(response as any, request)
     }
 
     // Non-streaming JSON response
@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     })
 
-    return addSecurityHeaders(successResponse)
+    return addSecurityHeaders(successResponse, request)
   } catch (error: any) {
     // Log detailed error for debugging
     console.error('Chat API error:', {
@@ -246,7 +246,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
     
-    return addSecurityHeaders(errorResponse)
+    return addSecurityHeaders(errorResponse, request)
   }
 }
 

@@ -1,93 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { verifyPassword, generateToken, isValidEmail, type TokenPair } from '@/lib/auth'
-import { enhancedRateLimit } from '@/lib/enhancedRateLimit'
+import { verifyPassword, generateToken } from '@/lib/auth'
 import { addSecurityHeaders } from '@/lib/securityMiddleware'
 
 export async function POST(request: NextRequest) {
   try {
-    // Apply enhanced rate limiting for login attempts
-    const rateLimitResponse = enhancedRateLimit(request, { endpoint: '/api/auth/login' })
-    if (rateLimitResponse) return addSecurityHeaders(rateLimitResponse)
-    
-    const body = await request.json()
-    const { email, password } = body || {}
+    const { email, password } = await request.json()
 
     if (!email || !password) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-    if (!isValidEmail(email)) {
-      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
+      const response = NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
+      return addSecurityHeaders(response, request)
     }
 
     const user = await prisma.user.findUnique({ where: { email } })
-    if (!user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+
+    if (!user || !await verifyPassword(password, user.password)) {
+      const response = NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+      return addSecurityHeaders(response, request)
     }
 
-    // Account lock check
-    if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
-      const waitSeconds = Math.ceil((new Date(user.lockedUntil).getTime() - Date.now()) / 1000)
-      return NextResponse.json({ error: `Account locked. Try again in ${waitSeconds}s` }, { status: 429 })
-    }
+    const tokenPayload = { userId: user.id, email: user.email, username: user.username }
+    const { accessToken, refreshToken } = generateToken(tokenPayload)
 
-    const ok = await verifyPassword(password, user.passwordHash)
-    if (!ok) {
-      const base = user.failedLoginCount ?? 0
-      const newCount = base + 1
-      const firstPhase = base < 5
-      const threshold = firstPhase ? 5 : 3
-      let lockedUntil: Date | null = null
-      // lock 5 minutes when crossing threshold
-      if ((firstPhase && newCount >= 5) || (!firstPhase && (newCount - 5) % 3 === 0)) {
-        lockedUntil = new Date(Date.now() + 5 * 60 * 1000)
+    const response = NextResponse.json({
+      message: 'Login successful',
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        subscriptionTier: user.subscriptionTier,
       }
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { failedLoginCount: newCount, lockedUntil }
-      })
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
-    }
-
-
-
-    // reset counters on success
-    await prisma.user.update({ where: { id: user.id }, data: { failedLoginCount: 0, lockedUntil: null } })
-
-    const publicUser = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      avatarUrl: user.avatarUrl,
-      subscriptionTier: user.subscriptionTier,
-    }
-    
-    // Generate token pair with enhanced security
-    const tokens: TokenPair = generateToken({
-      userId: user.id,
-      email: user.email,
-      username: user.username,
-      subscriptionTier: user.subscriptionTier,
     })
 
-    const response = NextResponse.json({ 
-      user: publicUser, 
-      ...tokens 
-    }, { status: 200 })
-
-    // Set secure HTTP-only cookie for refresh token
-    response.cookies.set('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: '/'
-    })
-
-    return addSecurityHeaders(response)
+    return addSecurityHeaders(response, request)
   } catch (error) {
     console.error('Login error:', error)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    const response = NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    return addSecurityHeaders(response, request)
   }
 }
 

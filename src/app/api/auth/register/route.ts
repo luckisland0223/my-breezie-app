@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { hashPassword, generateToken, isValidEmail, isValidPassword, isValidUsername, type TokenPair } from '@/lib/auth'
 import { enhancedRateLimit } from '@/lib/enhancedRateLimit'
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
       path: '/'
     })
 
-    return addSecurityHeaders(response)
+    return addSecurityHeaders(response, request)
   } catch (error) {
     console.error('Register error:', error)
     if (error instanceof Error && error.message.includes('Unique constraint failed')) {

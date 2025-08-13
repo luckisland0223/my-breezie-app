@@ -10,7 +10,9 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://breezie.vercel.app',
-  'https://www.breezie.com'
+  'https://www.breezie.com',
+  'https://breezie.io',
+  'https://www.breezie.io'
 ]
 
 // Rate limiting middleware
@@ -151,7 +153,7 @@ export function validateChatRequest(body: any): { isValid: boolean; errors: stri
 }
 
 // Security headers middleware - Enhanced
-export function addSecurityHeaders(response: NextResponse): NextResponse {
+export function addSecurityHeaders(response: NextResponse, request: NextRequest): NextResponse {
   // Basic security headers
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('X-Frame-Options', 'DENY')
@@ -179,7 +181,7 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   
   // CORS headers
-  const origin = response.headers.get('origin')
+  const origin = request.headers.get('origin')
   const isDevelopment = process.env.NODE_ENV === 'development'
   
   if (isDevelopment) {

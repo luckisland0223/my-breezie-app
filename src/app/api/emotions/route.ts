@@ -8,7 +8,10 @@ import { addSecurityHeaders, sanitizeInput } from '@/lib/securityMiddleware'
 export async function GET(request: NextRequest) {
   try {
     const user = getUserFromRequest(request)
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!user) {
+      const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return addSecurityHeaders(response, request)
+    }
 
     const { searchParams } = new URL(request.url)
     const page = Number(searchParams.get('page') || '1')
@@ -25,24 +28,30 @@ export async function GET(request: NextRequest) {
       prisma.emotionRecord.count({ where: { userId: user.userId } })
     ])
 
-    return NextResponse.json({ items, page, limit, total })
+    const response = NextResponse.json({ items, page, limit, total })
+    return addSecurityHeaders(response, request)
   } catch (error: any) {
     console.error('Emotions GET error:', error?.message || error)
-    return NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV === 'development' ? (error?.message || 'unknown') : undefined }, { status: 500 })
+    const response = NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV === 'development' ? (error?.message || 'unknown') : undefined }, { status: 500 })
+    return addSecurityHeaders(response, request)
   }
 }
 
 // POST: create emotion record
 export async function POST(request: NextRequest) {
   const user = getUserFromRequest(request)
-  if (!user) return NextResponse.json({ error: '未认证' }, { status: 401 })
+  if (!user) {
+    const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return addSecurityHeaders(response, request)
+  }
 
   try {
     const body = await request.json()
     const { emotion, behavioralImpact, note, recordType, conversationSummary, actualEmotion, actualIntensity, emotionChanged, confidenceLevel, analysis, polarity, polarityStrength, polarityConfidence } = body || {}
 
     if (!emotion || typeof behavioralImpact !== 'number' || !note) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      const response = NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return addSecurityHeaders(response, request)
     }
 
     const created = await prisma.emotionRecord.create({
@@ -64,10 +73,12 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(created)
+    const response = NextResponse.json(created)
+    return addSecurityHeaders(response, request)
   } catch (error) {
     console.error('Create emotion error:', error)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    const response = NextResponse.json({ error: 'Server error' }, { status: 500 })
+    return addSecurityHeaders(response, request)
   }
 }
 

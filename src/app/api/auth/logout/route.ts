@@ -1,36 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { extractTokenFromHeader, revokeUserTokens } from '@/lib/auth'
+import { revokeUserTokens, extractTokenFromHeader } from '@/lib/auth'
 import { addSecurityHeaders } from '@/lib/securityMiddleware'
 
 export async function POST(request: NextRequest) {
   try {
-    // Get access token from header
     const accessToken = extractTokenFromHeader(request)
-    
-    // Get refresh token from cookie
-    const refreshToken = request.cookies.get('refreshToken')?.value
-    
-    // Revoke tokens if they exist
     if (accessToken) {
+      const { refreshToken } = await request.json()
       revokeUserTokens(accessToken, refreshToken)
     }
     
-    // Create response
-    const response = NextResponse.json({ 
-      message: 'Logged out successfully' 
-    }, { status: 200 })
+    const response = NextResponse.json({ message: 'Logged out successfully' })
     
-    // Clear refresh token cookie
-    response.cookies.delete('refreshToken')
-    
-    return addSecurityHeaders(response)
-    
+    // Clear cookies on the client side
+    response.cookies.set('accessToken', '', { maxAge: -1, path: '/' })
+    response.cookies.set('refreshToken', '', { maxAge: -1, path: '/' })
+
+    return addSecurityHeaders(response, request)
   } catch (error) {
     console.error('Logout error:', error)
-    const response = NextResponse.json({ 
-      error: 'Logout failed' 
-    }, { status: 500 })
-    
-    return addSecurityHeaders(response)
+    const response = NextResponse.json({ error: 'Logout failed' }, { status: 500 })
+    return addSecurityHeaders(response, request)
   }
 }
