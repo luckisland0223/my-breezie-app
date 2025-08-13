@@ -357,7 +357,7 @@ export default function AppPage() {
             {/* Chat Tab */}
             <TabsContent value="chat" className="space-y-8">
               <div className="glass rounded-2xl p-6 shadow-xl">
-                <PremiumChatInterface />
+                <PremiumChatInterface onBack={() => setActiveTab('journey')} />
               </div>
             </TabsContent>
           </Tabs>

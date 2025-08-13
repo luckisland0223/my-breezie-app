@@ -121,7 +121,7 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <EmotionChart />
+              <EmotionChart records={records} />
             </CardContent>
           </Card>
 

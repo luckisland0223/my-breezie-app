@@ -44,7 +44,7 @@ export default function ChatPage() {
       />
       
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <ChatInterface />
+        <ChatInterface onBack={() => router.push('/app')} />
       </div>
     </div>
   )
