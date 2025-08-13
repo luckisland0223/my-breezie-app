@@ -1,261 +1,211 @@
 'use client'
 
-import { CloudLogo, CloudLogoText } from '@/components/ui/CloudLogo'
-import { Button } from '@/components/ui/button'
+import { RegisterForm } from '@/components/RegisterForm'
+import { AppStoreButton, AppStoreBadge } from '@/components/AppStoreButton'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowRight, BarChart3, Brain, Heart, MessageCircle, Shield } from 'lucide-react'
-import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
+import { 
+  Heart, 
+  Sparkles, 
+  Shield, 
+  Users, 
+  Star,
+  MessageCircle,
+  Calendar,
+  TrendingUp
+} from 'lucide-react'
 
-export default function LandingPage() {
-  // 直接跳转到应用，无需认证
-  const handleGetStarted = () => {
-    window.location.href = '/app'
-  }
+export default function Home() {
+  const features = [
+    {
+      icon: <Heart className="h-8 w-8 text-pink-500" />,
+      title: "情绪追踪",
+      description: "轻松记录和分析你的日常情绪变化"
+    },
+    {
+      icon: <MessageCircle className="h-8 w-8 text-blue-500" />,
+      title: "智能对话",
+      description: "AI助手提供个性化的情绪支持和建议"
+    },
+    {
+      icon: <Calendar className="h-8 w-8 text-green-500" />,
+      title: "每日提醒",
+      description: "养成健康的情绪管理习惯"
+    },
+    {
+      icon: <TrendingUp className="h-8 w-8 text-purple-500" />,
+      title: "趋势分析",
+      description: "可视化你的情绪健康改善过程"
+    }
+  ]
+
+  const testimonials = [
+    {
+      name: "小王",
+      text: "Breezie帮助我更好地理解自己的情绪，现在我感觉更加平静和自信了。",
+      rating: 5
+    },
+    {
+      name: "李小姐",
+      text: "简单易用的界面，每天花几分钟就能获得很好的情绪管理建议。",
+      rating: 5
+    },
+    {
+      name: "张先生",
+      text: "作为一个忙碌的上班族，Breezie让我学会了如何在压力中保持内心平静。",
+      rating: 5
+    }
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Hero Header */}
-      <header className="sticky top-0 z-50 border-white/20 border-b bg-white/90 shadow-sm backdrop-blur-md">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex h-12 w-12 animate-glow items-center justify-center rounded-2xl bg-white shadow-xl">
-                <CloudLogo size={32} />
-              </div>
-              <div>
-                <CloudLogoText size="lg" />
-                <p className="font-medium text-gray-600 text-sm">Feeling first, healing follows</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Button 
-                onClick={handleGetStarted}
-                className="border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white transition-all duration-200 hover:scale-105 hover:shadow-lg"
-              >
-                Get Started
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-
-
       {/* Hero Section */}
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-7xl text-center">
-          <div className="mx-auto mb-8 flex h-32 w-32 animate-float items-center justify-center rounded-3xl bg-white shadow-2xl">
-            <CloudLogo size={80} />
-          </div>
-          
-          <h1 className="mb-6 font-bold text-5xl md:text-6xl">
-            Your AI Companion for
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Emotional Wellness</span>
-          </h1>
-          
-          <p className="mx-auto mb-8 max-w-3xl text-gray-600 text-xl leading-relaxed">
-            Breezie is your personal AI therapist, designed to provide emotional support, 
-            help you understand your feelings, and guide you toward mental well-being.
-          </p>
-          
-          <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
-            <Button 
-              size="lg" 
-              onClick={handleGetStarted}
-              className="transform rounded-2xl border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-8 py-4 font-semibold text-lg text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl"
-            >
-              Start Your Emotional Wellness Journey
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-8 text-gray-500">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              <span>Privacy First</span>
+      <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative mx-auto max-w-7xl px-4 py-24">
+          <div className="text-center">
+            <div className="mb-6 flex justify-center">
+              <Badge className="bg-white/20 text-white border-white/30 px-4 py-1 text-sm">
+                <Sparkles className="mr-2 h-4 w-4" />
+                即将发布
+              </Badge>
             </div>
-            <div className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              <span>AI-Powered</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Heart className="h-5 w-5" />
-              <span>24/7 Support</span>
+            <h1 className="mb-6 font-bold text-5xl md:text-7xl">
+              Breezie
+            </h1>
+            <p className="mb-8 text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
+              你的个人情绪健康助手，让内心更加平静与自在
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <AppStoreButton />
+              <div className="text-sm text-blue-100">
+                <Shield className="inline mr-2 h-4 w-4" />
+                隐私安全 · 数据加密
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-white/50 px-6 py-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 font-bold text-4xl text-gray-900">
-              Why Choose Breezie?
+      <section className="py-24 bg-white">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="text-center mb-16">
+            <h2 className="mb-4 font-bold text-3xl md:text-4xl text-gray-900">
+              为什么选择Breezie？
             </h2>
-            <p className="mx-auto max-w-2xl text-gray-600 text-xl">
-              Experience the future of emotional support with our advanced AI technology
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              专业的情绪管理工具，帮助你建立更健康的心理状态
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {/* Feature 1 */}
-            <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
-              <CardContent className="p-8 text-center">
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg">
-                  <MessageCircle className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-3 font-bold text-gray-900 text-xl">AI-Powered Conversations</h3>
-                <p className="text-gray-600">
-                  Engage in meaningful conversations with our advanced AI that understands 
-                  emotions and provides personalized support.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Feature 2 */}
-            <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
-              <CardContent className="p-8 text-center">
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
-                  <BarChart3 className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-3 font-bold text-gray-900 text-xl">Emotional Analytics</h3>
-                <p className="text-gray-600">
-                  Track your emotional journey with detailed analytics and insights 
-                  to better understand your mental health patterns.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Feature 3 */}
-            <Card className="glass border-0 shadow-xl transition-all duration-300 hover:shadow-2xl">
-              <CardContent className="p-8 text-center">
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg">
-                  <Heart className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-3 font-bold text-gray-900 text-xl">24/7 Emotional Support</h3>
-                <p className="text-gray-600">
-                  Get emotional support whenever you need it, day or night. 
-                  Breezie is always here to listen and help.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="text-center p-6 hover:shadow-lg transition-shadow">
+                <CardContent className="pt-6">
+                  <div className="flex justify-center mb-4">
+                    {feature.icon}
+                  </div>
+                  <h3 className="font-semibold text-xl mb-2 text-gray-900">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 font-bold text-4xl text-gray-900">
-              How Breezie Works
+      {/* Testimonials Section */}
+      <section className="py-24 bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="text-center mb-16">
+            <h2 className="mb-4 font-bold text-3xl md:text-4xl text-gray-900">
+              用户反馈
             </h2>
-            <p className="mx-auto max-w-2xl text-gray-600 text-xl">
-              Simple steps to start your emotional wellness journey
+            <p className="text-xl text-gray-600">
+              看看其他用户如何通过Breezie改善情绪健康
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div className="text-center">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg">
-                <span className="font-bold text-2xl text-white">1</span>
-              </div>
-              <h3 className="mb-3 font-bold text-gray-900 text-xl">Sign Up</h3>
-              <p className="text-gray-600">
-                Create your account in seconds and start your emotional wellness journey
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="p-6">
+                <CardContent className="pt-6">
+                  <div className="flex mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-gray-700 mb-4 italic">
+                    "{testimonial.text}"
+                  </p>
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold mr-3">
+                      {testimonial.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                      <p className="text-sm text-gray-500">Breezie用户</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <div className="text-center">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
-                <span className="font-bold text-2xl text-white">2</span>
-              </div>
-              <h3 className="mb-3 font-bold text-gray-900 text-xl">Start Chatting</h3>
-              <p className="text-gray-600">
-                Begin conversations with Breezie about your feelings and experiences
-              </p>
-            </div>
+      {/* Registration Section */}
+      <section className="py-24 bg-white">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="text-center mb-16">
+            <h2 className="mb-4 font-bold text-3xl md:text-4xl text-gray-900">
+              抢先体验
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              注册成为首批用户，第一时间获得App发布通知
+            </p>
+          </div>
 
-            <div className="text-center">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg">
-                <span className="font-bold text-2xl text-white">3</span>
-              </div>
-              <h3 className="mb-3 font-bold text-gray-900 text-xl">Track Progress</h3>
-              <p className="text-gray-600">
-                Monitor your emotional growth with detailed analytics and insights
-              </p>
-            </div>
+          <div className="max-w-md mx-auto">
+            <RegisterForm />
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-20">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="mb-6 font-bold text-4xl text-white">
-            Ready to Start Your Emotional Wellness Journey?
+      <section className="py-24 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="mx-auto max-w-7xl px-4 text-center">
+          <h2 className="mb-4 font-bold text-3xl md:text-4xl">
+            开始你的情绪健康之旅
           </h2>
-          <p className="mx-auto mb-8 max-w-2xl text-blue-100 text-xl">
-            Join thousands of users who have already discovered the power of AI-powered emotional support
+          <p className="mb-8 text-xl text-blue-100 max-w-2xl mx-auto">
+            Breezie即将在App Store发布，立即下载开始体验
           </p>
-          <Button 
-            size="lg" 
-            onClick={handleGetStarted}
-            className="transform rounded-2xl border-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-8 py-4 font-semibold text-lg text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl"
-          >
-            Get Started Free
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <AppStoreBadge />
+            <div className="flex items-center text-blue-100">
+              <Users className="mr-2 h-5 w-5" />
+              已有1000+用户预约下载
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 py-16 text-white">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-            <div>
-              <div className="mb-4 flex items-center space-x-3">
-                <CloudLogo size={32} />
-                <CloudLogoText size="lg" />
-              </div>
-              <p className="text-gray-400">
-                Your AI companion for emotional wellness and personal growth.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="mb-4 font-semibold">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>Features</li>
-                <li>Pricing</li>
-                <li>API</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="mb-4 font-semibold">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>About</li>
-                <li>Blog</li>
-                <li>Careers</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="mb-4 font-semibold">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>Help Center</li>
-                <li>Contact</li>
-                <li>Privacy Policy</li>
-              </ul>
-            </div>
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="mx-auto max-w-7xl px-4 text-center">
+          <div className="mb-8">
+            <h3 className="font-bold text-2xl mb-2">Breezie</h3>
+            <p className="text-gray-400">让内心更加平静与自在</p>
           </div>
-          
-          <div className="mt-12 border-gray-800 border-t pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Breezie. All rights reserved.</p>
+          <div className="text-gray-400 text-sm">
+            <p>&copy; 2025 Breezie. 保留所有权利。</p>
+            <p className="mt-2">专注于情绪健康，保护用户隐私</p>
           </div>
         </div>
       </footer>
