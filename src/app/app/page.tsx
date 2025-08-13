@@ -3,7 +3,7 @@
 import { ClientOnly } from '@/components/ClientOnly'
 import { DailyWellnessTip } from '@/components/DailyWellnessTip'
 import { EmotionTracker } from '@/components/EmotionTracker'
-import { PremiumChatInterface } from '@/components/PremiumChatInterface'
+import { ChatInterface } from '@/components/ChatInterface'
 import { QuickEmotionCheck } from '@/components/QuickEmotionCheck'
 import { RecentEmotionTrend } from '@/components/RecentEmotionTrend'
 import { UserMenu } from '@/components/UserMenu'
@@ -21,37 +21,14 @@ import { useEffect, useState } from 'react'
 
 export default function AppPage() {
   const [activeTab, setActiveTab] = useState('journey')
+  const { user } = useAuthStore()
   const { records, loadFromServer } = useEmotionStore()
-  const { user, token, isFullyAuthenticated } = useAuthStore()
-  const router = useRouter()
-
-  // Redirect to login if not authenticated
+  
   useEffect(() => {
-    if (!user || !token) {
-      router.push('/')
-      return
-    }
-  }, [user, token, router])
-
-  useEffect(() => {
-    if (token && user) {
+    if (user) {
       loadFromServer()
     }
-  }, [token, user, loadFromServer])
-
-  // Show loading while checking auth
-  if (!user || !token) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 animate-float items-center justify-center rounded-2xl bg-white shadow-2xl">
-            <CloudLogo size={50} />
-          </div>
-          <h2 className="mb-2 font-semibold text-gray-800 text-xl">Checking authentication...</h2>
-        </div>
-      </div>
-    )
-  }
+  }, [user, loadFromServer])
 
   const handleStartConversation = () => {
     setActiveTab('chat')
@@ -357,7 +334,7 @@ export default function AppPage() {
             {/* Chat Tab */}
             <TabsContent value="chat" className="space-y-8">
               <div className="glass rounded-2xl p-6 shadow-xl">
-                <PremiumChatInterface onBack={() => setActiveTab('journey')} />
+                <ChatInterface onBack={() => setActiveTab('journey')} />
               </div>
             </TabsContent>
           </Tabs>

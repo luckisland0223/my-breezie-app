@@ -4,8 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { emotionConfig, getEmotionEmoji, primaryEmotions } from '@/config/emotionConfig'
-import { useAuthStore } from '@/store/auth'
-import { useEmotionStore } from '@/store/emotion'
+import { useNoAuth, useNoAuthEmotions } from '@/store/noAuth'
 import type { EmotionType } from '@/store/emotion'
 import { Heart, Plus, Zap } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -17,10 +16,10 @@ export function QuickEmotionCheck() {
   const [isDragging, setIsDragging] = useState(false)
   const sliderRef = useRef<HTMLDivElement>(null)
 
-  const { user } = useAuthStore()
-  const { addEmotionRecord } = useEmotionStore()
+  const { user } = useNoAuth()
+  const { createEmotion } = useNoAuthEmotions()
   
-  const userId = user?.id
+  const userId = user?.id || 'demo-user'
 
   // Calculate intensity based on pixel position
   const calculateIntensityFromPosition = (clientX: number): number => {
@@ -73,13 +72,12 @@ export function QuickEmotionCheck() {
     }
 
     try {
-      await addEmotionRecord(
+      const success = await createEmotion(
+        userId,
         selectedEmotion,
         intensity,
-        `Quick check: ${selectedEmotion}, intensity ${intensity}`,
-        'quick_check'
+        `Quick check: ${selectedEmotion}, intensity ${intensity}`
       )
-      const success = true
       
       if (success) {
         toast.success(`${getEmotionEmoji(selectedEmotion)} Emotion recorded successfully! Intensity: ${intensity}/10`)

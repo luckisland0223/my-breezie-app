@@ -256,8 +256,28 @@ export const useEmotionStore = create<EmotionState>()(
           }
           
           if (!token) {
-            // Not authenticated, redirect to login
-            window.location.href = '/login'
+            // Not authenticated: save locally for anonymous users
+            const localRecord: EmotionRecord = {
+              id: crypto.randomUUID(),
+              user_id: undefined,
+              emotion,
+              behavioralImpact: intensity,
+              note,
+              timestamp: new Date(),
+              recordType,
+              conversationSummary,
+              emotionEvaluation,
+              polarityAnalysis,
+            }
+            
+            set((state) => {
+              const newRecords = [...state.records, localRecord]
+              return {
+                ...state,
+                records: newRecords,
+                stats: recalculateStats(newRecords)
+              }
+            })
             return
           }
           
