@@ -1,25 +1,62 @@
 'use client'
 
 import { PageHeader } from '@/components/PageHeader'
-import { useNoAuthChat } from '@/store/noAuth'
+import { useEmotionStore } from '@/store/emotion'
+import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { MessageCircle, Send, Bot, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function ChatPage() {
   const router = useRouter()
-  const { messages, loading, sendMessage, clearMessages } = useNoAuthChat()
+  const { user } = useAuthStore()
+  const { currentSession, startChatSession, addMessage, endChatSession } = useEmotionStore()
+  const [loading, setLoading] = useState(false)
+  
+  useEffect(() => {
+    if (!currentSession) {
+      startChatSession('Other')
+    }
+  }, [currentSession, startChatSession])
   const [inputMessage, setInputMessage] = useState('')
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || loading) return
+    if (!inputMessage.trim() || loading || !currentSession) return
     
     const message = inputMessage.trim()
     setInputMessage('')
-    await sendMessage(message)
+    setLoading(true)
+    
+    try {
+      // Add user message
+      addMessage(message, 'user')
+      
+      // Get AI response
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${useAuthStore.getState().token}`
+        },
+        body: JSON.stringify({
+          userMessage: message,
+          emotion: currentSession.emotion
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to get response')
+      
+      const data = await response.json()
+      addMessage(data.response, 'assistant')
+    } catch (error) {
+      console.error('Chat error:', error)
+      addMessage("I'm having trouble connecting right now. Please try again.", 'assistant')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -45,11 +82,14 @@ export default function ChatPage() {
             <CardTitle className="flex items-center gap-3">
               <MessageCircle className="h-6 w-6 text-blue-600" />
               Emotional Support Chat
-              {messages.length > 0 && (
+              {currentSession?.messages?.length > 0 && (
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={clearMessages}
+                  onClick={() => {
+                    endChatSession()
+                    startChatSession('Other')
+                  }}
                   className="ml-auto"
                 >
                   Clear Chat
@@ -61,7 +101,7 @@ export default function ChatPage() {
           <CardContent className="p-0">
             {/* Messages List */}
             <div className="max-h-96 min-h-[300px] overflow-y-auto p-6">
-              {messages.length === 0 ? (
+              {!currentSession?.messages?.length ? (
                 <div className="flex h-full items-center justify-center text-center">
                   <div>
                     <Bot className="mx-auto mb-4 h-12 w-12 text-gray-400" />
@@ -71,22 +111,22 @@ export default function ChatPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {messages.map((message) => (
+                  {currentSession.messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div className={`flex max-w-[80%] items-start gap-3 ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                        <div className={`flex h-8 w-8 items-center justify-center rounded-full ${message.isUser ? 'bg-blue-500' : 'bg-gray-500'}`}>
-                          {message.isUser ? (
+                      <div className={`flex max-w-[80%] items-start gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-full ${message.role === 'user' ? 'bg-blue-500' : 'bg-gray-500'}`}>
+                          {message.role === 'user' ? (
                             <User className="h-4 w-4 text-white" />
                           ) : (
                             <Bot className="h-4 w-4 text-white" />
                           )}
                         </div>
-                        <div className={`rounded-2xl px-4 py-3 ${message.isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
+                        <div className={`rounded-2xl px-4 py-3 ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
                           <p className="text-sm leading-relaxed">{message.content}</p>
-                          <p className={`mt-1 text-xs ${message.isUser ? 'text-blue-100' : 'text-gray-500'}`}>
+                          <p className={`mt-1 text-xs ${message.role === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
                             {new Date(message.timestamp).toLocaleTimeString()}
                           </p>
                         </div>
