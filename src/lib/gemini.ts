@@ -38,8 +38,8 @@ export class GeminiService {
   private model: any = null;
 
   constructor(apiKey?: string) {
-    // 优先使用传入的 API 密钥，否则使用环境变量
-    const key = apiKey || env.NEXT_PUBLIC_GEMINI_API_KEY;
+    // 优先使用传入的 API 密钥，否则使用服务器端环境变量
+    const key = apiKey || env.GEMINI_API_KEY;
     if (key) {
       this.initialize(key);
     }

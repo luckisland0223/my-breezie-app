@@ -175,7 +175,7 @@ export function ChatInterface() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const [aiService, setAiService] = useState<AIServiceInterface | null>(null);
+
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -183,18 +183,6 @@ export function ChatInterface() {
   
   // 获取AI设置
   const { selectedModel } = useSettingsStore();
-
-  // 初始化AI服务
-  useEffect(() => {
-    try {
-      // 使用环境变量中的API密钥
-      const service = AIServiceFactory.createService(selectedModel);
-      setAiService(service);
-    } catch (error) {
-      console.error('Failed to initialize AI service:', error);
-      toast.error('AI服务初始化失败，请检查环境变量配置');
-    }
-  }, [selectedModel]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -241,11 +229,6 @@ export function ChatInterface() {
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    if (!aiService) {
-      toast.error('AI服务未初始化，请检查设置');
-      return;
-    }
-
     const userMessage: Message = {
       id: Date.now().toString(),
       content: inputValue,
@@ -259,16 +242,6 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      // 分析情绪
-      const emotionAnalysis = await aiService.analyzeEmotion(currentInput);
-      
-      // 更新用户消息，添加情绪分析
-      setMessages(prev => prev.map(msg => 
-        msg.id === userMessage.id 
-          ? { ...msg, emotion: emotionAnalysis.emotion }
-          : msg
-      ));
-
       // 获取对话历史
       const conversationHistory = [
         { role: 'user', content: currentInput },
@@ -278,11 +251,31 @@ export function ChatInterface() {
         }))
       ];
 
-      // 生成AI响应
-      const aiResponse = await aiService.generateResponse(currentInput, conversationHistory);
+      // 通过API路由调用AI服务
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          conversationHistory,
+          model: selectedModel
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API调用失败');
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
       
       // 将AI响应分割成多个消息块
-      const messageChunks = splitMessageIntoChunks(aiResponse);
+      const messageChunks = splitMessageIntoChunks(data.response);
       
       // 逐条发送消息
       await sendMessagesWithDelay(messageChunks, new Date());

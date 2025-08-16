@@ -270,10 +270,10 @@ import { env } from "@/env";
 // AI服务工厂
 export class AIServiceFactory {
   static createService(model: AIModel): AIServiceInterface {
-    // 从环境变量获取API密钥
+    // 从服务器端环境变量获取API密钥
     const apiKey = model === 'gemini' 
-      ? env.NEXT_PUBLIC_GEMINI_API_KEY 
-      : env.NEXT_PUBLIC_DEEPSEEK_API_KEY;
+      ? env.GEMINI_API_KEY 
+      : env.DEEPSEEK_API_KEY;
     
     if (!apiKey) {
       throw new Error(`请在环境变量中配置 ${AI_MODELS[model].name} 的API密钥`);
