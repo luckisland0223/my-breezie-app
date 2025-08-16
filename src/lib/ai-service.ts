@@ -264,28 +264,26 @@ class DeepSeekService implements AIServiceInterface {
   }
 }
 
-// 内置API密钥（仅用于开发测试）
-const BUILT_IN_API_KEYS = {
-  deepseek: 'sk-fbb47bc88c5f42898ed8096ea9561992',
-  // gemini 密钥可以在这里添加
-  gemini: '',
-} as const;
+// 从环境变量获取API密钥
+import { env } from "@/env";
 
 // AI服务工厂
 export class AIServiceFactory {
-  static createService(model: AIModel, apiKey?: string): AIServiceInterface {
-    // 如果没有提供API密钥，尝试使用内置密钥
-    const finalApiKey = apiKey || BUILT_IN_API_KEYS[model];
+  static createService(model: AIModel): AIServiceInterface {
+    // 从环境变量获取API密钥
+    const apiKey = model === 'gemini' 
+      ? env.NEXT_PUBLIC_GEMINI_API_KEY 
+      : env.NEXT_PUBLIC_DEEPSEEK_API_KEY;
     
-    if (!finalApiKey) {
-      throw new Error(`请配置 ${AI_MODELS[model].name} 的API密钥`);
+    if (!apiKey) {
+      throw new Error(`请在环境变量中配置 ${AI_MODELS[model].name} 的API密钥`);
     }
     
     switch (model) {
       case 'gemini':
-        return new GeminiService(finalApiKey);
+        return new GeminiService(apiKey);
       case 'deepseek':
-        return new DeepSeekService(finalApiKey);
+        return new DeepSeekService(apiKey);
       default:
         throw new Error(`不支持的AI模型: ${model}`);
     }

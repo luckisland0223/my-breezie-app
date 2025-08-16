@@ -182,25 +182,19 @@ export function ChatInterface() {
   const router = useRouter();
   
   // 获取AI设置
-  const { selectedModel, getCurrentApiKey, isCurrentModelConfigured } = useSettingsStore();
+  const { selectedModel } = useSettingsStore();
 
   // 初始化AI服务
   useEffect(() => {
     try {
-      const apiKey = getCurrentApiKey();
-      // 即使用户没有配置API密钥，也尝试使用内置密钥
-      const service = AIServiceFactory.createService(selectedModel, apiKey);
+      // 使用环境变量中的API密钥
+      const service = AIServiceFactory.createService(selectedModel);
       setAiService(service);
-      
-      // 如果用户没有配置API密钥，提示可以在设置中配置
-      if (!isCurrentModelConfigured()) {
-        console.log('使用内置API密钥，你也可以在设置中配置自己的密钥');
-      }
     } catch (error) {
       console.error('Failed to initialize AI service:', error);
-      toast.error('AI服务初始化失败，请在设置中配置API密钥');
+      toast.error('AI服务初始化失败，请检查环境变量配置');
     }
-  }, [selectedModel, getCurrentApiKey, isCurrentModelConfigured]);
+  }, [selectedModel]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

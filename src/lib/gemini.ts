@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { env } from "@/env";
 
 const SYSTEM_PROMPT = `你是Breezie，一个充满温暖和同理心的情绪疏导AI助手。你就像用户最信任的朋友，总是在他们需要的时候给予支持和理解。
 
@@ -38,7 +39,7 @@ export class GeminiService {
 
   constructor(apiKey?: string) {
     // 优先使用传入的 API 密钥，否则使用环境变量
-    const key = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const key = apiKey || env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (key) {
       this.initialize(key);
     }
