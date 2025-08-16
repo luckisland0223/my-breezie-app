@@ -8,8 +8,8 @@ export const env = createEnv({
 	 */
 	server: {
 		NODE_ENV: z.enum(["development", "test", "production"]),
-		GEMINI_API_KEY: z.string().min(1),
-		DEEPSEEK_API_KEY: z.string().min(1),
+		GEMINI_API_KEY: z.string().optional(),
+		DEEPSEEK_API_KEY: z.string().optional(),
 	},
 
 	/**
