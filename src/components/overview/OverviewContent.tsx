@@ -23,6 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useMoodStore, emotionCategories, getAllEmotions } from "@/store/mood";
 
 // 情绪类型定义 - 使用更精致的渐变色和Apple风格
 const emotionTypes = {
@@ -76,10 +77,10 @@ const emotionTypes = {
   },
 };
 
-// 生成示例情绪日历数据 - 使用固定的种子值避免SSR/客户端不匹配
-const generateMoodCalendar = () => {
-  // 使用固定的日期来避免SSR hydration问题
-  const currentDate = new Date(2025, 7, 15); // 2025年8月15日
+// 生成真实的情绪日历数据 - 从 mood store 获取
+const generateMoodCalendar = (getDailyStats: (date: string) => any) => {
+  // 使用当前日期
+  const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
   const firstDay = new Date(currentYear, currentMonth, 1);
@@ -88,31 +89,84 @@ const generateMoodCalendar = () => {
   const startDayOfWeek = firstDay.getDay();
 
   const moodData = [];
-  const emotionKeys = Object.keys(emotionTypes);
+  const allEmotions = getAllEmotions();
 
-  // 使用固定的种子来生成一致的随机数据
-  const seededRandom = (seed: number) => {
-    const x = Math.sin(seed) * 10000;
-    return x - Math.floor(x);
-  };
-
-  // 生成本月的情绪数据 - 删除所有内置记录
+  // 生成本月的情绪数据 - 从真实数据获取
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(currentYear, currentMonth, day);
-    const isToday = day === currentDate.getDate();
+    const isToday = day === currentDate.getDate() && 
+                    currentMonth === new Date().getMonth() && 
+                    currentYear === new Date().getFullYear();
     
-    // 所有日期都没有数据，只有今天标记为今天
+    // 获取该日期的情绪数据
+    const dateString = date.toISOString().split('T')[0];
+    const dailyStats = dateString ? getDailyStats(dateString) : null;
+    
+    let emotion = null;
+    let intensity = 0;
+    let hasData = false;
+    
+    if (dailyStats && dailyStats.dominantEmotion) {
+      // 从 emotion categories 中找到对应的情绪
+      const emotionData = allEmotions.find(e => e.key === dailyStats.dominantEmotion);
+      if (emotionData) {
+        // 将 emotion key 映射到 emotionTypes 的 key
+        const mappedEmotion = mapEmotionToType(emotionData.key);
+        if (mappedEmotion && emotionTypes[mappedEmotion as keyof typeof emotionTypes]) {
+          emotion = mappedEmotion;
+          intensity = Math.round(dailyStats.averageScore);
+          hasData = true;
+        }
+      }
+    }
+    
     moodData.push({
       day,
       date,
-      emotion: null,
-      intensity: 0,
-      hasData: false,
+      emotion,
+      intensity,
+      hasData,
       isToday
     });
   }
 
   return { moodData, startDayOfWeek, currentMonth, currentYear };
+};
+
+// 将 mood store 的情绪 key 映射到 emotionTypes 的 key
+const mapEmotionToType = (emotionKey: string): string | null => {
+  const mapping: Record<string, string> = {
+    'happy': 'happy',
+    'joyful': 'happy',
+    'content': 'calm',
+    'peaceful': 'calm',
+    'calm': 'calm',
+    'neutral': 'neutral',
+    'contemplative': 'neutral',
+    'tired': 'tired',
+    'sad': 'sad',
+    'lonely': 'sad',
+    'disappointed': 'sad',
+    'anxious': 'anxious',
+    'worried': 'anxious',
+    'stressed': 'anxious',
+    'frustrated': 'anxious',
+    'angry': 'anxious',
+    'overwhelmed': 'anxious',
+    'depressed': 'sad',
+    'hopeless': 'sad',
+    // 复杂情绪的映射
+    'nostalgic': 'neutral',
+    'jealous': 'anxious',
+    'guilty': 'sad',
+    'embarrassed': 'neutral',
+    'confused': 'neutral',
+    'surprised': 'happy',
+    'shocked': 'anxious',
+    'relieved': 'calm'
+  };
+  
+  return mapping[emotionKey] || null;
 };
 
 const goals = [
@@ -134,7 +188,8 @@ const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
 
 export function OverviewContent() {
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
-  const { moodData, startDayOfWeek, currentMonth, currentYear } = generateMoodCalendar();
+  const { getDailyStats } = useMoodStore();
+  const { moodData, startDayOfWeek, currentMonth, currentYear } = generateMoodCalendar(getDailyStats);
 
   const handleDateClick = (dayData: any) => {
     if (dayData.hasData) {
