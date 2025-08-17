@@ -181,9 +181,9 @@ class GeminiService implements AIServiceInterface {
         history: history,
         generationConfig: {
           temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
+          topK: 20, // 减少以提高速度
+          topP: 0.9, // 略微降低以提高速度
+          maxOutputTokens: 512, // 减少输出长度以提高速度
         },
       });
 
@@ -259,7 +259,7 @@ class DeepSeekService implements AIServiceInterface {
           model: 'deepseek-chat',
           messages: messages,
           temperature: 0.7,
-          max_tokens: 1024,
+          max_tokens: 512, // 减少输出长度以提高速度
           stream: false,
         }),
       });

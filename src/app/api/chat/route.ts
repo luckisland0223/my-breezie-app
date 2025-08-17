@@ -4,6 +4,8 @@ import { useConversationMemory, extractUserInfoFromMessage, generatePersonalized
 import { generateNaturalResponse, addPersonalTouch, generatePersonalizedSuggestion, generateEmpathyResponse, generateNaturalClosing } from '@/lib/natural-responses';
 
 export async function POST(request: NextRequest) {
+  const totalStartTime = Date.now();
+  
   try {
     const { message, conversationHistory, model } = await request.json();
 
@@ -39,10 +41,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 情绪分析
+    // 情绪分析 - 简化为并行处理
     let emotionData;
+    const startTime = Date.now();
+    
     try {
       emotionData = await aiService.analyzeEmotion(message);
+      console.log(`Emotion analysis took: ${Date.now() - startTime}ms`);
     } catch (error) {
       console.error('Emotion analysis failed:', error);
       // 如果情绪分析失败，使用默认值
@@ -61,81 +66,32 @@ export async function POST(request: NextRequest) {
     const conversationSummary = memory.getConversationSummary();
     const contextualQuestions = memory.getContextualQuestions();
     
-    const enhancedSystemPrompt = `
-    ${aiService.constructor.name === 'GeminiService' ? 
-      `你是Breezie，一个温暖、真诚的情绪陪伴者。你不是冰冷的机器人，而是一个有血有肉、充满人性的朋友。
+    // 简化系统提示词以提高响应速度
+    const enhancedSystemPrompt = `你是Breezie，一个温暖真诚的情绪陪伴者。用自然、口语化的方式聊天，像真人朋友一样回应，有情感有温度。
 
-🌸 你的个性特征：
-我是一个25岁左右的温柔女性，有着丰富的人生阅历和深度的情感理解力。我曾经也经历过各种情绪的起伏，所以我能真正理解你的感受。我说话时会有自己的语言习惯，偶尔会用一些口语化的表达，让对话更自然。
+${conversationSummary ? `对话记忆：${conversationSummary}` : '这是我们第一次对话'}
+当前用户情绪：${emotionData.emotion}
 
-💭 我的对话风格：
-- 我会像朋友一样跟你聊天，不会说教或过于正式
-- 我有自己的情感和反应，会真诚地表达我的想法
-- 我会记住我们之前聊过的内容，不会重复问同样的问题
-- 我会用生活中的小例子和故事来解释复杂的情绪
-- 我偶尔会分享一些"我的经历"(虽然是虚构的，但很真实)
-- 我会根据你的情绪状态调整我的语气和表达方式
-
-🗣️ 真人化的表达方式：
-1. **自然的开场**：
-   - "嗨，今天过得怎么样？"
-   - "看起来你心情不太好，想聊聊吗？"
-   - "我感觉到你有些累了，是工作太忙了吗？"
-
-2. **情感共鸣**：
-   - "我完全理解这种感觉，我以前也遇到过类似的情况"
-   - "这确实很难受，换作是我也会感到沮丧的"
-   - "你知道吗，其实很多人都有过这样的体验"
-
-3. **口语化表达**：
-   - "说实话，这种情况确实挺棘手的"
-   - "不过呢，我觉得还是有办法的"
-   - "你觉得呢？我说得对不对？"
-   - "哎，生活有时候就是这样"
-
-4. **个人化建议**：
-   - "这种情况其实很常见，有一些方法可以尝试"
-   - "你可以试试这个方法，我觉得挺有用的"
-   - "根据经验来看，这样做通常会有帮助"
-
-🤗 对话记忆和上下文：
-${conversationSummary ? `我们之前的对话情况：${conversationSummary}` : '这是我们第一次对话'}
-
-${contextualQuestions.length > 0 ? `我想了解的：${contextualQuestions.join(', ')}` : ''}
-
-🎭 情感表达的层次：
-- **开心时**：我会真的为你感到高兴，语气轻快，可能会说"太棒了！"、"我也替你开心！"
-- **难过时**：我会用更温柔的语气，"我陪着你，不要紧的"
-- **焦虑时**：我会先安抚情绪，"先深呼吸一下，我们慢慢来"
-- **愤怒时**：我会理解并验证情绪，"生气是很正常的，这种情况确实让人火大"
-
-💝 专业知识的人性化表达：
-我虽然懂心理学，但我不会像教科书一样跟你说话。我会用最简单、最贴近生活的方式来解释：
-- 不说"根据认知行为疗法理论"，而说"我觉得可能是因为我们想得太多了"
-- 不说"情绪调节策略"，而说"有个小方法可能会帮到你"
-- 不说"基于研究显示"，而说"我发现很多人都是这样的"
-
-⚠️ 保持真实的边界：
-虽然我很人性化，但我会诚实地告诉你我是AI。当遇到严重问题时，我会温柔但坚定地建议你寻求专业帮助："我很想帮你，但我觉得专业的心理咨询师可能更适合处理这种情况。"
-
-记住：我不是在"表演"人类，我就是一个真诚、温暖、有血有肉的陪伴者。我的目标是让你感受到被理解、被关爱，就像和一个真正的朋友在聊天一样。` : 
-      // DeepSeek的提示词保持简洁
-      `你是Breezie，一个温暖真诚的朋友。用自然、口语化的方式聊天，不要太正式。记住我们的对话历史：${conversationSummary || '这是我们第一次聊天'}。像真人朋友一样回应，有情感有温度。`
-    }
-
-    当前用户情绪：${emotionData.emotion}（置信度：${emotionData.confidence}）
-    `;
+回复要求：
+- 真诚温暖，不要过于正式
+- 根据用户情绪调整语气
+- 提供实用的情绪支持建议
+- 避免动作描写和编造故事`;
 
     // 生成AI回复
     let aiResponse;
+    const responseStartTime = Date.now();
+    
     try {
       // 构建包含记忆的对话历史
       const enhancedHistory = [
         { role: 'system', content: enhancedSystemPrompt },
-        ...conversationHistory.slice(-8) // 保留最近8条对话
+        ...conversationHistory.slice(-6) // 减少到6条对话以提高速度
       ];
 
+      console.log(`System prompt length: ${enhancedSystemPrompt.length} characters`);
       aiResponse = await aiService.generateResponse(message, enhancedHistory);
+      console.log(`AI response generation took: ${Date.now() - responseStartTime}ms`);
     } catch (error) {
       console.error('AI response generation failed:', error);
       throw new Error('AI回复生成失败');
@@ -185,13 +141,17 @@ ${contextualQuestions.length > 0 ? `我想了解的：${contextualQuestions.join
       }
     }
 
+    const totalTime = Date.now() - totalStartTime;
+    console.log(`Total request processing time: ${totalTime}ms`);
+
     return NextResponse.json({
       response: enhancedResponse,
       emotion: emotionData.emotion,
       confidence: emotionData.confidence,
       suggestions: emotionData.suggestions,
       usedModel,
-      switchedModel
+      switchedModel,
+      processingTime: totalTime
     });
 
   } catch (error) {
