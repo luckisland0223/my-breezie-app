@@ -31,7 +31,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { useMoodStore } from "@/store/mood";
@@ -175,49 +175,31 @@ export function SettingsView() {
         </p>
       </motion.div>
 
-      {/* Settings Tabs */}
+      {/* 集成设置页面 */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="space-y-8"
       >
-        <Tabs defaultValue="account" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
-            <TabsTrigger value="account" className="flex items-center space-x-2">
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">账户</span>
-            </TabsTrigger>
-            <TabsTrigger value="ai" className="flex items-center space-x-2">
-              <Bot className="w-4 h-4" />
-              <span className="hidden sm:inline">AI</span>
-            </TabsTrigger>
-            <TabsTrigger value="appearance" className="flex items-center space-x-2">
-              <Palette className="w-4 h-4" />
-              <span className="hidden sm:inline">外观</span>
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center space-x-2">
-              <Bell className="w-4 h-4" />
-              <span className="hidden sm:inline">通知</span>
-            </TabsTrigger>
-            <TabsTrigger value="data" className="flex items-center space-x-2">
-              <Database className="w-4 h-4" />
-              <span className="hidden sm:inline">数据</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* 账户设置 */}
-          <TabsContent value="account" className="space-y-6">
-            <Card className="card-apple">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="w-5 h-5 text-blue-500" />
-                  <span>个人信息</span>
-                </CardTitle>
-                <CardDescription>
-                  管理你的个人资料和账户信息
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+        {/* 个人信息设置 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Card className="card-apple">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <User className="w-5 h-5 text-blue-500" />
+                <span>个人信息</span>
+              </CardTitle>
+              <CardDescription>
+                管理你的个人资料和账户信息
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="username">用户名</Label>
                   <Input
@@ -239,127 +221,104 @@ export function SettingsView() {
                     className="input-apple"
                   />
                 </div>
-                <div className="flex justify-end">
-                  <Button className="btn-apple-primary">
-                    <Save className="w-4 h-4 mr-2" />
-                    保存更改
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="flex justify-end">
+                <Button className="btn-apple-primary">
+                  <Save className="w-4 h-4 mr-2" />
+                  保存更改
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-            {/* 统计信息 */}
-            <Card className="card-apple">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Heart className="w-5 h-5 text-red-500" />
-                  <span>使用统计</span>
-                </CardTitle>
-                <CardDescription>
-                  你的Breezie使用情况概览
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center space-y-2">
-                    <div className="text-2xl font-bold text-blue-600">{getTotalConversations()}</div>
-                    <div className="text-sm text-apple-caption">总对话数</div>
-                  </div>
-                  <div className="text-center space-y-2">
-                    <div className="text-2xl font-bold text-green-600">{getContinuousDays()}</div>
-                    <div className="text-sm text-apple-caption">连续天数</div>
-                  </div>
-                  <div className="text-center space-y-2">
-                    <div className="text-2xl font-bold text-purple-600">{moodRecords.length}</div>
-                    <div className="text-sm text-apple-caption">情绪记录</div>
-                  </div>
-                  <div className="text-center space-y-2">
-                    <div className="text-2xl font-bold text-orange-600">{Object.keys(dailyStats).length}</div>
-                    <div className="text-sm text-apple-caption">活跃天数</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* AI设置 */}
-          <TabsContent value="ai" className="space-y-6">
-            <Card className="card-apple">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Bot className="w-5 h-5 text-blue-500" />
-                  <span>AI模型设置</span>
-                </CardTitle>
-                <CardDescription>
-                  选择你偏好的AI助手模型
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* 模型选择 */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium">选择AI模型</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(AI_MODELS).map(([key, model]) => (
-                      <motion.div
-                        key={key}
-                        whileTap={{ scale: 0.98 }}
-                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
-                          selectedModel === key
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
-                        }`}
-                        onClick={() => setSelectedModel(key as AIModel)}
-                      >
-                        <div className="flex items-start space-x-3">
-                          <div className="text-2xl">{model.icon}</div>
-                          <div className="flex-1">
-                            <h3 className="font-medium text-apple-title">{model.name}</h3>
-                            <p className="text-sm text-apple-caption mt-1">{model.description}</p>
-                            {selectedModel === key && (
-                              <Badge className="mt-2 bg-blue-500 text-white">当前选择</Badge>
-                            )}
-                          </div>
+        {/* AI模型设置 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Card className="card-apple">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Bot className="w-5 h-5 text-blue-500" />
+                <span>AI模型设置</span>
+              </CardTitle>
+              <CardDescription>
+                选择你偏好的AI助手模型
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* 模型选择 */}
+              <div className="space-y-4">
+                <Label className="text-base font-medium">选择AI模型</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(AI_MODELS).map(([key, model]) => (
+                    <motion.div
+                      key={key}
+                      whileTap={{ scale: 0.98 }}
+                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                        selectedModel === key
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                      }`}
+                      onClick={() => setSelectedModel(key as AIModel)}
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="text-2xl">{model.icon}</div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-apple-title">{model.name}</h3>
+                          <p className="text-sm text-apple-caption mt-1">{model.description}</p>
+                          {selectedModel === key && (
+                            <Badge className="mt-2 bg-blue-500 text-white">当前选择</Badge>
+                          )}
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
+              </div>
 
-                <Separator />
+              <Separator />
 
-                {/* 当前状态 */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium text-apple-title">当前配置</h4>
-                      <p className="text-sm text-apple-caption mt-1">
-                        模型: {selectedModel ? AI_MODELS[selectedModel].name : '未选择'} • 
-                        状态: {selectedModel ? '已配置（服务器端）' : '未配置'}
-                      </p>
-                      <p className="text-xs text-apple-caption mt-2">
-                        API密钥通过服务器端环境变量管理，确保安全性
-                      </p>
-                    </div>
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
+              {/* 当前状态 */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-apple-title">当前配置</h4>
+                    <p className="text-sm text-apple-caption mt-1">
+                      模型: {selectedModel ? AI_MODELS[selectedModel].name : '未选择'} • 
+                      状态: {selectedModel ? '已配置（服务器端）' : '未配置'}
+                    </p>
+                    <p className="text-xs text-apple-caption mt-2">
+                      API密钥通过服务器端环境变量管理，确保安全性
+                    </p>
                   </div>
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-          {/* 外观设置 */}
-          <TabsContent value="appearance" className="space-y-6">
-            <Card className="card-apple">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Palette className="w-5 h-5 text-purple-500" />
-                  <span>主题设置</span>
-                </CardTitle>
-                <CardDescription>
-                  自定义Breezie的外观和感觉
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+        {/* 外观和偏好设置 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Card className="card-apple">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Palette className="w-5 h-5 text-purple-500" />
+                <span>外观和语言</span>
+              </CardTitle>
+              <CardDescription>
+                自定义Breezie的外观和语言设置
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>主题模式</Label>
                   <Select value={theme} onValueChange={setTheme}>
@@ -397,92 +356,180 @@ export function SettingsView() {
                     </SelectContent>
                   </Select>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-          {/* 通知设置 */}
-          <TabsContent value="notifications" className="space-y-6">
-            <Card className="card-apple">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Bell className="w-5 h-5 text-yellow-500" />
-                  <span>通知偏好</span>
-                </CardTitle>
-                <CardDescription>
-                  管理你希望接收的通知类型
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>每日提醒</Label>
-                    <p className="text-sm text-apple-caption">提醒你记录每日情绪</p>
+        {/* 通知和隐私设置 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Card className="card-apple">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Bell className="w-5 h-5 text-yellow-500" />
+                <span>通知和隐私</span>
+              </CardTitle>
+              <CardDescription>
+                管理通知偏好和隐私设置
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* 通知设置 */}
+              <div className="space-y-4">
+                <Label className="text-base font-medium">通知偏好</Label>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="space-y-1">
+                      <Label>每日提醒</Label>
+                      <p className="text-xs text-apple-caption">提醒你记录每日情绪</p>
+                    </div>
+                    <Switch
+                      checked={notifications.dailyReminder}
+                      onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, dailyReminder: checked }))}
+                    />
                   </div>
-                  <Switch
-                    checked={notifications.dailyReminder}
-                    onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, dailyReminder: checked }))}
-                  />
-                </div>
 
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>情绪追踪</Label>
-                    <p className="text-sm text-apple-caption">情绪变化趋势通知</p>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="space-y-1">
+                      <Label>情绪追踪</Label>
+                      <p className="text-xs text-apple-caption">情绪变化趋势通知</p>
+                    </div>
+                    <Switch
+                      checked={notifications.moodTracking}
+                      onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, moodTracking: checked }))}
+                    />
                   </div>
-                  <Switch
-                    checked={notifications.moodTracking}
-                    onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, moodTracking: checked }))}
-                  />
-                </div>
 
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>周报总结</Label>
-                    <p className="text-sm text-apple-caption">每周情绪分析报告</p>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="space-y-1">
+                      <Label>周报总结</Label>
+                      <p className="text-xs text-apple-caption">每周情绪分析报告</p>
+                    </div>
+                    <Switch
+                      checked={notifications.weeklyReport}
+                      onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, weeklyReport: checked }))}
+                    />
                   </div>
-                  <Switch
-                    checked={notifications.weeklyReport}
-                    onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, weeklyReport: checked }))}
-                  />
-                </div>
 
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label className="flex items-center space-x-2">
-                      {notifications.soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-                      <span>声音通知</span>
-                    </Label>
-                    <p className="text-sm text-apple-caption">启用通知声音</p>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="space-y-1">
+                      <Label className="flex items-center space-x-2">
+                        {notifications.soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                        <span>声音通知</span>
+                      </Label>
+                      <p className="text-xs text-apple-caption">启用通知声音</p>
+                    </div>
+                    <Switch
+                      checked={notifications.soundEnabled}
+                      onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, soundEnabled: checked }))}
+                    />
                   </div>
-                  <Switch
-                    checked={notifications.soundEnabled}
-                    onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, soundEnabled: checked }))}
-                  />
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
 
-          {/* 数据管理 */}
-          <TabsContent value="data" className="space-y-6">
-            <Card className="card-apple">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Database className="w-5 h-5 text-indigo-500" />
-                  <span>数据管理</span>
-                </CardTitle>
-                <CardDescription>
-                  导出、导入或清除你的情绪数据
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <Separator />
+
+              {/* 隐私设置 */}
+              <div className="space-y-4">
+                <Label className="text-base font-medium flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-green-600" />
+                  <span>隐私设置</span>
+                </Label>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="space-y-1">
+                      <Label>数据收集</Label>
+                      <p className="text-xs text-apple-caption">允许收集匿名使用数据</p>
+                    </div>
+                    <Switch
+                      checked={privacy.dataCollection}
+                      onCheckedChange={(checked) => setPrivacy(prev => ({ ...prev, dataCollection: checked }))}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="space-y-1">
+                      <Label>使用分析</Label>
+                      <p className="text-xs text-apple-caption">帮助我们了解功能使用</p>
+                    </div>
+                    <Switch
+                      checked={privacy.analytics}
+                      onCheckedChange={(checked) => setPrivacy(prev => ({ ...prev, analytics: checked }))}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="space-y-1">
+                      <Label>崩溃报告</Label>
+                      <p className="text-xs text-apple-caption">自动发送崩溃报告</p>
+                    </div>
+                    <Switch
+                      checked={privacy.crashReports}
+                      onCheckedChange={(checked) => setPrivacy(prev => ({ ...prev, crashReports: checked }))}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* 数据管理和统计 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Card className="card-apple">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Database className="w-5 h-5 text-indigo-500" />
+                <span>数据管理和统计</span>
+              </CardTitle>
+              <CardDescription>
+                查看使用统计，管理你的情绪数据
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* 使用统计 */}
+              <div className="space-y-4">
+                <Label className="text-base font-medium flex items-center space-x-2">
+                  <Heart className="w-4 h-4 text-red-500" />
+                  <span>使用统计</span>
+                </Label>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center space-y-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{getTotalConversations()}</div>
+                    <div className="text-sm text-apple-caption">总对话数</div>
+                  </div>
+                  <div className="text-center space-y-2 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{getContinuousDays()}</div>
+                    <div className="text-sm text-apple-caption">连续天数</div>
+                  </div>
+                  <div className="text-center space-y-2 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">{moodRecords.length}</div>
+                    <div className="text-sm text-apple-caption">情绪记录</div>
+                  </div>
+                  <div className="text-center space-y-2 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">{Object.keys(dailyStats).length}</div>
+                    <div className="text-sm text-apple-caption">活跃天数</div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* 数据操作 */}
+              <div className="space-y-4">
+                <Label className="text-base font-medium">数据操作</Label>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Button onClick={handleExportData} className="btn-apple-secondary">
                     <Download className="w-4 h-4 mr-2" />
@@ -506,9 +553,12 @@ export function SettingsView() {
                     </Button>
                   </div>
                 </div>
+              </div>
 
-                <Separator />
+              <Separator />
 
+              {/* 危险操作 */}
+              <div className="space-y-4">
                 <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
                   <Trash2 className="h-4 w-4 text-red-600" />
                   <AlertDescription className="text-red-800 dark:text-red-200">
@@ -527,64 +577,11 @@ export function SettingsView() {
                     重置所有设置
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* 隐私设置 */}
-            <Card className="card-apple">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Shield className="w-5 h-5 text-green-600" />
-                  <span>隐私设置</span>
-                </CardTitle>
-                <CardDescription>
-                  控制数据收集和隐私选项
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>数据收集</Label>
-                    <p className="text-sm text-apple-caption">允许收集匿名使用数据以改进服务</p>
-                  </div>
-                  <Switch
-                    checked={privacy.dataCollection}
-                    onCheckedChange={(checked) => setPrivacy(prev => ({ ...prev, dataCollection: checked }))}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>使用分析</Label>
-                    <p className="text-sm text-apple-caption">帮助我们了解功能使用情况</p>
-                  </div>
-                  <Switch
-                    checked={privacy.analytics}
-                    onCheckedChange={(checked) => setPrivacy(prev => ({ ...prev, analytics: checked }))}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>崩溃报告</Label>
-                    <p className="text-sm text-apple-caption">自动发送崩溃报告以帮助修复问题</p>
-                  </div>
-                  <Switch
-                    checked={privacy.crashReports}
-                    onCheckedChange={(checked) => setPrivacy(prev => ({ ...prev, crashReports: checked }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </motion.div>
-
-
     </div>
   );
 }
