@@ -20,7 +20,7 @@ export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       // 默认值
-      selectedModel: 'deepseek',
+      selectedModel: 'gemini',
       geminiApiKey: '',
       deepseekApiKey: '',
       
