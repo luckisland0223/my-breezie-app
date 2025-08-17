@@ -66,7 +66,7 @@ const quickActions = [
 export function HomePage() {
   const router = useRouter();
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>('basic'); // 默认选中基本情绪
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   
   // 获取所有情绪数据
@@ -207,106 +207,92 @@ export function HomePage() {
 
 
 
-        {/* 分类情绪选择器 */}
-        <div className="max-w-4xl mx-auto space-y-6 mb-8">
-          {Object.entries(categoryLabels).map(([category, categoryData]) => {
-            const emotions = emotionsByCategory[category] || [];
-            const visibleEmotions = getVisibleEmotions(category);
-            const hasMore = hasMoreEmotions(category);
-            const isExpanded = expandedCategories.has(category);
-            
-            if (emotions.length === 0) return null;
-            
-            return (
-              <motion.div
-                key={category}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className={`p-6 rounded-2xl border-2 transition-all duration-200 ${
-                  selectedCategory === category 
-                    ? `${categoryData.bgColor} border-current shadow-lg` 
-                    : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
-                }`}
-              >
-                {/* 分类标题 */}
-                <div 
-                  className="flex items-center justify-between mb-4 cursor-pointer"
+        {/* 分类选择器 */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            {Object.entries(categoryLabels).map(([category, categoryData]) => {
+              const emotions = emotionsByCategory[category] || [];
+              if (emotions.length === 0) return null;
+              
+              return (
+                <motion.button
+                  key={category}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
                   onClick={() => handleCategorySelect(category)}
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-full border-2 transition-all duration-200 ${
+                    selectedCategory === category 
+                      ? 'bg-blue-500 text-white border-blue-500 shadow-lg' 
+                      : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
+                  }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <span className="text-2xl">{categoryData.icon}</span>
-                    <h3 className={`text-lg font-semibold ${categoryData.color}`}>
-                      {categoryData.label}
-                    </h3>
-                    <Badge variant="secondary" className="text-xs">
-                      {emotions.length}个
-                    </Badge>
-                  </div>
-                  <ChevronDown 
-                    className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
-                      selectedCategory === category ? 'rotate-180' : ''
-                    }`}
-                  />
-                </div>
-                
-                {/* 情绪网格 */}
-                {selectedCategory === category && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="space-y-4"
+                  <span className="text-lg">{categoryData.icon}</span>
+                  <span className="font-medium">{categoryData.label}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+
+          {/* 情绪网格 */}
+          {selectedCategory && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                {getVisibleEmotions(selectedCategory).map((emotion) => (
+                  <motion.button
+                    key={emotion.key}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={() => handleEmotionSelect(emotion.key)}
+                    className={`p-4 rounded-2xl border-2 transition-all duration-200 ${
+                      selectedEmotion === emotion.key 
+                        ? 'ring-4 ring-blue-500/30 shadow-lg border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                        : (() => {
+                            const categoryData = categoryLabels[emotion.category as keyof typeof categoryLabels];
+                            return `${categoryData?.bgColor || 'bg-gray-50'} border-gray-200 hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:hover:border-gray-600`;
+                          })()
+                    } group min-h-[100px] flex flex-col items-center justify-center`}
                   >
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {visibleEmotions.map((emotion) => (
-                        <button
-                          key={emotion.key}
-                          onClick={() => handleEmotionSelect(emotion.key)}
-                          className={`p-3 rounded-xl border-2 transition-all duration-200 ${
-                            selectedEmotion === emotion.key 
-                              ? 'ring-4 ring-blue-500/30 shadow-lg border-blue-500 bg-blue-50' 
-                              : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
-                          } group`}
-                        >
-                          <div className="text-2xl mb-1">{emotion.emoji}</div>
-                          <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {emotion.label}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {emotion.score}分
-                          </div>
-                        </button>
-                      ))}
+                    <div className="text-3xl mb-2">{emotion.emoji}</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+                      {emotion.label}
                     </div>
-                    
-                    {/* 展开/折叠按钮 */}
-                    {hasMore && (
-                      <div className="flex justify-center">
-                        <button
-                          onClick={() => toggleCategoryExpansion(category)}
-                          className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors duration-200"
-                        >
-                          {isExpanded ? (
-                            <>
-                              <ChevronUp className="w-4 h-4" />
-                              <span>收起</span>
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="w-4 h-4" />
-                              <span>查看更多 ({emotions.length - DEFAULT_VISIBLE_COUNT}个)</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {emotion.score}分
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+              
+              {/* 显示更多情绪按钮 */}
+              {hasMoreEmotions(selectedCategory) && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => toggleCategoryExpansion(selectedCategory)}
+                    className="flex items-center space-x-2 px-6 py-3 text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium"
+                  >
+                    {expandedCategories.has(selectedCategory) ? (
+                      <>
+                        <ChevronUp className="w-4 h-4" />
+                        <span>收起</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-4 h-4" />
+                        <span>显示更多情绪 ({(emotionsByCategory[selectedCategory] || []).length - DEFAULT_VISIBLE_COUNT}个)</span>
+                      </>
                     )}
-                  </motion.div>
-                )}
-              </motion.div>
-            );
-          })}
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          )}
         </div>
         
         {/* 选择反馈 */}
