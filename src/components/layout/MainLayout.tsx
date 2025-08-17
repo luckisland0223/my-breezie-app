@@ -142,7 +142,12 @@ export function MainLayout({ children }: MainLayoutProps) {
               >
                 <div className="flex flex-col h-full">
                   {/* Mobile Sidebar Header */}
-                  <div className="flex items-center justify-between p-6 border-b border-gray-200/30 dark:border-gray-700/30">
+                  <div 
+                    className="flex items-center justify-between p-6 border-b border-gray-200/30 dark:border-gray-700/30 relative"
+                    style={{
+                      boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.3), 0 8px 25px -5px rgba(139, 92, 246, 0.2)'
+                    }}
+                  >
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-apple-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
                         <span className="text-white font-bold">B</span>
@@ -163,7 +168,12 @@ export function MainLayout({ children }: MainLayoutProps) {
                   </div>
                   
                   {/* Mobile Sidebar Content - Navigation Only */}
-                  <div className="flex-1 overflow-y-auto p-4">
+                  <div 
+                    className="flex-1 overflow-y-auto p-4 relative"
+                    style={{
+                      boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.2), 0 8px 25px -5px rgba(139, 92, 246, 0.15)'
+                    }}
+                  >
                     {/* Mobile Navigation Items */}
                     <nav className="space-y-2">
                       {[

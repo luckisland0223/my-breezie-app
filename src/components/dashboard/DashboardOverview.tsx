@@ -62,9 +62,9 @@ export function DashboardOverview() {
               <Activity className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">43</div>
+              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">0</div>
               <p className="text-xs text-blue-600 dark:text-blue-400">
-                比上周 +12%
+                暂无数据
               </p>
             </CardContent>
           </Card>
@@ -83,9 +83,9 @@ export function DashboardOverview() {
               <Clock className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-900 dark:text-green-100">24分钟</div>
+              <div className="text-2xl font-bold text-green-900 dark:text-green-100">0分钟</div>
               <p className="text-xs text-green-600 dark:text-green-400">
-                比上周 +3分钟
+                暂无数据
               </p>
             </CardContent>
           </Card>
@@ -125,9 +125,9 @@ export function DashboardOverview() {
               <Calendar className="h-4 w-4 text-yellow-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">12天</div>
+              <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">0天</div>
               <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                创造新纪录！
+                暂无数据
               </p>
             </CardContent>
           </Card>

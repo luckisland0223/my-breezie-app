@@ -36,42 +36,8 @@ const emotionOptions = [
   { emoji: "😴", label: "疲惫", value: "tired", color: "bg-purple-100 border-purple-300 text-purple-800" },
 ];
 
-// 示例日记数据
-const sampleDiaryEntries = [
-  {
-    id: 1,
-    date: "2024-01-10",
-    time: "20:30",
-    emotion: "happy",
-    title: "今天工作很顺利",
-    content: "今天完成了一个重要的项目，团队合作得很好。感觉很有成就感，心情特别好。晚上和朋友一起吃饭，聊了很多有趣的话题。",
-    tags: ["工作", "成就感", "朋友"],
-    weather: "sunny",
-    rating: 8
-  },
-  {
-    id: 2,
-    date: "2024-01-09",
-    time: "14:15",
-    emotion: "anxious",
-    title: "有点担心明天的会议",
-    content: "明天有个重要的客户会议，需要做presentation。虽然准备得差不多了，但还是有点紧张。希望一切顺利。",
-    tags: ["工作", "紧张", "会议"],
-    weather: "cloudy",
-    rating: 5
-  },
-  {
-    id: 3,
-    date: "2024-01-08",
-    time: "22:00",
-    emotion: "calm",
-    title: "安静的夜晚",
-    content: "今天没什么特别的事情，就是很平静的一天。看了本书，听了音乐，感觉心情很平和。这种简单的快乐其实很珍贵。",
-    tags: ["阅读", "音乐", "平静"],
-    weather: "clear",
-    rating: 7
-  },
-];
+// 空的日记数据 - 使用真实用户数据
+const sampleDiaryEntries: any[] = [];
 
 export function DiaryView() {
   const [diaryEntries, setDiaryEntries] = useState(sampleDiaryEntries);

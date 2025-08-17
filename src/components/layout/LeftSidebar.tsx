@@ -94,7 +94,10 @@ export function LeftSidebar() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="flex items-center space-x-3 p-6 border-b border-gray-200/30 dark:border-gray-700/30"
+          className="flex items-center space-x-3 p-6 border-b border-gray-200/30 dark:border-gray-700/30 relative"
+          style={{
+            boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.3), 0 8px 25px -5px rgba(139, 92, 246, 0.2)'
+          }}
         >
           <motion.div
             className="w-12 h-12 rounded-apple-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-xl"
@@ -112,7 +115,12 @@ export function LeftSidebar() {
         </motion.div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-2">
+        <nav 
+          className="flex-1 px-4 py-6 space-y-2 relative"
+          style={{
+            boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.2), 0 8px 25px -5px rgba(139, 92, 246, 0.15)'
+          }}
+        >
           {navigation.map((item, index) => {
             const isActive = pathname === item.href || (pathname === "/" && item.href === "/home");
             
@@ -192,7 +200,10 @@ export function LeftSidebar() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="p-4 border-t border-gray-200/30 dark:border-gray-700/30"
+          className="p-4 border-t border-gray-200/30 dark:border-gray-700/30 relative"
+          style={{
+            boxShadow: '0 -4px 20px -2px rgba(59, 130, 246, 0.25), 0 -8px 25px -5px rgba(139, 92, 246, 0.18)'
+          }}
         >
           <div className="card-apple rounded-apple-lg p-4 hover:shadow-lg transition-all duration-75 cursor-pointer">
             <div className="flex items-center space-x-3">

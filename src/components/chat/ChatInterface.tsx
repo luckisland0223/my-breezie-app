@@ -197,18 +197,21 @@ export function ChatInterface() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // 优化后的快速消息发送函数
-  const sendMessagesWithDelay = useCallback(async (messageChunks: string[], baseTimestamp: Date) => {
+  // 优化后的快速消息发送函数 - 支持从思考状态无缝过渡
+  const sendMessagesWithDelay = useCallback(async (messageChunks: string[], baseTimestamp: Date, isFromThinking: boolean = false) => {
     for (let i = 0; i < messageChunks.length; i++) {
       const chunk = messageChunks[i];
       if (!chunk) continue; // 跳过空内容
       
       const messageId = `ai-${baseTimestamp.getTime()}-${i}`;
       
-      // 显示简短的打字指示器
-      if (i === 0) {
+      // 如果是第一条消息且不是从思考状态过来的，显示打字指示器
+      if (i === 0 && !isFromThinking) {
         setTypingMessageId(messageId);
-        await new Promise(resolve => setTimeout(resolve, 300)); // 减少打字延迟
+        await new Promise(resolve => setTimeout(resolve, 300));
+      } else if (i === 0 && isFromThinking) {
+        // 从思考状态过渡，稍微延迟一下让用户感觉思考完成
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
       
       // 添加消息
@@ -246,6 +249,10 @@ export function ChatInterface() {
     setInputValue("");
     setIsLoading(true);
 
+    // 立即显示打字指示器，让用户感觉Breezie在思考
+    const thinkingMessageId = `thinking-${Date.now()}`;
+    setTypingMessageId(thinkingMessageId);
+
     try {
       // 获取对话历史 - 进一步减少上下文长度
       const conversationHistory = [
@@ -256,8 +263,8 @@ export function ChatInterface() {
         }))
       ];
 
-      // 通过API路由调用AI服务（使用用户设置的模型）
-      const response = await fetch('/api/chat', {
+      // 并行处理：在API调用的同时，可以做一些预处理工作
+      const apiCallPromise = fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -268,6 +275,11 @@ export function ChatInterface() {
           model: selectedModel || 'deepseek' // 如果没有设置则默认使用DeepSeek
         }),
       });
+
+      // 在API调用期间，可以做一些预处理（比如准备UI状态等）
+      // 这里可以添加一些预处理逻辑，让等待时间更有意义
+      
+      const response = await apiCallPromise;
 
       let data: any;
       if (!response.ok) {
@@ -287,16 +299,17 @@ export function ChatInterface() {
         throw new Error(data.error);
       }
       
-      // 模型切换功能已移除，固定使用DeepSeek
-      
-      // 将AI响应分割成多个消息块
+      // 将AI响应分割成多个消息块 - 这个处理也可以并行进行
       const messageChunks = splitMessageIntoChunks(data.response);
       
-      // 逐条发送消息
-      await sendMessagesWithDelay(messageChunks, new Date());
+      // 逐条发送消息，标记为从思考状态过渡
+      await sendMessagesWithDelay(messageChunks, new Date(), true);
       
     } catch (error) {
       console.error('Error in chat:', error);
+      
+      // 清除打字指示器
+      setTypingMessageId(null);
       
       // 显示具体的错误信息
       const errorMsg = error instanceof Error ? error.message : '未知错误';

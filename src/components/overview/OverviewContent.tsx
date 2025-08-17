@@ -169,19 +169,9 @@ const mapEmotionToType = (emotionKey: string): string | null => {
   return mapping[emotionKey] || null;
 };
 
-const goals = [
-  { title: "情绪稳定", current: 78, target: 85, improvement: "+12%" },
-  { title: "压力管理", current: 65, target: 80, improvement: "+18%" },
-  { title: "睡眠质量", current: 72, target: 85, improvement: "+8%" },
-  { title: "社交信心", current: 58, target: 75, improvement: "+15%" },
-];
+const goals: Array<{ title: string; current: number; target: number; improvement: string }> = [];
 
-const recentActivities = [
-  { type: "聊天", time: "2小时前", description: "与AI助手进行了深度情绪探讨", icon: MessageCircle, color: "text-blue-500" },
-  { type: "记录", time: "昨天", description: "记录了一次积极的情绪体验", icon: Heart, color: "text-red-500" },
-  { type: "分析", time: "2天前", description: "查看了本周的情绪趋势分析", icon: BarChart3, color: "text-green-500" },
-  { type: "目标", time: "3天前", description: "更新了个人成长目标", icon: Target, color: "text-purple-500" },
-];
+const recentActivities: Array<{ type: string; time: string; description: string; icon: any; color: string }> = [];
 
 const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
 const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
@@ -227,10 +217,10 @@ export function OverviewContent() {
         className="grid grid-cols-1 md:grid-cols-4 gap-6"
       >
         {[
-          { label: "今日情绪", value: "8.2", suffix: "/10", icon: Heart, color: "text-red-500", bg: "from-red-50 to-pink-50" },
-          { label: "本月平均", value: "7.5", suffix: "/10", icon: TrendingUp, color: "text-green-500", bg: "from-green-50 to-emerald-50" },
-          { label: "总对话数", value: "43", suffix: "次", icon: MessageCircle, color: "text-blue-500", bg: "from-blue-50 to-cyan-50" },
-          { label: "连续天数", value: "12", suffix: "天", icon: Calendar, color: "text-purple-500", bg: "from-purple-50 to-pink-50" }
+          { label: "今日情绪", value: "0", suffix: "/10", icon: Heart, color: "text-red-500", bg: "from-red-50 to-pink-50" },
+          { label: "本月平均", value: "0", suffix: "/10", icon: TrendingUp, color: "text-green-500", bg: "from-green-50 to-emerald-50" },
+          { label: "总对话数", value: "0", suffix: "次", icon: MessageCircle, color: "text-blue-500", bg: "from-blue-50 to-cyan-50" },
+          { label: "连续天数", value: "0", suffix: "天", icon: Calendar, color: "text-purple-500", bg: "from-purple-50 to-pink-50" }
         ].map((stat, index) => (
           <motion.div
             key={stat.label}
