@@ -16,13 +16,12 @@ import {
   BookOpen,
   Zap,
   Star,
-  Play,
-  ChevronDown,
-  ChevronUp
+  Play
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // 情绪分类的中文标签
 const categoryLabels = {
@@ -67,19 +66,18 @@ export function HomePage() {
   const router = useRouter();
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('basic'); // 默认选中基本情绪
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [showActionDialog, setShowActionDialog] = useState(false);
   
   // 获取所有情绪数据
   const allEmotions = getAllEmotions();
+
   
   // 按分类组织情绪数据
   const emotionsByCategory = Object.keys(categoryLabels).reduce((acc, category) => {
     acc[category] = allEmotions.filter(emotion => emotion.category === category);
+
     return acc;
   }, {} as Record<string, typeof allEmotions>);
-  
-  // 每个分类默认显示的情绪数量
-  const DEFAULT_VISIBLE_COUNT = 4;
   
   // 获取情绪数据
   const {
@@ -88,15 +86,20 @@ export function HomePage() {
 
 
 
-  // 处理情绪选择
+  // 处理情绪选择（仅选择，不立即保存）
   const handleEmotionSelect = (emotionKey: string) => {
     setSelectedEmotion(emotionKey);
+  };
+
+  // 确认情绪选择
+  const handleConfirmEmotion = () => {
+    if (!selectedEmotion) return;
     
     // 找到选择的情绪信息
-    const selectedEmotionData = allEmotions.find(e => e.key === emotionKey);
+    const selectedEmotionData = allEmotions.find(e => e.key === selectedEmotion);
     
     // 记录情绪选择到状态管理
-    recordEmotionSelect(emotionKey as any, `用户在首页选择了${selectedEmotionData?.label}情绪`);
+    recordEmotionSelect(selectedEmotion as any, `用户在首页选择了${selectedEmotionData?.label}情绪`);
     
     // 显示成功提示
     const emotionLabel = selectedEmotionData?.label || '情绪';
@@ -104,6 +107,22 @@ export function HomePage() {
       description: "你的情绪数据已保存，继续保持记录习惯吧！",
       duration: 3000,
     });
+
+    // 不再自动跳转，而是显示询问选项
+    setShowActionDialog(true);
+  };
+
+  // 处理用户选择的后续行动
+  const handleActionChoice = (action: 'diary' | 'chat' | 'stay') => {
+    setShowActionDialog(false);
+    setSelectedEmotion(null);
+    
+    if (action === 'diary') {
+      router.push('/diary');
+    } else if (action === 'chat') {
+      router.push('/chat');
+    }
+    // 如果选择 'stay'，则什么都不做，留在当前页面
   };
 
   // 处理分类选择
@@ -111,28 +130,11 @@ export function HomePage() {
     setSelectedCategory(selectedCategory === category ? null : category);
   };
 
-  // 处理分类展开/折叠
-  const toggleCategoryExpansion = (category: string) => {
-    const newExpanded = new Set(expandedCategories);
-    if (newExpanded.has(category)) {
-      newExpanded.delete(category);
-    } else {
-      newExpanded.add(category);
-    }
-    setExpandedCategories(newExpanded);
-  };
-
-  // 获取分类中可见的情绪
+  // 获取分类中的所有情绪
   const getVisibleEmotions = (category: string) => {
     const emotions = emotionsByCategory[category] || [];
-    const isExpanded = expandedCategories.has(category);
-    return isExpanded ? emotions : emotions.slice(0, DEFAULT_VISIBLE_COUNT);
-  };
 
-  // 检查分类是否有更多情绪
-  const hasMoreEmotions = (category: string) => {
-    const emotions = emotionsByCategory[category] || [];
-    return emotions.length > DEFAULT_VISIBLE_COUNT;
+    return emotions;
   };
 
   const getEmotionFeedback = (emotionKey: string) => {
@@ -161,7 +163,7 @@ export function HomePage() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="text-center py-16"
+        className="text-center py-8"
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -242,7 +244,7 @@ export function HomePage() {
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4 justify-items-center">
+              <div className="flex flex-wrap justify-center gap-4">
                 {getVisibleEmotions(selectedCategory).map((emotion) => (
                   <motion.button
                     key={emotion.key}
@@ -257,7 +259,7 @@ export function HomePage() {
                             const categoryData = categoryLabels[emotion.category as keyof typeof categoryLabels];
                             return `${categoryData?.bgColor || 'bg-gray-50'} border-gray-200 hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:hover:border-gray-600`;
                           })()
-                    } group min-h-[100px] min-w-[90px] flex flex-col items-center justify-center`}
+                    } group min-h-[100px] min-w-[100px] flex flex-col items-center justify-center`}
                   >
                     <div className="text-3xl mb-2">{emotion.emoji}</div>
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
@@ -269,82 +271,49 @@ export function HomePage() {
                   </motion.button>
                 ))}
               </div>
-              
-              {/* 显示更多情绪按钮 */}
-              {hasMoreEmotions(selectedCategory) && (
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => toggleCategoryExpansion(selectedCategory)}
-                    className="flex items-center space-x-2 px-6 py-3 text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium"
-                  >
-                    {expandedCategories.has(selectedCategory) ? (
-                      <>
-                        <ChevronUp className="w-4 h-4" />
-                        <span>收起</span>
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="w-4 h-4" />
-                        <span>显示更多情绪 ({(emotionsByCategory[selectedCategory] || []).length - DEFAULT_VISIBLE_COUNT}个)</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
             </motion.div>
           )}
         </div>
         
-        {/* 选择反馈 */}
+        {/* 选择确认 */}
         {selectedEmotion && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center max-w-md mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="text-center max-w-lg mx-auto"
           >
             {(() => {
               const selectedEmotionData = allEmotions.find(e => e.key === selectedEmotion);
-              const categoryData = selectedEmotionData ? categoryLabels[selectedEmotionData.category as keyof typeof categoryLabels] : null;
               
               return (
-                <div className={`p-6 rounded-2xl border ${
-                  categoryData ? `${categoryData.bgColor} border-current` : 'bg-blue-50 border-blue-200'
-                }`}>
-                  <p className={`font-medium text-lg mb-3 ${
-                    categoryData ? categoryData.color : 'text-blue-700'
-                  }`}>
-                    {getEmotionFeedback(selectedEmotion)}
-                  </p>
-                  <div className={`text-sm ${
-                    categoryData ? categoryData.color : 'text-blue-600'
-                  } opacity-70 mb-4`}>
-                    <p>评分已更新：{selectedEmotionData?.label} = {selectedEmotionData?.score}分</p>
-                    <p className="mt-1">分类：{categoryData?.label}</p>
+                <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700">
+                  <div className="text-6xl mb-4">
+                    {selectedEmotionData?.emoji}
                   </div>
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    {selectedEmotionData?.label}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
+                    {selectedEmotionData?.description}
+                  </p>
                   
-                  {/* 根据情绪类型显示不同的引导按钮 */}
-                  {selectedEmotionData && (
-                    <div className="space-y-3">
-                      {(selectedEmotionData.category === 'positive' || selectedEmotionData.category === 'neutral') ? (
-                        <Button 
-                          onClick={() => router.push('/diary')}
-                          className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-full py-3 transition-all duration-200 shadow-lg hover:shadow-xl"
-                        >
-                          <BookOpen className="w-4 h-4 mr-2" />
-                          记录今天的心情日记
-                        </Button>
-                      ) : (
-                        <Button 
-                          onClick={() => router.push('/chat')}
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-full py-3 transition-all duration-200 shadow-lg hover:shadow-xl"
-                        >
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          和AI聊聊你的感受
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button 
+                      onClick={handleConfirmEmotion}
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <Heart className="w-5 h-5 mr-2" />
+                      确认记录
+                    </Button>
+                    <Button 
+                      onClick={() => setSelectedEmotion(null)}
+                      variant="outline"
+                      className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 px-8 py-3 rounded-full text-lg font-medium transition-all duration-300"
+                    >
+                      重新选择
+                    </Button>
+                  </div>
                 </div>
               );
             })()}
@@ -426,6 +395,46 @@ export function HomePage() {
           </p>
         </div>
       </motion.section>
+
+      {/* 询问后续行动的对话框 */}
+      <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-semibold text-gray-900 dark:text-gray-100">
+              情绪已记录 ✨
+            </DialogTitle>
+            <DialogDescription className="text-center text-gray-600 dark:text-gray-400 mt-2">
+              接下来你想要做什么？
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col gap-3 mt-6">
+            <Button 
+              onClick={() => handleActionChoice('diary')}
+              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white py-3 rounded-xl text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <BookOpen className="w-5 h-5 mr-2" />
+              写日记记录今天
+            </Button>
+            
+            <Button 
+              onClick={() => handleActionChoice('chat')}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 rounded-xl text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              和AI助手聊聊
+            </Button>
+            
+            <Button 
+              onClick={() => handleActionChoice('stay')}
+              variant="outline"
+              className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 py-3 rounded-xl text-base font-medium transition-all duration-300"
+            >
+              暂时不需要，继续浏览
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

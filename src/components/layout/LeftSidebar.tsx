@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { startTransition } from "react";
 import { motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { 
@@ -74,10 +74,19 @@ export function LeftSidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // 预加载所有导航路由以减少延迟
+  // 优化的导航处理函数
+  const handleNavigation = React.useCallback((href: string) => {
+    startTransition(() => {
+      router.push(href);
+    });
+  }, [router]);
+
+  // 预加载关键路由
   React.useEffect(() => {
-    navigation.forEach(item => {
-      router.prefetch(item.href);
+    // 只预加载最常用的路由
+    const criticalRoutes = ['/home', '/chat', '/overview'];
+    criticalRoutes.forEach(route => {
+      router.prefetch(route);
     });
   }, [router]);
 
@@ -95,12 +104,9 @@ export function LeftSidebar() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="flex items-center space-x-3 p-6 border-b border-gray-200/30 dark:border-gray-700/30 relative"
-          style={{
-            boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.3), 0 8px 25px -5px rgba(139, 92, 246, 0.2)'
-          }}
         >
           <motion.div
-            className="w-12 h-12 rounded-apple-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-xl"
+            className="w-12 h-12 rounded-apple-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center"
           >
             <Heart className="w-7 h-7 text-white" />
           </motion.div>
@@ -117,9 +123,6 @@ export function LeftSidebar() {
         {/* Navigation */}
         <nav 
           className="flex-1 px-4 py-6 space-y-2 relative"
-          style={{
-            boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.2), 0 8px 25px -5px rgba(139, 92, 246, 0.15)'
-          }}
         >
           {navigation.map((item, index) => {
             const isActive = pathname === item.href || (pathname === "/" && item.href === "/home");
@@ -130,53 +133,43 @@ export function LeftSidebar() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ 
-                  delay: 0.2 + index * 0.1, 
-                  duration: 0.4, 
-                  ease: [0.16, 1, 0.3, 1] 
+                  delay: 0.1 + index * 0.05, 
+                  duration: 0.2, 
+                  ease: "easeOut" 
                 }}
 
               >
                 <button
-                  onClick={() => router.push(item.href)}
-                  onMouseDown={(e) => {
-                    // 提供即时视觉反馈
-                    e.currentTarget.style.transform = 'scale(0.98)';
-                  }}
-                  onMouseUp={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
+                  onClick={() => handleNavigation(item.href)}
                   className={cn(
-                    "w-full flex items-center space-x-4 p-4 rounded-apple-lg transition-all duration-75 text-left group active:scale-[0.98]",
+                    "w-full flex items-center space-x-4 p-4 rounded-apple-lg transition-colors duration-150 text-left group",
                     isActive
-                      ? `${item.bgColor} ${item.color} shadow-lg border border-current/20`
+                      ? "bg-gray-100/50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50"
                       : "hover:bg-gray-100/50 dark:hover:bg-gray-800/50 text-apple-body"
                   )}
                 >
                   <div className={cn(
-                    "w-8 h-8 rounded-apple-sm flex items-center justify-center transition-all duration-75",
+                    "w-8 h-8 rounded-apple-sm flex items-center justify-center transition-colors duration-150",
                     isActive 
-                      ? "bg-white/80 dark:bg-gray-800/80 shadow-md" 
+                      ? "bg-white/80 dark:bg-gray-800/80" 
                       : "group-hover:bg-white/50 dark:group-hover:bg-gray-800/50"
                   )}>
                     <item.icon className={cn(
-                      "w-5 h-5 transition-all duration-75",
-                      isActive ? item.color : "text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                      "w-5 h-5 transition-colors duration-150",
+                      isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     )} />
                   </div>
                   
                   <div className="flex-1">
                     <div className={cn(
-                      "font-semibold text-base transition-all duration-75",
-                      isActive ? item.color : "text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
+                      "font-semibold text-base transition-colors duration-150",
+                      isActive ? "text-gray-900 dark:text-gray-100" : "text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
                     )}>
                       {item.name}
                     </div>
                     <div className={cn(
-                      "text-xs mt-0.5 transition-all duration-75",
-                      isActive ? "text-current/70" : "text-apple-caption"
+                      "text-xs mt-0.5 transition-colors duration-150",
+                      isActive ? "text-gray-600 dark:text-gray-400" : "text-apple-caption"
                     )}>
                       {item.description}
                     </div>
@@ -185,8 +178,8 @@ export function LeftSidebar() {
                   {isActive && (
                     <motion.div
                       layoutId="activeIndicator"
-                      className="w-1 h-8 bg-current rounded-full"
-                      transition={{ duration: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                      className="w-1 h-8 bg-gray-400 dark:bg-gray-500 rounded-full"
+                      transition={{ duration: 0.15, ease: "easeOut" }}
                     />
                   )}
                 </button>
@@ -201,13 +194,10 @@ export function LeftSidebar() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="p-4 border-t border-gray-200/30 dark:border-gray-700/30 relative"
-          style={{
-            boxShadow: '0 -4px 20px -2px rgba(59, 130, 246, 0.25), 0 -8px 25px -5px rgba(139, 92, 246, 0.18)'
-          }}
         >
-          <div className="card-apple rounded-apple-lg p-4 hover:shadow-lg transition-all duration-75 cursor-pointer">
+          <div className="bg-white dark:bg-gray-800 rounded-apple-lg p-4 transition-all duration-75 cursor-pointer border border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                 <User className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">

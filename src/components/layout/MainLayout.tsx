@@ -74,7 +74,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-700/30 shadow-sm"
+          className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-700/30"
         >
           <div className="flex items-center justify-between p-4">
             <Button
@@ -144,12 +144,9 @@ export function MainLayout({ children }: MainLayoutProps) {
                   {/* Mobile Sidebar Header */}
                   <div 
                     className="flex items-center justify-between p-6 border-b border-gray-200/30 dark:border-gray-700/30 relative"
-                    style={{
-                      boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.3), 0 8px 25px -5px rgba(139, 92, 246, 0.2)'
-                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-apple-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                      <div className="w-10 h-10 rounded-apple-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                         <span className="text-white font-bold">B</span>
                       </div>
                       <div>
@@ -170,9 +167,6 @@ export function MainLayout({ children }: MainLayoutProps) {
                   {/* Mobile Sidebar Content - Navigation Only */}
                   <div 
                     className="flex-1 overflow-y-auto p-4 relative"
-                    style={{
-                      boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.2), 0 8px 25px -5px rgba(139, 92, 246, 0.15)'
-                    }}
                   >
                     {/* Mobile Navigation Items */}
                     <nav className="space-y-2">
@@ -195,7 +189,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                               router.push(item.href);
                               setLeftSidebarOpen(false);
                             }}
-                            className="w-full flex items-center space-x-4 p-4 rounded-apple-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-all duration-200 text-left"
+                            className="w-full flex items-center space-x-4 p-4 rounded-apple-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors duration-150 text-left"
                           >
                             <div className="text-2xl">{item.icon}</div>
                             <div className="flex-1">
