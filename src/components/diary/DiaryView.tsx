@@ -36,8 +36,21 @@ const emotionOptions = [
   { emoji: "😴", label: "疲惫", value: "tired", color: "bg-purple-100 border-purple-300 text-purple-800" },
 ];
 
+// 日记条目类型定义
+interface DiaryEntry {
+  id: number;
+  date: string;
+  time: string;
+  emotion: string;
+  title: string;
+  content: string;
+  tags: string[];
+  weather: string;
+  rating: number;
+}
+
 // 空的日记数据 - 使用真实用户数据
-const sampleDiaryEntries: any[] = [];
+const sampleDiaryEntries: DiaryEntry[] = [];
 
 export function DiaryView() {
   const [diaryEntries, setDiaryEntries] = useState(sampleDiaryEntries);
