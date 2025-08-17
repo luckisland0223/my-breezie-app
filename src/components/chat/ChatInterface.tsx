@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { AI_MODELS, type AIModel } from "@/lib/ai-service";
+import { useSettingsStore } from "@/store/settings";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -184,7 +186,8 @@ export function ChatInterface() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
   
-  // AI模型选择功能已移除，固定使用DeepSeek
+  // 获取用户设置的AI模型，但不显示选择弹窗
+  const { selectedModel } = useSettingsStore();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -253,7 +256,7 @@ export function ChatInterface() {
         }))
       ];
 
-      // 通过API路由调用AI服务（固定使用DeepSeek）
+      // 通过API路由调用AI服务（使用用户设置的模型）
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -262,7 +265,7 @@ export function ChatInterface() {
         body: JSON.stringify({
           message: currentInput,
           conversationHistory,
-          model: 'deepseek'
+          model: selectedModel || 'deepseek' // 如果没有设置则默认使用DeepSeek
         }),
       });
 
@@ -353,7 +356,9 @@ export function ChatInterface() {
               <h2 className="font-semibold text-gray-900 dark:text-white">Breezie AI</h2>
               <div className="flex items-center space-x-2">
                 <p className="text-sm text-green-600 dark:text-green-400">情绪疏导助手 • 在线</p>
-                <span className="text-xs text-gray-500">• DeepSeek</span>
+                <span className="text-xs text-gray-500">
+                  • {selectedModel ? AI_MODELS[selectedModel].name : 'DeepSeek'}
+                </span>
               </div>
             </div>
           </div>

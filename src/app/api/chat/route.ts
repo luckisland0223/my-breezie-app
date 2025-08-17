@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   const totalStartTime = Date.now();
   
   try {
-    const { message, conversationHistory } = await request.json();
+    const { message, conversationHistory, model } = await request.json();
 
     if (!message) {
       return NextResponse.json(
@@ -16,16 +16,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 固定使用DeepSeek模型
+    // 使用指定的模型，如果没有指定则默认使用DeepSeek
+    const selectedModel = model || 'deepseek';
     let aiService;
+    
     try {
-      aiService = AIServiceFactory.createService('deepseek');
+      aiService = AIServiceFactory.createService(selectedModel);
     } catch (error) {
-      console.error('Failed to create DeepSeek service:', error);
-      return NextResponse.json(
-        { error: 'AI服务暂时不可用，请稍后再试' },
-        { status: 503 }
-      );
+      console.error(`Failed to create ${selectedModel} service:`, error);
+      
+      // 如果指定的模型失败，尝试使用DeepSeek作为备用
+      if (selectedModel !== 'deepseek') {
+        try {
+          console.log('Falling back to DeepSeek model...');
+          aiService = AIServiceFactory.createService('deepseek');
+        } catch (fallbackError) {
+          console.error('Fallback to DeepSeek also failed:', fallbackError);
+          return NextResponse.json(
+            { error: 'AI服务暂时不可用，请稍后再试' },
+            { status: 503 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: 'AI服务暂时不可用，请稍后再试' },
+          { status: 503 }
+        );
+      }
     }
 
     // 情绪分析 - 简化为并行处理
