@@ -66,31 +66,27 @@ export async function POST(request: NextRequest) {
     const conversationSummary = memory.getConversationSummary();
     const contextualQuestions = memory.getContextualQuestions();
     
-    // 简化系统提示词以提高响应速度
-    const enhancedSystemPrompt = `你是Breezie，一个温暖真诚的情绪陪伴者。用自然、口语化的方式聊天，像真人朋友一样回应，有情感有温度。
-
+    // 生成包含对话记忆的上下文信息
+    const contextInfo = `
+对话上下文：
 ${conversationSummary ? `对话记忆：${conversationSummary}` : '这是我们第一次对话'}
-当前用户情绪：${emotionData.emotion}
-
-回复要求：
-- 真诚温暖，不要过于正式
-- 根据用户情绪调整语气
-- 提供实用的情绪支持建议
-- 避免动作描写和编造故事`;
+当前用户情绪：${emotionData.emotion}（置信度：${emotionData.confidence}）
+${contextualQuestions.length > 0 ? `需要了解的：${contextualQuestions.join(', ')}` : ''}
+`;
 
     // 生成AI回复
     let aiResponse;
     const responseStartTime = Date.now();
     
     try {
-      // 构建包含记忆的对话历史
-      const enhancedHistory = [
-        { role: 'system', content: enhancedSystemPrompt },
-        ...conversationHistory.slice(-6) // 减少到6条对话以提高速度
-      ];
+      // 构建包含记忆的对话历史，不添加额外的系统提示词
+      const enhancedHistory = conversationHistory.slice(-6); // 保留最近6条对话
+      
+      // 将上下文信息添加到用户消息中
+      const enhancedMessage = `${contextInfo}\n\n用户消息：${message}`;
 
-      console.log(`System prompt length: ${enhancedSystemPrompt.length} characters`);
-      aiResponse = await aiService.generateResponse(message, enhancedHistory);
+      console.log(`Context info length: ${contextInfo.length} characters`);
+      aiResponse = await aiService.generateResponse(enhancedMessage, enhancedHistory);
       console.log(`AI response generation took: ${Date.now() - responseStartTime}ms`);
     } catch (error) {
       console.error('AI response generation failed:', error);

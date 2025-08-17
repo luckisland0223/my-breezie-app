@@ -88,67 +88,10 @@ export function HomePage() {
   
   // 获取情绪数据
   const {
-    getTodayMoodScore,
-    getContinuousDays,
-    getTotalConversations,
-    getImprovementPercentage,
     recordEmotionSelect
   } = useMoodStore();
 
-  // 动态统计数据
-  const [todayStats, setTodayStats] = useState([
-    { label: "今日心情", value: "—", icon: Heart, color: "text-red-500" },
-    { label: "连续记录", value: "—", icon: Calendar, color: "text-blue-500" },
-    { label: "总对话", value: "—", icon: MessageCircle, color: "text-green-500" },
-    { label: "情绪改善", value: "—", icon: TrendingUp, color: "text-purple-500" }
-  ]);
 
-  // 更新统计数据
-  const updateStats = () => {
-    const todayScore = getTodayMoodScore();
-    const continuousDays = getContinuousDays();
-    const totalConversations = getTotalConversations();
-    const improvement = getImprovementPercentage();
-
-    setTodayStats([
-      { 
-        label: "今日心情", 
-        value: todayScore ? `${todayScore}` : "—", 
-        icon: Heart, 
-        color: "text-red-500" 
-      },
-      { 
-        label: "连续记录", 
-        value: `${continuousDays}天`, 
-        icon: Calendar, 
-        color: "text-blue-500" 
-      },
-      { 
-        label: "总对话", 
-        value: `${totalConversations}次`, 
-        icon: MessageCircle, 
-        color: "text-green-500" 
-      },
-      { 
-        label: "情绪改善", 
-        value: improvement > 0 ? `+${improvement}%` : `${improvement}%`, 
-        icon: TrendingUp, 
-        color: improvement >= 0 ? "text-green-500" : "text-red-500" 
-      }
-    ]);
-  };
-
-  // 组件挂载时更新数据
-  useEffect(() => {
-    updateStats();
-  }, [getTodayMoodScore, getContinuousDays, getTotalConversations, getImprovementPercentage]);
-
-  // 监听 selectedEmotion 变化，当选择情绪后更新数据
-  useEffect(() => {
-    if (selectedEmotion) {
-      updateStats();
-    }
-  }, [selectedEmotion, getTodayMoodScore, getContinuousDays, getTotalConversations, getImprovementPercentage]);
 
   const handleEmotionSelect = (emotionKey: string) => {
     setSelectedEmotion(emotionKey);
@@ -372,45 +315,7 @@ export function HomePage() {
         </div>
       </motion.section>
 
-      {/* Today's Stats - 简化的统计信息 */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-apple-title mb-4">你的成长轨迹</h2>
-          <p className="text-lg text-apple-body">看看你在情绪管理路上的进步</p>
-        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {todayStats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ 
-                delay: 1.1 + index * 0.1, 
-                duration: 0.5, 
-                ease: [0.16, 1, 0.3, 1] 
-              }}
-
-            >
-              <Card className="card-apple rounded-2xl hover:shadow-xl transition-all duration-300 border-0">
-                <CardContent className="p-6 text-center">
-                  <stat.icon className={`w-8 h-8 mx-auto mb-4 ${stat.color}`} />
-                  <div className="text-3xl font-bold text-apple-title mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-apple-caption font-medium">
-                    {stat.label}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </motion.section>
 
       {/* Motivational Footer */}
       <motion.section
