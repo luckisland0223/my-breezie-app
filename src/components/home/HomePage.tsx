@@ -17,8 +17,6 @@ import {
   Zap,
   Star,
   Play,
-  ChevronDown,
-  ChevronUp,
   Filter
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,7 +67,6 @@ export function HomePage() {
   const router = useRouter();
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [showAllEmotions, setShowAllEmotions] = useState(false);
   
   // 获取所有情绪数据
   const allEmotions = getAllEmotions();
@@ -259,46 +256,16 @@ export function HomePage() {
           ))}
         </div>
 
-        {/* 显示更多情绪按钮 */}
-        <div className="text-center mb-6">
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.0, duration: 0.5 }}
-            onClick={() => setShowAllEmotions(!showAllEmotions)}
-            className="px-6 py-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200 font-medium"
-          >
-            {showAllEmotions ? (
-              <>
-                <ChevronUp className="w-4 h-4 inline mr-2" />
-                收起情绪选项
-              </>
-            ) : (
-              <>
-                <ChevronDown className="w-4 h-4 inline mr-2" />
-                显示更多情绪 ({allEmotions.length}个)
-              </>
-            )}
-          </motion.button>
-        </div>
+
 
         {/* 情绪网格 */}
         <motion.div 
           layout
-          className={`grid gap-4 max-w-6xl mx-auto mb-8 ${
-            showAllEmotions 
-              ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6' 
-              : 'grid-cols-3 md:grid-cols-6'
-          }`}
+          className="grid gap-4 max-w-6xl mx-auto mb-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
         >
-          {(showAllEmotions 
-            ? allEmotions.filter(emotion => 
-                selectedCategory === null || emotion.category === selectedCategory
-              )
-            : allEmotions
-                .filter(emotion => selectedCategory === null || emotion.category === selectedCategory)
-                .slice(0, 12)
-          ).map((emotion, index) => (
+          {allEmotions
+            .filter(emotion => selectedCategory === null || emotion.category === selectedCategory)
+            .map((emotion, index) => (
             <motion.button
               key={emotion.key}
               layout
@@ -333,11 +300,9 @@ export function HomePage() {
               <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {emotion.label}
               </div>
-              {showAllEmotions && (
-                <div className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
-                  {emotion.description}
-                </div>
-              )}
+              <div className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                {emotion.description}
+              </div>
             </motion.button>
           ))}
         </motion.div>
