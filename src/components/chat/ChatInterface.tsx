@@ -197,10 +197,11 @@ export function ChatInterface() {
 
   // 检查是否需要显示AI选择对话框
   useEffect(() => {
-    if (!hasSelectedInitialModel) {
+    // 只有在没有选择过初始模型且当前也没有选择模型时才显示弹窗
+    if (!hasSelectedInitialModel && !selectedModel) {
       setShowAISelection(true);
     }
-  }, [hasSelectedInitialModel]);
+  }, [hasSelectedInitialModel, selectedModel]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
