@@ -73,19 +73,26 @@ export function AnalyticsView() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="flex justify-center gap-3 mt-6"
+          className="flex justify-center mt-6"
         >
-          {["week", "month", "quarter"].map((period) => (
-            <Button
-              key={period}
-              variant={selectedPeriod === period ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedPeriod(period)}
-              className={selectedPeriod === period ? "btn-apple-primary" : "btn-apple-secondary"}
-            >
-              {period === "week" ? "本周" : period === "month" ? "本月" : "本季度"}
-            </Button>
-          ))}
+          <div className="inline-flex h-12 items-center justify-center rounded-xl bg-white/70 dark:bg-gray-800/70 p-1 text-gray-500 dark:text-gray-400 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-md">
+            {["week", "month", "quarter"].map((period) => (
+              <button
+                key={period}
+                onClick={() => setSelectedPeriod(period)}
+                className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-2 min-w-[80px] ${
+                  selectedPeriod === period
+                    ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
+                    : 'hover:bg-white/50 dark:hover:bg-gray-700/50'
+                }`}
+              >
+                {period === "week" && <Calendar className="w-4 h-4" />}
+                {period === "month" && <Clock className="w-4 h-4" />}
+                {period === "quarter" && <Zap className="w-4 h-4" />}
+                {period === "week" ? "本周" : period === "month" ? "本月" : "本季度"}
+              </button>
+            ))}
+          </div>
         </motion.div>
       </motion.div>
 
@@ -156,17 +163,42 @@ export function AnalyticsView() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
-        <Tabs defaultValue="trends" className="space-y-8">
+        <Tabs defaultValue="trends" className="space-y-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="flex justify-center"
           >
-            <TabsList className="grid w-full grid-cols-4 card-apple rounded-apple-lg p-2 shadow-lg max-w-2xl mx-auto">
-              <TabsTrigger value="trends" className="rounded-apple-md text-apple-body font-medium">情绪趋势</TabsTrigger>
-              <TabsTrigger value="distribution" className="rounded-apple-md text-apple-body font-medium">情绪分布</TabsTrigger>
-              <TabsTrigger value="activity" className="rounded-apple-md text-apple-body font-medium">活动统计</TabsTrigger>
-              <TabsTrigger value="improvement" className="rounded-apple-md text-apple-body font-medium">改善追踪</TabsTrigger>
+            <TabsList className="inline-flex h-14 items-center justify-center rounded-2xl bg-white/70 dark:bg-gray-800/70 p-1.5 text-gray-500 dark:text-gray-400 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg max-w-fit">
+              <TabsTrigger 
+                value="trends" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-xl px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-md dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white hover:bg-white/50 dark:hover:bg-gray-700/50 gap-2 min-w-[120px]"
+              >
+                <TrendingUp className="w-4 h-4" />
+                情绪趋势
+              </TabsTrigger>
+              <TabsTrigger 
+                value="distribution" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-xl px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-md dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white hover:bg-white/50 dark:hover:bg-gray-700/50 gap-2 min-w-[120px]"
+              >
+                <Heart className="w-4 h-4" />
+                情绪分布
+              </TabsTrigger>
+              <TabsTrigger 
+                value="activity" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-xl px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-md dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white hover:bg-white/50 dark:hover:bg-gray-700/50 gap-2 min-w-[120px]"
+              >
+                <BarChart3 className="w-4 h-4" />
+                活动统计
+              </TabsTrigger>
+              <TabsTrigger 
+                value="improvement" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-xl px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-md dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white hover:bg-white/50 dark:hover:bg-gray-700/50 gap-2 min-w-[120px]"
+              >
+                <Target className="w-4 h-4" />
+                改善追踪
+              </TabsTrigger>
             </TabsList>
           </motion.div>
 
