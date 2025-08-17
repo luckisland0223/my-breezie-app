@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { 
@@ -73,6 +74,13 @@ export function LeftSidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
+  // 预加载所有导航路由以减少延迟
+  React.useEffect(() => {
+    navigation.forEach(item => {
+      router.prefetch(item.href);
+    });
+  }, [router]);
+
   return (
     <motion.aside
       initial={{ x: -20, opacity: 0 }}
@@ -122,34 +130,44 @@ export function LeftSidebar() {
               >
                 <button
                   onClick={() => router.push(item.href)}
+                  onMouseDown={(e) => {
+                    // 提供即时视觉反馈
+                    e.currentTarget.style.transform = 'scale(0.98)';
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
                   className={cn(
-                    "w-full flex items-center space-x-4 p-4 rounded-apple-lg transition-all duration-200 text-left group",
+                    "w-full flex items-center space-x-4 p-4 rounded-apple-lg transition-all duration-75 text-left group active:scale-[0.98]",
                     isActive
                       ? `${item.bgColor} ${item.color} shadow-lg border border-current/20`
                       : "hover:bg-gray-100/50 dark:hover:bg-gray-800/50 text-apple-body"
                   )}
                 >
                   <div className={cn(
-                    "w-8 h-8 rounded-apple-sm flex items-center justify-center transition-all duration-200",
+                    "w-8 h-8 rounded-apple-sm flex items-center justify-center transition-all duration-75",
                     isActive 
                       ? "bg-white/80 dark:bg-gray-800/80 shadow-md" 
                       : "group-hover:bg-white/50 dark:group-hover:bg-gray-800/50"
                   )}>
                     <item.icon className={cn(
-                      "w-5 h-5 transition-all duration-200",
+                      "w-5 h-5 transition-all duration-75",
                       isActive ? item.color : "text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     )} />
                   </div>
                   
                   <div className="flex-1">
                     <div className={cn(
-                      "font-semibold text-base transition-all duration-200",
+                      "font-semibold text-base transition-all duration-75",
                       isActive ? item.color : "text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
                     )}>
                       {item.name}
                     </div>
                     <div className={cn(
-                      "text-xs mt-0.5 transition-all duration-200",
+                      "text-xs mt-0.5 transition-all duration-75",
                       isActive ? "text-current/70" : "text-apple-caption"
                     )}>
                       {item.description}
@@ -160,7 +178,7 @@ export function LeftSidebar() {
                     <motion.div
                       layoutId="activeIndicator"
                       className="w-1 h-8 bg-current rounded-full"
-                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.1, ease: [0.16, 1, 0.3, 1] }}
                     />
                   )}
                 </button>
@@ -176,7 +194,7 @@ export function LeftSidebar() {
           transition={{ delay: 0.8, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="p-4 border-t border-gray-200/30 dark:border-gray-700/30"
         >
-          <div className="card-apple rounded-apple-lg p-4 hover:shadow-lg transition-all duration-200 cursor-pointer">
+          <div className="card-apple rounded-apple-lg p-4 hover:shadow-lg transition-all duration-75 cursor-pointer">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
                 <User className="w-6 h-6 text-white" />
