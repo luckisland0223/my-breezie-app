@@ -18,27 +18,12 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { MoodCalendar } from "./MoodCalendar";
 
-const emotionData = [
-  { name: "开心", count: 15, color: "bg-yellow-500", percentage: 35 },
-  { name: "平静", count: 12, color: "bg-green-500", percentage: 28 },
-  { name: "焦虑", count: 8, color: "bg-red-500", percentage: 19 },
-  { name: "难过", count: 5, color: "bg-blue-500", percentage: 12 },
-  { name: "其他", count: 3, color: "bg-gray-500", percentage: 6 },
-];
+// 空的数据数组 - 使用真实用户数据
+const emotionData: Array<{ name: string; count: number; color: string; percentage: number }> = [];
 
-const recentSessions = [
-  { date: "今天", duration: "25分钟", mood: "平静", improvement: "+2" },
-  { date: "昨天", duration: "18分钟", mood: "开心", improvement: "+3" },
-  { date: "2天前", duration: "32分钟", mood: "焦虑", improvement: "+1" },
-  { date: "3天前", duration: "22分钟", mood: "平静", improvement: "+2" },
-];
+const recentSessions: Array<{ date: string; duration: string; mood: string; improvement: string }> = [];
 
-const achievements = [
-  { name: "连续对话", description: "连续7天与AI对话", icon: Target, completed: true },
-  { name: "情绪稳定", description: "情绪波动减少30%", icon: Heart, completed: true },
-  { name: "积极思维", description: "积极情绪占比超过60%", icon: Smile, completed: false },
-  { name: "深度交流", description: "单次对话超过30分钟", icon: Clock, completed: true },
-];
+const achievements: Array<{ name: string; description: string; icon: any; completed: boolean }> = [];
 
 export function DashboardOverview() {
   return (

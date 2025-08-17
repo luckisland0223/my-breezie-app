@@ -7,25 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-// 模拟数据 - 每日心情记录
-const moodData: Record<string, { mood: string; emoji: string; color: string; intensity: number }> = {
-  "2024-08-01": { mood: "开心", emoji: "😊", color: "bg-yellow-200", intensity: 8 },
-  "2024-08-02": { mood: "平静", emoji: "😌", color: "bg-green-200", intensity: 7 },
-  "2024-08-03": { mood: "焦虑", emoji: "😰", color: "bg-red-200", intensity: 4 },
-  "2024-08-04": { mood: "开心", emoji: "😊", color: "bg-yellow-200", intensity: 9 },
-  "2024-08-05": { mood: "一般", emoji: "😐", color: "bg-gray-200", intensity: 5 },
-  "2024-08-06": { mood: "难过", emoji: "😔", color: "bg-blue-200", intensity: 3 },
-  "2024-08-07": { mood: "开心", emoji: "😊", color: "bg-yellow-200", intensity: 8 },
-  "2024-08-08": { mood: "平静", emoji: "😌", color: "bg-green-200", intensity: 7 },
-  "2024-08-09": { mood: "开心", emoji: "😊", color: "bg-yellow-200", intensity: 8 },
-  "2024-08-10": { mood: "疲惫", emoji: "😴", color: "bg-purple-200", intensity: 4 },
-  "2024-08-11": { mood: "平静", emoji: "😌", color: "bg-green-200", intensity: 7 },
-  "2024-08-12": { mood: "开心", emoji: "😊", color: "bg-yellow-200", intensity: 9 },
-  "2024-08-13": { mood: "一般", emoji: "😐", color: "bg-gray-200", intensity: 6 },
-  "2024-08-14": { mood: "开心", emoji: "😊", color: "bg-yellow-200", intensity: 8 },
-  "2024-08-15": { mood: "平静", emoji: "😌", color: "bg-green-200", intensity: 7 },
-  "2024-08-16": { mood: "开心", emoji: "😊", color: "bg-yellow-200", intensity: 9 },
-};
+// 空的心情记录数据 - 使用真实用户数据
+const moodData: Record<string, { mood: string; emoji: string; color: string; intensity: number }> = {};
 
 const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
 const months = [

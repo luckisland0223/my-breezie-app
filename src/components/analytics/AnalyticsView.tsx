@@ -33,124 +33,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-// Sample data for charts
-const moodTrendData = [
-  { date: "1/1", mood: 6.5, sessions: 2 },
-  { date: "1/2", mood: 7.2, sessions: 1 },
-  { date: "1/3", mood: 5.8, sessions: 3 },
-  { date: "1/4", mood: 8.1, sessions: 2 },
-  { date: "1/5", mood: 7.5, sessions: 1 },
-  { date: "1/6", mood: 6.9, sessions: 2 },
-  { date: "1/7", mood: 8.3, sessions: 3 },
-  { date: "1/8", mood: 7.8, sessions: 2 },
-  { date: "1/9", mood: 8.5, sessions: 1 },
-  { date: "1/10", mood: 8.2, sessions: 2 },
-];
+// 空的数据数组 - 使用真实用户数据
+const moodTrendData: Array<{ date: string; mood: number; sessions: number }> = [];
 
-// 模拟情绪分布数据 - 基于新的情绪系统
-const emotionDistribution = [
-  { name: "开心", value: 25, color: "#fbbf24" },
-  { name: "平静", value: 20, color: "#34d399" },
-  { name: "满足", value: 15, color: "#60a5fa" },
-  { name: "焦虑", value: 12, color: "#f87171" },
-  { name: "难过", value: 10, color: "#a78bfa" },
-  { name: "疲惫", value: 8, color: "#fb7185" },
-  { name: "兴奋", value: 6, color: "#fbbf24" },
-  { name: "其他", value: 4, color: "#9ca3af" },
-];
+// 空的情绪分布数据 - 使用真实用户数据
+const emotionDistribution: Array<{ name: string; value: number; color: string }> = [];
 
-// 多种颜色方案选择 - 支持扩展情绪类型
-const colorSchemes = {
-  // 方案1: 温暖渐变
-  warm: [
-    { name: "开心", value: 25, color: "#fbbf24" },
-    { name: "平静", value: 20, color: "#34d399" },
-    { name: "满足", value: 15, color: "#60a5fa" },
-    { name: "焦虑", value: 12, color: "#f87171" },
-    { name: "难过", value: 10, color: "#a78bfa" },
-    { name: "疲惫", value: 8, color: "#fb7185" },
-    { name: "兴奋", value: 6, color: "#fde047" },
-    { name: "其他", value: 4, color: "#9ca3af" },
-  ],
-  // 方案2: 柔和粉彩
-  pastel: [
-    { name: "开心", value: 25, color: "#fed7aa" },
-    { name: "平静", value: 20, color: "#bbf7d0" },
-    { name: "满足", value: 15, color: "#bfdbfe" },
-    { name: "焦虑", value: 12, color: "#fecaca" },
-    { name: "难过", value: 10, color: "#e9d5ff" },
-    { name: "疲惫", value: 8, color: "#fce7f3" },
-    { name: "兴奋", value: 6, color: "#fef3c7" },
-    { name: "其他", value: 4, color: "#d1d5db" },
-  ],
-  // 方案3: 深色优雅
-  elegant: [
-    { name: "开心", value: 25, color: "#f59e0b" },
-    { name: "平静", value: 20, color: "#059669" },
-    { name: "满足", value: 15, color: "#2563eb" },
-    { name: "焦虑", value: 12, color: "#dc2626" },
-    { name: "难过", value: 10, color: "#7c3aed" },
-    { name: "疲惫", value: 8, color: "#e11d48" },
-    { name: "兴奋", value: 6, color: "#eab308" },
-    { name: "其他", value: 4, color: "#4b5563" },
-  ],
-  // 方案4: Apple风格
-  apple: [
-    { name: "开心", value: 25, color: "#ff9500" },
-    { name: "平静", value: 20, color: "#30d158" },
-    { name: "满足", value: 15, color: "#007aff" },
-    { name: "焦虑", value: 12, color: "#ff453a" },
-    { name: "难过", value: 10, color: "#af52de" },
-    { name: "疲惫", value: 8, color: "#ff2d92" },
-    { name: "兴奋", value: 6, color: "#ffcc02" },
-    { name: "其他", value: 4, color: "#8e8e93" },
-  ]
-};
+// 颜色方案已移除 - 等待真实用户数据
 
-const weeklyActivity = [
-  { day: "周一", conversations: 4, duration: 85 },
-  { day: "周二", conversations: 6, duration: 120 },
-  { day: "周三", conversations: 3, duration: 65 },
-  { day: "周四", conversations: 5, duration: 95 },
-  { day: "周五", conversations: 8, duration: 140 },
-  { day: "周六", conversations: 2, duration: 45 },
-  { day: "周日", conversations: 3, duration: 70 },
-];
+// 空的数据数组 - 使用真实用户数据
+const weeklyActivity: Array<{ day: string; conversations: number; duration: number }> = [];
 
-const improvementAreas = [
-  { area: "情绪稳定性", current: 78, target: 85, improvement: "+12%" },
-  { area: "压力管理", current: 65, target: 80, improvement: "+18%" },
-  { area: "睡眠质量", current: 72, target: 85, improvement: "+8%" },
-  { area: "社交信心", current: 58, target: 75, improvement: "+15%" },
-];
+const improvementAreas: Array<{ area: string; current: number; target: number; improvement: string }> = [];
 
-const insights = [
-  {
-    icon: Brain,
-    title: "情绪模式识别",
-    description: "你的情绪在工作日晚上更容易波动，建议在这个时间段增加放松练习。",
-    type: "pattern"
-  },
-  {
-    icon: Target,
-    title: "进步亮点",
-    description: "过去一周你的积极情绪比例提升了23%，继续保持！",
-    type: "achievement"
-  },
-  {
-    icon: Zap,
-    title: "个性化建议",
-    description: "基于你的聊天记录，冥想和深呼吸练习对你最有效。",
-    type: "suggestion"
-  }
-];
+const insights: Array<{ icon: any; title: string; description: string; type: string }> = [];
 
 export function AnalyticsView() {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
-  const [selectedColorScheme, setSelectedColorScheme] = useState("apple");
   
-  // 获取当前选择的颜色方案
-  const currentEmotionData = colorSchemes[selectedColorScheme as keyof typeof colorSchemes];
+  // 使用空数组作为默认值
+  const currentEmotionData = emotionDistribution;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -336,48 +238,7 @@ export function AnalyticsView() {
               transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="space-y-8"
             >
-              {/* 颜色方案选择器 */}
-              <Card className="card-apple rounded-apple-lg shadow-lg">
-                <CardHeader className="spacing-apple-md">
-                  <CardTitle className="text-xl text-apple-title">选择配色方案</CardTitle>
-                  <CardDescription className="text-apple-body">
-                    选择你喜欢的饼图配色风格
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="spacing-apple-md">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Object.entries(colorSchemes).map(([key, scheme]) => (
-                      <button
-                        key={key}
-                        onClick={() => setSelectedColorScheme(key)}
-                        className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                          selectedColorScheme === key 
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
-                        }`}
-                      >
-                        <div className="flex flex-col items-center space-y-2">
-                          <div className="flex space-x-1">
-                            {scheme.slice(0, 3).map((item, idx) => (
-                              <div
-                                key={idx}
-                                className="w-4 h-4 rounded-full"
-                                style={{ backgroundColor: item.color }}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-sm font-medium text-apple-title capitalize">
-                            {key === 'warm' ? '温暖' : 
-                             key === 'pastel' ? '粉彩' : 
-                             key === 'elegant' ? '优雅' : 
-                             key === 'apple' ? 'Apple' : key}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              {/* 颜色方案选择器已移除 - 等待真实数据 */}
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* 大号饼图 */}
