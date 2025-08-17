@@ -38,6 +38,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { useMoodStore } from "@/store/mood";
+import { useSettingsStore } from "@/store/settings";
+import { AI_MODELS } from "@/lib/ai-service";
+import type { AIModel } from "@/lib/ai-service";
 import { toast } from "sonner";
 
 const themeOptions = [
@@ -63,7 +66,10 @@ export function SettingsView() {
     importData 
   } = useMoodStore();
   
-
+  const {
+    selectedModel,
+    setSelectedModel
+  } = useSettingsStore();
   
   // 本地状态
   const [userName, setUserName] = useState("情绪疏导用户");
@@ -179,10 +185,14 @@ export function SettingsView() {
         transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         <Tabs defaultValue="account" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
             <TabsTrigger value="account" className="flex items-center space-x-2">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">账户</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="flex items-center space-x-2">
+              <Bot className="w-4 h-4" />
+              <span className="hidden sm:inline">AI</span>
             </TabsTrigger>
             <TabsTrigger value="appearance" className="flex items-center space-x-2">
               <Palette className="w-4 h-4" />
@@ -275,7 +285,70 @@ export function SettingsView() {
             </Card>
           </TabsContent>
 
+          {/* AI设置 */}
+          <TabsContent value="ai" className="space-y-6">
+            <Card className="card-apple">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Bot className="w-5 h-5 text-blue-500" />
+                  <span>AI模型设置</span>
+                </CardTitle>
+                <CardDescription>
+                  选择你偏好的AI助手模型
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* 模型选择 */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">选择AI模型</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(AI_MODELS).map(([key, model]) => (
+                      <motion.div
+                        key={key}
+                        whileTap={{ scale: 0.98 }}
+                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                          selectedModel === key
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                        }`}
+                        onClick={() => setSelectedModel(key as AIModel)}
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className="text-2xl">{model.icon}</div>
+                          <div className="flex-1">
+                            <h3 className="font-medium text-apple-title">{model.name}</h3>
+                            <p className="text-sm text-apple-caption mt-1">{model.description}</p>
+                            {selectedModel === key && (
+                              <Badge className="mt-2 bg-blue-500 text-white">当前选择</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
 
+                <Separator />
+
+                {/* 当前状态 */}
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium text-apple-title">当前配置</h4>
+                      <p className="text-sm text-apple-caption mt-1">
+                        模型: {AI_MODELS[selectedModel].name} • 
+                        状态: 已配置（服务器端）
+                      </p>
+                      <p className="text-xs text-apple-caption mt-2">
+                        API密钥通过服务器端环境变量管理，确保安全性
+                      </p>
+                    </div>
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* 外观设置 */}
           <TabsContent value="appearance" className="space-y-6">
