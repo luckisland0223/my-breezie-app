@@ -107,7 +107,7 @@ export function AnalyticsView() {
           </CardHeader>
           <CardContent className="spacing-apple-lg">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {insights.map((insight, index) => (
+              {insights.length > 0 ? insights.map((insight, index) => (
                 <motion.div
                   key={insight.title}
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -138,7 +138,13 @@ export function AnalyticsView() {
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              )) : (
+                <div className="col-span-3 text-center py-12">
+                  <Brain className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">暂无分析洞察</h4>
+                  <p className="text-sm text-gray-500">继续使用应用，我们将为您生成个性化的情绪分析报告</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -257,7 +263,7 @@ export function AnalyticsView() {
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <defs>
-                            {currentEmotionData.map((entry, index) => (
+                            {currentEmotionData.length > 0 && currentEmotionData.map((entry, index) => (
                               <linearGradient key={index} id={`gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" style={{ stopColor: entry.color, stopOpacity: 1 }} />
                                 <stop offset="100%" style={{ stopColor: entry.color, stopOpacity: 0.8 }} />
@@ -277,7 +283,7 @@ export function AnalyticsView() {
                             stroke="rgba(255,255,255,0.8)"
                             strokeWidth={2}
                           >
-                            {currentEmotionData.map((entry, index) => (
+                            {currentEmotionData.length > 0 && currentEmotionData.map((entry, index) => (
                               <Cell 
                                 key={`cell-${index}`} 
                                 fill={`url(#gradient-${index})`}
@@ -313,7 +319,7 @@ export function AnalyticsView() {
                   </CardHeader>
                   <CardContent className="spacing-apple-lg">
                     <div className="space-y-4">
-                      {currentEmotionData.map((emotion, index) => (
+                      {currentEmotionData.length > 0 ? currentEmotionData.map((emotion, index) => (
                         <motion.div 
                           key={emotion.name}
                           initial={{ opacity: 0, x: -20 }}
@@ -362,7 +368,13 @@ export function AnalyticsView() {
                             </div>
                           </div>
                         </motion.div>
-                      ))}
+                      )) : (
+                        <div className="text-center py-12">
+                          <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <h4 className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">暂无情绪数据</h4>
+                          <p className="text-sm text-gray-500">开始记录您的情绪，我们将为您生成详细的分析报告</p>
+                        </div>
+                      )}
                     </div>
                     
                     {/* 情绪分析总结 */}
@@ -372,18 +384,24 @@ export function AnalyticsView() {
                         <div>
                           <span className="font-medium text-apple-title">主导情绪：</span>
                           <span className="text-apple-body ml-2">
-                            {currentEmotionData.reduce((prev, current) => 
-                              prev.value > current.value ? prev : current
-                            ).name} ({currentEmotionData.reduce((prev, current) => 
-                              prev.value > current.value ? prev : current
-                            ).value}%)
+                            {currentEmotionData.length > 0 
+                              ? `${currentEmotionData.reduce((prev, current) => 
+                                  prev.value > current.value ? prev : current
+                                ).name} (${currentEmotionData.reduce((prev, current) => 
+                                  prev.value > current.value ? prev : current
+                                ).value}%)`
+                              : '暂无数据'
+                            }
                           </span>
                         </div>
                         <div>
                           <span className="font-medium text-apple-title">情绪稳定性：</span>
                           <span className="text-apple-body ml-2">
-                            {currentEmotionData.filter(e => ['开心', '平静'].includes(e.name))
-                              .reduce((sum, e) => sum + e.value, 0) > 50 ? '良好' : '需关注'}
+                            {currentEmotionData.length > 0
+                              ? (currentEmotionData.filter(e => ['开心', '平静'].includes(e.name))
+                                  .reduce((sum, e) => sum + e.value, 0) > 50 ? '良好' : '需关注')
+                              : '暂无数据'
+                            }
                           </span>
                         </div>
                       </div>
@@ -466,7 +484,7 @@ export function AnalyticsView() {
                 </CardHeader>
                 <CardContent className="spacing-apple-lg">
                   <div className="space-y-6">
-                    {improvementAreas.map((area, index) => (
+                    {improvementAreas.length > 0 ? improvementAreas.map((area, index) => (
                       <motion.div
                         key={area.area}
                         initial={{ opacity: 0, x: -20 }}
@@ -495,7 +513,13 @@ export function AnalyticsView() {
                           </div>
                         </div>
                       </motion.div>
-                    ))}
+                    )) : (
+                      <div className="text-center py-12">
+                        <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h4 className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">暂无改善数据</h4>
+                        <p className="text-sm text-gray-500">继续使用应用，我们将为您生成个性化的改善建议</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
