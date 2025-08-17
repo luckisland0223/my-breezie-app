@@ -333,8 +333,8 @@ export function SettingsView() {
                     <div>
                       <h4 className="font-medium text-apple-title">当前配置</h4>
                       <p className="text-sm text-apple-caption mt-1">
-                        模型: {AI_MODELS[selectedModel].name} • 
-                        状态: 已配置（服务器端）
+                        模型: {selectedModel ? AI_MODELS[selectedModel].name : '未选择'} • 
+                        状态: {selectedModel ? '已配置（服务器端）' : '未配置'}
                       </p>
                       <p className="text-xs text-apple-caption mt-2">
                         API密钥通过服务器端环境变量管理，确保安全性

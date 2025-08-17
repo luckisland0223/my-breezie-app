@@ -2,15 +2,16 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, User, Heart, Sparkles, ArrowLeft } from "lucide-react";
+import { Send, Bot, User, Heart, Sparkles, ArrowLeft, AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
-import { AIServiceFactory } from "@/lib/ai-service";
-import type { AIServiceInterface } from "@/lib/ai-service";
+import { AI_MODELS, type AIModel } from "@/lib/ai-service";
 import { useSettingsStore } from "@/store/settings";
+import { AISelectionDialog } from "./AISelectionDialog";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -174,15 +175,24 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
+  const [showAISelection, setShowAISelection] = useState(false);
+  const [currentUsedModel, setCurrentUsedModel] = useState<AIModel | null>(null);
+  const [modelSwitched, setModelSwitched] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
   
   // 获取AI设置
-  const { selectedModel } = useSettingsStore();
+  const { selectedModel, hasSelectedInitialModel, setSelectedModel } = useSettingsStore();
+
+  // 检查是否需要显示AI选择对话框
+  useEffect(() => {
+    if (!hasSelectedInitialModel) {
+      setShowAISelection(true);
+    }
+  }, [hasSelectedInitialModel]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -228,6 +238,12 @@ export function ChatInterface() {
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
+    
+    // 检查是否已选择AI模型
+    if (!selectedModel) {
+      setShowAISelection(true);
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -240,6 +256,7 @@ export function ChatInterface() {
     const currentInput = inputValue;
     setInputValue("");
     setIsLoading(true);
+    setModelSwitched(false);
 
     try {
       // 获取对话历史
@@ -274,6 +291,20 @@ export function ChatInterface() {
         throw new Error(data.error);
       }
       
+      // 更新当前使用的模型和切换状态
+      setCurrentUsedModel(data.usedModel);
+      setModelSwitched(data.switchedModel);
+      
+      // 如果模型被自动切换，显示通知
+      if (data.switchedModel && data.usedModel && selectedModel) {
+        const usedModelName = AI_MODELS[data.usedModel as AIModel].name;
+        const originalModelName = AI_MODELS[selectedModel].name;
+        toast.info(`${originalModelName} 暂时不可用，已自动切换到 ${usedModelName}`);
+        
+        // 可选：自动更新用户的首选模型
+        setSelectedModel(data.usedModel);
+      }
+      
       // 将AI响应分割成多个消息块
       const messageChunks = splitMessageIntoChunks(data.response);
       
@@ -285,7 +316,7 @@ export function ChatInterface() {
       
       // 显示具体的错误信息
       const errorMsg = error instanceof Error ? error.message : '未知错误';
-      toast.error(`API错误: ${errorMsg}`);
+      toast.error(`AI服务错误: ${errorMsg}`);
       
       // 添加错误消息
       const errorMessage: Message = {
@@ -339,10 +370,33 @@ export function ChatInterface() {
             </div>
             <div>
               <h2 className="font-semibold text-gray-900 dark:text-white">Breezie AI</h2>
-              <p className="text-sm text-green-600 dark:text-green-400">情绪疏导助手 • 在线</p>
+              <div className="flex items-center space-x-2">
+                <p className="text-sm text-green-600 dark:text-green-400">情绪疏导助手 • 在线</p>
+                {currentUsedModel && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs text-gray-500">•</span>
+                    <span className="text-xs text-gray-500">
+                      {AI_MODELS[currentUsedModel].name}
+                    </span>
+                    {modelSwitched && (
+                      <AlertTriangle className="w-3 h-3 text-amber-500" />
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
+        
+        {/* AI状态指示器 */}
+        {modelSwitched && (
+          <Alert className="mx-6 mt-2 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800 dark:text-amber-200">
+              原AI模型暂时不可用，已自动切换到 {currentUsedModel && AI_MODELS[currentUsedModel].name}
+            </AlertDescription>
+          </Alert>
+        )}
       </motion.div>
 
       {/* Messages Container - Scrollable middle area */}
@@ -470,7 +524,11 @@ export function ChatInterface() {
         </div>
       </motion.div>
 
-
+      {/* AI选择对话框 */}
+      <AISelectionDialog 
+        open={showAISelection} 
+        onOpenChange={setShowAISelection}
+      />
     </div>
   );
 }
