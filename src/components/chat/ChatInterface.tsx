@@ -282,12 +282,15 @@ export function ChatInterface() {
       
     } catch (error) {
       console.error('Error in chat:', error);
-      toast.error('抱歉，我遇到了一些问题。请稍后再试。');
+      
+      // 显示具体的错误信息
+      const errorMsg = error instanceof Error ? error.message : '未知错误';
+      toast.error(`API错误: ${errorMsg}`);
       
       // 添加错误消息
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "抱歉，我现在遇到了一些技术问题，请稍后再试。如果问题持续，请检查你的网络连接或API密钥设置。",
+        content: `抱歉，我现在遇到了技术问题：${errorMsg}。请稍后再试，或联系管理员检查服务器配置。`,
         role: "assistant",
         timestamp: new Date(),
       };
