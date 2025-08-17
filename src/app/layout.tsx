@@ -8,7 +8,11 @@ import { MainLayout } from "@/components/layout/MainLayout";
 export const metadata: Metadata = {
 	title: "Breezie - 情绪疏导AI助手",
 	description: "feeling first, healing follows - 通过AI聊天帮助您疏导情绪，记录和分析情绪变化",
-	icons: [{ rel: "icon", url: "/favicon.ico" }],
+	icons: [
+		{ rel: "icon", url: "/icon.png" },
+		{ rel: "apple-touch-icon", url: "/icon.png" },
+		{ rel: "shortcut icon", url: "/icon.png" }
+	],
 };
 
 const geist = Geist({
