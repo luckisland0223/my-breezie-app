@@ -208,7 +208,7 @@ export function HomePage() {
 
 
         {/* 分类选择器 */}
-        <div className="max-w-4xl mx-auto mb-8">
+        <div className="max-w-6xl mx-auto mb-8 flex flex-col items-center">
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             {Object.entries(categoryLabels).map(([category, categoryData]) => {
               const emotions = emotionsByCategory[category] || [];
@@ -242,7 +242,7 @@ export function HomePage() {
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+              <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4 justify-items-center">
                 {getVisibleEmotions(selectedCategory).map((emotion) => (
                   <motion.button
                     key={emotion.key}
@@ -257,7 +257,7 @@ export function HomePage() {
                             const categoryData = categoryLabels[emotion.category as keyof typeof categoryLabels];
                             return `${categoryData?.bgColor || 'bg-gray-50'} border-gray-200 hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:hover:border-gray-600`;
                           })()
-                    } group min-h-[100px] flex flex-col items-center justify-center`}
+                    } group min-h-[100px] min-w-[90px] flex flex-col items-center justify-center`}
                   >
                     <div className="text-3xl mb-2">{emotion.emoji}</div>
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">

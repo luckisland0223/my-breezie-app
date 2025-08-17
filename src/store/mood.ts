@@ -3,12 +3,14 @@ import { persist } from 'zustand/middleware';
 
 // 完整的情绪分类系统 - 按5大类别组织
 export const emotionCategories = {
-  // 基本情绪 - 最常见的4种基础情绪
+  // 基本情绪 - 最常见的6种基础情绪
   basic: {
     happy: { score: 8, label: "开心", emoji: "😄", description: "发自内心的快乐", intensity: "high", basicEmotion: "positive" },
     sad: { score: 3, label: "难过", emoji: "😢", description: "心情低落和难过", intensity: "medium", basicEmotion: "negative" },
     anxious: { score: 3, label: "焦虑", emoji: "😰", description: "持续的不安和担心", intensity: "medium", basicEmotion: "negative" },
     calm: { score: 6, label: "平静", emoji: "😐", description: "情绪稳定的状态", intensity: "neutral", basicEmotion: "neutral" },
+    angry: { score: 3, label: "生气", emoji: "😠", description: "强烈的愤怒情绪", intensity: "medium", basicEmotion: "negative" },
+    surprised: { score: 7, label: "惊喜", emoji: "😲", description: "意外的喜悦", intensity: "medium", basicEmotion: "positive" },
   },
   
   // 积极情绪 (7-10分)
@@ -17,15 +19,22 @@ export const emotionCategories = {
     content: { score: 7, label: "满足", emoji: "😊", description: "对现状感到满意", intensity: "medium", basicEmotion: "positive" },
     grateful: { score: 8, label: "感恩", emoji: "🙏", description: "对他人善意的感激", intensity: "medium", basicEmotion: "positive" },
     hopeful: { score: 7, label: "充满希望", emoji: "🌟", description: "对未来的积极期待", intensity: "medium", basicEmotion: "positive" },
+    joyful: { score: 9, label: "喜悦", emoji: "😁", description: "内心深处的快乐", intensity: "high", basicEmotion: "positive" },
+    proud: { score: 8, label: "自豪", emoji: "😤", description: "为成就感到骄傲", intensity: "medium", basicEmotion: "positive" },
+    peaceful: { score: 7, label: "安详", emoji: "😇", description: "内心平和宁静", intensity: "low", basicEmotion: "positive" },
+    energetic: { score: 8, label: "充满活力", emoji: "🔥", description: "精力充沛的状态", intensity: "high", basicEmotion: "positive" },
   },
   
   // 消极情绪 (1-4分)
   negative: {
-    angry: { score: 3, label: "愤怒", emoji: "😠", description: "强烈的不满", intensity: "medium", basicEmotion: "negative" },
     frustrated: { score: 4, label: "沮丧", emoji: "😫", description: "因阻碍而产生的愤怒", intensity: "medium", basicEmotion: "negative" },
     lonely: { score: 3, label: "孤独", emoji: "😞", description: "感到被孤立", intensity: "medium", basicEmotion: "negative" },
     stressed: { score: 2, label: "压力大", emoji: "😵", description: "承受过多压力", intensity: "high", basicEmotion: "negative" },
     disappointed: { score: 4, label: "失望", emoji: "😔", description: "期望落空的失落", intensity: "low", basicEmotion: "negative" },
+    worried: { score: 3, label: "担心", emoji: "😟", description: "对未来的忧虑", intensity: "medium", basicEmotion: "negative" },
+    jealous: { score: 3, label: "嫉妒", emoji: "😒", description: "对他人的羡慕嫉妒", intensity: "medium", basicEmotion: "negative" },
+    guilty: { score: 2, label: "内疚", emoji: "😣", description: "为过错感到自责", intensity: "low", basicEmotion: "negative" },
+    hopeless: { score: 1, label: "绝望", emoji: "😩", description: "完全失去希望", intensity: "high", basicEmotion: "negative" },
   },
   
   // 中性情绪 (5-6分)
@@ -33,6 +42,9 @@ export const emotionCategories = {
     tired: { score: 5, label: "疲惫", emoji: "😴", description: "身心俱疲的状态", intensity: "neutral", basicEmotion: "neutral" },
     bored: { score: 5, label: "无聊", emoji: "😪", description: "缺乏兴趣", intensity: "neutral", basicEmotion: "neutral" },
     confused: { score: 5, label: "困惑", emoji: "😕", description: "不理解当前情况", intensity: "neutral", basicEmotion: "neutral" },
+    indifferent: { score: 5, label: "无所谓", emoji: "😑", description: "对事情漠不关心", intensity: "neutral", basicEmotion: "neutral" },
+    curious: { score: 6, label: "好奇", emoji: "🤔", description: "对事物的探索欲", intensity: "neutral", basicEmotion: "neutral" },
+    thoughtful: { score: 6, label: "深思", emoji: "🤨", description: "认真思考问题", intensity: "neutral", basicEmotion: "neutral" },
   },
   
   // 复杂情绪 - 多层次的情感状态
@@ -41,6 +53,10 @@ export const emotionCategories = {
     overwhelmed: { score: 4, label: "不知所措", emoji: "😵‍💫", description: "面对太多事情感到无力", intensity: "high", basicEmotion: "negative" },
     conflicted: { score: 5, label: "矛盾", emoji: "😬", description: "内心有相互冲突的想法", intensity: "medium", basicEmotion: "neutral" },
     empty: { score: 4, label: "空虚", emoji: "😶", description: "内心感到空洞和无意义", intensity: "low", basicEmotion: "negative" },
+    embarrassed: { score: 4, label: "尴尬", emoji: "😳", description: "感到羞愧和不自在", intensity: "medium", basicEmotion: "negative" },
+    relieved: { score: 7, label: "解脱", emoji: "😮‍💨", description: "压力释放后的轻松", intensity: "medium", basicEmotion: "positive" },
+    melancholy: { score: 4, label: "忧郁", emoji: "😔", description: "淡淡的忧伤和沉思", intensity: "low", basicEmotion: "negative" },
+    restless: { score: 4, label: "焦躁", emoji: "😤", description: "内心不安静", intensity: "medium", basicEmotion: "negative" },
   }
 } as const;
 
