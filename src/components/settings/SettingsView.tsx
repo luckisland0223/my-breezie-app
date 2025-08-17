@@ -18,9 +18,6 @@ import {
   VolumeX,
   RotateCcw,
   Heart,
-  Github,
-  Mail,
-  Globe,
   Save,
   Bot,
   Brain,
@@ -587,31 +584,7 @@ export function SettingsView() {
         </Tabs>
       </motion.div>
 
-      {/* Footer */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.8 }}
-        className="text-center py-8 border-t border-gray-200/50 dark:border-gray-700/50"
-      >
-        <div className="flex justify-center items-center space-x-6 mb-4">
-          <Button variant="ghost" size="sm" className="text-apple-caption hover:text-apple-body">
-            <Github className="w-4 h-4 mr-2" />
-            GitHub
-          </Button>
-          <Button variant="ghost" size="sm" className="text-apple-caption hover:text-apple-body">
-            <Mail className="w-4 h-4 mr-2" />
-            反馈
-          </Button>
-          <Button variant="ghost" size="sm" className="text-apple-caption hover:text-apple-body">
-            <Globe className="w-4 h-4 mr-2" />
-            官网
-          </Button>
-        </div>
-        <p className="text-sm text-apple-caption">
-          Breezie v1.0.0 • Made with <Heart className="w-4 h-4 inline text-red-500" /> for mental wellness
-        </p>
-      </motion.div>
+
     </div>
   );
 }
