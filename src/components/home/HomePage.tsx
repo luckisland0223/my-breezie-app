@@ -17,11 +17,18 @@ import {
   Zap,
   Star,
   Play,
-  Filter
+  Filter,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 // 情绪分类的中文标签
 const categoryLabels = {
@@ -63,13 +70,21 @@ const quickActions = [
 
 // 移除静态数据，改为动态获取
 
+// 定义显示在主界面的4个基本情绪
+const basicEmotions = ['happy', 'sad', 'anxious', 'calm'];
+
 export function HomePage() {
   const router = useRouter();
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   // 获取所有情绪数据
   const allEmotions = getAllEmotions();
+  
+  // 获取基本情绪数据
+  const basicEmotionsData = allEmotions.filter(emotion => basicEmotions.includes(emotion.key));
+  
+  // 获取其他情绪数据（用于下拉列表）
+  const otherEmotions = allEmotions.filter(emotion => !basicEmotions.includes(emotion.key));
   
   // 获取情绪数据
   const {
@@ -220,92 +235,56 @@ export function HomePage() {
           <p className="text-lg text-apple-body">选择一个最贴近你现在心情的情绪</p>
         </div>
 
-        {/* 情绪分类选择器 */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
-          <motion.button
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.7, duration: 0.5 }}
-            onClick={() => setSelectedCategory(null)}
-            className={`px-6 py-3 rounded-full border-2 transition-all duration-300 ${
-              selectedCategory === null 
-                ? 'bg-blue-500 text-white border-blue-500 shadow-lg' 
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-300'
-            }`}
-          >
-            <Filter className="w-4 h-4 inline mr-2" />
-            基本情绪
-          </motion.button>
-          
-          {Object.entries(categoryLabels).map(([categoryKey, categoryData], index) => (
-            <motion.button
-              key={categoryKey}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.7 + (index + 1) * 0.1, duration: 0.5 }}
-              onClick={() => setSelectedCategory(categoryKey)}
-              className={`px-6 py-3 rounded-full border-2 transition-all duration-300 ${
-                selectedCategory === categoryKey 
-                  ? `${categoryData.bgColor} ${categoryData.color} border-current shadow-lg` 
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-300'
-              }`}
-            >
-              <span className="mr-2">{categoryData.icon}</span>
-              {categoryData.label}
-            </motion.button>
-          ))}
-        </div>
 
 
 
-        {/* 情绪网格 */}
-        <motion.div 
-          layout
-          className="grid gap-4 max-w-6xl mx-auto mb-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
-        >
-          {allEmotions
-            .filter(emotion => selectedCategory === null || emotion.category === selectedCategory)
-            .map((emotion, index) => (
-            <motion.button
+
+        {/* 情绪选择区域 */}
+        <div className="grid grid-cols-5 gap-4 max-w-2xl mx-auto mb-8">
+          {/* 前4个基本情绪 */}
+          {basicEmotionsData.map((emotion) => (
+            <button
               key={emotion.key}
-              layout
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ 
-                opacity: 1, 
-                scale: selectedEmotion === emotion.key ? 1.05 : 1,
-                transition: { 
-                  delay: index * 0.05,
-                  duration: 0.5, 
-                  ease: [0.16, 1, 0.3, 1] 
-                }
-              }}
-
-              whileTap={{ 
-                scale: 0.95,
-                transition: { duration: 0.1, ease: [0.16, 1, 0.3, 1] }
-              }}
               onClick={() => handleEmotionSelect(emotion.key)}
-              className={`p-4 rounded-2xl border-2 transition-all duration-300 ${emotion.color} ${
-                selectedEmotion === emotion.key ? 'ring-4 ring-blue-500/30 shadow-xl' : 'shadow-md'
-              } group relative overflow-hidden`}
+              className={`p-4 rounded-2xl border-2 transition-all duration-200 ${emotion.color} ${
+                selectedEmotion === emotion.key ? 'ring-4 ring-blue-500/30 shadow-xl' : 'shadow-md hover:shadow-lg'
+              } group relative`}
             >
-              {/* 情绪分数标签 */}
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <Badge variant="secondary" className="text-xs bg-white/80 text-gray-700">
-                  {emotion.score}分
-                </Badge>
-              </div>
-              
               <div className="text-3xl mb-2">{emotion.emoji}</div>
-              <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {emotion.label}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
-                {emotion.description}
-              </div>
-            </motion.button>
+            </button>
           ))}
-        </motion.div>
+          
+          {/* 第5个位置：更多情绪下拉列表 */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 shadow-md hover:shadow-lg transition-all duration-200 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-700 group">
+                <div className="text-3xl mb-2">⋯</div>
+                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  更多
+                </div>
+                <ChevronDown className="w-4 h-4 mx-auto text-gray-500" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 max-h-64 overflow-y-auto">
+              {otherEmotions.map((emotion) => (
+                <DropdownMenuItem
+                  key={emotion.key}
+                  onClick={() => handleEmotionSelect(emotion.key)}
+                  className="flex items-center gap-3 p-3 cursor-pointer"
+                >
+                  <span className="text-xl">{emotion.emoji}</span>
+                  <div className="flex-1">
+                    <div className="font-medium">{emotion.label}</div>
+                    <div className="text-xs text-gray-500">{emotion.score}分</div>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         
         {/* 选择反馈 */}
         {selectedEmotion && (
