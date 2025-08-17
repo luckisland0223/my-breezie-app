@@ -215,11 +215,7 @@ export function AnalyticsView() {
                     duration: 0.5, 
                     ease: [0.16, 1, 0.3, 1] 
                   }}
-                  whileHover={{ 
-                    y: -4, 
-                    scale: 1.02,
-                    transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } 
-                  }}
+
                   className="card-apple rounded-apple-md spacing-apple-md hover:shadow-lg transition-all duration-300"
                 >
                   <div className="flex items-start gap-4">

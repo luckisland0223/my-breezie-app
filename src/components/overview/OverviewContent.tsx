@@ -241,11 +241,7 @@ export function OverviewContent() {
               duration: 0.5, 
               ease: [0.16, 1, 0.3, 1] 
             }}
-            whileHover={{ 
-              y: -4, 
-              scale: 1.02,
-              transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } 
-            }}
+
           >
             <Card className={`card-apple rounded-apple-lg bg-gradient-to-br ${stat.bg} dark:from-gray-800/60 dark:to-gray-700/60 hover:shadow-xl transition-all duration-300`}>
               <CardContent className="spacing-apple-lg text-center">
@@ -326,7 +322,6 @@ export function OverviewContent() {
                         duration: 0.3, 
                         ease: [0.16, 1, 0.3, 1] 
                       }}
-                      whileHover={dayData.hasData ? { scale: 1.05, y: -2 } : {}}
                       whileTap={dayData.hasData ? { scale: 0.95 } : {}}
                       className="w-16 h-16"
                     >

@@ -312,11 +312,7 @@ export function HomePage() {
                   ease: [0.16, 1, 0.3, 1] 
                 }
               }}
-              whileHover={{ 
-                scale: selectedEmotion === emotion.key ? 1.08 : 1.1, 
-                y: -8,
-                transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } 
-              }}
+
               whileTap={{ 
                 scale: 0.95,
                 transition: { duration: 0.1, ease: [0.16, 1, 0.3, 1] }
@@ -403,10 +399,7 @@ export function HomePage() {
                 duration: 0.6, 
                 ease: [0.16, 1, 0.3, 1] 
               }}
-              whileHover={{ 
-                y: -12, 
-                transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } 
-              }}
+
             >
               <Card 
                 className="h-full card-apple rounded-3xl hover:shadow-2xl transition-all duration-300 cursor-pointer group border-0 overflow-hidden"
@@ -457,11 +450,7 @@ export function HomePage() {
                 duration: 0.5, 
                 ease: [0.16, 1, 0.3, 1] 
               }}
-              whileHover={{ 
-                y: -6, 
-                scale: 1.05,
-                transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } 
-              }}
+
             >
               <Card className="card-apple rounded-2xl hover:shadow-xl transition-all duration-300 border-0">
                 <CardContent className="p-6 text-center">

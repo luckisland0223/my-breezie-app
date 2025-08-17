@@ -88,9 +88,7 @@ export function LeftSidebar() {
           transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="flex items-center space-x-3 p-6 border-b border-gray-200/30 dark:border-gray-700/30"
         >
-          <motion.div 
-            whileHover={{ rotate: 5, scale: 1.05 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          <motion.div
             className="w-12 h-12 rounded-apple-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-xl"
           >
             <Heart className="w-7 h-7 text-white" />
@@ -120,10 +118,7 @@ export function LeftSidebar() {
                   duration: 0.4, 
                   ease: [0.16, 1, 0.3, 1] 
                 }}
-                whileHover={{ 
-                  x: 4,
-                  transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } 
-                }}
+
               >
                 <button
                   onClick={() => router.push(item.href)}
