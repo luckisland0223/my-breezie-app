@@ -101,12 +101,20 @@ const splitMessageIntoChunks = (content: string): string[] => {
   return chunks.length > 0 ? chunks : [content];
 };
 
-// 欢迎消息
-const WELCOME_MESSAGE: Message = {
-  id: "welcome",
-  content: "嗨，亲爱的朋友！我是Breezie 💙\n\n很高兴在这里遇见你。这是一个安全温暖的空间，你可以自由地分享任何感受 - 无论是喜悦、困惑、焦虑还是任何其他情绪，我都会用心倾听。\n\n每一种感受都有它存在的意义，而你的每一个想法对我来说都很重要。\n\n今天的你感觉怎么样呢？愿意和我分享一下吗？ 🌸",
-  role: "assistant",
-  timestamp: new Date(),
+// 动态生成个性化欢迎消息
+const getWelcomeMessage = (): Message => {
+  // 导入对话记忆系统
+  const { generatePersonalizedOpener } = require('@/lib/conversation-memory');
+  
+  // 生成个性化开场白
+  const personalizedContent = generatePersonalizedOpener();
+  
+  return {
+    id: "welcome",
+    content: personalizedContent,
+    role: "assistant",
+    timestamp: new Date(),
+  };
 };
 
 // 打字动画组件
