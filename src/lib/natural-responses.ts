@@ -1,7 +1,23 @@
 // 自然语言响应系统 - 让Breezie的回复更加多样化和人性化
 
+// 情感响应模板类型
+type EmotionalResponse = {
+  acknowledgment?: string[];
+  followUp?: string[];
+  encouragement?: string[];
+  validation?: string[];
+  comfort?: string[];
+  support?: string[];
+  immediate?: string[];
+  grounding?: string[];
+  reassurance?: string[];
+  calming?: string[];
+  exploration?: string[];
+  clarity?: string[];
+};
+
 // 情感响应模板
-export const EMOTIONAL_RESPONSES = {
+export const EMOTIONAL_RESPONSES: Record<string, EmotionalResponse> = {
   // 开心情绪的响应
   happy: {
     acknowledgment: [
@@ -232,7 +248,7 @@ export const PERSONAL_EXPRESSIONS = {
 
 // 根据情绪生成自然响应
 export function generateNaturalResponse(emotion: string, context?: string): string {
-  const responses = EMOTIONAL_RESPONSES[emotion as keyof typeof EMOTIONAL_RESPONSES];
+  const responses = EMOTIONAL_RESPONSES[emotion];
   if (!responses) {
     return "我能感受到你现在的情绪，想聊聊吗？";
   }
@@ -258,11 +274,11 @@ export function generateNaturalResponse(emotion: string, context?: string): stri
   }
 
   // 添加后续问题或支持
-  const followUpSections = ['followUp', 'support', 'exploration'];
-  const availableSection = followUpSections.find(section => responses[section as keyof typeof responses]);
+  const followUpSections: Array<keyof EmotionalResponse> = ['followUp', 'support', 'exploration'];
+  const availableSection = followUpSections.find(section => responses[section]);
   
   if (availableSection) {
-    const sectionResponses = responses[availableSection as keyof typeof responses] as string[];
+    const sectionResponses = responses[availableSection] as string[];
     const randomFollowUp = sectionResponses[Math.floor(Math.random() * sectionResponses.length)];
     parts.push(randomFollowUp);
   }
@@ -337,8 +353,8 @@ export function generatePersonalizedSuggestion(emotion: string, previousSuggesti
 
 // 生成情感共鸣的回应
 export function generateEmpathyResponse(): string {
-  const empathy = EMPATHY_PHRASES[Math.floor(Math.random() * EMPATHY_PHRASES.length)];
-  const encouragement = ENCOURAGEMENT_PHRASES[Math.floor(Math.random() * ENCOURAGEMENT_PHRASES.length)];
+  const empathy = EMPATHY_PHRASES[Math.floor(Math.random() * EMPATHY_PHRASES.length)] || "我能理解你的感受";
+  const encouragement = ENCOURAGEMENT_PHRASES[Math.floor(Math.random() * ENCOURAGEMENT_PHRASES.length)] || "你已经很努力了";
   
   if (Math.random() < 0.6) {
     return empathy;
@@ -377,6 +393,7 @@ export function generateNaturalClosing(emotion: string): string {
     closingType = 'gentle';
   }
   
-  const selectedClosings = closings[closingType as keyof typeof closings];
-  return selectedClosings[Math.floor(Math.random() * selectedClosings.length)];
+  const selectedClosings = closings[closingType as keyof typeof closings] as string[];
+  const picked = selectedClosings[Math.floor(Math.random() * selectedClosings.length)] || "我会一直在这里陪着你";
+  return picked;
 }

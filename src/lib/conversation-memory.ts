@@ -282,7 +282,7 @@ export const useConversationMemory = create<ConversationMemoryState>()(
           t.topic.includes(topic) && 
           new Date(t.timestamp).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000 // 7天内
         );
-        return !!recentTopic && !recentTopic.resolution;
+        return !!recentTopic && !recentTopic?.resolution;
       },
       
       // 记录互动
@@ -316,7 +316,7 @@ export const useConversationMemory = create<ConversationMemoryState>()(
         }
         
         if (state.conversationContext.recentTopics.length > 0) {
-          const recentTopic = state.conversationContext.recentTopics[0];
+          const recentTopic = state.conversationContext.recentTopics[0]!;
           summary.push(`最近话题: ${recentTopic.topic} (${recentTopic.emotionalState})`);
         }
         
@@ -375,8 +375,8 @@ export const generatePersonalizedOpener = (): string => {
   // 如果有未解决的关注点
   const activeConcerns = memory.conversationContext.ongoingConcerns.filter(c => c.status === 'active');
   if (activeConcerns.length > 0) {
-    const concern = activeConcerns[0];
-    return `嗨！想起来上次你提到的${concern.concern}，现在感觉怎么样了？`;
+    const concernItem = activeConcerns[0]!;
+    return `嗨！想起来上次你提到的${concernItem.concern}，现在感觉怎么样了？`;
   }
   
   // 如果有最近的积极里程碑
