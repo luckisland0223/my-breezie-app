@@ -289,11 +289,19 @@ export function ChatInterface() {
         }),
       });
 
+      let data: any;
       if (!response.ok) {
-        throw new Error('API调用失败');
+        // 尝试读取服务端的错误详情
+        try {
+          data = await response.json();
+          throw new Error(data?.error || `API调用失败 (${response.status})`);
+        } catch (_) {
+          // 如果不是JSON，退回到状态码
+          throw new Error(`API调用失败 (${response.status})`);
+        }
+      } else {
+        data = await response.json();
       }
-
-      const data = await response.json();
       
       if (data.error) {
         throw new Error(data.error);
