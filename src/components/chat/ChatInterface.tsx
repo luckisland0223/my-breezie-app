@@ -180,7 +180,7 @@ function MessageContent({ content }: { content: string }) {
 }
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
+  const [messages, setMessages] = useState<Message[]>([getWelcomeMessage()]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
