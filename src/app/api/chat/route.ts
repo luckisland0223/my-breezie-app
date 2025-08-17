@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AIServiceFactory, type AIModel } from '@/lib/ai-service';
+import { AIServiceFactory } from '@/lib/ai-service';
 import { useConversationMemory, extractUserInfoFromMessage, generatePersonalizedOpener } from '@/lib/conversation-memory';
 import { generateNaturalResponse, addPersonalTouch, generatePersonalizedSuggestion, generateEmpathyResponse, generateNaturalClosing } from '@/lib/natural-responses';
 
@@ -7,38 +7,25 @@ export async function POST(request: NextRequest) {
   const totalStartTime = Date.now();
   
   try {
-    const { message, conversationHistory, model } = await request.json();
+    const { message, conversationHistory } = await request.json();
 
-    if (!message || !model) {
+    if (!message) {
       return NextResponse.json(
-        { error: '缺少必要参数' },
+        { error: '消息内容不能为空' },
         { status: 400 }
       );
     }
 
-    let usedModel = model;
-    let switchedModel = false;
-
-    // 尝试创建AI服务
+    // 固定使用DeepSeek模型
     let aiService;
     try {
-      aiService = AIServiceFactory.createService(model);
+      aiService = AIServiceFactory.createService('deepseek');
     } catch (error) {
-      console.error(`Failed to create ${model} service:`, error);
-      
-      // 尝试备用模型
-      const fallbackModel = model === 'gemini' ? 'deepseek' : 'gemini';
-      try {
-        aiService = AIServiceFactory.createService(fallbackModel);
-        usedModel = fallbackModel;
-        switchedModel = true;
-      } catch (fallbackError) {
-        console.error(`Fallback model ${fallbackModel} also failed:`, fallbackError);
-        return NextResponse.json(
-          { error: '所有AI服务暂时不可用，请稍后再试' },
-          { status: 503 }
-        );
-      }
+      console.error('Failed to create DeepSeek service:', error);
+      return NextResponse.json(
+        { error: 'AI服务暂时不可用，请稍后再试' },
+        { status: 503 }
+      );
     }
 
     // 情绪分析 - 简化为并行处理
@@ -145,8 +132,6 @@ ${contextualQuestions.length > 0 ? `需要了解的：${contextualQuestions.join
       emotion: emotionData.emotion,
       confidence: emotionData.confidence,
       suggestions: emotionData.suggestions,
-      usedModel,
-      switchedModel,
       processingTime: totalTime
     });
 
