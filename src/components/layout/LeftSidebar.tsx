@@ -37,6 +37,14 @@ const navigation = [
     bgColor: "bg-green-50 dark:bg-green-900/20"
   },
   { 
+    name: "情绪日记", 
+    href: "/diary", 
+    icon: BookOpen,
+    description: "记录和回顾情绪历程",
+    color: "text-pink-600",
+    bgColor: "bg-pink-50 dark:bg-pink-900/20"
+  },
+  { 
     name: "数据概览", 
     href: "/overview", 
     icon: BarChart3,
@@ -51,14 +59,6 @@ const navigation = [
     description: "深入分析情绪趋势变化",
     color: "text-orange-600",
     bgColor: "bg-orange-50 dark:bg-orange-900/20"
-  },
-  { 
-    name: "情绪日记", 
-    href: "/diary", 
-    icon: BookOpen,
-    description: "记录和回顾情绪历程",
-    color: "text-pink-600",
-    bgColor: "bg-pink-50 dark:bg-pink-900/20"
   },
   { 
     name: "个人设置", 
