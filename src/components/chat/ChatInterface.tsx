@@ -197,7 +197,7 @@ export function ChatInterface() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // 模拟AI逐条发送消息的函数
+  // 优化后的快速消息发送函数
   const sendMessagesWithDelay = useCallback(async (messageChunks: string[], baseTimestamp: Date) => {
     for (let i = 0; i < messageChunks.length; i++) {
       const chunk = messageChunks[i];
@@ -205,10 +205,10 @@ export function ChatInterface() {
       
       const messageId = `ai-${baseTimestamp.getTime()}-${i}`;
       
-      // 显示打字指示器
+      // 显示简短的打字指示器
       if (i === 0) {
         setTypingMessageId(messageId);
-        await new Promise(resolve => setTimeout(resolve, 800)); // 打字延迟
+        await new Promise(resolve => setTimeout(resolve, 300)); // 减少打字延迟
       }
       
       // 添加消息
@@ -216,17 +216,17 @@ export function ChatInterface() {
         id: messageId,
         content: chunk,
         role: "assistant",
-        timestamp: new Date(baseTimestamp.getTime() + i * 2000),
+        timestamp: new Date(baseTimestamp.getTime() + i * 1000),
       };
       
       setMessages(prev => [...prev, newMessage]);
       setTypingMessageId(null);
       
-      // 消息间延迟（除了最后一条）
+      // 减少消息间延迟（除了最后一条）
       if (i < messageChunks.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1200 + Math.random() * 800)); // 1.2-2秒随机延迟
+        await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 400)); // 0.6-1秒随机延迟
         setTypingMessageId(`ai-${baseTimestamp.getTime()}-${i + 1}`);
-        await new Promise(resolve => setTimeout(resolve, 600 + chunk.length * 20)); // 根据长度调整打字时间
+        await new Promise(resolve => setTimeout(resolve, 200 + chunk.length * 8)); // 减少打字时间
       }
     }
   }, []);
@@ -247,10 +247,10 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      // 获取对话历史
+      // 获取对话历史 - 进一步减少上下文长度
       const conversationHistory = [
         { role: 'user', content: currentInput },
-        ...messages.slice(-10).map(msg => ({ // 只取最近10条消息作为上下文
+        ...messages.slice(-6).map(msg => ({ // 只取最近6条消息作为上下文
           role: msg.role,
           content: msg.content
         }))

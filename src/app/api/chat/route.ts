@@ -3,6 +3,45 @@ import { AIServiceFactory } from '@/lib/ai-service';
 import { useConversationMemory, extractUserInfoFromMessage, generatePersonalizedOpener } from '@/lib/conversation-memory';
 import { generateNaturalResponse, addPersonalTouch, generatePersonalizedSuggestion, generateEmpathyResponse, generateNaturalClosing } from '@/lib/natural-responses';
 
+// 快速情绪分析函数 - 基于关键词检测
+function quickEmotionAnalysis(message: string): { emotion: string; confidence: number; suggestions: string[] } {
+  const lowerMessage = message.toLowerCase();
+  
+  // 定义情绪关键词
+  const emotionKeywords = {
+    happy: ['开心', '高兴', '快乐', '兴奋', '满意', '棒', '好', '喜欢', '爱'],
+    sad: ['难过', '伤心', '沮丧', '失落', '痛苦', '哭', '眼泪', '悲伤'],
+    angry: ['生气', '愤怒', '烦躁', '讨厌', '恨', '火大', '气死', '恼火'],
+    anxious: ['焦虑', '紧张', '担心', '害怕', '恐惧', '不安', '忧虑', '压力'],
+    tired: ['累', '疲惫', '困', '乏', '精疲力尽', '筋疲力尽'],
+    confused: ['困惑', '迷茫', '不知道', '不明白', '搞不懂', '纠结']
+  };
+  
+  let maxScore = 0;
+  let detectedEmotion = 'neutral';
+  
+  for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+    let score = 0;
+    for (const keyword of keywords) {
+      if (lowerMessage.includes(keyword)) {
+        score += 1;
+      }
+    }
+    if (score > maxScore) {
+      maxScore = score;
+      detectedEmotion = emotion;
+    }
+  }
+  
+  const confidence = Math.min(maxScore * 0.3 + 0.3, 0.9); // 基础置信度
+  
+  return {
+    emotion: detectedEmotion,
+    confidence,
+    suggestions: []
+  };
+}
+
 export async function POST(request: NextRequest) {
   const totalStartTime = Date.now();
   
@@ -45,51 +84,37 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 情绪分析 - 简化为并行处理
+    // 简化情绪分析 - 使用基础关键词检测，避免额外API调用
     let emotionData;
     const startTime = Date.now();
     
-    try {
-      emotionData = await aiService.analyzeEmotion(message);
-      console.log(`Emotion analysis took: ${Date.now() - startTime}ms`);
-    } catch (error) {
-      console.error('Emotion analysis failed:', error);
-      // 如果情绪分析失败，使用默认值
-      emotionData = {
-        emotion: 'neutral',
-        confidence: 0.5,
-        suggestions: []
-      };
-    }
+    // 基于关键词的快速情绪检测
+    emotionData = quickEmotionAnalysis(message);
+    console.log(`Quick emotion analysis took: ${Date.now() - startTime}ms`);
 
     // 提取用户信息并更新对话记忆
     extractUserInfoFromMessage(message, emotionData.emotion);
 
-    // 生成增强的系统提示词，包含对话记忆
+    // 简化上下文信息生成
     const memory = useConversationMemory.getState();
-    const conversationSummary = memory.getConversationSummary();
-    const contextualQuestions = memory.getContextualQuestions();
     
-    // 生成包含对话记忆的上下文信息
-    const contextInfo = `
-对话上下文：
-${conversationSummary ? `对话记忆：${conversationSummary}` : '这是我们第一次对话'}
-当前用户情绪：${emotionData.emotion}（置信度：${emotionData.confidence}）
-${contextualQuestions.length > 0 ? `需要了解的：${contextualQuestions.join(', ')}` : ''}
-`;
+    // 生成简化的上下文信息
+    const contextInfo = `当前用户情绪：${emotionData.emotion}`;
 
     // 生成AI回复
     let aiResponse;
     const responseStartTime = Date.now();
     
     try {
-      // 构建包含记忆的对话历史，不添加额外的系统提示词
-      const enhancedHistory = conversationHistory.slice(-6); // 保留最近6条对话
+      // 构建简化的对话历史，只保留最近4条对话
+      const enhancedHistory = conversationHistory.slice(-4);
       
-      // 将上下文信息添加到用户消息中
-      const enhancedMessage = `${contextInfo}\n\n用户消息：${message}`;
+      // 简化消息，只在必要时添加情绪信息
+      const enhancedMessage = emotionData.emotion !== 'neutral' 
+        ? `[用户当前情绪：${emotionData.emotion}] ${message}`
+        : message;
 
-      console.log(`Context info length: ${contextInfo.length} characters`);
+      console.log(`Context info length: ${enhancedMessage.length} characters`);
       aiResponse = await aiService.generateResponse(enhancedMessage, enhancedHistory);
       console.log(`AI response generation took: ${Date.now() - responseStartTime}ms`);
     } catch (error) {
@@ -97,20 +122,8 @@ ${contextualQuestions.length > 0 ? `需要了解的：${contextualQuestions.join
       throw new Error('AI回复生成失败');
     }
 
-    // 使用自然响应系统增强回复
+    // 简化响应处理 - 直接使用AI回复，减少额外处理
     let enhancedResponse = aiResponse;
-
-    // 如果回复比较短或者比较机械，添加自然化处理
-    if (aiResponse.length < 100 || aiResponse.includes('作为AI') || aiResponse.includes('我是一个')) {
-      const naturalResponse = generateNaturalResponse(emotionData.emotion);
-      const empathyResponse = generateEmpathyResponse();
-      const personalizedSuggestion = generatePersonalizedSuggestion(emotionData.emotion);
-      
-      enhancedResponse = `${naturalResponse}\n\n${empathyResponse}${personalizedSuggestion ? `\n\n${personalizedSuggestion}` : ''}`;
-    }
-
-    // 添加个性化触感
-    enhancedResponse = addPersonalTouch(enhancedResponse);
 
     // 记录这次互动
     memory.recordInteraction();

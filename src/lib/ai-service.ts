@@ -231,10 +231,10 @@ class GeminiService implements AIServiceInterface {
       const chat = this.model.startChat({
         history: history,
         generationConfig: {
-          temperature: 0.7,
-          topK: 20, // 减少以提高速度
-          topP: 0.9, // 略微降低以提高速度
-          maxOutputTokens: 512, // 减少输出长度以提高速度
+          temperature: 0.8, // 略微提高创造性但保持连贯性
+          topK: 15, // 进一步减少以提高速度
+          topP: 0.85, // 优化采样策略
+          maxOutputTokens: 400, // 适度减少输出长度
         },
       });
 
@@ -309,8 +309,8 @@ class DeepSeekService implements AIServiceInterface {
         body: JSON.stringify({
           model: 'deepseek-chat',
           messages: messages,
-          temperature: 0.7,
-          max_tokens: 512, // 减少输出长度以提高速度
+          temperature: 0.8,
+          max_tokens: 400, // 优化输出长度以提高速度
           stream: false,
         }),
       });

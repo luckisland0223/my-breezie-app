@@ -137,21 +137,21 @@ export function HomePage() {
 
   const getEmotionFeedback = (emotionKey: string) => {
     const selectedEmotionData = allEmotions.find(e => e.key === emotionKey);
-    if (!selectedEmotionData) return "感谢你分享你的感受";
+    if (!selectedEmotionData) return "已记录你的情绪状态";
     
     const { category, score, label } = selectedEmotionData;
     
     if (category === 'positive') {
-      return `太棒了！${label}是很美好的感受 ✨`;
+      return `${label}是很美好的感受 ✨`;
     } else if (category === 'negative') {
-      return `我理解你现在${label}的感受，记得要照顾好自己 💙`;
+      return `我理解你现在${label}的感受 💙`;
     } else if (category === 'neutral') {
-      return `${label}也是一种很真实的状态 🌿`;
+      return `${label}是一种很真实的状态 🌿`;
     } else if (category === 'complex') {
-      return `${label}是很复杂的情感，我会陪伴你一起理解 🤗`;
+      return `${label}是复杂的情感体验 🤗`;
     }
     
-    return "感谢你分享你的感受";
+    return "已记录你的情绪状态";
   };
 
   return (
@@ -318,10 +318,33 @@ export function HomePage() {
                   </p>
                   <div className={`text-sm ${
                     categoryData ? categoryData.color : 'text-blue-600'
-                  } opacity-70`}>
+                  } opacity-70 mb-4`}>
                     <p>评分已更新：{selectedEmotionData?.label} = {selectedEmotionData?.score}分</p>
                     <p className="mt-1">分类：{categoryData?.label}</p>
                   </div>
+                  
+                  {/* 根据情绪类型显示不同的引导按钮 */}
+                  {selectedEmotionData && (
+                    <div className="space-y-3">
+                      {(selectedEmotionData.category === 'positive' || selectedEmotionData.category === 'neutral') ? (
+                        <Button 
+                          onClick={() => router.push('/diary')}
+                          className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-full py-3 transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          记录今天的心情日记
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={() => router.push('/chat')}
+                          className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-full py-3 transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          和AI聊聊你的感受
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })()}

@@ -498,7 +498,7 @@ export function OverviewContent() {
                       </div>
                       <Progress 
                         value={(goal.current / goal.target) * 100} 
-                        className="h-2 bg-gray-200 dark:bg-gray-700"
+                        className="h-2"
                       />
                     </div>
                   </motion.div>

@@ -199,38 +199,7 @@ export function MoodCalendar() {
           </motion.div>
         )}
 
-        {/* 图例 */}
-        <div className="mt-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            情绪图例
-          </h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-yellow-200" />
-              <span>😊 开心</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-green-200" />
-              <span>😌 平静</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-gray-200" />
-              <span>😐 一般</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-blue-200" />
-              <span>😔 难过</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-red-200" />
-              <span>😰 焦虑</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-purple-200" />
-              <span>😴 疲惫</span>
-            </div>
-          </div>
-        </div>
+
       </CardContent>
     </Card>
   );
