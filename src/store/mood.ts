@@ -160,16 +160,24 @@ interface MoodState {
   importData: (data: any) => boolean;
 }
 
-// 获取今天的日期字符串
-const getTodayDateString = (): string => {
-  return new Date().toISOString().split('T')[0]!;
+// 本地时区日期字符串 YYYY-MM-DD
+const formatLocalDate = (date: Date): string => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 };
 
-// 获取指定天数前的日期字符串
+// 获取今天的日期字符串（本地时区）
+const getTodayDateString = (): string => {
+  return formatLocalDate(new Date());
+};
+
+// 获取指定天数前的日期字符串（本地时区）
 const getDateString = (daysAgo: number): string => {
   const date = new Date();
   date.setDate(date.getDate() - daysAgo);
-  return date.toISOString().split('T')[0]!;
+  return formatLocalDate(date);
 };
 
 // 生成唯一ID

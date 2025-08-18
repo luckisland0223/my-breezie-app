@@ -1,8 +1,4 @@
-/**
- * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
- * for Docker builds.
- */
-import "./src/env.js";
+// 环境变量由进程提供，不再单独导入校验模块
 
 /** @type {import("next").NextConfig} */
 const config = {};

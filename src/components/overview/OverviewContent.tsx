@@ -99,7 +99,7 @@ const generateMoodCalendar = (getDailyStats: (date: string) => any) => {
                     currentYear === new Date().getFullYear();
     
     // 获取该日期的情绪数据
-    const dateString = date.toISOString().split('T')[0];
+    const dateString = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     const dailyStats = dateString ? getDailyStats(dateString) : null;
     
     let emotion = null;
@@ -195,10 +195,7 @@ export function OverviewContent() {
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      <div
         className="text-center space-y-4"
       >
         <h1 className="text-4xl md:text-5xl font-bold text-apple-title">
@@ -207,13 +204,10 @@ export function OverviewContent() {
         <p className="text-xl text-apple-body max-w-2xl mx-auto">
           深入了解你的情绪变化和心理健康状态
         </p>
-      </motion.div>
+      </div>
 
       {/* Quick Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      <div
         className="grid grid-cols-1 md:grid-cols-4 gap-6"
       >
         {[
@@ -222,15 +216,8 @@ export function OverviewContent() {
           { label: "总对话数", value: "0", suffix: "次", icon: MessageCircle, color: "text-blue-500", bg: "from-blue-50 to-cyan-50" },
           { label: "连续天数", value: "0", suffix: "天", icon: Calendar, color: "text-purple-500", bg: "from-purple-50 to-pink-50" }
         ].map((stat, index) => (
-          <motion.div
+          <div
             key={stat.label}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ 
-              delay: 0.3 + index * 0.1, 
-              duration: 0.5, 
-              ease: [0.16, 1, 0.3, 1] 
-            }}
 
           >
             <Card className={`card-apple rounded-apple-lg bg-gradient-to-br ${stat.bg} dark:from-gray-800/60 dark:to-gray-700/60 hover:shadow-xl transition-all duration-300`}>
@@ -243,16 +230,12 @@ export function OverviewContent() {
                 <div className="text-sm text-apple-caption">{stat.label}</div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
 
       {/* Emotion Calendar */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      >
+      <div>
         <Card className="card-apple rounded-apple-lg">
           <CardHeader className="spacing-apple-lg">
             <div className="flex items-center justify-between">
@@ -303,16 +286,8 @@ export function OverviewContent() {
                   const isSelected = selectedDate === dayData.day;
                   
     return (
-                    <motion.div
+                    <div
                       key={dayData.day}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ 
-                        delay: 0.7 + index * 0.02, 
-                        duration: 0.3, 
-                        ease: [0.16, 1, 0.3, 1] 
-                      }}
-                      whileTap={dayData.hasData ? { scale: 0.95 } : {}}
                       className="w-16 h-16"
                     >
                       <button
@@ -353,7 +328,7 @@ export function OverviewContent() {
                           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-2xl" />
                         )}
                       </button>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -361,10 +336,7 @@ export function OverviewContent() {
 
             {/* Selected Day Info */}
             {selectedEmotion && selectedDayData && (
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              <div
                 className="mt-8 p-6 rounded-3xl bg-gradient-to-br from-white/80 to-blue-50/50 dark:from-gray-800/80 dark:to-blue-900/20 border border-blue-200/30 dark:border-blue-800/30 backdrop-blur-sm shadow-lg"
               >
                 <div className="flex items-center justify-between">
@@ -416,7 +388,7 @@ export function OverviewContent() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Emotion Legend */}
@@ -441,16 +413,12 @@ export function OverviewContent() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Goals & Recent Activities */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Goals */}
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.8, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <div>
           <Card className="card-apple rounded-apple-lg h-full">
             <CardHeader className="spacing-apple-lg">
               <CardTitle className="text-2xl text-apple-title flex items-center gap-3">
@@ -464,15 +432,8 @@ export function OverviewContent() {
             <CardContent className="spacing-apple-lg">
               <div className="space-y-6">
                 {goals.map((goal, index) => (
-                  <motion.div
+                  <div
                     key={goal.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      delay: 0.9 + index * 0.1, 
-                      duration: 0.5, 
-                      ease: [0.16, 1, 0.3, 1] 
-                    }}
                     className="space-y-3"
                   >
                     <div className="flex items-center justify-between">
@@ -491,19 +452,15 @@ export function OverviewContent() {
                         className="h-2"
                       />
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         {/* Recent Activities */}
-        <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.8, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <div>
           <Card className="card-apple rounded-apple-lg h-full">
             <CardHeader className="spacing-apple-lg">
               <CardTitle className="text-2xl text-apple-title flex items-center gap-3">
@@ -517,15 +474,8 @@ export function OverviewContent() {
             <CardContent className="spacing-apple-lg">
               <div className="space-y-4">
                 {recentActivities.map((activity, index) => (
-                  <motion.div
+                  <div
                     key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      delay: 0.9 + index * 0.1, 
-                      duration: 0.5, 
-                      ease: [0.16, 1, 0.3, 1] 
-                    }}
                     className="flex items-start space-x-4 p-4 rounded-apple-md bg-gray-50/50 dark:bg-gray-800/50 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200"
                   >
                     <div className={`p-2 rounded-apple-sm bg-white dark:bg-gray-800 shadow-sm`}>
@@ -538,12 +488,12 @@ export function OverviewContent() {
                       </div>
                       <p className="text-sm text-apple-body">{activity.description}</p>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
         </div>
     );

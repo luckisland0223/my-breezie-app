@@ -36,8 +36,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { useMoodStore } from "@/store/mood";
 import { useSettingsStore } from "@/store/settings";
-import { AI_MODELS } from "@/lib/ai-service";
-import type { AIModel } from "@/lib/ai-service";
 import { toast } from "sonner";
 
 const themeOptions = [
@@ -63,11 +61,7 @@ export function SettingsView() {
     importData 
   } = useMoodStore();
   
-  // 恢复AI模型选择功能
-  const {
-    selectedModel,
-    setSelectedModel
-  } = useSettingsStore();
+  // 设置页不再包含密钥输入
   
   // 本地状态
   const [userName, setUserName] = useState("情绪疏导用户");
@@ -162,10 +156,7 @@ export function SettingsView() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      <div
         className="text-center space-y-4"
       >
         <h1 className="text-4xl md:text-5xl font-bold text-apple-title">
@@ -174,21 +165,14 @@ export function SettingsView() {
         <p className="text-xl text-apple-body max-w-2xl mx-auto">
           自定义你的Breezie体验，管理数据和隐私设置
         </p>
-      </motion.div>
+      </div>
 
       {/* 集成设置页面 */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      <div
         className="space-y-8"
       >
         {/* 个人信息设置 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <div>
           <Card className="card-apple">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -231,89 +215,12 @@ export function SettingsView() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
-        {/* AI模型设置 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <Card className="card-apple">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Bot className="w-5 h-5 text-blue-500" />
-                <span>AI模型设置</span>
-              </CardTitle>
-              <CardDescription>
-                选择你偏好的AI助手模型
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* 模型选择 */}
-              <div className="space-y-4">
-                <Label className="text-base font-medium">选择AI模型</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(AI_MODELS).map(([key, model]) => (
-                    <motion.div
-                      key={key}
-                      whileTap={{ scale: 0.98 }}
-                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
-                        selectedModel === key
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
-                      }`}
-                      onClick={() => {
-                        setSelectedModel(key as AIModel);
-                        toast.success(`已切换到 ${model.name}`, {
-                          description: "AI模型设置已保存",
-                          duration: 2000,
-                        });
-                      }}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="text-2xl">{model.icon}</div>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-apple-title">{model.name}</h3>
-                          <p className="text-sm text-apple-caption mt-1">{model.description}</p>
-                          {selectedModel === key && (
-                            <Badge className="mt-2 bg-blue-500 text-white">当前选择</Badge>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* 当前状态 */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium text-apple-title">当前配置</h4>
-                    <p className="text-sm text-apple-caption mt-1">
-                      模型: {selectedModel ? AI_MODELS[selectedModel].name : 'DeepSeek (默认)'} • 
-                      状态: 已配置（服务器端）
-                    </p>
-                    <p className="text-xs text-apple-caption mt-2">
-                      API密钥通过服务器端环境变量管理，确保安全性
-                    </p>
-                  </div>
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* DeepSeek 设置区块移除（服务器读取环境变量） */}
 
         {/* 外观和偏好设置 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <div>
           <Card className="card-apple">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -366,14 +273,10 @@ export function SettingsView() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         {/* 通知和隐私设置 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <div>
           <Card className="card-apple">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -485,14 +388,10 @@ export function SettingsView() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         {/* 数据管理和统计 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <div>
           <Card className="card-apple">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -587,8 +486,8 @@ export function SettingsView() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

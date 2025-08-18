@@ -5,13 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Bot, User, Heart, Sparkles, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { AI_MODELS, type AIModel } from "@/lib/ai-service";
-import { useSettingsStore } from "@/store/settings";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useMoodStore, emotionScores } from "@/store/mood";
 
 interface Message {
   id: string;
@@ -22,98 +20,37 @@ interface Message {
   isTyping?: boolean;
 }
 
-// 将长消息按照内容逻辑层次分割成多个消息的函数
-const splitMessageIntoChunks = (content: string): string[] => {
-  // 首先按照双换行符分割段落
-  const paragraphs = content.split(/\n\n+/).filter(p => p.trim());
-  
+// 将长文本拆分为多个小段，便于分片发送
+const splitMessageIntoChunks = (text: string, maxLen = 220): string[] => {
+  const paragraphs = text.split(/\n\n+/).filter(Boolean);
   const chunks: string[] = [];
-  
-  for (const paragraph of paragraphs) {
-    const trimmedParagraph = paragraph.trim();
-    
-    // 如果段落较短（小于200字符），直接作为一个chunk
-    if (trimmedParagraph.length <= 200) {
-      chunks.push(trimmedParagraph);
+  for (const p of paragraphs) {
+    if (p.length <= maxLen) {
+      chunks.push(p.trim());
       continue;
     }
-    
-    // 对于较长的段落，尝试按逻辑分割
-    // 1. 先尝试按分号、冒号等逻辑分隔符分割
-    const logicalSections = trimmedParagraph.split(/[；：;:]\s*/).filter(s => s.trim());
-    
-    if (logicalSections.length > 1) {
-      let currentChunk = "";
-      
-      for (const section of logicalSections) {
-        const sectionWithPunctuation = section + (section.match(/[；：;:]$/) ? '' : '；');
-        
-        // 如果加上这个部分后长度合适，就合并
-        if (currentChunk.length + sectionWithPunctuation.length <= 300 && currentChunk.length > 0) {
-          currentChunk += sectionWithPunctuation;
-        } else {
-          // 保存当前chunk（如果不为空）
-          if (currentChunk.trim()) {
-            chunks.push(currentChunk.trim());
-          }
-          currentChunk = sectionWithPunctuation;
-        }
-      }
-      
-      // 添加最后一个chunk
-      if (currentChunk.trim()) {
-        chunks.push(currentChunk.trim());
-      }
-    } else {
-      // 2. 如果没有逻辑分隔符，按句子分割
-      const sentences = trimmedParagraph.split(/(?<=[。！？.!?])\s+/).filter(s => s.trim());
-      
-      if (sentences.length > 1) {
-        let currentChunk = "";
-        
-        for (const sentence of sentences) {
-          // 如果加上这个句子后长度合适，就合并
-          if (currentChunk.length + sentence.length <= 250 && currentChunk.length > 0) {
-            currentChunk += " " + sentence;
-          } else {
-            // 保存当前chunk（如果不为空）
-            if (currentChunk.trim()) {
-              chunks.push(currentChunk.trim());
-            }
-            currentChunk = sentence;
-          }
-        }
-        
-        // 添加最后一个chunk
-        if (currentChunk.trim()) {
-          chunks.push(currentChunk.trim());
-        }
+    const sentences = p.split(/(?<=[。！？.!?])\s+/);
+    let buf = "";
+    for (const s of sentences) {
+      if ((buf + (buf ? " " : "") + s).length <= maxLen) {
+        buf = buf ? buf + " " + s : s;
       } else {
-        // 3. 如果是单个长句，保持完整
-        chunks.push(trimmedParagraph);
+        if (buf) chunks.push(buf.trim());
+        buf = s;
       }
     }
+    if (buf) chunks.push(buf.trim());
   }
-  
-  // 如果没有分割出任何内容，返回原始内容
-  return chunks.length > 0 ? chunks : [content];
+  return chunks.length > 0 ? chunks : [text];
 };
 
-// 动态生成个性化欢迎消息
-const getWelcomeMessage = (): Message => {
-  // 导入对话记忆系统
-  const { generatePersonalizedOpener } = require('@/lib/conversation-memory');
-  
-  // 生成个性化开场白
-  const personalizedContent = generatePersonalizedOpener();
-  
-  return {
-    id: "welcome",
-    content: personalizedContent,
-    role: "assistant",
-    timestamp: new Date(),
-  };
-};
+// 极简欢迎语
+const getWelcomeMessage = (): Message => ({
+  id: "welcome",
+  content: "嗨！我是 Breezie。今天心情怎么样？",
+  role: "assistant",
+  timestamp: new Date(),
+});
 
 // 打字动画组件
 function TypingIndicator() {
@@ -146,35 +83,7 @@ function TypingIndicator() {
 
 // 消息内容渲染组件，支持markdown格式
 function MessageContent({ content }: { content: string }) {
-  // 处理粗体文本 **text** 或 ***text***
-  const processContent = (text: string) => {
-    // 替换 ***text*** 为粗体
-    text = text.replace(/\*\*\*(.*?)\*\*\*/g, '<strong class="font-bold text-current">$1</strong>');
-    // 替换 **text** 为粗体
-    text = text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-current">$1</strong>');
-    
-    // 处理列表项，将 * 开头的行转换为项目符号
-    const lines = text.split('\n');
-    const processedLines = lines.map(line => {
-      const trimmedLine = line.trim();
-      if (trimmedLine.startsWith('* ')) {
-        const content = trimmedLine.substring(2);
-        return `<div class="flex items-start space-x-2 my-2"><span class="text-blue-500 font-bold mt-0.5">•</span><span>${content}</span></div>`;
-      }
-      return line;
-    });
-    
-    return processedLines.join('\n');
-  };
-
-  const processedContent = processContent(content);
-
-  return (
-    <div 
-      className="message-content"
-      dangerouslySetInnerHTML={{ __html: processedContent }}
-    />
-  );
+  return <div className="whitespace-pre-wrap break-words">{content}</div>;
 }
 
 export function ChatInterface() {
@@ -186,8 +95,8 @@ export function ChatInterface() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
   
-  // 获取用户设置的AI模型，但不显示选择弹窗
-  const { selectedModel } = useSettingsStore();
+  const { recordChatAnalysis } = useMoodStore();
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -197,45 +106,37 @@ export function ChatInterface() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // 优化后的快速消息发送函数 - 支持从思考状态无缝过渡
-  const sendMessagesWithDelay = useCallback(async (messageChunks: string[], baseTimestamp: Date, isFromThinking: boolean = false) => {
-    for (let i = 0; i < messageChunks.length; i++) {
-      const chunk = messageChunks[i];
-      if (!chunk) continue; // 跳过空内容
-      
-      const messageId = `ai-${baseTimestamp.getTime()}-${i}`;
-      
-      // 如果是第一条消息且不是从思考状态过来的，显示打字指示器
-      if (i === 0 && !isFromThinking) {
-        setTypingMessageId(messageId);
-        await new Promise(resolve => setTimeout(resolve, 300));
-      } else if (i === 0 && isFromThinking) {
-        // 从思考状态过渡，稍微延迟一下让用户感觉思考完成
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-      
-      // 添加消息
-      const newMessage: Message = {
-        id: messageId,
-        content: chunk,
-        role: "assistant",
-        timestamp: new Date(baseTimestamp.getTime() + i * 1000),
+  // 分片发送：带打字指示器
+  const sendMessagesWithDelay = useCallback(async (
+    chunks: string[],
+    baseTimestamp: Date,
+    emotionForFirst?: string
+  ) => {
+    for (let i = 0; i < chunks.length; i++) {
+      const id = `ai-${baseTimestamp.getTime()}-${i}`;
+      setTypingMessageId(id);
+      // 模拟打字时间：和内容长度相关
+      const typingMs = Math.min(1800, 300 + (chunks[i]?.length || 0) * 12);
+      await new Promise(r => setTimeout(r, Math.max(350, typingMs)));
+      const msg = {
+        id,
+        content: chunks[i] || "",
+        role: "assistant" as const,
+        timestamp: new Date(baseTimestamp.getTime() + i * 800),
+        emotion: i === 0 ? emotionForFirst : undefined,
       };
-      
-      setMessages(prev => [...prev, newMessage]);
+      setMessages(prev => [...prev, msg]);
       setTypingMessageId(null);
-      
-      // 减少消息间延迟（除了最后一条）
-      if (i < messageChunks.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 400)); // 0.6-1秒随机延迟
-        setTypingMessageId(`ai-${baseTimestamp.getTime()}-${i + 1}`);
-        await new Promise(resolve => setTimeout(resolve, 200 + chunk.length * 8)); // 减少打字时间
+      if (i < chunks.length - 1) {
+        // 两段之间稍作停顿
+        await new Promise(r => setTimeout(r, 250));
       }
     }
   }, []);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
+    // 服务端读取密钥，此处无需校验
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -254,14 +155,11 @@ export function ChatInterface() {
     setTypingMessageId(thinkingMessageId);
 
     try {
-      // 获取对话历史 - 进一步减少上下文长度
-      const conversationHistory = [
-        { role: 'user', content: currentInput },
-        ...messages.slice(-6).map(msg => ({ // 只取最近6条消息作为上下文
-          role: msg.role,
-          content: msg.content
-        }))
-      ];
+      // 获取对话历史 - 仅取最近4条
+      const conversationHistory = messages.slice(-4).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
 
       // 并行处理：在API调用的同时，可以做一些预处理工作
       const apiCallPromise = fetch('/api/chat', {
@@ -271,8 +169,7 @@ export function ChatInterface() {
         },
         body: JSON.stringify({
           message: currentInput,
-          conversationHistory,
-          model: selectedModel || 'deepseek' // 如果没有设置则默认使用DeepSeek
+          conversationHistory
         }),
       });
 
@@ -299,11 +196,8 @@ export function ChatInterface() {
         throw new Error(data.error);
       }
       
-      // 将AI响应分割成多个消息块 - 这个处理也可以并行进行
-      const messageChunks = splitMessageIntoChunks(data.response);
-      
-      // 逐条发送消息，标记为从思考状态过渡
-      await sendMessagesWithDelay(messageChunks, new Date(), true);
+      const chunks = splitMessageIntoChunks(data.response);
+      await sendMessagesWithDelay(chunks, new Date(), data.emotion);
       
     } catch (error) {
       console.error('Error in chat:', error);
@@ -341,9 +235,7 @@ export function ChatInterface() {
   return (
     <div className="h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/10 dark:to-purple-900/10 flex flex-col">
       {/* Header - Fixed at top */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+      <div 
         className="flex-shrink-0 w-full flex items-center justify-between px-6 py-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50"
       >
         <div className="flex items-center space-x-4">
@@ -369,16 +261,14 @@ export function ChatInterface() {
               <h2 className="font-semibold text-gray-900 dark:text-white">Breezie AI</h2>
               <div className="flex items-center space-x-2">
                 <p className="text-sm text-green-600 dark:text-green-400">情绪疏导助手 • 在线</p>
-                <span className="text-xs text-gray-500">
-                  • {selectedModel ? AI_MODELS[selectedModel].name : 'DeepSeek'}
-                </span>
+                <span className="text-xs text-gray-500">• DeepSeek</span>
               </div>
             </div>
           </div>
         </div>
         
         {/* AI状态指示器已移除 - 固定使用DeepSeek */}
-      </motion.div>
+      </div>
 
       {/* Messages Container - Scrollable middle area */}
       <div className="flex-1 overflow-hidden w-full">
@@ -389,14 +279,6 @@ export function ChatInterface() {
                 {messages.map((message, index) => (
                   <motion.div
                     key={message.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                    transition={{ 
-                      duration: 0.3, 
-                      ease: [0.16, 1, 0.3, 1],
-                      delay: index * 0.05 
-                    }}
                     className={cn(
                       "flex items-end space-x-3",
                       message.role === "user" ? "justify-end" : "justify-start"
@@ -419,6 +301,37 @@ export function ChatInterface() {
                         ? "bg-[#6366f1] text-white rounded-br-md" 
                         : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-md border border-gray-200/50 dark:border-gray-700/50"
                     )}>
+                      {message.role === "assistant" && message.emotion && (
+                        <div className="mb-1 -mt-1 text-xs text-gray-500 flex items-center gap-2">
+                          {(() => {
+                            const meta: Record<string, {label:string;emoji:string}> = {
+                              happy: { label: "开心", emoji: "😄" },
+                              sad: { label: "难过", emoji: "😢" },
+                              anxious: { label: "焦虑", emoji: "😰" },
+                              angry: { label: "生气", emoji: "😠" },
+                              confused: { label: "困惑", emoji: "😕" },
+                              tired: { label: "疲惫", emoji: "😴" },
+                              neutral: { label: "平静", emoji: "😐" },
+                              surprised: { label: "惊喜", emoji: "😲" },
+                            };
+                            const key = message.emotion as string;
+                            const m = (meta as Record<string, {label:string;emoji:string}>)[key] || { label: key, emoji: "🧠" };
+                            return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700">{m.emoji} {m.label}</span>;
+                          })()}
+                          {!savedIds.has(message.id) && (
+                            <button
+                              className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                              onClick={() => {
+                                const key = (message.emotion === 'neutral' ? 'calm' : (message.emotion || 'calm')) as string;
+                                const score = (emotionScores as Record<string, number>)[key] ?? 5;
+                                recordChatAnalysis(score, `AI情绪: ${key}`);
+                                setSavedIds(prev => new Set(prev).add(message.id));
+                                toast.success("已保存到记录");
+                              }}
+                            >保存到记录</button>
+                          )}
+                        </div>
+                      )}
                       <div className="text-base leading-relaxed whitespace-pre-wrap">
                         <MessageContent content={message.content} />
                       </div>
@@ -441,9 +354,6 @@ export function ChatInterface() {
                 {typingMessageId && (
                   <motion.div
                     key="typing"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
                     className="flex items-end space-x-3 justify-start"
                   >
                     <div className="relative flex-shrink-0">
@@ -465,9 +375,7 @@ export function ChatInterface() {
       </div>
 
       {/* Input Area - Fixed at bottom */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+      <div 
         className="flex-shrink-0 w-full px-6 py-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50"
       >
         <div className="w-full max-w-4xl mx-auto">
@@ -503,7 +411,7 @@ export function ChatInterface() {
             </Button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* AI选择对话框已移除 - 固定使用DeepSeek */}
     </div>

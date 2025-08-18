@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useMoodStore, emotionCategories, getAllEmotions } from "@/store/mood";
 import { toast } from "sonner";
@@ -159,47 +158,22 @@ export function HomePage() {
   return (
     <div className="space-y-16 max-w-6xl mx-auto">
       {/* Hero Section - 更简洁的欢迎区域 */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="text-center py-8"
-      >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="w-20 h-20 mx-auto mb-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-xl"
-        >
+      <section className="text-center py-8">
+        <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-xl">
           <Heart className="w-10 h-10 text-white" />
-        </motion.div>
+        </div>
         
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-5xl md:text-6xl font-bold text-apple-title mb-6"
-        >
+        <h1 className="text-5xl md:text-6xl font-bold text-apple-title mb-6">
           <span className="gradient-text-apple">你好，朋友</span>
-        </motion.h1>
+        </h1>
         
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-xl text-apple-body max-w-2xl mx-auto leading-relaxed"
-        >
+        <p className="text-xl text-apple-body max-w-2xl mx-auto leading-relaxed">
           欢迎来到你的情绪疏导空间。在这里，每一种感受都被理解，每一次成长都被记录。
-        </motion.p>
-      </motion.section>
+        </p>
+      </section>
 
       {/* Enhanced Emotion Selection - 分类情绪选择 */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="mb-16"
-      >
+      <section className="mb-16">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-apple-title mb-4">今天的你感觉如何？</h2>
           <p className="text-lg text-apple-body">选择一个最贴近你现在心情的情绪</p>
@@ -217,11 +191,8 @@ export function HomePage() {
               if (emotions.length === 0) return null;
               
               return (
-                <motion.button
+                <button
                   key={category}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
                   onClick={() => handleCategorySelect(category)}
                   className={`flex items-center space-x-2 px-6 py-3 rounded-full border-2 transition-all duration-200 ${
                     selectedCategory === category 
@@ -231,26 +202,18 @@ export function HomePage() {
                 >
                   <span className="text-lg">{categoryData.icon}</span>
                   <span className="font-medium">{categoryData.label}</span>
-                </motion.button>
+                </button>
               );
             })}
           </div>
 
           {/* 情绪网格 */}
           {selectedCategory && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
+            <div className="space-y-6">
               <div className="flex flex-wrap justify-center gap-4">
                 {getVisibleEmotions(selectedCategory).map((emotion) => (
-                  <motion.button
+                  <button
                     key={emotion.key}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.2 }}
                     onClick={() => handleEmotionSelect(emotion.key)}
                     className={`p-4 rounded-2xl border-2 transition-all duration-200 ${
                       selectedEmotion === emotion.key 
@@ -268,21 +231,16 @@ export function HomePage() {
                     <div className="text-xs text-gray-500 mt-1">
                       {emotion.score}分
                     </div>
-                  </motion.button>
+                  </button>
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
         
         {/* 选择确认 */}
         {selectedEmotion && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-center max-w-lg mx-auto"
-          >
+          <div className="text-center max-w-lg mx-auto">
             {(() => {
               const selectedEmotionData = allEmotions.find(e => e.key === selectedEmotion);
               
@@ -317,17 +275,12 @@ export function HomePage() {
                 </div>
               );
             })()}
-          </motion.div>
+          </div>
         )}
-      </motion.section>
+      </section>
 
       {/* Quick Actions - 主要功能入口 */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="mb-16"
-      >
+      <section className="mb-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-apple-title mb-4">开始你的情绪之旅</h2>
           <p className="text-lg text-apple-body">选择一个方式，开始探索和管理你的情绪</p>
@@ -335,15 +288,8 @@ export function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {quickActions.map((action, index) => (
-            <motion.div
+            <div
               key={action.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                delay: 0.9 + index * 0.1, 
-                duration: 0.6, 
-                ease: [0.16, 1, 0.3, 1] 
-              }}
 
             >
               <Card 
@@ -368,20 +314,15 @@ export function HomePage() {
                   </Button>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
-      </motion.section>
+      </section>
 
 
 
       {/* Motivational Footer */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="text-center py-16"
-      >
+      <section className="text-center py-16">
         <div className="max-w-2xl mx-auto">
           <div className="flex justify-center mb-6">
             {[...Array(5)].map((_, i) => (
@@ -394,7 +335,7 @@ export function HomePage() {
             你已经在这条路上了，继续前进吧！
           </p>
         </div>
-      </motion.section>
+      </section>
 
       {/* 询问后续行动的对话框 */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>

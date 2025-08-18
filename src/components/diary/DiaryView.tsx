@@ -109,10 +109,7 @@ export function DiaryView() {
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      <div
         className="text-center space-y-4"
       >
         <h1 className="text-4xl md:text-5xl font-bold text-apple-title">
@@ -121,13 +118,10 @@ export function DiaryView() {
         <p className="text-xl text-apple-body max-w-2xl mx-auto">
           记录你的情绪历程，回顾内心的成长轨迹
         </p>
-      </motion.div>
+      </div>
 
       {/* Action Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      <div
         className="flex flex-col md:flex-row gap-4 items-center justify-between"
       >
         <div className="flex flex-col md:flex-row gap-4 flex-1">
@@ -161,7 +155,7 @@ export function DiaryView() {
           <Plus className="w-4 h-4 mr-2" />
           写日记
         </Button>
-      </motion.div>
+      </div>
 
       {/* Write New Entry Modal */}
       <AnimatePresence>
@@ -305,10 +299,7 @@ export function DiaryView() {
       {/* Diary Entries */}
       <div className="space-y-6">
         {filteredEntries.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          <div
             className="text-center py-12"
           >
             <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-400" />
@@ -318,16 +309,13 @@ export function DiaryView() {
               <Plus className="w-4 h-4 mr-2" />
               写第一篇日记
             </Button>
-          </motion.div>
+          </div>
         ) : (
           filteredEntries.map((entry, index) => {
             const emotionInfo = getEmotionInfo(entry.emotion);
             return (
-              <motion.div
+              <div
                 key={entry.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               >
                 <Card className="card-apple rounded-apple-lg hover:shadow-xl transition-all duration-300">
                   <CardHeader className="spacing-apple-lg">
@@ -378,7 +366,7 @@ export function DiaryView() {
                     )}
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             );
           })
         )}

@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
-import { env } from '@/env';
 
 export async function GET() {
   try {
     const debug = {
-      nodeEnv: env.NODE_ENV,
-      hasGeminiKey: !!env.GEMINI_API_KEY,
-      hasDeepSeekKey: !!env.DEEPSEEK_API_KEY,
-      geminiKeyLength: env.GEMINI_API_KEY?.length || 0,
-      deepseekKeyLength: env.DEEPSEEK_API_KEY?.length || 0,
+      note: 'env 管理已移除，密钥由前端传入',
       timestamp: new Date().toISOString(),
     };
 
