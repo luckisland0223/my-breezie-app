@@ -77,44 +77,62 @@ const emotionTypes = {
   },
 };
 
-// 生成真实的情绪日历数据 - 从 mood store 获取
-const generateMoodCalendar = (getDailyStats: (date: string) => any) => {
-  // 使用当前日期
+// 生成真实的情绪日历数据 - 从 mood store 获取（按指定年月）
+const generateMoodCalendar = (getDailyStats: (date: string) => any, year: number, month: number) => {
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  const currentMonth = month;
+  const currentYear = year;
   const firstDay = new Date(currentYear, currentMonth, 1);
   const lastDay = new Date(currentYear, currentMonth + 1, 0);
   const daysInMonth = lastDay.getDate();
   const startDayOfWeek = firstDay.getDay();
 
-  const moodData = [];
+  const moodData: Array<{ day: number; date: Date; lastEmotion: string | null; emotions: string[]; intensity: number; hasData: boolean; isToday: boolean }> = [];
   const allEmotions = getAllEmotions();
 
   // 生成本月的情绪数据 - 从真实数据获取
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(currentYear, currentMonth, day);
     const isToday = day === currentDate.getDate() && 
-                    currentMonth === new Date().getMonth() && 
-                    currentYear === new Date().getFullYear();
+                    currentMonth === currentDate.getMonth() && 
+                    currentYear === currentDate.getFullYear();
     
     // 获取该日期的情绪数据
     const dateString = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     const dailyStats = dateString ? getDailyStats(dateString) : null;
     
-    let emotion = null;
+    let lastEmotion: string | null = null;
+    let emotionsForDay: string[] = [];
     let intensity = 0;
     let hasData = false;
     
-    if (dailyStats && dailyStats.dominantEmotion) {
-      // 从 emotion categories 中找到对应的情绪
-      const emotionData = allEmotions.find(e => e.key === dailyStats.dominantEmotion);
-      if (emotionData) {
-        // 将 emotion key 映射到 emotionTypes 的 key
-        const mappedEmotion = mapEmotionToType(emotionData.key);
-        if (mappedEmotion && emotionTypes[mappedEmotion as keyof typeof emotionTypes]) {
-          emotion = mappedEmotion;
-          intensity = Math.round(dailyStats.averageScore);
+    if (dailyStats) {
+      const records = (dailyStats.records || []) as Array<{ type: string; source?: string; timestamp?: number }>;
+      const emotionRecords = records.filter(r => r.type === 'emotion_select' && r.source);
+      if (emotionRecords.length > 0) {
+        // 最后一次记录的情绪
+        const sorted = [...emotionRecords].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        const last = sorted[sorted.length - 1];
+        const mappedLast = last?.source ? mapEmotionToType(last.source) : null;
+        lastEmotion = mappedLast;
+
+        // 当天所有记录过的情绪（去重，按时间顺序）
+        const seen = new Set<string>();
+        for (const rec of sorted) {
+          const mapped = rec.source ? mapEmotionToType(rec.source) : null;
+          if (mapped && !seen.has(mapped)) {
+            seen.add(mapped);
+            emotionsForDay.push(mapped);
+          }
+        }
+        intensity = Math.round(dailyStats.averageScore || 0);
+        hasData = true;
+      } else if (dailyStats.dominantEmotion) {
+        const mapped = mapEmotionToType(dailyStats.dominantEmotion);
+        if (mapped) {
+          lastEmotion = mapped;
+          emotionsForDay = [mapped];
+          intensity = Math.round(dailyStats.averageScore || 0);
           hasData = true;
         }
       }
@@ -123,7 +141,8 @@ const generateMoodCalendar = (getDailyStats: (date: string) => any) => {
     moodData.push({
       day,
       date,
-      emotion,
+      lastEmotion,
+      emotions: emotionsForDay,
       intensity,
       hasData,
       isToday
@@ -178,8 +197,10 @@ const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
 
 export function OverviewContent() {
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [viewYear, setViewYear] = useState<number>(new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState<number>(new Date().getMonth()); // 0-11
   const { getDailyStats } = useMoodStore();
-  const { moodData, startDayOfWeek, currentMonth, currentYear } = generateMoodCalendar(getDailyStats);
+  const { moodData, startDayOfWeek, currentMonth, currentYear } = generateMoodCalendar(getDailyStats, viewYear, viewMonth);
 
   const handleDateClick = (dayData: any) => {
     if (dayData.hasData) {
@@ -188,8 +209,8 @@ export function OverviewContent() {
   };
 
   const selectedDayData = moodData.find(day => day.day === selectedDate);
-  const selectedEmotion = selectedDayData?.emotion
-    ? emotionTypes[selectedDayData.emotion as keyof typeof emotionTypes]
+  const selectedEmotion = selectedDayData?.lastEmotion
+    ? emotionTypes[selectedDayData.lastEmotion as keyof typeof emotionTypes]
     : undefined;
 
   return (
@@ -249,13 +270,31 @@ export function OverviewContent() {
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="btn-apple-secondary">
+                <Button variant="ghost" size="sm" className="btn-apple-secondary" onClick={() => {
+                  setSelectedDate(null);
+                  const m = viewMonth - 1;
+                  if (m < 0) {
+                    setViewMonth(11);
+                    setViewYear(viewYear - 1);
+                  } else {
+                    setViewMonth(m);
+                  }
+                }}>
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 <span className="text-lg font-semibold text-apple-title min-w-[120px] text-center">
                   {currentYear}年{monthNames[currentMonth]}
                 </span>
-                <Button variant="ghost" size="sm" className="btn-apple-secondary">
+                <Button variant="ghost" size="sm" className="btn-apple-secondary" onClick={() => {
+                  setSelectedDate(null);
+                  const m = viewMonth + 1;
+                  if (m > 11) {
+                    setViewMonth(0);
+                    setViewYear(viewYear + 1);
+                  } else {
+                    setViewMonth(m);
+                  }
+                }}>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -282,7 +321,7 @@ export function OverviewContent() {
                 
                 {/* Month days */}
                 {moodData.map((dayData, index) => {
-                  const emotion = dayData.emotion ? emotionTypes[dayData.emotion as keyof typeof emotionTypes] : null;
+                  const emotion = dayData.lastEmotion ? emotionTypes[dayData.lastEmotion as keyof typeof emotionTypes] : null;
                   const isSelected = selectedDate === dayData.day;
                   
     return (
@@ -311,7 +350,7 @@ export function OverviewContent() {
                           {dayData.day}
                         </div>
                         
-                        {/* 表情符号 */}
+                        {/* 表情符号（仅展示最后记录的情绪） */}
                         {emotion && (
                           <div className="text-xl leading-none transform group-hover:scale-110 transition-transform duration-200">
                             {emotion.emoji}
@@ -335,7 +374,7 @@ export function OverviewContent() {
             </div>
 
             {/* Selected Day Info */}
-            {selectedEmotion && selectedDayData && (
+            {selectedDayData && (
               <div
                 className="mt-8 p-6 rounded-3xl bg-gradient-to-br from-white/80 to-blue-50/50 dark:from-gray-800/80 dark:to-blue-900/20 border border-blue-200/30 dark:border-blue-800/30 backdrop-blur-sm shadow-lg"
               >
@@ -343,20 +382,29 @@ export function OverviewContent() {
                   <div className="flex items-center space-x-5">
                     <div className={`
                       w-16 h-16 rounded-2xl border flex items-center justify-center shadow-md
-                      ${selectedEmotion.bgColor}
-                      ${selectedEmotion.borderColor}
+                      ${(selectedEmotion?.bgColor) || ''}
+                      ${(selectedEmotion?.borderColor) || ''}
                     `}>
                       <span className="text-3xl">
-                        {selectedEmotion.emoji}
+                        {selectedEmotion?.emoji || '🙂'}
                       </span>
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-apple-title mb-1">
                         {currentMonth + 1}月{selectedDayData.day}日
                       </h3>
-                      <p className={`text-base font-medium ${selectedEmotion.textColor}`}>
-                        {selectedEmotion.label}
-                      </p>
+                      {/* 展示当天全部情绪标签 */}
+                      <div className="flex flex-wrap gap-2">
+                        {(selectedDayData.emotions || []).map((eKey) => {
+                          const info = emotionTypes[eKey as keyof typeof emotionTypes];
+                          if (!info) return null;
+                          return (
+                            <span key={eKey} className={`text-xs px-2 py-0.5 rounded-full border ${info.borderColor} ${info.textColor} bg-white/60`}>
+                              {info.emoji} {info.label}
+                            </span>
+                          );
+                        })}
+                      </div>
                       <p className="text-sm text-apple-caption mt-1">
                         点击其他日期查看更多情绪记录
                       </p>
@@ -374,11 +422,11 @@ export function OverviewContent() {
                             key={i}
                             className={`w-2 h-2 rounded-full ${
                               i < selectedDayData.intensity 
-                                ? (selectedEmotion.bgColor.includes('yellow') ? 'bg-yellow-400'
-                                : selectedEmotion.bgColor.includes('emerald') ? 'bg-emerald-400'
-                                : selectedEmotion.bgColor.includes('slate') ? 'bg-slate-400'
-                                : selectedEmotion.bgColor.includes('blue') ? 'bg-blue-400'
-                                : selectedEmotion.bgColor.includes('red') ? 'bg-red-400'
+                                ? ((selectedEmotion?.bgColor || '').includes('yellow') ? 'bg-yellow-400'
+                                : (selectedEmotion?.bgColor || '').includes('emerald') ? 'bg-emerald-400'
+                                : (selectedEmotion?.bgColor || '').includes('slate') ? 'bg-slate-400'
+                                : (selectedEmotion?.bgColor || '').includes('blue') ? 'bg-blue-400'
+                                : (selectedEmotion?.bgColor || '').includes('red') ? 'bg-red-400'
                                 : 'bg-purple-400')
                                 : 'bg-gray-200 dark:bg-gray-700'
                             }`}

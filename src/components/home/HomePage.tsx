@@ -259,7 +259,7 @@ export function HomePage() {
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button 
                       onClick={handleConfirmEmotion}
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                       <Heart className="w-5 h-5 mr-2" />
                       确认记录
@@ -267,7 +267,7 @@ export function HomePage() {
                     <Button 
                       onClick={() => setSelectedEmotion(null)}
                       variant="outline"
-                      className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 px-8 py-3 rounded-full text-lg font-medium transition-all duration-300"
+                      className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300"
                     >
                       重新选择
                     </Button>

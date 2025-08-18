@@ -49,6 +49,11 @@ interface DiaryEntry {
   rating: number;
 }
 
+// 预置标签
+const presetTags = [
+  "工作", "学习", "家庭", "健康", "关系", "朋友", "开心", "烦恼", "成长", "成就", "运动", "旅行", "压力", "放松"
+];
+
 // 空的日记数据 - 使用真实用户数据
 const sampleDiaryEntries: DiaryEntry[] = [];
 
@@ -59,7 +64,7 @@ export function DiaryView() {
     emotion: "",
     title: "",
     content: "",
-    tags: "",
+    tags: [] as string[],
     weather: "sunny",
     rating: 5
   });
@@ -76,13 +81,13 @@ export function DiaryView() {
       emotion: newEntry.emotion,
       title: newEntry.title,
       content: newEntry.content,
-      tags: newEntry.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      tags: newEntry.tags,
       weather: newEntry.weather,
       rating: newEntry.rating
     };
 
     setDiaryEntries([entry, ...diaryEntries]);
-    setNewEntry({ emotion: "", title: "", content: "", tags: "", weather: "sunny", rating: 5 });
+    setNewEntry({ emotion: "", title: "", content: "", tags: [], weather: "sunny", rating: 5 });
     setIsWriting(false);
   };
 
@@ -232,15 +237,32 @@ export function DiaryView() {
                   />
                 </div>
 
-                {/* Tags */}
+                {/* Tags - 预置按钮选择 */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-apple-title">标签</label>
-                  <Input
-                    placeholder="用逗号分隔，如：工作,开心,成长"
-                    value={newEntry.tags}
-                    onChange={(e) => setNewEntry({ ...newEntry, tags: e.target.value })}
-                    className="input-apple"
-                  />
+                  <div className="flex flex-wrap gap-2">
+                    {presetTags.map((tag) => {
+                      const selected = newEntry.tags.includes(tag);
+                      return (
+                        <Button
+                          key={tag}
+                          type="button"
+                          variant={selected ? "default" : "outline"}
+                          className={selected ? "h-8 px-3 py-1 rounded-apple-md bg-blue-600 text-white" : "h-8 px-3 py-1 rounded-apple-md"}
+                          onClick={() => {
+                            setNewEntry((prev) => ({
+                              ...prev,
+                              tags: selected
+                                ? prev.tags.filter((t) => t !== tag)
+                                : [...prev.tags, tag]
+                            }));
+                          }}
+                        >
+                          {tag}
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Weather & Rating */}
