@@ -337,42 +337,56 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* 询问后续行动的对话框 */}
+      {/* 询问后续行动的对话框（重设计） */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-xl font-semibold text-gray-900 dark:text-gray-100">
-              情绪已记录 ✨
-            </DialogTitle>
-            <DialogDescription className="text-center text-gray-600 dark:text-gray-400 mt-2">
-              接下来你想要做什么？
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="flex flex-col gap-3 mt-6">
-            <Button 
-              onClick={() => handleActionChoice('diary')}
-              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white py-3 rounded-xl text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <BookOpen className="w-5 h-5 mr-2" />
-              写日记记录今天
-            </Button>
-            
-            <Button 
-              onClick={() => handleActionChoice('chat')}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 rounded-xl text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              和AI助手聊聊
-            </Button>
-            
-            <Button 
-              onClick={() => handleActionChoice('stay')}
-              variant="outline"
-              className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 py-3 rounded-xl text-base font-medium transition-all duration-300"
-            >
-              暂时不需要，继续浏览
-            </Button>
+        <DialogContent className="sm:max-w-lg p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
+          {/* 顶部情绪确认区 */}
+          <div className="bg-gradient-to-r from-blue-500/90 to-purple-600/90 text-white px-6 py-7">
+            {(() => {
+              const meta = selectedEmotion 
+                ? getAllEmotions().find(e => e.key === selectedEmotion)
+                : null;
+              return (
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center text-2xl">
+                    {meta?.emoji || '🌟'}
+                  </div>
+                  <div className="flex-1">
+                    <DialogTitle className="m-0 p-0 text-white text-2xl font-semibold">情绪已记录</DialogTitle>
+                    <DialogDescription className="m-0 p-0 text-white/80 text-sm mt-1">
+                      {meta ? `已保存：${meta.label}` : '你的情绪记录已保存'}
+                    </DialogDescription>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* 动作区 */}
+          <div className="px-6 py-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button
+                onClick={() => handleActionChoice('diary')}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white py-3 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl"
+              >
+                <BookOpen className="w-4 h-4 mr-2" /> 写日记
+              </Button>
+              <Button
+                onClick={() => handleActionChoice('chat')}
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" /> 去聊天
+              </Button>
+            </div>
+            <div className="mt-3">
+              <Button
+                onClick={() => handleActionChoice('stay')}
+                variant="outline"
+                className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 py-3 rounded-xl text-sm font-medium"
+              >
+                先逛逛，稍后再说
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

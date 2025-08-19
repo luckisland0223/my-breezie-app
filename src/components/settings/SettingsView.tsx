@@ -1,54 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
 import { 
   User, 
-  Palette, 
-  Bell, 
   Shield, 
   Database, 
   Download,
   Upload,
   Trash2,
-  Moon,
-  Sun,
-  Monitor,
-  Volume2,
-  VolumeX,
   RotateCcw,
   Heart,
-  Save,
-  Bot,
-  Brain,
-  Search
+  Save
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+ 
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-import { useMoodStore } from "@/store/mood";
-import { useSettingsStore } from "@/store/settings";
+import { useMoodStore, getAllEmotions, emotionScores } from "@/store/mood";
 import { toast } from "sonner";
 
-const themeOptions = [
-  { value: "light", label: "浅色模式", icon: Sun },
-  { value: "dark", label: "深色模式", icon: Moon },
-  { value: "system", label: "跟随系统", icon: Monitor },
-];
-
-const languageOptions = [
-  { value: "zh-CN", label: "简体中文", flag: "🇨🇳" },
-  { value: "en-US", label: "English", flag: "🇺🇸" },
-  { value: "ja-JP", label: "日本語", flag: "🇯🇵" },
-];
+// 已移除外观与语言设置
 
 export function SettingsView() {
   const { 
@@ -66,16 +44,9 @@ export function SettingsView() {
   // 本地状态
   const [userName, setUserName] = useState("情绪疏导用户");
   const [userEmail, setUserEmail] = useState("");
-  const [theme, setTheme] = useState("system");
-  const [language, setLanguage] = useState("zh-CN");
+  // 已移除外观与语言设置
   
 
-  const [notifications, setNotifications] = useState({
-    dailyReminder: true,
-    moodTracking: true,
-    weeklyReport: true,
-    soundEnabled: true,
-  });
   const [privacy, setPrivacy] = useState({
     dataCollection: true,
     analytics: false,
@@ -133,17 +104,60 @@ export function SettingsView() {
     }
   };
 
+  // 生成演示数据（最近30天）
+  const handleSeedDemoData = () => {
+    const { addMoodRecord, updateDailyStats } = useMoodStore.getState();
+    const emotions = getAllEmotions();
+    const fmt = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const da = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${da}`;
+    };
+    const today = new Date();
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const dateStr = fmt(d);
+      // 随机决定当天是否活跃
+      const active = Math.random() < 0.8;
+      if (!active) { continue; }
+      // 情绪选择 1-3 个
+      const emotionCount = 1 + Math.floor(Math.random() * 3);
+      for (let e = 0; e < emotionCount; e++) {
+        const pick = emotions[Math.floor(Math.random() * emotions.length)];
+        if (!pick) continue;
+        const value = (emotionScores as Record<string, number>)[pick.key] || 5;
+        addMoodRecord({
+          date: dateStr,
+          type: 'emotion_select',
+          value,
+          weight: 1.0,
+          source: pick.key,
+          note: `demo: ${pick.label}`,
+        });
+      }
+      // 对话分析 1-4 次
+      const convCount = 1 + Math.floor(Math.random() * 4);
+      for (let c = 0; c < convCount; c++) {
+        const score = 4 + Math.floor(Math.random() * 5); // 4-8
+        addMoodRecord({
+          date: dateStr,
+          type: 'chat_analysis',
+          value: score,
+          weight: 2.0,
+          source: 'ai_analysis',
+          note: 'demo chat',
+        });
+      }
+      updateDailyStats(dateStr);
+    }
+    toast.success("已生成最近30天的演示数据");
+  };
+
   // 重置设置
   const handleResetSettings = () => {
     if (confirm("确定要重置所有设置吗？")) {
-      setTheme("system");
-      setLanguage("zh-CN");
-      setNotifications({
-        dailyReminder: true,
-        moodTracking: true,
-        weeklyReport: true,
-        soundEnabled: true,
-      });
       setPrivacy({
         dataCollection: true,
         analytics: false,
@@ -219,132 +233,22 @@ export function SettingsView() {
 
         {/* DeepSeek 设置区块移除（服务器读取环境变量） */}
 
-        {/* 外观和偏好设置 */}
+        {/* 外观和语言卡片已删除 */}
+
+        {/* 隐私与数据设置 */}
         <div>
           <Card className="card-apple">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Palette className="w-5 h-5 text-purple-500" />
-                <span>外观和语言</span>
+                <Shield className="w-5 h-5 text-green-600" />
+                <span>隐私与数据</span>
               </CardTitle>
               <CardDescription>
-                自定义Breezie的外观和语言设置
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>主题模式</Label>
-                  <Select value={theme} onValueChange={setTheme}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {themeOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          <div className="flex items-center space-x-2">
-                            <option.icon className="w-4 h-4" />
-                            <span>{option.label}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>语言设置</Label>
-                  <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languageOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          <div className="flex items-center space-x-2">
-                            <span>{option.flag}</span>
-                            <span>{option.label}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 通知和隐私设置 */}
-        <div>
-          <Card className="card-apple">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Bell className="w-5 h-5 text-yellow-500" />
-                <span>通知和隐私</span>
-              </CardTitle>
-              <CardDescription>
-                管理通知偏好和隐私设置
+                仅保留必要的隐私选项
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* 通知设置 */}
-              <div className="space-y-4">
-                <Label className="text-base font-medium">通知偏好</Label>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="space-y-1">
-                      <Label>每日提醒</Label>
-                      <p className="text-xs text-apple-caption">提醒你记录每日情绪</p>
-                    </div>
-                    <Switch
-                      checked={notifications.dailyReminder}
-                      onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, dailyReminder: checked }))}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="space-y-1">
-                      <Label>情绪追踪</Label>
-                      <p className="text-xs text-apple-caption">情绪变化趋势通知</p>
-                    </div>
-                    <Switch
-                      checked={notifications.moodTracking}
-                      onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, moodTracking: checked }))}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="space-y-1">
-                      <Label>周报总结</Label>
-                      <p className="text-xs text-apple-caption">每周情绪分析报告</p>
-                    </div>
-                    <Switch
-                      checked={notifications.weeklyReport}
-                      onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, weeklyReport: checked }))}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="space-y-1">
-                      <Label className="flex items-center space-x-2">
-                        {notifications.soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-                        <span>声音通知</span>
-                      </Label>
-                      <p className="text-xs text-apple-caption">启用通知声音</p>
-                    </div>
-                    <Switch
-                      checked={notifications.soundEnabled}
-                      onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, soundEnabled: checked }))}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* 隐私设置 */}
+              {/* 隐私设置（仅三项） */}
               <div className="space-y-4">
                 <Label className="text-base font-medium flex items-center space-x-2">
                   <Shield className="w-4 h-4 text-green-600" />
@@ -458,6 +362,9 @@ export function SettingsView() {
                       导入数据
                     </Button>
                   </div>
+                  <Button onClick={handleSeedDemoData} className="btn-apple-primary">
+                    生成演示数据（30天）
+                  </Button>
                 </div>
               </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { startTransition } from "react";
+import React, { startTransition, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { 
@@ -18,6 +18,7 @@ import {
   Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useMoodStore } from "@/store/mood";
 
 const navigation = [
   { 
@@ -73,6 +74,12 @@ const navigation = [
 export function LeftSidebar() {
   const router = useRouter();
   const pathname = usePathname();
+  const [todayScore, setTodayScore] = useState<number | null>(null);
+
+  // 仅在客户端挂载后读取今日情绪指数，避免 SSR 与客户端不一致
+  useEffect(() => {
+    setTodayScore(useMoodStore.getState().getTodayMoodScore());
+  }, []);
 
   // 优化的导航处理函数
   const handleNavigation = React.useCallback((href: string) => {
@@ -202,27 +209,13 @@ export function LeftSidebar() {
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-apple-title">用户</div>
-                <div className="text-sm text-apple-caption">高级会员</div>
+                <div className="text-sm text-apple-caption">Beta 用户</div>
               </div>
               <div className="flex items-center space-x-1">
                 <Heart className="w-4 h-4 text-red-500" />
-                <span className="text-sm font-semibold text-apple-title">5</span>
-              </div>
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="mt-3">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-apple-caption">今日进度</span>
-                <span className="text-xs font-semibold text-apple-title">3/5</span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: "60%" }}
-                  transition={{ delay: 1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full"
-                />
+                <span className="text-sm font-semibold text-apple-title" suppressHydrationWarning>
+                  {todayScore ?? '-'}
+                </span>
               </div>
             </div>
           </div>

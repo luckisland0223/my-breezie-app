@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useMoodStore, getAllEmotions } from "@/store/mood";
 
-// 空的心情记录数据 - 使用真实用户数据
-const moodData: Record<string, { mood: string; emoji: string; color: string; intensity: number }> = {};
+// 本组件根据 zustand 的 dailyStats 实时计算每日情绪
 
 const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
 const months = [
@@ -19,6 +19,19 @@ const months = [
 export function MoodCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  // 订阅数据源
+  const dailyStats = useMoodStore((s) => s.dailyStats);
+  const getDailyStats = useMoodStore((s) => s.getDailyStats);
+
+  // 情绪元数据（emoji/label）
+  const emotionMeta = useMemo(() => {
+    const map: Record<string, { emoji: string; label: string }> = {};
+    getAllEmotions().forEach((e) => {
+      map[e.key] = { emoji: e.emoji, label: e.label };
+    });
+    return map;
+  }, []);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -60,14 +73,28 @@ export function MoodCalendar() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  const colorByScore = (score: number) => {
+    if (score >= 7) return 'bg-green-100';
+    if (score >= 5) return 'bg-yellow-100';
+    return 'bg-red-100';
+  };
+
   const getMoodForDate = (date: Date) => {
     const dateStr = formatDate(date);
-    return moodData[dateStr];
+    const stats = getDailyStats(dateStr);
+    if (!stats || !stats.records || stats.records.length === 0) return undefined;
+    const avg = stats.averageScore || 0;
+    const dom = stats.dominantEmotion as string | undefined;
+    const emoji = dom && emotionMeta[dom] ? emotionMeta[dom].emoji : '🙂';
+    const label = dom && emotionMeta[dom] ? emotionMeta[dom].label : '记录';
+    return { mood: label, emoji, color: colorByScore(avg), intensity: Math.round(avg) };
   };
 
   const getSelectedMoodData = () => {
     if (!selectedDate) return null;
-    return moodData[selectedDate];
+    const d = selectedDate.split('-');
+    const dt = new Date(Number(d[0]), Number(d[1]) - 1, Number(d[2]));
+    return getMoodForDate(dt) || null;
   };
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { 
   Heart, 
   TrendingUp, 
@@ -17,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { MoodCalendar } from "./MoodCalendar";
+import { useMoodStore } from "@/store/mood";
 
 // 空的数据数组 - 使用真实用户数据
 const emotionData: Array<{ name: string; count: number; color: string; percentage: number }> = [];
@@ -26,6 +28,19 @@ const recentSessions: Array<{ date: string; duration: string; mood: string; impr
 const achievements: Array<{ name: string; description: string; icon: any; completed: boolean }> = [];
 
 export function DashboardOverview() {
+  // 订阅必要的状态以触发重渲染
+  const moodRecords = useMoodStore((s) => s.moodRecords);
+  const dailyStats = useMoodStore((s) => s.dailyStats);
+  const getTodayMoodScore = useMoodStore((s) => s.getTodayMoodScore);
+  const getMonthlyAverage = useMoodStore((s) => s.getMonthlyAverage);
+  const getTotalConversations = useMoodStore((s) => s.getTotalConversations);
+  const getContinuousDays = useMoodStore((s) => s.getContinuousDays);
+
+  // 使用 useMemo 以避免不必要计算，并保证与数据同步
+  const todayScore = useMemo(() => getTodayMoodScore() || 0, [moodRecords, dailyStats, getTodayMoodScore]);
+  const monthAvg = useMemo(() => getMonthlyAverage() || 0, [moodRecords, dailyStats, getMonthlyAverage]);
+  const totalConversations = useMemo(() => getTotalConversations() || 0, [moodRecords, getTotalConversations]);
+  const continuousDays = useMemo(() => getContinuousDays() || 0, [dailyStats, getContinuousDays]);
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
@@ -48,15 +63,13 @@ export function DashboardOverview() {
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                总对话次数
+                今日情绪
               </CardTitle>
-              <Activity className="h-4 w-4 text-blue-600" />
+              <Heart className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">0</div>
-              <p className="text-xs text-blue-600 dark:text-blue-400">
-                暂无数据
-              </p>
+              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{todayScore}</div>
+              <p className="text-xs text-blue-600 dark:text-blue-400">/10</p>
             </CardContent>
           </Card>
         </div>
@@ -65,15 +78,13 @@ export function DashboardOverview() {
           <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">
-                平均对话时长
+                本月平均
               </CardTitle>
               <Clock className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-900 dark:text-green-100">0分钟</div>
-              <p className="text-xs text-green-600 dark:text-green-400">
-                暂无数据
-              </p>
+              <div className="text-2xl font-bold text-green-900 dark:text-green-100">{monthAvg}</div>
+              <p className="text-xs text-green-600 dark:text-green-400">/10</p>
             </CardContent>
           </Card>
         </div>
@@ -82,15 +93,13 @@ export function DashboardOverview() {
           <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300">
-                情绪改善度
+                总对话数
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">+18%</div>
-              <p className="text-xs text-purple-600 dark:text-purple-400">
-                较上月提升
-              </p>
+              <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">{totalConversations}</div>
+              <p className="text-xs text-purple-600 dark:text-purple-400">次</p>
             </CardContent>
           </Card>
         </div>
@@ -104,10 +113,8 @@ export function DashboardOverview() {
               <Calendar className="h-4 w-4 text-yellow-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">0天</div>
-              <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                暂无数据
-              </p>
+              <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{continuousDays}天</div>
+              <p className="text-xs text-yellow-600 dark:text-yellow-400">持续打卡</p>
             </CardContent>
           </Card>
         </div>
