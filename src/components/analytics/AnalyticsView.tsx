@@ -169,8 +169,9 @@ export function AnalyticsView() {
   const emotionsByCategory = useMemo(() => {
     const groups: Record<string, Array<{ name: string; value: number; color: string; category: string; emoji?: string }>> = {};
     for (const e of emotionDistribution) {
-      if (!groups[e.category]) groups[e.category] = [];
-      groups[e.category].push(e as any);
+      const cat = (e && (e as any).category) ? (e as any).category as string : 'unknown';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(e as any);
     }
     Object.values(groups).forEach(arr => arr.sort((a, b) => b.value - a.value));
     return groups;
