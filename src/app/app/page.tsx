@@ -7,75 +7,64 @@ export default async function AppHomePage() {
 	const email = data.user?.email ?? "friend";
 
 	return (
-		<div className="max-w-4xl mx-auto space-y-8">
-			{/* Welcome Header - Modern style */}
-			<div className="text-center animate-bounce-in">
-				<div className="mb-4 inline-flex items-center justify-center w-20 h-20 rounded-full shadow-lg animate-wiggle" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-					<span className="text-3xl">👋</span>
+		<div className="max-w-5xl mx-auto space-y-12">
+			{/* Modern Welcome Header */}
+			<div className="text-center animate-fade-in-up">
+				<div className="mb-6 inline-flex items-center justify-center w-24 h-24 rounded-3xl shadow-2xl animate-float animate-glow" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+					<span className="text-4xl">👋</span>
 				</div>
-				<h1 className="text-4xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
-					Welcome to Breezie.io!
+				<h1 className="text-5xl font-bold mb-4 gradient-text">
+					Welcome back, {email.split('@')[0]}!
 				</h1>
-				<p className="text-xl mb-6" style={{ color: "var(--color-text-secondary)" }}>Your journey to emotional well-being starts here.</p>
-				
-				{/* Get Started Button */}
-				<div className="mt-8">
-					<Link
-						className="btn-modern btn-primary inline-flex items-center gap-3 px-8 py-4 text-lg font-bold shadow-lg hover:animate-wiggle"
-						href="/login"
-					>
-						<span className="text-xl">🚀</span>
-						Get Started
-					</Link>
-				</div>
+				<p className="text-2xl font-light" style={{ color: "var(--color-text-secondary)" }}>How are you feeling right now?</p>
 			</div>
 
-			{/* Quick Check-in Card - Modern style */}
-			<div className="card-modern p-8 animate-bounce-in animation-delay-200">
-				<div className="text-center mb-8">
-					<div className="inline-flex p-4 rounded-full mb-6 shadow-lg animate-pulse-success" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-						<span className="text-4xl">❤️</span>
+			{/* Modern Check-in Card */}
+			<div className="card-modern p-10 animate-fade-in-up animation-delay-200">
+				<div className="text-center mb-10">
+					<div className="inline-flex p-5 rounded-3xl mb-8 shadow-2xl animate-float" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+						<span className="text-5xl">❤️</span>
 					</div>
-					<h2 className="text-2xl font-bold mb-3" style={{ color: "var(--color-text-primary)" }}>Daily Check-in</h2>
-					<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Take a moment to reflect on your current state</p>
+					<h2 className="text-3xl font-bold mb-4 gradient-text">Daily Check-in</h2>
+					<p className="text-xl font-light" style={{ color: "var(--color-text-secondary)" }}>Take a moment to reflect on your current state</p>
 				</div>
 				<QuickCheckIn />
 			</div>
 
-			{/* Quick Actions - Modern style */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-bounce-in animation-delay-400">
-				<a href="/app/chat" className="card-modern p-6 group">
-					<div className="flex flex-col items-center text-center space-y-4">
-						<div className="p-4 rounded-full shadow-lg group-hover:animate-wiggle" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-							<span className="text-3xl">💬</span>
+			{/* Modern Quick Actions */}
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-10 animate-fade-in-up animation-delay-400">
+				<a href="/app/chat" className="card-modern p-8 group">
+					<div className="flex flex-col items-center text-center space-y-6">
+						<div className="w-20 h-20 rounded-3xl shadow-2xl group-hover:animate-float flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+							<span className="text-4xl">💬</span>
 						</div>
 						<div>
-							<h3 className="text-xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>Start Chatting</h3>
-							<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Talk through your feelings with AI support</p>
+							<h3 className="text-2xl font-bold mb-3 gradient-text">Start Chatting</h3>
+							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>Talk through your feelings with AI support</p>
 						</div>
 					</div>
 				</a>
 
-				<a href="/app/overview" className="card-modern p-6 group">
-					<div className="flex flex-col items-center text-center space-y-4">
-						<div className="p-4 rounded-full shadow-lg group-hover:animate-wiggle" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-							<span className="text-3xl">📊</span>
+				<a href="/app/overview" className="card-modern p-8 group">
+					<div className="flex flex-col items-center text-center space-y-6">
+						<div className="w-20 h-20 rounded-3xl shadow-2xl group-hover:animate-float flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--color-quaternary), var(--color-brand-end))" }}>
+							<span className="text-4xl">📊</span>
 						</div>
 						<div>
-							<h3 className="text-xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>View Insights</h3>
-							<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>See your emotional progress and trends</p>
+							<h3 className="text-2xl font-bold mb-3 gradient-text">View Insights</h3>
+							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>See your emotional progress and trends</p>
 						</div>
 					</div>
 				</a>
 
-				<a href="/app/analysis" className="card-modern p-6 group">
-					<div className="flex flex-col items-center text-center space-y-4">
-						<div className="p-4 rounded-full shadow-lg group-hover:animate-wiggle" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-							<span className="text-3xl">✨</span>
+				<a href="/app/analysis" className="card-modern p-8 group">
+					<div className="flex flex-col items-center text-center space-y-6">
+						<div className="w-20 h-20 rounded-3xl shadow-2xl group-hover:animate-float flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--color-tertiary), var(--color-brand-start))" }}>
+							<span className="text-4xl">✨</span>
 						</div>
 						<div>
-							<h3 className="text-xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>Get Analysis</h3>
-							<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Discover patterns and insights</p>
+							<h3 className="text-2xl font-bold mb-3 gradient-text">Get Analysis</h3>
+							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>Discover patterns and insights</p>
 						</div>
 					</div>
 				</a>

@@ -77,18 +77,18 @@ export default async function AppLayout({
 
 	return (
 		<div className="flex min-h-screen" style={{ backgroundColor: "var(--color-bg-primary)" }}>
-			{/* Apple-style Fixed Sidebar */}
-			<aside className="fixed left-0 top-0 z-40 h-screen w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 shadow-xl md:block hidden">
+			{/* Modern Fixed Sidebar */}
+			<aside className="fixed left-0 top-0 z-40 h-screen w-72 sidebar-modern shadow-2xl md:block hidden">
 				<div className="flex h-full flex-col">
-					{/* Header with Apple-style branding */}
-					<div className="px-8 py-6 border-b border-gray-100/50">
+					{/* Modern branding header */}
+					<div className="px-8 py-8 border-b border-white/10">
 						<Link href="/app" className="block group">
-							<div className="flex items-center space-x-3">
-								<div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+							<div className="flex items-center space-x-4">
+								<div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl animate-glow" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
 									<img 
 										src="/logo-white.svg" 
 										alt="Breezie" 
-										className="w-6 h-6"
+										className="w-7 h-7"
 										onError={(e) => {
 											// 如果白色logo不存在，尝试普通logo
 											e.currentTarget.src = '/logo.svg';
@@ -102,49 +102,56 @@ export default async function AppLayout({
 									<span className="text-white text-xl font-bold hidden">B</span>
 								</div>
 								<div>
-									<h1 className="text-xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Breezie</h1>
-									<p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Emotional Wellness</p>
+									<h1 className="text-xl font-bold gradient-text">Breezie</h1>
+									<p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Emotional Wellness</p>
 								</div>
 							</div>
 						</Link>
-						<div className="mt-4 px-3 py-2 bg-gray-50/50 rounded-lg">
-							<p className="text-sm font-medium" style={{ color: "var(--color-text-secondary)" }}>{email.split('@')[0]}</p>
-							<p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{email}</p>
+						<div className="mt-6 p-4 glass-effect rounded-2xl">
+							<div className="flex items-center space-x-3">
+								<div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+									<span className="text-white text-sm font-bold">{email.charAt(0).toUpperCase()}</span>
+								</div>
+								<div>
+									<p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>{email.split('@')[0]}</p>
+									<p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{email}</p>
+								</div>
+							</div>
 						</div>
 					</div>
 
-					{/* Apple-style Navigation */}
-					<nav className="flex-1 px-4 py-6 space-y-2">
+					{/* Modern Navigation */}
+					<nav className="flex-1 px-6 py-8 space-y-3">
 						{nav.map((item) => (
 							<Link 
 								key={item.href} 
 								href={item.href} 
-								className="group flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 hover:bg-gray-50/80 hover:scale-[1.02] active:scale-[0.98]"
-								style={{ color: "var(--color-text-secondary)" }}
+								className="group flex items-center gap-4 rounded-2xl px-5 py-4 text-sm font-medium transition-all duration-300 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] glass-effect"
+								style={{ color: "var(--color-text-primary)" }}
 							>
-								<div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100/50 group-hover:bg-white group-hover:shadow-sm transition-all duration-200">
-									<span className="text-gray-500 group-hover:text-blue-600">
+								<div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500/20 to-purple-600/20 group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:shadow-lg transition-all duration-300">
+									<span className="text-indigo-600 group-hover:text-white transition-colors duration-300">
 										{item.icon}
 									</span>
 								</div>
-								<span className="group-hover:font-semibold transition-all duration-200">{item.label}</span>
+								<span className="group-hover:font-bold transition-all duration-300">{item.label}</span>
 							</Link>
 						))}
 					</nav>
 
-					{/* Apple-style Footer */}
-					<div className="px-4 py-6 border-t border-gray-100/50">
+					{/* Modern Footer */}
+					<div className="px-6 py-6 border-t border-white/10">
 						<Link 
 							href="/auth/signout" 
-							className="group flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 hover:bg-red-50/80 hover:scale-[1.02] active:scale-[0.98]"
+							className="group flex items-center gap-4 rounded-2xl px-5 py-4 text-sm font-medium transition-all duration-300 hover:bg-red-500/10 hover:scale-[1.02] active:scale-[0.98] glass-effect"
 							style={{ color: "var(--color-text-secondary)" }}
 						>
-							<div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100/50 group-hover:bg-red-100 transition-all duration-200">
-								<svg className="h-5 w-5 text-gray-500 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<div className="w-10 h-10 rounded-xl flex items-center justify-center bg-red-500/20 group-hover:bg-red-500 group-hover:shadow-lg transition-all duration-300">
+								<svg className="h-5 w-5 text-red-500 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
 								</svg>
 							</div>
-							<span className="group-hover:font-semibold group-hover:text-red-600 transition-all duration-200">Sign out</span>
+							<span className="group-hover:font-bold group-hover:text-red-600 transition-all duration-300">Sign out</span>
 						</Link>
 					</div>
 				</div>
