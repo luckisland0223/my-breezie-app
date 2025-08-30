@@ -21,7 +21,18 @@ export default async function HomePage() {
 					{/* Logo and Brand */}
 					<div className="space-y-6 animate-fade-in-up">
 						<div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl shadow-xl" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-							<span className="text-4xl">🌱</span>
+							{/* 你可以将这里的emoji替换为真实logo */}
+							<img 
+								src="/logo.svg" 
+								alt="Breezie Logo" 
+								className="w-12 h-12"
+								onError={(e) => {
+									// 如果logo文件不存在，显示emoji作为后备
+									e.currentTarget.style.display = 'none';
+									e.currentTarget.nextElementSibling.style.display = 'block';
+								}}
+							/>
+							<span className="text-4xl hidden">🌱</span>
 						</div>
 						<div className="space-y-4">
 							<h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>

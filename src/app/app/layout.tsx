@@ -85,7 +85,21 @@ export default async function AppLayout({
 						<Link href="/app" className="block group">
 							<div className="flex items-center space-x-3">
 								<div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-									<span className="text-white text-xl font-bold">B</span>
+									<img 
+										src="/logo-white.svg" 
+										alt="Breezie" 
+										className="w-6 h-6"
+										onError={(e) => {
+											// 如果白色logo不存在，尝试普通logo
+											e.currentTarget.src = '/logo.svg';
+											e.currentTarget.onerror = () => {
+												// 如果都不存在，显示字母B
+												e.currentTarget.style.display = 'none';
+												e.currentTarget.nextElementSibling.style.display = 'block';
+											};
+										}}
+									/>
+									<span className="text-white text-xl font-bold hidden">B</span>
 								</div>
 								<div>
 									<h1 className="text-xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Breezie</h1>
