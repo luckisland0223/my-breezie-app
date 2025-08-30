@@ -76,7 +76,7 @@ export default async function AppLayout({
 	];
 
 	return (
-		<div className="flex min-h-screen bg-gray-50">
+		<div className="flex min-h-screen" style={{ backgroundColor: "var(--color-bg-primary)" }}>
 			<aside className="hidden w-64 shrink-0 bg-white shadow-sm md:block">
 				<div className="flex h-full flex-col">
 					{/* Header */}

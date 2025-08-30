@@ -1,73 +1,91 @@
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 export default async function AppHomePage() {
 	const supabase = await createSupabaseServerClient();
 	const { data } = await supabase.auth.getUser();
 	const email = data.user?.email ?? "friend";
+
+	const router = useRouter();
+
+	useEffect(() => {
+		if (data.user) {
+			router.push("/app");
+		}
+	}, [data.user, router]);
+
 	return (
 		<div className="max-w-4xl mx-auto space-y-8">
-			{/* Welcome Header */}
-			<div className="text-center">
-				<h1 className="text-3xl font-bold text-gray-900 mb-2">
-					Welcome back, {email.split('@')[0]}
+			{/* Welcome Header - Modern style */}
+			<div className="text-center animate-bounce-in">
+				<div className="mb-4 inline-flex items-center justify-center w-20 h-20 rounded-full shadow-lg animate-wiggle" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+					<span className="text-3xl">👋</span>
+				</div>
+				<h1 className="text-4xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
+					Welcome to Breezie.io!
 				</h1>
-				<p className="text-gray-600 text-lg">How are you feeling right now?</p>
+				<p className="text-xl mb-6" style={{ color: "var(--color-text-secondary)" }}>Your journey to emotional well-being starts here.</p>
+				
+				{/* Get Started Button */}
+				<div className="mt-8">
+					<Link
+						className="btn-modern btn-primary inline-flex items-center gap-3 px-8 py-4 text-lg font-bold shadow-lg hover:animate-wiggle"
+						href="/login"
+					>
+						<span className="text-xl">🚀</span>
+						Get Started
+					</Link>
+				</div>
 			</div>
 
-			{/* Quick Check-in Card */}
-			<div className="bg-white rounded-xl shadow-sm border p-8">
-				<div className="text-center mb-6">
-					<div className="inline-flex p-3 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full mb-4">
-						<svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-						</svg>
+			{/* Quick Check-in Card - Modern style */}
+			<div className="card-modern p-8 animate-bounce-in animation-delay-200">
+				<div className="text-center mb-8">
+					<div className="inline-flex p-4 rounded-full mb-6 shadow-lg animate-pulse-success" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+						<span className="text-4xl">❤️</span>
 					</div>
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">Daily Check-in</h2>
-					<p className="text-gray-600">Take a moment to reflect on your current state</p>
+					<h2 className="text-2xl font-bold mb-3" style={{ color: "var(--color-text-primary)" }}>Daily Check-in</h2>
+					<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Take a moment to reflect on your current state</p>
 				</div>
 				<QuickCheckIn />
 			</div>
 
-			{/* Quick Actions */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-				<a href="/app/chat" className="group bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-					<div className="flex items-center space-x-4">
-						<div className="p-3 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-							<svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-							</svg>
+			{/* Quick Actions - Modern style */}
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-bounce-in animation-delay-400">
+				<a href="/app/chat" className="card-modern p-6 group">
+					<div className="flex flex-col items-center text-center space-y-4">
+						<div className="p-4 rounded-full shadow-lg group-hover:animate-wiggle" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+							<span className="text-3xl">💬</span>
 						</div>
 						<div>
-							<h3 className="font-semibold text-gray-900">Start Chatting</h3>
-							<p className="text-sm text-gray-600">Talk through your feelings</p>
+							<h3 className="text-xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>Start Chatting</h3>
+							<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Talk through your feelings with AI support</p>
 						</div>
 					</div>
 				</a>
 
-				<a href="/app/overview" className="group bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-					<div className="flex items-center space-x-4">
-						<div className="p-3 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors">
-							<svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-							</svg>
+				<a href="/app/overview" className="card-modern p-6 group">
+					<div className="flex flex-col items-center text-center space-y-4">
+						<div className="p-4 rounded-full shadow-lg group-hover:animate-wiggle" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+							<span className="text-3xl">📊</span>
 						</div>
 						<div>
-							<h3 className="font-semibold text-gray-900">View Insights</h3>
-							<p className="text-sm text-gray-600">See your progress</p>
+							<h3 className="text-xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>View Insights</h3>
+							<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>See your emotional progress and trends</p>
 						</div>
 					</div>
 				</a>
 
-				<a href="/app/analysis" className="group bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-					<div className="flex items-center space-x-4">
-						<div className="p-3 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
-							<svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-							</svg>
+				<a href="/app/analysis" className="card-modern p-6 group">
+					<div className="flex flex-col items-center text-center space-y-4">
+						<div className="p-4 rounded-full shadow-lg group-hover:animate-wiggle" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+							<span className="text-3xl">✨</span>
 						</div>
 						<div>
-							<h3 className="font-semibold text-gray-900">Get Analysis</h3>
-							<p className="text-sm text-gray-600">Discover patterns</p>
+							<h3 className="text-xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>Get Analysis</h3>
+							<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Discover patterns and insights</p>
 						</div>
 					</div>
 				</a>
@@ -161,11 +179,12 @@ function QuickCheckIn() {
 				/>
 			</div>
 
-			{/* Submit Button */}
+			{/* Submit Button - Modern style */}
 			<button 
 				type="submit"
-				className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-600 hover:to-purple-600 hover:shadow-xl"
+				className="btn-modern btn-primary w-full px-6 py-4 text-lg"
 			>
+				<span className="text-xl mr-2">✅</span>
 				Save Check-in
 			</button>
 		</form>
