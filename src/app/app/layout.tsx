@@ -77,50 +77,68 @@ export default async function AppLayout({
 
 	return (
 		<div className="flex min-h-screen" style={{ backgroundColor: "var(--color-bg-primary)" }}>
-			<aside className="hidden w-64 shrink-0 bg-white shadow-sm md:block">
+			{/* Apple-style Fixed Sidebar */}
+			<aside className="fixed left-0 top-0 z-40 h-screen w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 shadow-xl md:block hidden">
 				<div className="flex h-full flex-col">
-					{/* Header */}
-					<div className="border-b border-gray-200 p-6">
-						<Link href="/app" className="block">
-							<span className="text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(90deg, var(--color-brand-start), var(--color-brand-end))" }}>
-								Breezie
-							</span>
+					{/* Header with Apple-style branding */}
+					<div className="px-8 py-6 border-b border-gray-100/50">
+						<Link href="/app" className="block group">
+							<div className="flex items-center space-x-3">
+								<div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+									<span className="text-white text-xl font-bold">B</span>
+								</div>
+								<div>
+									<h1 className="text-xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Breezie</h1>
+									<p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Emotional Wellness</p>
+								</div>
+							</div>
 						</Link>
-						<p className="mt-2 text-sm text-gray-600">{email}</p>
+						<div className="mt-4 px-3 py-2 bg-gray-50/50 rounded-lg">
+							<p className="text-sm font-medium" style={{ color: "var(--color-text-secondary)" }}>{email.split('@')[0]}</p>
+							<p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{email}</p>
+						</div>
 					</div>
 
-					{/* Navigation */}
-					<nav className="flex-1 space-y-1 p-4">
+					{/* Apple-style Navigation */}
+					<nav className="flex-1 px-4 py-6 space-y-2">
 						{nav.map((item) => (
 							<Link 
 								key={item.href} 
 								href={item.href} 
-								className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
+								className="group flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 hover:bg-gray-50/80 hover:scale-[1.02] active:scale-[0.98]"
+								style={{ color: "var(--color-text-secondary)" }}
 							>
-								<span className="text-gray-400 group-hover:text-gray-600">
-									{item.icon}
-								</span>
-								{item.label}
+								<div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100/50 group-hover:bg-white group-hover:shadow-sm transition-all duration-200">
+									<span className="text-gray-500 group-hover:text-blue-600">
+										{item.icon}
+									</span>
+								</div>
+								<span className="group-hover:font-semibold transition-all duration-200">{item.label}</span>
 							</Link>
 						))}
 					</nav>
 
-					{/* Footer */}
-					<div className="border-t border-gray-200 p-4">
+					{/* Apple-style Footer */}
+					<div className="px-4 py-6 border-t border-gray-100/50">
 						<Link 
 							href="/auth/signout" 
-							className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-red-50 hover:text-red-600"
+							className="group flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 hover:bg-red-50/80 hover:scale-[1.02] active:scale-[0.98]"
+							style={{ color: "var(--color-text-secondary)" }}
 						>
-							<svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-							</svg>
-							Sign out
+							<div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100/50 group-hover:bg-red-100 transition-all duration-200">
+								<svg className="h-5 w-5 text-gray-500 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+								</svg>
+							</div>
+							<span className="group-hover:font-semibold group-hover:text-red-600 transition-all duration-200">Sign out</span>
 						</Link>
 					</div>
 				</div>
 			</aside>
-			<main className="flex-1 overflow-hidden">
-				<div className="h-full overflow-y-auto p-6">
+			
+			{/* Main content with proper spacing for fixed sidebar */}
+			<main className="flex-1 ml-72 md:ml-72 ml-0">
+				<div className="min-h-screen p-8">
 					{children}
 				</div>
 			</main>

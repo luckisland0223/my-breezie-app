@@ -15,15 +15,15 @@ export default function OverviewPage() {
 
 	return (
 		<div className="max-w-6xl mx-auto space-y-8">
-			{/* Header */}
-			<div>
-				<h1 className="text-3xl font-bold text-gray-900">Overview</h1>
-				<p className="mt-2 text-gray-600">Track your emotional journey and discover patterns</p>
+			{/* Apple-style Header */}
+			<div className="space-y-2">
+				<h1 className="text-4xl font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>Overview</h1>
+				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Track your emotional journey and discover patterns</p>
 			</div>
 
-			{/* Stats Cards */}
+			{/* Apple-style Stats Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-				<div className="bg-white rounded-xl shadow-sm border p-6">
+				<div className="card-modern p-8">
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="text-sm font-medium text-gray-600">Average Mood</p>
@@ -43,7 +43,7 @@ export default function OverviewPage() {
 					</div>
 				</div>
 
-				<div className="bg-white rounded-xl shadow-sm border p-6">
+				<div className="card-modern p-6">
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="text-sm font-medium text-gray-600">Average Energy</p>
@@ -63,7 +63,7 @@ export default function OverviewPage() {
 					</div>
 				</div>
 
-				<div className="bg-white rounded-xl shadow-sm border p-6">
+				<div className="card-modern p-6">
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="text-sm font-medium text-gray-600">Check-ins</p>
@@ -82,7 +82,7 @@ export default function OverviewPage() {
 					</div>
 				</div>
 
-				<div className="bg-white rounded-xl shadow-sm border p-6">
+				<div className="card-modern p-6">
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="text-sm font-medium text-gray-600">Streak</p>
@@ -105,7 +105,7 @@ export default function OverviewPage() {
 			{/* Recent Activity */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				{/* Recent Check-ins */}
-				<div className="bg-white rounded-xl shadow-sm border">
+				<div className="card-modern">
 					<div className="p-6 border-b border-gray-200">
 						<h3 className="text-lg font-semibold text-gray-900">Recent Check-ins</h3>
 						<p className="text-sm text-gray-600">Your latest mood entries</p>
@@ -156,7 +156,7 @@ export default function OverviewPage() {
 				</div>
 
 				{/* Mood Trends */}
-				<div className="bg-white rounded-xl shadow-sm border">
+				<div className="card-modern">
 					<div className="p-6 border-b border-gray-200">
 						<h3 className="text-lg font-semibold text-gray-900">Mood Trends</h3>
 						<p className="text-sm text-gray-600">How you've been feeling lately</p>
