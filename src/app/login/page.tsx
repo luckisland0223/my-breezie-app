@@ -1,53 +1,47 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { env } from "@/env";
 
 export default function LoginPage() {
 	const supabase = createSupabaseBrowserClient();
+	const [tab, setTab] = useState<"signin" | "signup">("signin");
 	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [username, setUsername] = useState("");
 	const [pending, startTransition] = useTransition();
 	const [message, setMessage] = useState<string | null>(null);
 
-	useEffect(() => {
-		if (!env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) return;
-		const script = document.createElement("script");
-		script.src = "https://accounts.google.com/gsi/client";
-		script.async = true;
-		script.defer = true;
-		script.onload = () => {
-			// @ts-expect-error global
-			window.google?.accounts.id.initialize({
-				client_id: env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-				callback: async (response: any) => {
-					const credential = response?.credential;
-					if (!credential) return;
-					const { error } = await supabase.auth.signInWithIdToken({
-						provider: "google",
-						token: credential,
-					});
-					if (error) setMessage(error.message);
-				}
-			});
-			// @ts-expect-error global
-			window.google?.accounts.id.prompt();
-		};
-		document.head.appendChild(script);
-	}, [supabase]);
-
-	function onSubmit(e: React.FormEvent) {
-		e.preventDefault();
+	function resetMessages() {
 		setMessage(null);
+	}
+
+	function onSignIn(e: React.FormEvent) {
+		e.preventDefault();
+		resetMessages();
 		startTransition(async () => {
-			const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${location.origin}/auth/callback` } });
+			const { error } = await supabase.auth.signInWithPassword({ email, password });
 			if (error) setMessage(error.message);
-			else setMessage("Check your email for the magic link.");
+			else window.location.href = "/app";
+		});
+	}
+
+	function onSignUp(e: React.FormEvent) {
+		e.preventDefault();
+		resetMessages();
+		startTransition(async () => {
+			const { error } = await supabase.auth.signUp({
+				email,
+				password,
+				options: { data: { username } },
+			});
+			if (error) setMessage(error.message);
+			else setMessage("Account created. Please check your email to confirm.");
 		});
 	}
 
 	async function signInWithGoogle() {
-		setMessage(null);
+		resetMessages();
 		const { error } = await supabase.auth.signInWithOAuth({
 			provider: "google",
 			options: { redirectTo: `${location.origin}/auth/callback` },
@@ -68,52 +62,59 @@ export default function LoginPage() {
 					<div className="animate-fade-in-up rounded-2xl bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
 						{/* Header */}
 						<div className="mb-8 text-center">
-							<h1 className="mb-2 text-3xl font-bold text-gray-900">Welcome back</h1>
-							<p className="text-gray-600">Sign in to continue your journey</p>
+							<h1 className="mb-2 text-3xl font-bold text-gray-900">Welcome</h1>
+							<p className="text-gray-600">Sign in or create an account</p>
 						</div>
 
-						{/* One Tap notice */}
-						<div className="mb-6 rounded-lg bg-blue-50 p-3 text-center">
-							<p className="text-sm text-blue-700">
-								✨ One Tap will appear automatically. If blocked, use the options below.
-							</p>
-						</div>
-
-						{/* Email form */}
-						<form onSubmit={onSubmit} className="mb-6 space-y-4">
-							<div>
-								<label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-									Email address
-								</label>
-								<input
-									id="email"
-									type="email"
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									placeholder="you@example.com"
-									className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-									inputMode="email"
-									autoComplete="email"
-									required
-								/>
-							</div>
-							<button 
-								disabled={pending} 
-								className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+						{/* Tabs */}
+						<div className="mb-6 grid grid-cols-2 rounded-xl bg-gray-100 p-1">
+							<button
+								onClick={() => setTab("signin")}
+								className={`rounded-lg py-2 text-sm font-semibold transition ${tab === "signin" ? "bg-white shadow" : "text-gray-600"}`}
 							>
-								{pending ? (
-									<span className="flex items-center justify-center gap-2">
-										<svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-											<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-											<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-										</svg>
-										Sending magic link...
-									</span>
-								) : (
-									"Send magic link"
-								)}
+								Sign In
 							</button>
-						</form>
+							<button
+								onClick={() => setTab("signup")}
+								className={`rounded-lg py-2 text-sm font-semibold transition ${tab === "signup" ? "bg-white shadow" : "text-gray-600"}`}
+							>
+								Register
+							</button>
+						</div>
+
+						{tab === "signin" ? (
+							<form onSubmit={onSignIn} className="mb-6 space-y-4">
+								<div>
+									<label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">Email</label>
+									<input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" required />
+								</div>
+								<div>
+									<label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">Password</label>
+									<input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" required />
+								</div>
+								<button disabled={pending} className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+									{pending ? "Signing in..." : "Sign In"}
+								</button>
+							</form>
+						) : (
+							<form onSubmit={onSignUp} className="mb-6 space-y-4">
+								<div>
+									<label htmlFor="username" className="mb-2 block text-sm font-medium text-gray-700">Username</label>
+									<input id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Your display name" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" required />
+								</div>
+								<div>
+									<label htmlFor="email-r" className="mb-2 block text-sm font-medium text-gray-700">Email</label>
+									<input id="email-r" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" required />
+								</div>
+								<div>
+									<label htmlFor="password-r" className="mb-2 block text-sm font-medium text-gray-700">Password</label>
+									<input id="password-r" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" required />
+								</div>
+								<button disabled={pending} className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+									{pending ? "Creating account..." : "Create account"}
+								</button>
+							</form>
+						)}
 
 						{/* Divider */}
 						<div className="mb-6 flex items-center">
@@ -123,10 +124,7 @@ export default function LoginPage() {
 						</div>
 
 						{/* Google button */}
-						<button 
-							onClick={signInWithGoogle}
-							className="group w-full rounded-lg border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
-						>
+						<button onClick={signInWithGoogle} className="group w-full rounded-lg border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md">
 							<span className="flex items-center justify-center gap-3">
 								<svg className="h-5 w-5" viewBox="0 0 24 24">
 									<path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -141,9 +139,9 @@ export default function LoginPage() {
 						{/* Message */}
 						{message && (
 							<div className={`mt-4 rounded-lg p-3 text-sm ${
-								message.includes('Check your email') 
-									? 'bg-green-50 text-green-700 border border-green-200' 
-									: 'bg-red-50 text-red-700 border border-red-200'
+								message.includes("created")
+									? "bg-green-50 text-green-700 border border-green-200"
+									: "bg-red-50 text-red-700 border border-red-200"
 							}`}>
 								{message}
 							</div>
@@ -153,7 +151,7 @@ export default function LoginPage() {
 					{/* Footer */}
 					<div className="mt-6 text-center">
 						<p className="text-sm text-white/80">
-							New to Breezie? Your account will be created automatically.
+							By signing up, your account will be created automatically.
 						</p>
 					</div>
 				</div>
