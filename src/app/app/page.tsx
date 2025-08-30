@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-import { useRouter } from "next/router";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
@@ -7,14 +5,6 @@ export default async function AppHomePage() {
 	const supabase = await createSupabaseServerClient();
 	const { data } = await supabase.auth.getUser();
 	const email = data.user?.email ?? "friend";
-
-	const router = useRouter();
-
-	useEffect(() => {
-		if (data.user) {
-			router.push("/app");
-		}
-	}, [data.user, router]);
 
 	return (
 		<div className="max-w-4xl mx-auto space-y-8">
