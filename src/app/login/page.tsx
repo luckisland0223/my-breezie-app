@@ -46,6 +46,15 @@ export default function LoginPage() {
 		});
 	}
 
+	async function signInWithGoogle() {
+		setMessage(null);
+		const { error } = await supabase.auth.signInWithOAuth({
+			provider: "google",
+			options: { redirectTo: `${location.origin}/auth/callback` },
+		});
+		if (error) setMessage(error.message);
+	}
+
 	return (
 		<main className="flex min-h-screen items-center justify-center px-6">
 			<div className="w-full max-w-md space-y-6">
@@ -66,6 +75,12 @@ export default function LoginPage() {
 						{pending ? "Sending..." : "Send magic link"}
 					</button>
 				</form>
+				<div className="flex items-center gap-3">
+					<div className="h-px flex-1 bg-gray-200" />
+					<span className="text-xs text-gray-500">OR</span>
+					<div className="h-px flex-1 bg-gray-200" />
+				</div>
+				<button onClick={signInWithGoogle} className="w-full rounded-md border px-3 py-2 hover:bg-gray-50">Continue with Google</button>
 				{message && <p className="text-sm text-gray-600">{message}</p>}
 			</div>
 		</main>
