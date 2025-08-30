@@ -13,86 +13,102 @@ export default async function HomePage() {
 	}
 
 	return (
-		<main className="relative min-h-screen overflow-hidden" style={{ backgroundColor: "var(--color-bg-primary)" }}>
-			{/* Modern animated background */}
-			<div className="absolute inset-0 bg-gradient-to-br" style={{ backgroundImage: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-				{/* Floating elements background */}
-				<div className="absolute inset-0 opacity-10">
-					<div className="absolute top-20 left-10 w-16 h-16 bg-white rounded-full animate-subtle-bounce animation-delay-200"></div>
-					<div className="absolute top-40 right-20 w-12 h-12 bg-white rounded-full animate-subtle-bounce animation-delay-400"></div>
-					<div className="absolute bottom-40 left-20 w-20 h-20 bg-white rounded-full animate-subtle-bounce animation-delay-600"></div>
-					<div className="absolute bottom-20 right-10 w-14 h-14 bg-white rounded-full animate-subtle-bounce animation-delay-800"></div>
-					<div className="absolute top-1/2 left-1/4 w-8 h-8 bg-white rounded-full animate-subtle-bounce animation-delay-400"></div>
-					<div className="absolute top-1/3 right-1/3 w-10 h-10 bg-white rounded-full animate-subtle-bounce animation-delay-600"></div>
-				</div>
-			</div>
-			
-			{/* Hero section */}
-			<div className="relative flex min-h-screen flex-col items-center justify-center px-6">
-				<div className="container flex max-w-4xl flex-col items-center gap-8 text-center text-white">
-					{/* Logo/Brand with friendly mascot */}
-					<div className="animate-subtle-bounce">
-						{/* Cute mascot-style icon */}
-						<div className="mb-6 inline-flex items-center justify-center w-32 h-32 bg-white rounded-full shadow-md animate-subtle-bounce">
-							<div className="text-6xl">🌱</div>
-						</div>
-						<h1 className="mb-4 text-6xl font-extrabold tracking-tight sm:text-7xl lg:text-8xl drop-shadow-md" style={{ color: "var(--color-text-primary)" }}>
-							Breezie
-						</h1>
-						<div className="mx-auto h-2 w-32 rounded-full bg-white/40 shadow-md" />
-					</div>
+		<main className="min-h-screen" style={{ backgroundColor: "var(--color-bg-primary)" }}>
+			{/* Apple-style Hero Section */}
+			<div className="relative flex min-h-screen flex-col items-center justify-center px-6 py-20">
+				<div className="container max-w-5xl mx-auto text-center space-y-12">
 					
-					{/* Tagline */}
-					<div className="animate-fade-in-up animation-delay-200">
-						<p className="text-xl font-light tracking-wide opacity-95 sm:text-2xl" style={{ color: "var(--color-text-secondary)" }}>
-							feeling first, healing follows
-						</p>
+					{/* Logo and Brand */}
+					<div className="space-y-6 animate-fade-in-up">
+						<div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl shadow-xl" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+							<span className="text-4xl">🌱</span>
+						</div>
+						<div className="space-y-4">
+							<h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
+								Breezie
+							</h1>
+							<p className="text-xl sm:text-2xl font-light" style={{ color: "var(--color-text-secondary)" }}>
+								feeling first, healing follows
+							</p>
+						</div>
 					</div>
 					
 					{/* Description */}
-					<div className="animate-fade-in-up animation-delay-400 max-w-2xl">
-						<p className="text-lg leading-relaxed opacity-85 sm:text-xl" style={{ color: "var(--color-text-secondary)" }}>
+					<div className="animate-fade-in-up animation-delay-200 max-w-3xl mx-auto">
+						<p className="text-lg sm:text-xl leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
 							Gentle AI support for your emotions. Track, reflect, and feel better—one breath at a time.
 						</p>
 					</div>
 					
-					{/* CTA Button - Modern style */}
-					<div className="animate-subtle-bounce animation-delay-600">
+					{/* CTA Button */}
+					<div className="animate-fade-in-up animation-delay-400">
 						<Link
-							className="btn-modern btn-primary group relative inline-flex items-center gap-3 px-12 py-5 text-xl font-bold shadow-md hover:animate-subtle-bounce"
+							className="btn-modern btn-primary inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold"
 							href="/login"
 						>
-							<span className="text-2xl">🚀</span>
-							Get started
-							<svg className="h-6 w-6 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+							Get Started
+							<svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
 							</svg>
 						</Link>
 					</div>
 				</div>
-				
-				{/* Features preview - Modern style cards */}
-				<div className="animate-fade-in-up animation-delay-800 mt-16 grid max-w-4xl grid-cols-1 gap-8 px-6 md:grid-cols-3">
-					<div className="card-modern p-8 bg-white/15 backdrop-blur-sm border-white/20 hover:bg-white/20">
-						<div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/30 shadow-md">
-							<span className="text-3xl">💬</span>
-						</div>
-						<h3 className="mb-3 text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>AI Chat Support</h3>
-						<p className="text-white/90 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>Gentle conversations that understand your emotions and provide caring support</p>
+			</div>
+
+			{/* Features Section */}
+			<div className="py-20 px-6">
+				<div className="container max-w-6xl mx-auto">
+					<div className="text-center mb-16 space-y-4">
+						<h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+							Everything you need for emotional wellness
+						</h2>
+						<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>
+							Simple tools to help you understand and improve your mental health
+						</p>
 					</div>
-					<div className="card-modern p-8 bg-white/15 backdrop-blur-sm border-white/20 hover:bg-white/20">
-						<div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/30 shadow-md">
-							<span className="text-3xl">📊</span>
+					
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+						<div className="card-modern p-8 text-center space-y-6">
+							<div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+								<svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+								</svg>
+							</div>
+							<div>
+								<h3 className="text-xl font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>AI Chat Support</h3>
+								<p style={{ color: "var(--color-text-secondary)" }}>
+									Gentle conversations that understand your emotions and provide caring support
+								</p>
+							</div>
 						</div>
-						<h3 className="mb-3 text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>Mood Tracking</h3>
-						<p className="text-white/90 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>Simple daily check-ins with beautiful insights and progress tracking</p>
-					</div>
-					<div className="card-modern p-8 bg-white/15 backdrop-blur-sm border-white/20 hover:bg-white/20">
-						<div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/30 shadow-md">
-							<span className="text-3xl">✨</span>
+
+						<div className="card-modern p-8 text-center space-y-6">
+							<div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
+								<svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+								</svg>
+							</div>
+							<div>
+								<h3 className="text-xl font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>Mood Tracking</h3>
+								<p style={{ color: "var(--color-text-secondary)" }}>
+									Simple daily check-ins with beautiful insights and progress tracking
+								</p>
+							</div>
 						</div>
-						<h3 className="mb-3 text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>Personal Insights</h3>
-						<p className="text-white/90 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>Discover patterns and build healthier emotional habits over time</p>
+
+						<div className="card-modern p-8 text-center space-y-6">
+							<div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+								<svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+								</svg>
+							</div>
+							<div>
+								<h3 className="text-xl font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>Personal Insights</h3>
+								<p style={{ color: "var(--color-text-secondary)" }}>
+									Discover patterns and build healthier emotional habits over time
+								</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
