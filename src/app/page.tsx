@@ -25,14 +25,6 @@ export default async function HomePage() {
 								src="/icon.png" 
 								alt="Breezie Logo" 
 								className="w-16 h-16"
-								onError={(e) => {
-									// 如果 icon.png 不存在，隐藏图片并显示后备 emoji。加入 null 检查以满足 TS。
-									e.currentTarget.style.display = 'none';
-									const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
-									if (fallback) {
-										fallback.style.display = 'block';
-									}
-								}}
 							/>
 							<span className="text-6xl hidden">🌸</span>
 						</div>
@@ -79,43 +71,43 @@ export default async function HomePage() {
 						</p>
 					</div>
 					
-					                            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                                <div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-200">
-                                    <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl animate-float">
-                                        <span className="text-4xl">🤗</span>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-bold mb-4 gradient-text">🤖 AI Chat Support</h3>
-                                        <p className="text-lg leading-relaxed text-gray-600">
-                                            Gentle conversations that understand your emotions and provide caring support 💝
-                                        </p>
-                                    </div>
-                                </div>
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+						<div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-200">
+							<div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl animate-float">
+								<span className="text-4xl">🤗</span>
+							</div>
+							<div>
+								<h3 className="text-2xl font-bold mb-4 gradient-text">🤖 AI Chat Support</h3>
+								<p className="text-lg leading-relaxed text-gray-600">
+									Gentle conversations that understand your emotions and provide caring support 💝
+								</p>
+							</div>
+						</div>
 
-                                <div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-400">
-                                    <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-2xl animate-float">
-                                        <span className="text-4xl">📈</span>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-bold mb-4 gradient-text">📊 Mood Tracking</h3>
-                                        <p className="text-lg leading-relaxed text-gray-600">
-                                            Simple daily check-ins with beautiful insights and progress tracking 📱
-                                        </p>
-                                    </div>
-                                </div>
+						<div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-400">
+							<div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-2xl animate-float">
+								<span className="text-4xl">📈</span>
+							</div>
+							<div>
+								<h3 className="text-2xl font-bold mb-4 gradient-text">📊 Mood Tracking</h3>
+								<p className="text-lg leading-relaxed text-gray-600">
+									Simple daily check-ins with beautiful insights and progress tracking 📱
+								</p>
+							</div>
+						</div>
 
-                                <div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-600">
-                                    <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-2xl animate-float">
-                                        <span className="text-4xl">🔮</span>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-bold mb-4 gradient-text">✨ Personal Insights</h3>
-                                        <p className="text-lg leading-relaxed text-gray-600">
-                                            Discover patterns and build healthier emotional habits over time 🌱
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+						<div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-600">
+							<div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-2xl animate-float">
+								<span className="text-4xl">🔮</span>
+							</div>
+							<div>
+								<h3 className="text-2xl font-bold mb-4 gradient-text">✨ Personal Insights</h3>
+								<p className="text-lg leading-relaxed text-gray-600">
+									Discover patterns and build healthier emotional habits over time 🌱
+								</p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</main>
