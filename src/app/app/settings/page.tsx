@@ -30,23 +30,21 @@ export default function SettingsPage() {
 
 	return (
 		<div className="max-w-4xl mx-auto space-y-8">
-			{/* Apple-style Header */}
+			{/* Modern Header */}
 			<div className="space-y-2">
-				<h1 className="text-4xl font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>Settings</h1>
-				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Customize your Breezie experience</p>
+				<h1 className="text-4xl font-bold tracking-tight gradient-text">⚙️ Settings</h1>
+				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Customize your Breezie experience 🎨✨</p>
 			</div>
 
 			{/* Privacy & Data Settings */}
 			<div className="card-modern p-8 space-y-6">
 				<div className="flex items-center space-x-4 mb-6">
-					<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-						<svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-						</svg>
+					<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+						<span className="text-2xl">🔒</span>
 					</div>
 					<div>
-						<h2 className="text-xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Privacy & Data</h2>
-						<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Control how your data is used</p>
+						<h2 className="text-xl font-semibold gradient-text">🔒 Privacy & Data</h2>
+						<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Control how your data is used 🛡️</p>
 					</div>
 				</div>
 

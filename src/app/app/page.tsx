@@ -14,9 +14,9 @@ export default async function AppHomePage() {
 					<span className="text-4xl">👋</span>
 				</div>
 				<h1 className="text-5xl font-bold mb-4 gradient-text">
-					Welcome back, {email.split('@')[0]}!
+					Welcome back, {email.split('@')[0]}! 🎉
 				</h1>
-				<p className="text-2xl font-light" style={{ color: "var(--color-text-secondary)" }}>How are you feeling right now?</p>
+				<p className="text-2xl font-light" style={{ color: "var(--color-text-secondary)" }}>How are you feeling right now? 💭</p>
 			</div>
 
 			{/* Modern Check-in Card */}
@@ -25,8 +25,8 @@ export default async function AppHomePage() {
 					<div className="inline-flex p-5 rounded-3xl mb-8 shadow-2xl animate-float" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
 						<span className="text-5xl">❤️</span>
 					</div>
-					<h2 className="text-3xl font-bold mb-4 gradient-text">Daily Check-in</h2>
-					<p className="text-xl font-light" style={{ color: "var(--color-text-secondary)" }}>Take a moment to reflect on your current state</p>
+					<h2 className="text-3xl font-bold mb-4 gradient-text">💝 Daily Check-in</h2>
+					<p className="text-xl font-light" style={{ color: "var(--color-text-secondary)" }}>Take a moment to reflect on your current state 🧘‍♀️</p>
 				</div>
 				<QuickCheckIn />
 			</div>
@@ -39,8 +39,8 @@ export default async function AppHomePage() {
 							<span className="text-4xl">💬</span>
 						</div>
 						<div>
-							<h3 className="text-2xl font-bold mb-3 gradient-text">Start Chatting</h3>
-							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>Talk through your feelings with AI support</p>
+							<h3 className="text-2xl font-bold mb-3 gradient-text">💬 Start Chatting</h3>
+							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>Talk through your feelings with AI support 🤖💝</p>
 						</div>
 					</div>
 				</a>
@@ -51,8 +51,8 @@ export default async function AppHomePage() {
 							<span className="text-4xl">📊</span>
 						</div>
 						<div>
-							<h3 className="text-2xl font-bold mb-3 gradient-text">View Insights</h3>
-							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>See your emotional progress and trends</p>
+							<h3 className="text-2xl font-bold mb-3 gradient-text">📊 View Insights</h3>
+							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>See your emotional progress and trends 📈✨</p>
 						</div>
 					</div>
 				</a>
@@ -63,8 +63,8 @@ export default async function AppHomePage() {
 							<span className="text-4xl">✨</span>
 						</div>
 						<div>
-							<h3 className="text-2xl font-bold mb-3 gradient-text">Get Analysis</h3>
-							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>Discover patterns and insights</p>
+							<h3 className="text-2xl font-bold mb-3 gradient-text">🔍 Get Analysis</h3>
+							<p className="text-lg font-light" style={{ color: "var(--color-text-secondary)" }}>Discover patterns and insights 🔮💡</p>
 						</div>
 					</div>
 				</a>

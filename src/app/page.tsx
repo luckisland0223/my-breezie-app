@@ -19,21 +19,10 @@ export default async function HomePage() {
 				<div className="container max-w-5xl mx-auto text-center space-y-12">
 					
 					{/* Logo and Brand */}
-					<div className="space-y-8 animate-fade-in-up">
-						<div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl shadow-2xl animate-float animate-glow" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-							{/* 你可以将这里的emoji替换为真实logo */}
-							<img 
-								src="/logo.svg" 
-								alt="Breezie Logo" 
-								className="w-14 h-14"
-								onError={(e) => {
-									// 如果logo文件不存在，显示emoji作为后备
-									e.currentTarget.style.display = 'none';
-									e.currentTarget.nextElementSibling.style.display = 'block';
-								}}
-							/>
-							<span className="text-5xl hidden">🌱</span>
-						</div>
+					                            <div className="space-y-8 animate-fade-in-up">
+                                <div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl shadow-2xl animate-float animate-glow" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+                                    <span className="text-6xl">🌸</span>
+                                </div>
 						<div className="space-y-6">
 							<h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight gradient-text animate-gradient">
 								Breezie
@@ -51,19 +40,17 @@ export default async function HomePage() {
 						</p>
 					</div>
 					
-					{/* CTA Button */}
-					<div className="animate-fade-in-up animation-delay-400">
-						<Link
-							className="btn-modern inline-flex items-center gap-4 px-12 py-5 text-xl font-bold"
-							href="/login"
-						>
-							<span className="text-2xl">✨</span>
-							Get Started
-							<svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-							</svg>
-						</Link>
-					</div>
+					                            {/* CTA Button */}
+                            <div className="animate-fade-in-up animation-delay-400">
+                                <Link
+                                    className="btn-modern inline-flex items-center gap-4 px-12 py-5 text-xl font-bold"
+                                    href="/login"
+                                >
+                                    <span className="text-2xl">🚀</span>
+                                    Get Started
+                                    <span className="text-2xl">💫</span>
+                                </Link>
+                            </div>
 				</div>
 			</div>
 
@@ -79,43 +66,43 @@ export default async function HomePage() {
 						</p>
 					</div>
 					
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-						<div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-200">
-							<div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl animate-float">
-								<span className="text-3xl">💬</span>
-							</div>
-							<div>
-								<h3 className="text-2xl font-bold mb-4 gradient-text">AI Chat Support</h3>
-								<p className="text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-									Gentle conversations that understand your emotions and provide caring support
-								</p>
-							</div>
-						</div>
+					                            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                <div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-200">
+                                    <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl animate-float">
+                                        <span className="text-4xl">🤗</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-bold mb-4 gradient-text">🤖 AI Chat Support</h3>
+                                        <p className="text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                            Gentle conversations that understand your emotions and provide caring support 💝
+                                        </p>
+                                    </div>
+                                </div>
 
-						<div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-400">
-							<div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-2xl animate-float">
-								<span className="text-3xl">📊</span>
-							</div>
-							<div>
-								<h3 className="text-2xl font-bold mb-4 gradient-text">Mood Tracking</h3>
-								<p className="text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-									Simple daily check-ins with beautiful insights and progress tracking
-								</p>
-							</div>
-						</div>
+                                <div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-400">
+                                    <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-2xl animate-float">
+                                        <span className="text-4xl">📈</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-bold mb-4 gradient-text">📊 Mood Tracking</h3>
+                                        <p className="text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                            Simple daily check-ins with beautiful insights and progress tracking 📱
+                                        </p>
+                                    </div>
+                                </div>
 
-						<div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-600">
-							<div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-2xl animate-float">
-								<span className="text-3xl">✨</span>
-							</div>
-							<div>
-								<h3 className="text-2xl font-bold mb-4 gradient-text">Personal Insights</h3>
-								<p className="text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-									Discover patterns and build healthier emotional habits over time
-								</p>
-							</div>
-						</div>
-					</div>
+                                <div className="card-modern p-10 text-center space-y-8 animate-fade-in-up animation-delay-600">
+                                    <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-2xl animate-float">
+                                        <span className="text-4xl">🔮</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-bold mb-4 gradient-text">✨ Personal Insights</h3>
+                                        <p className="text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                            Discover patterns and build healthier emotional habits over time 🌱
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 				</div>
 			</div>
 		</main>

@@ -58,10 +58,10 @@ export default function ChatPage() {
 
 	return (
 		<div className="max-w-4xl mx-auto h-[calc(100vh-8rem)]">
-			{/* Apple-style Header */}
+			{/* Modern Header */}
 			<div className="mb-6 space-y-2">
-				<h1 className="text-4xl font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>Chat</h1>
-				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>I'm here to listen and support you</p>
+				<h1 className="text-4xl font-bold tracking-tight gradient-text">💬 Chat</h1>
+				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>I'm here to listen and support you 🤗💝</p>
 			</div>
 
 			<div className="flex h-full flex-col card-modern overflow-hidden">
@@ -70,12 +70,12 @@ export default function ChatPage() {
 				<div className="flex-1 overflow-y-auto p-8 space-y-6">
 					{messages.length === 0 && (
 						<div className="flex flex-col items-center justify-center h-full text-center">
-							<div className="mb-6 w-20 h-20 rounded-full flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-								<span className="text-3xl">💬</span>
+							<div className="mb-6 w-24 h-24 rounded-3xl flex items-center justify-center shadow-2xl animate-float animate-glow" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
+								<span className="text-4xl">🌟</span>
 							</div>
-							<h3 className="mb-3 text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Start a conversation</h3>
+							<h3 className="mb-3 text-2xl font-semibold gradient-text">✨ Start a conversation</h3>
 							<p className="text-lg max-w-md leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-								Say anything that's on your mind. I'm here to listen and support you through whatever you're feeling.
+								Say anything that's on your mind. I'm here to listen and support you through whatever you're feeling 💭🤗
 							</p>
 						</div>
 					)}
@@ -90,7 +90,7 @@ export default function ChatPage() {
 										: "bg-gray-100"
 								}`} style={m.role === "user" ? { background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" } : {}}>
 									{m.role === "user" ? (
-										<span className="text-white text-lg font-semibold">You</span>
+										<span className="text-white text-lg">😊</span>
 									) : (
 										<span className="text-2xl">🤖</span>
 									)}
