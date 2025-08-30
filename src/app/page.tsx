@@ -26,9 +26,12 @@ export default async function HomePage() {
 								alt="Breezie Logo" 
 								className="w-16 h-16"
 								onError={(e) => {
-									// 如果icon.png不存在，显示emoji作为后备
+									// 如果 icon.png 不存在，隐藏图片并显示后备 emoji。加入 null 检查以满足 TS。
 									e.currentTarget.style.display = 'none';
-									e.currentTarget.nextElementSibling.style.display = 'block';
+									const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+									if (fallback) {
+										fallback.style.display = 'block';
+									}
 								}}
 							/>
 							<span className="text-6xl hidden">🌸</span>
