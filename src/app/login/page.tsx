@@ -92,7 +92,7 @@ export default function LoginPage() {
 									<label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">Password</label>
 									<input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" required />
 								</div>
-								<button disabled={pending} className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+								<button disabled={pending} className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Sign In">
 									{pending ? "Signing in..." : "Sign In"}
 								</button>
 							</form>
@@ -110,7 +110,7 @@ export default function LoginPage() {
 									<label htmlFor="password-r" className="mb-2 block text-sm font-medium text-gray-700">Password</label>
 									<input id="password-r" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" required />
 								</div>
-								<button disabled={pending} className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+								<button disabled={pending} className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Create account">
 									{pending ? "Creating account..." : "Create account"}
 								</button>
 							</form>

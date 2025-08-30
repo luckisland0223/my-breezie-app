@@ -12,10 +12,9 @@ export async function GET(req: NextRequest) {
 		// After OAuth (e.g., Google), if profile lacks username, try to set it from provider metadata
 		try {
 			const user = data?.user;
-			const hasUsername = Boolean(user?.user_metadata?.username);
 			const candidate = (user?.user_metadata?.full_name || user?.user_metadata?.name || user?.user_metadata?.preferred_username || "").toString();
-			if (user && !hasUsername && candidate) {
-				await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: candidate }) }).catch(() => {});
+			if (user && candidate) {
+				await fetch("/api/profiles", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: candidate }) }).catch(() => {});
 			}
 		} catch {}
 	}
