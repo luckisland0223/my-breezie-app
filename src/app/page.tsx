@@ -24,7 +24,7 @@ export default async function HomePage() {
                                     <span className="text-6xl">🌸</span>
                                 </div>
 						<div className="space-y-6">
-							<h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight gradient-text animate-gradient">
+							<h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-white animate-gradient">
 								Breezie
 							</h1>
 							<p className="text-2xl sm:text-3xl font-light text-white/90">
