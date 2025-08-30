@@ -22,24 +22,22 @@ export default async function AccountPage() {
 	}
 	return (
 		<div className="max-w-4xl mx-auto space-y-8">
-			{/* Modern Header */}
+			{/* Modern Header - text only */}
 			<div className="space-y-2">
-				<h1 className="text-4xl font-bold tracking-tight gradient-text">👤 Account</h1>
-				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Manage your Breezie account and subscription 💳✨</p>
+				<h1 className="text-4xl font-bold tracking-tight gradient-text">Account</h1>
+				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Manage your Breezie account and subscription</p>
 			</div>
 
 			{/* Profile Card */}
 			<div className="card-modern p-8 space-y-6">
 				<div className="flex items-center space-x-4">
-					<div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl animate-glow" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}>
-						<span className="text-3xl">👤</span>
-					</div>
+					<div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl animate-glow" style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }} />
 					<div className="space-y-1">
 						<h2 className="text-xl font-semibold" style={{ color: "var(--color-text-primary)" }}>{email.split('@')[0]}</h2>
 						<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>{email}</p>
 						<div className="flex items-center space-x-2">
-							<span className="text-sm">🟢</span>
-							<span className="text-xs font-medium text-green-600">Active ✨</span>
+							<div className="w-2 h-2 bg-green-500 rounded-full"></div>
+							<span className="text-xs font-medium text-green-600">Active</span>
 						</div>
 					</div>
 				</div>

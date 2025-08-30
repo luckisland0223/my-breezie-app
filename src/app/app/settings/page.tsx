@@ -30,21 +30,19 @@ export default function SettingsPage() {
 
 	return (
 		<div className="max-w-4xl mx-auto space-y-8">
-			{/* Modern Header */}
+			{/* Modern Header - text only */}
 			<div className="space-y-2">
-				<h1 className="text-4xl font-bold tracking-tight gradient-text">⚙️ Settings</h1>
-				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Customize your Breezie experience 🎨✨</p>
+				<h1 className="text-4xl font-bold tracking-tight gradient-text">Settings</h1>
+				<p className="text-lg" style={{ color: "var(--color-text-secondary)" }}>Customize your Breezie experience</p>
 			</div>
 
 			{/* Privacy & Data Settings */}
 			<div className="card-modern p-8 space-y-6">
 				<div className="flex items-center space-x-4 mb-6">
-					<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
-						<span className="text-2xl">🔒</span>
-					</div>
+					<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg"></div>
 					<div>
-						<h2 className="text-xl font-semibold gradient-text">🔒 Privacy & Data</h2>
-						<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Control how your data is used 🛡️</p>
+						<h2 className="text-xl font-semibold gradient-text">Privacy & Data</h2>
+						<p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Control how your data is used</p>
 					</div>
 				</div>
 

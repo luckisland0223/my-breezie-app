@@ -18,36 +18,12 @@ export default async function AppLayout({
 	const email = userData.user?.email ?? "";
 
 	const nav = [
-		{ 
-			href: "/app", 
-			label: "🏠 Home", 
-			icon: "🏠"
-		},
-		{ 
-			href: "/app/chat", 
-			label: "💬 Chat", 
-			icon: "💬"
-		},
-		{ 
-			href: "/app/overview", 
-			label: "📊 Overview", 
-			icon: "📊"
-		},
-		{ 
-			href: "/app/analysis", 
-			label: "🔍 Analysis", 
-			icon: "🔍"
-		},
-		{ 
-			href: "/app/settings", 
-			label: "⚙️ Settings", 
-			icon: "⚙️"
-		},
-		{ 
-			href: "/app/account", 
-			label: "👤 Account", 
-			icon: "👤"
-		},
+		{ href: "/app", label: "Home" },
+		{ href: "/app/chat", label: "Chat" },
+		{ href: "/app/overview", label: "Overview" },
+		{ href: "/app/analysis", label: "Analysis" },
+		{ href: "/app/settings", label: "Settings" },
+		{ href: "/app/account", label: "Account" },
 	];
 
 	return (
@@ -81,20 +57,15 @@ export default async function AppLayout({
 						</div>
 					</div>
 
-					{/* Modern Navigation */}
-					<nav className="flex-1 px-6 py-8 space-y-3">
+					{/* Modern Navigation - text only */}
+					<nav className="flex-1 px-6 py-8 space-y-2">
 						{nav.map((item) => (
 							<Link 
 								key={item.href} 
 								href={item.href} 
-								className="group flex items-center gap-4 rounded-2xl px-5 py-4 text-sm font-medium transition-all duration-300 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] glass-effect"
+								className="group flex items-center rounded-2xl px-5 py-4 text-sm font-medium transition-all duration-300 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] glass-effect"
 								style={{ color: "var(--color-text-primary)" }}
 							>
-								<div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500/20 to-purple-600/20 group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:shadow-lg transition-all duration-300">
-									<span className="text-xl group-hover:scale-110 transition-transform duration-300">
-										{item.icon}
-									</span>
-								</div>
 								<span className="group-hover:font-bold transition-all duration-300">{item.label}</span>
 							</Link>
 						))}
