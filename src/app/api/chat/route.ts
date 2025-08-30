@@ -9,6 +9,11 @@ export async function POST(req: Request) {
 			return NextResponse.json({ error: "Invalid messages" }, { status: 400 });
 		}
 
+		// Avoid runtime crash if the key is not configured in production
+		if (!env.DEEPSEEK_API_KEY) {
+			return NextResponse.json({ error: "Server not configured: missing DEEPSEEK_API_KEY" }, { status: 503 });
+		}
+
 		const base = env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com";
 		const resp = await fetch(`${base}/chat/completions`, {
 			method: "POST",

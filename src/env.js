@@ -8,7 +8,7 @@ export const env = createEnv({
 	 */
 	server: {
 		NODE_ENV: z.enum(["development", "test", "production"]),
-		DEEPSEEK_API_KEY: z.string().min(1),
+		DEEPSEEK_API_KEY: z.string().min(1).optional(),
 		DEEPSEEK_MODEL: z.string().default("deepseek-chat"),
 		DEEPSEEK_BASE_URL: z.string().url().optional(),
 		STRIPE_SECRET_KEY: z.string().optional(),
