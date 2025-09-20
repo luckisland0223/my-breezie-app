@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 			return NextResponse.json({ error: "Server not configured: missing DEEPSEEK_API_KEY" }, { status: 503 });
 		}
 
-		const base = env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com";
+		const base = "https://api.deepseek.com";
 		const resp = await fetch(`${base}/chat/completions`, {
 			method: "POST",
 			headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 				Authorization: `Bearer ${env.DEEPSEEK_API_KEY}`,
 			},
 			body: JSON.stringify({
-				model: env.DEEPSEEK_MODEL ?? "deepseek-chat",
+				model: "deepseek-chat",
 				messages,
 				stream: false,
 			}),

@@ -20,6 +20,7 @@ export default async function AppLayout({
 	const nav = [
 		{ href: "/app", label: "Home" },
 		{ href: "/app/chat", label: "Chat" },
+		{ href: "/app/diary", label: "Diary" },
 		{ href: "/app/overview", label: "Overview" },
 		{ href: "/app/analysis", label: "Analysis" },
 		{ href: "/app/settings", label: "Settings" },

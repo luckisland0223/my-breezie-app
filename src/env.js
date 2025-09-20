@@ -9,8 +9,7 @@ export const env = createEnv({
 	server: {
 		NODE_ENV: z.enum(["development", "test", "production"]),
 		DEEPSEEK_API_KEY: z.string().min(1).optional(),
-		DEEPSEEK_MODEL: z.string().default("deepseek-chat"),
-		DEEPSEEK_BASE_URL: z.string().url().optional(),
+		// model and base url are fixed in code now
 		STRIPE_SECRET_KEY: z.string().optional(),
 		STRIPE_WEBHOOK_SECRET: z.string().optional(),
 		STRIPE_PRICE_ID: z.string().optional(),
@@ -35,8 +34,6 @@ export const env = createEnv({
 	runtimeEnv: {
 		NODE_ENV: process.env.NODE_ENV,
 		DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
-		DEEPSEEK_MODEL: process.env.DEEPSEEK_MODEL,
-		DEEPSEEK_BASE_URL: process.env.DEEPSEEK_BASE_URL,
 		STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
 		STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
 		STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID,
