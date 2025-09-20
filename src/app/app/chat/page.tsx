@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -8,6 +8,18 @@ export default function ChatPage() {
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
 	const [input, setInput] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [profile, setProfile] = useState<{ username: string | null; avatar_url: string | null; email?: string | null } | null>(null);
+	const [userImgFailed, setUserImgFailed] = useState(false);
+	const [botImgFailed, setBotImgFailed] = useState(false);
+
+	useEffect(() => {
+		let mounted = true;
+		fetch("/api/profiles", { method: "GET" })
+			.then(async (r) => r.ok ? r.json() : null)
+			.then((data) => { if (mounted && data) setProfile(data); })
+			.catch(() => {});
+		return () => { mounted = false; };
+	}, []);
 
 	async function sendMessage(e: React.FormEvent) {
 		e.preventDefault();
@@ -80,18 +92,41 @@ export default function ChatPage() {
 					{messages.map((m, idx) => (
 						<div key={idx} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
 							<div className={`flex max-w-[75%] ${m.role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-4`}>
-								{/* Avatar */}
-								<div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-sm ${
-									m.role === "user" 
-										? "" 
-										: "bg-gray-100"
-								}`} style={m.role === "user" ? { background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" } : {}}>
-									{m.role === "user" ? (
-										<span className="text-white text-lg">😊</span>
-									) : (
-										<span className="text-2xl">🤖</span>
-									)}
-								</div>
+						{/* Avatar */}
+						<div className="flex-shrink-0 w-10 h-10">
+							{m.role === "user" ? (
+								profile?.avatar_url && !userImgFailed ? (
+									<img
+										src={profile.avatar_url}
+										alt="User avatar"
+										className="w-10 h-10 rounded-full object-cover shadow-sm"
+										onError={() => setUserImgFailed(true)}
+									/>
+								) : (
+									<div
+										className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm text-white"
+										style={{ background: "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))" }}
+									>
+										<span className="text-sm font-semibold">
+											{(profile?.username || profile?.email || "U").toString().trim().charAt(0).toUpperCase()}
+										</span>
+									</div>
+								)
+							) : (
+								!botImgFailed ? (
+									<img
+										src="/icon.png"
+										alt="Breezie"
+										className="w-10 h-10 rounded-full object-cover bg-white shadow-sm border border-gray-100"
+										onError={() => setBotImgFailed(true)}
+									/>
+								) : (
+									<div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 shadow-sm">
+										<span className="text-sm font-semibold">B</span>
+									</div>
+								)
+							)}
+						</div>
 								
 								{/* Message bubble */}
 								<div className={`rounded-2xl px-6 py-4 shadow-sm ${
@@ -108,10 +143,14 @@ export default function ChatPage() {
 				{loading && (
 					<div className="flex justify-start">
 						<div className="flex items-start gap-3">
-							<div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-								<svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-								</svg>
+							<div className="flex-shrink-0 w-8 h-8">
+								{!botImgFailed ? (
+									<img src="/icon.png" alt="Breezie" className="w-8 h-8 rounded-full object-cover bg-white shadow-sm border border-gray-100" onError={() => setBotImgFailed(true)} />
+								) : (
+									<div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 shadow-sm">
+										<span className="text-xs font-semibold">B</span>
+									</div>
+								)}
 							</div>
 							<div className="bg-gray-100 rounded-2xl px-4 py-3">
 								<div className="flex space-x-1">
